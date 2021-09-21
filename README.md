@@ -24,6 +24,13 @@ bash bash/setup_environment/setup_env.sh
 conda activate validation_module
 ```
 
+Test the setup
+```
+pytest
+# or
+pytest -k "not slow"
+```
+
 Train model with default configuration
 ```yaml
 # default
