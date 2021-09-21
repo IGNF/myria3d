@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 conda install mamba -n base -c conda-forge
-mamba env create -f setup_environment/requirements.yml
+mamba env create -f bash/setup_environment/requirements.yml
 conda activate validation_module
 
 # pip install torch==1.8.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html  # if pytorch extensions are needed, use this torch install

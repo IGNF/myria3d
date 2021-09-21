@@ -18,7 +18,7 @@ git clone https://github.com/CharlesGaydon/Segmentation-Validation-Model
 cd Segmentation-Validation-Model
 
 # [OPTIONAL] create conda environment
-bash setup_environment/setup_env.sh
+bash bash/setup_environment/setup_env.sh
 
 # activate using
 conda activate validation_module
