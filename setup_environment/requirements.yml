@@ -1,0 +1,10 @@
+name: validation_module
+channels:
+  - conda-forge
+  - anaconda
+  - comet_ml
+dependencies:
+  - python==3.9
+  - pip
+  - pip:
+    - -r requirements.txt

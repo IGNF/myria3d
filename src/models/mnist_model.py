@@ -84,7 +84,14 @@ class MNISTLitModel(LightningModule):
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
-        return {"loss": loss, "preds": preds, "targets": targets}
+        tensorboard_log = {"loss": loss}
+
+        return {
+            "loss": loss,
+            "preds": preds,
+            "targets": targets,
+            "log": tensorboard_log,
+        }
 
     def validation_epoch_end(self, outputs: List[Any]):
         pass
@@ -110,5 +117,7 @@ class MNISTLitModel(LightningModule):
             https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
         """
         return torch.optim.Adam(
-            params=self.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.weight_decay
+            params=self.parameters(),
+            lr=self.hparams.lr,
+            weight_decay=self.hparams.weight_decay,
         )

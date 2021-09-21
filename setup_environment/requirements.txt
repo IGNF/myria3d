@@ -11,11 +11,15 @@ hydra-optuna-sweeper==1.1.0
 # hydra-ray-launcher
 # hydra-submitit-launcher
 
+# --------- geographical ---------- #
+# gdal  # need to install bin as well
+# laspy
+
 # --------- loggers --------- #
-wandb
+# wandb
 # neptune-client
 # mlflow
-# comet-ml
+comet-ml
 # torch_tb_profiler
 
 # --------- linters --------- #

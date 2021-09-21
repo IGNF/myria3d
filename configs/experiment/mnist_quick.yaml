@@ -7,8 +7,8 @@ defaults:
   - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
   - override /model: mnist_model.yaml
   - override /datamodule: mnist_datamodule.yaml
-  - override /callbacks: default.yaml
-  - override /logger: null
+  - override /callbacks: comet.yaml
+  - override /logger: comet
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
@@ -17,8 +17,9 @@ seed: 12345
 
 trainer:
   min_epochs: 1
-  max_epochs: 10
+  max_epochs: 3
   gradient_clip_val: 0.5
+  limit_train_batches: 0.1
 
 model:
   lin1_size: 128

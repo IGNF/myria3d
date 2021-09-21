@@ -1,0 +1,6 @@
+defaults:
+  - default.yaml
+
+log_code:
+  _target_: src.callbacks.comet_callbacks.LogCode
+  code_dir: ${work_dir}/src
