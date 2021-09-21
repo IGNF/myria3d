@@ -1,0 +1,1 @@
+_target_: semantic_val.datamodules.mnist_datamodule.MNISTDataModule
