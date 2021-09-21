@@ -5,6 +5,6 @@ comet:
   api_key: ${oc.env:COMET_API_TOKEN} # api key is laoded from environment variable
   workspace: "charlesgaydon"
   project_name: "template-tests"
-  experiment_name: null  # can be overrided at runtime
+  experiment_name: null # can be overrided at runtime
   auto_log_co2: false
   disabled: false

@@ -2,5 +2,5 @@ defaults:
   - default.yaml
 
 log_code:
-  _target_: src.callbacks.comet_callbacks.LogCode
-  code_dir: ${work_dir}/src
+  _target_: semantic_val.callbacks.comet_callbacks.LogCode
+  code_dir: ${work_dir}/semantic_val

@@ -2,12 +2,15 @@ import subprocess
 from pathlib import Path
 from typing import List
 
-from comet_ml import Experiment
-from pytorch_lightning.loggers import CometLogger, LoggerCollection
-
 import torch
+from comet_ml import Experiment
 from pytorch_lightning import Callback, Trainer
+from pytorch_lightning.loggers import CometLogger, LoggerCollection
 from pytorch_lightning.utilities import rank_zero_only
+
+from semantic_val.utils import utils
+
+log = utils.get_logger(__name__)
 
 
 def get_comet_logger(trainer: Trainer) -> CometLogger:
@@ -46,3 +49,4 @@ class LogCode(Callback):
 
         for path in Path(self.code_dir).resolve().rglob("*.py"):
             experiment.log_code(file_name=str(path))
+        log.info("Logging all .py files to Comet.ml!")

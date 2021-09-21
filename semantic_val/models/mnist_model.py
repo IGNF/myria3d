@@ -4,7 +4,7 @@ import torch
 from pytorch_lightning import LightningModule
 from torchmetrics.classification.accuracy import Accuracy
 
-from src.models.modules.simple_dense_net import SimpleDenseNet
+from semantic_val.models.modules.simple_dense_net import SimpleDenseNet
 
 
 class MNISTLitModel(LightningModule):
