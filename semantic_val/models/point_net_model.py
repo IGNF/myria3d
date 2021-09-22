@@ -2,6 +2,7 @@ from typing import Any, List
 
 import torch
 from pytorch_lightning import LightningModule
+from torchmetrics import IoU
 from torchmetrics.classification.accuracy import (  # change for https://torchmetrics.readthedocs.io/en/latest/references/modules.html?highlight=iou#iou later
     Accuracy,
 )
@@ -24,15 +25,13 @@ class PointNetModel(LightningModule):
 
     def __init__(
         self,
-        # TODO : delete?
-        # input_size: int = 3,
-        # output_size: int = 2,
+        num_classes: int = 2,
         MLP1_channels: List[int] = [3, 32, 32],
         MLP2_channels: List[int] = [32, 64, 64],
         MLP3_channels: List[int] = [64 + 32, 128, 128, 64, 16, 2],
         input_cloud_size: int = 1000,
         lr: float = 0.001,
-        # weight_decay: float = 0.0005,  # UNCOMMENT AT SOME POINT
+        # weight_decay: float = 0.0005,  # TODO: UNCOMMENT AT SOME POINT TO REGULARIZE
     ):
         super().__init__()
 
@@ -48,6 +47,10 @@ class PointNetModel(LightningModule):
 
         # use separate metric instance for train, val and test step
         # to ensure a proper reduction over the epoch
+        self.train_iou = IoU(num_classes, reduction="none")
+        self.val_iou = IoU(num_classes, reduction="none")
+        self.test_iou = IoU(num_classes, reduction="none")
+
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
@@ -55,11 +58,12 @@ class PointNetModel(LightningModule):
     def forward(self, x: torch.Tensor):
         return self.model(x)
 
+    # TODO: we may need to return logits for future use.
     def step(self, batch: Any):
         x, y = batch
         logits = self.forward(x)
         loss = self.criterion(logits.view(-1, 2), y.view(-1))
-        preds = torch.argmax(logits, dim=2)  # TODO: CHECK the dimension here - changed from 1 to 2
+        preds = torch.argmax(logits, dim=2)
         return loss, preds, y
 
     def training_step(self, batch: Any, batch_idx: int):
@@ -67,8 +71,10 @@ class PointNetModel(LightningModule):
 
         # log train metrics
         acc = self.train_accuracy(preds, targets)
+        iou = self.train_iou(preds, targets)[1]
         self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/iou", iou, on_step=False, on_epoch=True, prog_bar=True)
 
         # we can return here dict with any tensors
         # and then read it in some callback or in training_epoch_end() below
@@ -84,18 +90,16 @@ class PointNetModel(LightningModule):
 
         # log val metrics
         acc = self.val_accuracy(preds, targets)
+        iou = self.val_iou(preds, targets)[1]
+
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
-
-        # tensorboard_log = {
-        #     "loss": loss
-        # }  # TODO: replace with self.log for simplicity ???
+        self.log("val/iou", iou, on_step=False, on_epoch=True, prog_bar=True)
 
         return {
             "loss": loss,
             "preds": preds,
             "targets": targets,
-            # "log": tensorboard_log,
         }
 
     def validation_epoch_end(self, outputs: List[Any]):
@@ -106,8 +110,11 @@ class PointNetModel(LightningModule):
 
         # log test metrics
         acc = self.test_accuracy(preds, targets)
+        iou = self.test_iou(preds, targets)[1]
+
         self.log("test/loss", loss, on_step=False, on_epoch=True)
         self.log("test/acc", acc, on_step=False, on_epoch=True)
+        self.log("test/iou", iou, on_step=False, on_epoch=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
