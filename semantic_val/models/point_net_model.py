@@ -43,6 +43,7 @@ class PointNetModel(LightningModule):
         self.model = Net(hparams=self.hparams)
 
         # loss function
+        # TODO: parametrize : https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#
         self.criterion = torch.nn.CrossEntropyLoss()
 
         # use separate metric instance for train, val and test step
@@ -57,7 +58,7 @@ class PointNetModel(LightningModule):
     def step(self, batch: Any):
         x, y = batch
         logits = self.forward(x)
-        loss = self.criterion(logits, y)
+        loss = self.criterion(logits.view(-1, 2), y.view(-1))
         preds = torch.argmax(logits, dim=2)  # TODO: CHECK the dimension here - changed from 1 to 2
         return loss, preds, y
 

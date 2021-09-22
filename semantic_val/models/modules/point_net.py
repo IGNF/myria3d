@@ -6,7 +6,7 @@ from torch.nn import ReLU
 from torch.nn import Sequential as Seq
 
 
-def MLP(channels, batch_norm=True):
+def MLP(channels, batch_norm=False):
     return Seq(
         *[
             Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
@@ -32,8 +32,7 @@ class PointNet(nn.Module):
         self.mlp2 = MLP(hparams["MLP2_channels"])
         self.mlp3 = MLP(hparams["MLP3_channels"])
 
-        self.maxpool = nn.MaxPool1d(self.input_cloud_size)
-        self.softmax = nn.Softmax(dim=1)
+        self.softmax = nn.Softmax(dim=2)
 
     def forward(self, input):
         """
@@ -43,8 +42,10 @@ class PointNet(nn.Module):
         """
         f1 = self.mlp1(input)
         f2 = self.mlp2(f1)
-        context_vector = self.maxpool(f2)
-        Gf1 = torch.cat((context_vector.repeat(1, 1, self.input_cloud_size), f1), 1)
+        context_vector = torch.max(f2, 1)[0]
+        input_size = f1.shape[1]
+        expanded_context_vector = torch.unsqueeze(context_vector, 1).expand(-1, input_size, -1)
+        Gf1 = torch.cat((expanded_context_vector, f1), 2)
         scores = self.mlp3(Gf1)
         logits = self.softmax(scores)
 
