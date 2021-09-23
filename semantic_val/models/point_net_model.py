@@ -1,7 +1,9 @@
-from typing import Any, List
+from typing import Any, List, Union
 
 import torch
 from pytorch_lightning import LightningModule
+from torch.utils.data.dataloader import default_collate
+from torch_geometric.data import Batch, Data, Dataset
 from torchmetrics import IoU
 from torchmetrics.classification.accuracy import (  # change for https://torchmetrics.readthedocs.io/en/latest/references/modules.html?highlight=iou#iou later
     Accuracy,
@@ -55,14 +57,13 @@ class PointNetModel(LightningModule):
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
 
-    def forward(self, x: torch.Tensor):
-        return self.model(x)
+    def forward(self, data: torch.Tensor):
+        return self.model(data)
 
-    # TODO: we may need to return logits for future use.
     def step(self, batch: Any):
-        x, y = batch
-        logits = self.forward(x)
-        loss = self.criterion(logits.view(-1, 2), y.view(-1))
+        y = batch.y
+        logits = self.forward(batch)
+        loss = self.criterion(logits, y)
         preds = torch.argmax(logits, dim=2)
         return loss, preds, y
 
@@ -131,5 +132,4 @@ class PointNetModel(LightningModule):
         return torch.optim.Adam(
             params=self.parameters(),
             lr=self.hparams.lr,
-            # weight_decay=self.hparams.weight_decay,
         )

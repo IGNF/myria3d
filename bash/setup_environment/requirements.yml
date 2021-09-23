@@ -2,11 +2,12 @@ name: validation_module
 channels:
   - conda-forge
   - anaconda
-  - pytorch
   - comet_ml
 dependencies:
   - python==3.9
   - pip
+  # --------- geo --------- #
+  - laspy
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #

@@ -1,5 +1,10 @@
+from typing import List, Union
+
 import laspy
 import numpy as np
+import torch
+from torch.utils.data.dataloader import default_collate
+from torch_geometric.data import Batch, Data, Dataset
 
 
 def load_las_file(filename):
@@ -69,7 +74,6 @@ def get_subtile_data(
     las,
     las_labels,
     subtile_center_xy,
-    input_cloud_size: int = 20000,
     subtile_width_meters: float = 100.0,
 ):
     """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
@@ -78,11 +82,6 @@ def get_subtile_data(
     mask = chebyshev_distance < (subtile_width_meters / 2)
     cloud = las[mask]
     labels = las_labels[mask]
-
-    input_size = len(cloud)
-    sampled_points_idx = get_subsampling_mask(input_size, input_cloud_size)
-    cloud = cloud[sampled_points_idx]
-    labels = labels[sampled_points_idx]
 
     return cloud, labels
 
@@ -96,7 +95,6 @@ def transform_labels_for_building_segmentation(labels):
     buildings = (labels == 19) | (labels == 21) | (labels == 6)
     labels[buildings] = 1
     labels[~buildings] = 0
-    # labels = np.stack((labels, 1 - labels), axis=-1)
     return labels
 
 
@@ -104,3 +102,19 @@ def augment(cloud):
     """Data augmentation at training time."""
     # TODO
     return cloud
+
+
+def collate_fn(data_list: List[Data]) -> Batch:
+    """Collate list of Data elements, to be used in DataLoader to work with IterableDatasets.
+    From: https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn"""
+    batch = Batch()
+
+    batch["x"] = torch.from_numpy(np.concatenate([data["x"] for data in data_list]))
+    batch["pos"] = torch.from_numpy(np.concatenate([data["pos"] for data in data_list]))
+    batch["y"] = torch.from_numpy(np.concatenate([data["y"] for data in data_list]))
+    batch["batch"] = torch.from_numpy(
+        np.concatenate(
+            [np.full(shape=len(data.y), fill_value=i) for i, data in enumerate(data_list)]
+        )
+    )
+    return batch

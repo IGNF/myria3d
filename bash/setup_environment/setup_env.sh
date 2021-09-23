@@ -5,9 +5,8 @@ mamba env create -f bash/setup_environment/requirements.yml
 conda activate validation_module
 
 mamba install pyg -c pyg -c conda-forge
-mamba install -c conda-forge pytorch-lightning
-mamba install torchvision>=0.9.1 -c pytorch  # not working
-
+pip install pytorch-lightning>=1.3.8
+pip install torchvision>=0.9.1
 
 
 # DEPRECATED

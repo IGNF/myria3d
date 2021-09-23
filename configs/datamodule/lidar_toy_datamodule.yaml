@@ -1,9 +1,8 @@
 _target_: semantic_val.datamodules.lidar_datamodule.LidarDataModule
 
 data_dir: ${data_dir}/lidar_toy # data_dir is specified in config.yaml
-batch_size: 4
-subtile_width_meters: 100
+batch_size: 2
+subtile_width_meters: 20
 subtile_overlap: 0
-input_cloud_size: 5000 # Test 30000 for PN = 10%
 num_workers: 0
 train_subtiles_by_tile: 2

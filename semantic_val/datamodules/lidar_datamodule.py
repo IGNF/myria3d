@@ -1,6 +1,6 @@
 import glob
 import os.path as osp
-from typing import Optional, Tuple
+from typing import Optional
 
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
@@ -11,21 +11,17 @@ from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarValDataset,
 )
 from semantic_val.datamodules.datasets.lidar_transforms import (
+    collate_fn,
     transform_labels_for_building_segmentation,
 )
+
+# from torch_geometric.loader import DataLoader
 
 
 class LidarDataModule(LightningDataModule):
     """
-    A DataModule implements 5 key methods:
-        - prepare_data (things to do on 1 GPU/TPU, not on every GPU/TPU in distributed mode)
-        - setup (things to do on every accelerator in distributed mode)
-        - train_dataloader (the training dataloader)
-        - val_dataloader (the validation dataloader(s))
-        - test_dataloader (the test dataloader(s))
-
-    Read the docs:
-        https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html
+    Nota: we do not collate cloud in order to feed full cloud of various size to models directly,
+    so they can give full outputs for evaluation and inference.
     """
 
     def __init__(
@@ -35,7 +31,6 @@ class LidarDataModule(LightningDataModule):
         num_workers: int = 0,
         subtile_width_meters: float = 100.0,
         subtile_overlap: float = 0.0,
-        input_cloud_size: int = 200000,
         train_subtiles_by_tile: int = 4,
     ):
         super().__init__()
@@ -43,7 +38,6 @@ class LidarDataModule(LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.input_cloud_size = input_cloud_size
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
 
@@ -75,17 +69,15 @@ class LidarDataModule(LightningDataModule):
             train_files,
             transform=None,
             target_transform=transform_labels_for_building_segmentation,
-            input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
         )
         # self.dims is returned when you call datamodule.size()
-        self.dims = tuple(self.data_train[0][0].shape)
+        self.dims = tuple(self.data_train[0].x.shape)
 
         self.data_val = LidarValDataset(
             val_files,
             transform=None,
             target_transform=transform_labels_for_building_segmentation,
-            input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
@@ -93,7 +85,6 @@ class LidarDataModule(LightningDataModule):
             test_files,
             transform=None,
             target_transform=transform_labels_for_building_segmentation,
-            input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
@@ -102,22 +93,25 @@ class LidarDataModule(LightningDataModule):
         return DataLoader(
             dataset=self.data_train,
             batch_size=self.batch_size,
-            num_workers=self.num_workers,
             shuffle=True,
+            num_workers=self.num_workers,
+            collate_fn=collate_fn,
         )
 
     def val_dataloader(self):
         return DataLoader(
             dataset=self.data_val,
             batch_size=self.batch_size,
-            num_workers=self.num_workers,
             shuffle=False,
+            num_workers=self.num_workers,
+            collate_fn=collate_fn,
         )
 
     def test_dataloader(self):
         return DataLoader(
             dataset=self.data_test,
             batch_size=self.batch_size,
-            num_workers=self.num_workers,
             shuffle=False,
+            num_workers=self.num_workers,
+            collate_fn=collate_fn,
         )
