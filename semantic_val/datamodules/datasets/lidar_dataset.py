@@ -15,7 +15,7 @@ from semantic_val.datamodules.datasets.lidar_transforms import (
 )
 
 
-class LidarToyTrainDataset(Dataset):
+class LidarTrainDataset(Dataset):
     def __init__(
         self,
         files,
@@ -69,7 +69,7 @@ class LidarToyTrainDataset(Dataset):
         return cloud, labels
 
 
-class LidarToyValDataset(IterableDataset):
+class LidarValDataset(IterableDataset):
     def __init__(
         self,
         files,
@@ -115,4 +115,4 @@ class LidarToyValDataset(IterableDataset):
         return self.process_data()
 
 
-LidarToyTestDataset = LidarToyValDataset
+LidarToyTestDataset = LidarValDataset

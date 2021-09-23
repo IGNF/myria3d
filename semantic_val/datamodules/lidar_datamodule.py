@@ -5,17 +5,17 @@ from typing import Optional, Tuple
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 
-from semantic_val.datamodules.datasets.lidar_toy_dataset import (
+from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarToyTestDataset,
-    LidarToyTrainDataset,
-    LidarToyValDataset,
+    LidarTrainDataset,
+    LidarValDataset,
 )
 from semantic_val.datamodules.datasets.lidar_transforms import (
     transform_labels_for_building_segmentation,
 )
 
 
-class LidarToyDataModule(LightningDataModule):
+class LidarDataModule(LightningDataModule):
     """
     A DataModule implements 5 key methods:
         - prepare_data (things to do on 1 GPU/TPU, not on every GPU/TPU in distributed mode)
@@ -31,11 +31,11 @@ class LidarToyDataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str = "./data/lidar_toy/",
-        batch_size: int = 2,
-        num_workers: int = 1,
-        subtile_width_meters: int = 100.0,
+        batch_size: int = 8,
+        num_workers: int = 0,
+        subtile_width_meters: float = 100.0,
         input_cloud_size: int = 200000,
-        train_subtiles_by_tile: int = 5,
+        train_subtiles_by_tile: int = 4,
     ):
         super().__init__()
 
@@ -71,7 +71,7 @@ class LidarToyDataModule(LightningDataModule):
         test_files = glob.glob(osp.join(self.data_dir, "test/*.las"))
 
         # TODO : add data augmentation using PytorchGeometric
-        self.data_train = LidarToyTrainDataset(
+        self.data_train = LidarTrainDataset(
             train_files,
             transform=None,
             target_transform=transform_labels_for_building_segmentation,
@@ -81,7 +81,7 @@ class LidarToyDataModule(LightningDataModule):
         # self.dims is returned when you call datamodule.size()
         self.dims = tuple(self.data_train[0][0].shape)
 
-        self.data_val = LidarToyValDataset(
+        self.data_val = LidarValDataset(
             val_files,
             transform=None,
             target_transform=transform_labels_for_building_segmentation,
