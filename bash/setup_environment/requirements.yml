@@ -2,9 +2,26 @@ name: validation_module
 channels:
   - conda-forge
   - anaconda
+  - pytorch
   - comet_ml
 dependencies:
   - python==3.9
   - pip
+  # --------- loggers --------- #
+  - comet_ml
+  # --------- linters --------- #
+  - pre-commit # hooks for applying linters on commit
+  - black # code formatting
+  - isort # import sorting
+  - flake8 # code analysis
+  # --------- others --------- #
+  - python-dotenv # loading env variables from .env file
+  - rich # beautiful text formatting in terminal
+  - pytest # tests
+  - sh # for running bash commands in some tests
+  - scikit-learn # used in some callbacks
+  - seaborn # used in some callbacks
+  - jupyterlab # better jupyter notebooks
+  - pudb # debugger
   - pip:
       - -r requirements.txt
