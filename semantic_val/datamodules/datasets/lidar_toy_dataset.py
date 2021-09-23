@@ -40,17 +40,17 @@ class LidarToyTrainDataset(Dataset):
         """Get a subtitle from indexed las file, and apply the transforms specified in datamodule."""
         filename = self.files[idx]
 
-        # Avoid consecutive loading of same file if subsequent in files list.
         # TODO: assure this is useful by sorting duplicated files in a clever fashion.
-        cloud, labels = load_las_file(filename)
-        # if self.in_memory_filename != filename:
-        #     self.in_memory_filename = filename
-        #     self.in_memory_cloud = cloud
-        #     self.in_memory_labels = labels
-        # else:
-        #     # TODO: check for unwanted inplace modifications.
-        #     cloud = self.in_memory_cloud
-        #     labels = self.in_memory_labels
+        # Avoid consecutive loading of same file if subsequent in files list.
+        if self.in_memory_filename != filename:
+            cloud, labels = load_las_file(filename)
+            self.in_memory_filename = filename
+            self.in_memory_cloud = cloud
+            self.in_memory_labels = labels
+        else:
+            # TODO: check for unwanted inplace modifications.
+            cloud = self.in_memory_cloud
+            labels = self.in_memory_labels
         center = get_random_subtile_center(cloud, subtile_width_meters=self.subtile_width_meters)
         cloud, labels = get_subtile_data(
             copy.deepcopy(cloud),

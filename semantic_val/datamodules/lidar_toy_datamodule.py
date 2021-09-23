@@ -66,7 +66,9 @@ class LidarToyDataModule(LightningDataModule):
         """Load data. Set variables: self.data_train, self.data_val, self.data_test."""
 
         train_files = glob.glob(osp.join(self.data_dir, "train/*.las"))
-        # train_files = train_files * self.train_subtiles_by_tile
+        train_files = sorted(train_files * self.train_subtiles_by_tile)
+        val_files = glob.glob(osp.join(self.data_dir, "val/*.las"))
+        test_files = glob.glob(osp.join(self.data_dir, "test/*.las"))
 
         # TODO : add data augmentation using PytorchGeometric
         self.data_train = LidarToyTrainDataset(
@@ -76,12 +78,8 @@ class LidarToyDataModule(LightningDataModule):
             input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
         )
-
         # self.dims is returned when you call datamodule.size()
-        # self.dims = tuple(self.data_train[0][0].shape)
-
-        val_files = glob.glob(osp.join(self.data_dir, "val/*.las"))
-        test_files = glob.glob(osp.join(self.data_dir, "test/*.las"))
+        self.dims = tuple(self.data_train[0][0].shape)
 
         self.data_val = LidarToyValDataset(
             val_files,
@@ -90,7 +88,6 @@ class LidarToyDataModule(LightningDataModule):
             input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
         )
-
         self.data_test = LidarToyTestDataset(
             test_files,
             transform=None,

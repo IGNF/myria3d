@@ -61,8 +61,6 @@ def get_subtile_data(
 
     chebyshev_distance = np.max(np.abs(las[:, :2] - subtile_center_xy), axis=1)
     mask = chebyshev_distance < (subtile_width_meters / 2)
-    print(las.shape, las_labels.shape, mask.shape)
-
     cloud = las[mask]
     labels = las_labels[mask]
 
