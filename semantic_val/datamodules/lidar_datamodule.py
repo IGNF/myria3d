@@ -34,6 +34,7 @@ class LidarDataModule(LightningDataModule):
         batch_size: int = 8,
         num_workers: int = 0,
         subtile_width_meters: float = 100.0,
+        subtile_overlap: float = 0.0,
         input_cloud_size: int = 200000,
         train_subtiles_by_tile: int = 4,
     ):
@@ -46,8 +47,7 @@ class LidarDataModule(LightningDataModule):
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
 
-        self.tile_width_meters = 1000.0  # TODO: add as global parameter
-
+        self.subtile_overlap = subtile_overlap
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
@@ -87,6 +87,7 @@ class LidarDataModule(LightningDataModule):
             target_transform=transform_labels_for_building_segmentation,
             input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
         )
         self.data_test = LidarToyTestDataset(
             test_files,
@@ -94,6 +95,7 @@ class LidarDataModule(LightningDataModule):
             target_transform=transform_labels_for_building_segmentation,
             input_cloud_size=self.input_cloud_size,
             subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
         )
 
     def train_dataloader(self):

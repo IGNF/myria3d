@@ -14,11 +14,11 @@ defaults:
 # this allows you to overwrite only specified parameters
 
 seed: 12345
-debug: true
+debug: true # Set to false to use the other limits below.
 
 trainer:
   min_epochs: 1
   max_epochs: 5
   limit_train_batches: 5
-  limit_val_batches: 5
+  limit_val_batches: 2
   limit_test_batches: 5

@@ -35,6 +35,21 @@ def get_random_subtile_center(cloud: np.ndarray, subtile_width_meters: float = 1
     return subtile_center_xy
 
 
+def get_all_subtile_centers(
+    cloud: np.ndarray, subtile_width_meters: float = 100.0, subtile_overlap: float = 0
+):
+    """Get centers of subtiles of specified width, assuming rectangular form of input cloud."""
+    half_subtile_width_meters = subtile_width_meters / 2
+    low = cloud[:, :2].min(0) + half_subtile_width_meters
+    high = cloud[:, :2].max(0) - half_subtile_width_meters + 1
+    centers = [
+        (x, y)
+        for x in np.arange(start=low[0], stop=high[0], step=subtile_width_meters - subtile_overlap)
+        for y in np.arange(start=low[1], stop=high[1], step=subtile_width_meters - subtile_overlap)
+    ]
+    return centers
+
+
 def get_subsampling_mask(input_size, subsampling_size):
     """Get a mask to select subsampling_size elements from an iterable of specified size, with replacement if needed."""
 

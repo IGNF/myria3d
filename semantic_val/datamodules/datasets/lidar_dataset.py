@@ -9,6 +9,7 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 
 from semantic_val.datamodules.datasets.lidar_transforms import (
+    get_all_subtile_centers,
     get_random_subtile_center,
     get_subtile_data,
     load_las_file,
@@ -76,7 +77,7 @@ class LidarValDataset(IterableDataset):
         transform=None,
         target_transform=None,
         input_cloud_size: int = 200000,
-        # tile_width_meters: float = 1000.0,  # TODO: add as a global, fixed parameter in default configs.
+        subtile_overlap: float = 0,
         subtile_width_meters: float = 100,
     ):
         self.files = files
@@ -84,17 +85,22 @@ class LidarValDataset(IterableDataset):
         self.target_transform = target_transform
 
         self.input_cloud_size = input_cloud_size
-        # self.tile_width_meters = tile_width_meters
+        self.subtile_overlap = subtile_overlap
         self.subtile_width_meters = subtile_width_meters
 
         self.in_memory_filename = None
 
     def process_data(self):
+        """Yield subtiles from all tiles in an exhaustive fashion."""
+
         for filename in self.files:
             cloud_full, labels_full = load_las_file(filename)
-            centers = [(50, 50), (100, 100), (150, 150), (200, 200)]
+            centers = get_all_subtile_centers(
+                cloud_full,
+                subtile_width_meters=self.subtile_width_meters,
+                subtile_overlap=self.subtile_overlap,
+            )
             for center in centers:
-                # get the data from the in memory las
                 cloud, labels = get_subtile_data(
                     cloud_full,
                     labels_full,
