@@ -21,12 +21,6 @@ class PointNet(nn.Module):
     def __init__(self, hparams: dict):
         super().__init__()
 
-        # hparams["input_cloud_size"] = 500
-        # hparams["input_size"] = 3
-        # hparams["MLP1_channels"] =[hparams["input_size"], 32,32]
-        # hparams["MLP2_channels"] =[32, 64,64]
-        # hparams["MLP3_channels"] =[64+32, 128,128,64,16,hparams["output_size"]]
-
         self.input_cloud_size = hparams["input_cloud_size"]
         self.mlp1 = MLP(hparams["MLP1_channels"])
         self.mlp2 = MLP(hparams["MLP2_channels"])

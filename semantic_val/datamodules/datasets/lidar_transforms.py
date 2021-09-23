@@ -51,22 +51,20 @@ def get_subsampling_mask(input_size, subsampling_size):
 
 
 def get_subtile_data(
-    cloud,
-    labels,
+    las,
+    las_labels,
+    subtile_center_xy,
     input_cloud_size: int = 20000,
     subtile_width_meters: float = 100.0,
 ):
     """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
 
-    subtile_center_xy = get_random_subtile_center(cloud, subtile_width_meters=subtile_width_meters)
-    chebyshev_distance = np.max(np.abs(cloud[:, :2] - subtile_center_xy), axis=1)
-
+    chebyshev_distance = np.max(np.abs(las[:, :2] - subtile_center_xy), axis=1)
     mask = chebyshev_distance < (subtile_width_meters / 2)
-    if mask.sum() == 0:
-        print(mask)
+    print(las.shape, las_labels.shape, mask.shape)
 
-    cloud = cloud[mask]
-    labels = labels[mask]
+    cloud = las[mask]
+    labels = las_labels[mask]
 
     input_size = len(cloud)
     sampled_points_idx = get_subsampling_mask(input_size, input_cloud_size)

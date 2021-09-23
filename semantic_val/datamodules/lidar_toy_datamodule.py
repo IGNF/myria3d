@@ -5,7 +5,11 @@ from typing import Optional, Tuple
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 
-from semantic_val.datamodules.datasets.lidar_toy_dataset import LidarToyTrainDataset
+from semantic_val.datamodules.datasets.lidar_toy_dataset import (
+    LidarToyTestDataset,
+    LidarToyTrainDataset,
+    LidarToyValDataset,
+)
 from semantic_val.datamodules.datasets.lidar_transforms import (
     transform_labels_for_building_segmentation,
 )
@@ -28,7 +32,7 @@ class LidarToyDataModule(LightningDataModule):
         self,
         data_dir: str = "./data/lidar_toy/",
         batch_size: int = 2,
-        num_workers: int = 0,
+        num_workers: int = 1,
         subtile_width_meters: int = 100.0,
         input_cloud_size: int = 200000,
         train_subtiles_by_tile: int = 5,
@@ -62,7 +66,7 @@ class LidarToyDataModule(LightningDataModule):
         """Load data. Set variables: self.data_train, self.data_val, self.data_test."""
 
         train_files = glob.glob(osp.join(self.data_dir, "train/*.las"))
-        train_files = train_files * self.train_subtiles_by_tile
+        # train_files = train_files * self.train_subtiles_by_tile
 
         # TODO : add data augmentation using PytorchGeometric
         self.data_train = LidarToyTrainDataset(
@@ -70,33 +74,30 @@ class LidarToyDataModule(LightningDataModule):
             transform=None,
             target_transform=transform_labels_for_building_segmentation,
             input_cloud_size=self.input_cloud_size,
-            tile_width_meters=self.tile_width_meters,
             subtile_width_meters=self.subtile_width_meters,
         )
 
         # self.dims is returned when you call datamodule.size()
-        self.dims = tuple(self.data_train[0][0].shape)
+        # self.dims = tuple(self.data_train[0][0].shape)
 
-        # TODO: developp a Val and Test Dataset that inherits from IterableDataset, __iter__ function to define.
         val_files = glob.glob(osp.join(self.data_dir, "val/*.las"))
         test_files = glob.glob(osp.join(self.data_dir, "test/*.las"))
 
-        self.data_val = self.data_train
-        self.data_test = self.data_train
-        # val_files = val_files
-        # test_files = test_files
-        # self.data_val = LidarToyDataset(
-        #     val_files,
-        #     self.subtile_width_meters,
-        #     transforms=None,
-        #     target_transform=transform_labels_for_building_segmentation,
-        # )
-        # self.data_test = LidarToyDataset(
-        #     test_files,
-        #     self.subtile_width_meters,
-        #     transforms=None,
-        #     target_transform=transform_labels_for_building_segmentation,
-        # )
+        self.data_val = LidarToyValDataset(
+            val_files,
+            transform=None,
+            target_transform=transform_labels_for_building_segmentation,
+            input_cloud_size=self.input_cloud_size,
+            subtile_width_meters=self.subtile_width_meters,
+        )
+
+        self.data_test = LidarToyTestDataset(
+            test_files,
+            transform=None,
+            target_transform=transform_labels_for_building_segmentation,
+            input_cloud_size=self.input_cloud_size,
+            subtile_width_meters=self.subtile_width_meters,
+        )
 
     def train_dataloader(self):
         return DataLoader(
