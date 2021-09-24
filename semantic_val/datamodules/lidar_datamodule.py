@@ -1,9 +1,13 @@
 import glob
 import os.path as osp
-from typing import Optional
+from typing import Optional, Union
 
+import torch
+import torchvision.transforms as T
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+from torch_geometric.data import Data
+from torch_geometric.transforms import BaseTransform, NormalizeScale, RandomFlip
 from torch_geometric.transforms.compose import Compose
 
 from semantic_val.datamodules.datasets.lidar_dataset import (
@@ -16,7 +20,18 @@ from semantic_val.datamodules.datasets.lidar_utils import (
     transform_labels_for_building_segmentation,
 )
 
-# from torch_geometric.loader import DataLoader
+
+class ToTensor(BaseTransform):
+    r"""Turn np.arrays specified by their keys into Tensor."""
+
+    def __init__(self, keys=["x", "pos", "y"]):
+        self.keys = keys
+
+    def __call__(self, data: Data):
+        for key in data.keys:
+            if key in self.keys:
+                data[key] = torch.from_numpy(data[key])
+        return data
 
 
 class LidarDataModule(LightningDataModule):
@@ -59,8 +74,22 @@ class LidarDataModule(LightningDataModule):
 
     def get_train_transforms(self) -> Compose:
         """Create a transform composition for train phase."""
+        return Compose(
+            [
+                ToTensor(),
+                NormalizeScale(),
+                transform_labels_for_building_segmentation,
+                RandomFlip(0, p=0.5),
+                RandomFlip(1, p=0.5),
+            ]
+        )
 
-        return Compose([])
+    def get_val_transforms(self) -> Compose:
+        """Create a transform composition for val phase."""
+        return Compose([ToTensor(), NormalizeScale(), transform_labels_for_building_segmentation])
+
+    def get_test_transforms(self) -> Compose:
+        return self.get_val_transforms()
 
     def setup(self, stage: Optional[str] = None):
         """Load data. Set variables: self.data_train, self.data_val, self.data_test."""
@@ -72,7 +101,7 @@ class LidarDataModule(LightningDataModule):
 
         self.data_train = LidarTrainDataset(
             train_files,
-            transform=None,  # self.get_train_transforms()
+            transform=self.get_train_transforms(),
             target_transform=transform_labels_for_building_segmentation,
             subtile_width_meters=self.subtile_width_meters,
         )
@@ -80,14 +109,14 @@ class LidarDataModule(LightningDataModule):
 
         self.data_val = LidarValDataset(
             val_files,
-            transform=None,
+            transform=self.get_val_transforms(),
             target_transform=transform_labels_for_building_segmentation,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
         self.data_test = LidarToyTestDataset(
             test_files,
-            transform=None,
+            transform=self.get_test_transforms(),
             target_transform=transform_labels_for_building_segmentation,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,

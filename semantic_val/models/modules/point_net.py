@@ -36,6 +36,7 @@ class PointNet(nn.Module):
         """
         Object batch is a PyG data.Batch, with attr x, pos and y as well as batch (integer for assignment to sample).
         Format of x is (N1 + ... + Nk, C) which we convert to format (B * N, C) with N the subsampling_size.
+        We use batch format (B, N, C) for nn logic, then go back to long format for KNN interpolation.
         """
 
         x_list = []
@@ -55,11 +56,11 @@ class PointNet(nn.Module):
             pos_list.append(pos_x)
             batch_x_list.append(batch_x)
 
+        # Get back to batch shape
+        pos = torch.stack(pos_list)
         x = torch.stack(x_list)
-        pos_x = torch.cat(pos_list)
-        batch_x = torch.cat(batch_x_list)
-
-        f1 = self.mlp1(x)
+        features = torch.cat([pos, x], axis=2)
+        f1 = self.mlp1(features)
         f2 = self.mlp2(f1)
         context_vector = torch.max(f2, 1)[0]
         input_size = f1.shape[1]
@@ -71,7 +72,9 @@ class PointNet(nn.Module):
         # interpolate logits to all original points.
         # https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=knn_interpolate#unpooling-layers
         logits = logits.view(-1, 2)  # (N_sub*B, C)
+        pos_x = torch.cat(pos_list)
         pos_y = batch.pos
+        batch_x = torch.cat(batch_x_list)
         batch_y = batch.batch
         logits = knn_interpolate(
             logits, pos_x, pos_y, batch_x=batch_x, batch_y=batch_y, k=3, num_workers=1

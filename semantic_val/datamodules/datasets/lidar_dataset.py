@@ -25,7 +25,6 @@ class LidarTrainDataset(Dataset):
     ):
         self.files = files
         self.transform = transform
-        self.target_transform = target_transform
         self.subtile_width_meters = subtile_width_meters
         self.in_memory_filepath = None
 
@@ -48,9 +47,6 @@ class LidarTrainDataset(Dataset):
 
         if self.transform:
             data = self.transform(data)
-
-        if self.target_transform:
-            data = self.target_transform(data)
 
         return data
 
@@ -76,7 +72,6 @@ class LidarValDataset(IterableDataset):
     ):
         self.files = files
         self.transform = transform
-        self.target_transform = target_transform
         self.subtile_overlap = subtile_overlap
         self.subtile_width_meters = subtile_width_meters
 
@@ -99,9 +94,6 @@ class LidarValDataset(IterableDataset):
 
                 if self.transform:
                     data = self.transform(data)
-
-                if self.target_transform:
-                    data = self.target_transform(data)
 
                 yield data
 

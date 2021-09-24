@@ -8,31 +8,37 @@ from torch.utils.data.dataloader import default_collate
 from torch_geometric.data import Batch, Data, Dataset
 
 
-def load_las_file(filename):
-    """Load a cloud of points and its labels. We transpose to have cloud with shape [n_points, n_features]."""
-    las = laspy.read(filename)
-    cloud = np.asarray(
+def load_las_data(filepath):
+    """Load a cloud of points and its labels. base shape: [n_points, n_features]."""
+    las = laspy.read(filepath)
+    pos = np.asarray(
         [
-            las.x - las.x.min(),
-            las.y - las.y.min(),
+            las.x,
+            las.y,
             las.z,
+        ],
+        dtype=np.float32,
+    )
+    x = np.asarray(
+        [
             las.intensity,
             las.return_num,
             las.num_returns,
         ],
         dtype=np.float32,
     )
-    cloud = cloud.transpose()
-    labels = las.classification.astype(np.int)
-    return cloud, labels
-
-
-def load_las_data(filepath):
-    cloud, labels = load_las_file(filepath)
-    # TODO: remove the .copy if not useful.
+    pos = pos.transpose()
+    x = x.transpose()
+    y = las.classification.astype(np.int)
     tile_id = Path(filepath).stem
-    data = Data(pos=cloud[:, :3].copy(), x=cloud, y=labels, filepath=filepath, tile_id=tile_id)
-    return data
+
+    return Data(
+        pos=pos,
+        x=x,
+        y=y,
+        filepath=filepath,
+        tile_id=tile_id,
+    )
 
 
 def get_random_subtile_center(data: Data, subtile_width_meters: float = 100.0):
@@ -41,8 +47,8 @@ def get_random_subtile_center(data: Data, subtile_width_meters: float = 100.0):
     (whose x and y coordinates are in meters and in 0m-1000m range).
     """
     half_subtile_width_meters = subtile_width_meters / 2
-    low = data.x[:, :2].min(0) + half_subtile_width_meters
-    high = data.x[:, :2].max(0) - half_subtile_width_meters
+    low = data.pos[:, :2].min(0) + half_subtile_width_meters
+    high = data.pos[:, :2].max(0) - half_subtile_width_meters
 
     subtile_center_xy = np.random.uniform(low, high)
 
@@ -55,8 +61,8 @@ def get_all_subtile_centers(
     """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
 
     half_subtile_width_meters = subtile_width_meters / 2
-    low = data.x[:, :2].min(0) + half_subtile_width_meters
-    high = data.x[:, :2].max(0) - half_subtile_width_meters + 1
+    low = data.pos[:, :2].min(0) + half_subtile_width_meters
+    high = data.pos[:, :2].max(0) - half_subtile_width_meters + 1
     centers = [
         (x, y)
         for x in np.arange(start=low[0], stop=high[0], step=subtile_width_meters - subtile_overlap)
@@ -121,9 +127,12 @@ def collate_fn(data_list: List[Data]) -> Batch:
         batch[key] = [data[key] for data in data_list]
 
     # 2: define relevant Tensor in long PyG format.
-    batch.x = torch.from_numpy(np.concatenate([data.x for data in data_list]))
-    batch.pos = torch.from_numpy(np.concatenate([data.pos for data in data_list]))
-    batch.y = torch.from_numpy(np.concatenate([data.y for data in data_list]))
+    # batch.x = torch.from_numpy(np.concatenate([data.x for data in data_list]))
+    # batch.pos = torch.from_numpy(np.concatenate([data.pos for data in data_list]))
+    # batch.y = torch.from_numpy(np.concatenate([data.y for data in data_list]))
+    batch.pos = torch.cat([data.pos for data in data_list])
+    batch.x = torch.cat([data.x for data in data_list])
+    batch.y = torch.cat([data.y for data in data_list])
     batch.batch = torch.from_numpy(
         np.concatenate(
             [np.full(shape=len(data.y), fill_value=i) for i, data in enumerate(data_list)]
