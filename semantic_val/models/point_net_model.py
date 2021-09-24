@@ -64,7 +64,7 @@ class PointNetModel(LightningModule):
         y = batch.y
         logits = self.forward(batch)
         loss = self.criterion(logits, y)
-        preds = torch.argmax(logits, dim=2)
+        preds = torch.argmax(logits, dim=1)
         return loss, preds, y
 
     def training_step(self, batch: Any, batch_idx: int):
