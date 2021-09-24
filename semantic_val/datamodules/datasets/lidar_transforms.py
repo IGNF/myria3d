@@ -105,7 +105,7 @@ def augment(cloud):
 
 
 def collate_fn(data_list: List[Data]) -> Batch:
-    """Collate list of Data elements, to be used in DataLoader to work with IterableDatasets.
+    """Collate list of Data elements, to be used in DataLoader.
     From: https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn"""
     batch = Batch()
 

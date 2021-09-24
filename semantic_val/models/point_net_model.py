@@ -31,7 +31,7 @@ class PointNetModel(LightningModule):
         MLP1_channels: List[int] = [3, 32, 32],
         MLP2_channels: List[int] = [32, 64, 64],
         MLP3_channels: List[int] = [64 + 32, 128, 128, 64, 16, 2],
-        input_cloud_size: int = 1000,
+        subsampling_size: int = 1000,
         lr: float = 0.001,
         # weight_decay: float = 0.0005,  # TODO: UNCOMMENT AT SOME POINT TO REGULARIZE
     ):

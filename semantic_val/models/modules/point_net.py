@@ -25,7 +25,7 @@ class PointNet(nn.Module):
     def __init__(self, hparams: dict):
         super().__init__()
 
-        self.input_cloud_size = hparams["input_cloud_size"]
+        self.subsampling_size = hparams["subsampling_size"]
         self.mlp1 = MLP(hparams["MLP1_channels"])
         self.mlp2 = MLP(hparams["MLP2_channels"])
         self.mlp3 = MLP(hparams["MLP3_channels"])
@@ -34,7 +34,8 @@ class PointNet(nn.Module):
 
     def forward(self, batch):
         """
-        batch is a PyG data.Batch, with attr x, pos and y as well as batch (integer for assignment to sample).
+        Object batch is a PyG data.Batch, with attr x, pos and y as well as batch (integer for assignment to sample).
+        Format of x is (N1 + ... + Nk, C) which we convert to format (B * N, C) with N the subsampling_size.
         """
 
         x_list = []
@@ -45,7 +46,7 @@ class PointNet(nn.Module):
             pos_x = batch.pos[batch.batch == sample_idx]
             batch_x = batch.batch[batch.batch == sample_idx]
 
-            sampled_points_idx = get_subsampling_mask(len(x), self.input_cloud_size)
+            sampled_points_idx = get_subsampling_mask(len(x), self.subsampling_size)
             x = x[sampled_points_idx]
             pos_x = pos_x[sampled_points_idx]
             batch_x = batch_x[sampled_points_idx]
@@ -53,9 +54,10 @@ class PointNet(nn.Module):
             x_list.append(x)
             pos_list.append(pos_x)
             batch_x_list.append(batch_x)
+
         x = torch.stack(x_list)
-        # pos_x = torch.stack(pos_list)
-        # batch_x = torch.stack(batch_x_list)
+        pos_x = torch.cat(pos_list)
+        batch_x = torch.cat(batch_x_list)
 
         f1 = self.mlp1(x)
         f2 = self.mlp2(f1)
@@ -66,13 +68,12 @@ class PointNet(nn.Module):
         scores = self.mlp3(Gf1)
         logits = self.softmax(scores)
 
+        # interpolate logits to all original points.
+        # https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=knn_interpolate#unpooling-layers
         logits = logits.view(-1, 2)  # (N_sub*B, C)
-
-        # interpolate
         pos_y = batch.pos
         batch_y = batch.batch
         logits = knn_interpolate(
             logits, pos_x, pos_y, batch_x=batch_x, batch_y=batch_y, k=3, num_workers=1
         )
-        # https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=knn_interpolate#unpooling-layers
         return logits
