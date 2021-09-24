@@ -4,13 +4,14 @@ from typing import Optional
 
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+from torch_geometric.transforms.compose import Compose
 
 from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarToyTestDataset,
     LidarTrainDataset,
     LidarValDataset,
 )
-from semantic_val.datamodules.datasets.lidar_transforms import (
+from semantic_val.datamodules.datasets.lidar_utils import (
     collate_fn,
     transform_labels_for_building_segmentation,
 )
@@ -56,6 +57,11 @@ class LidarDataModule(LightningDataModule):
         # TODO: implement train-val-test split that add a split column used as reference for later datasets
         pass
 
+    def get_train_transforms(self) -> Compose:
+        """Create a transform composition for train phase."""
+
+        return Compose([])
+
     def setup(self, stage: Optional[str] = None):
         """Load data. Set variables: self.data_train, self.data_val, self.data_test."""
 
@@ -64,14 +70,12 @@ class LidarDataModule(LightningDataModule):
         val_files = glob.glob(osp.join(self.data_dir, "val/*.las"))
         test_files = glob.glob(osp.join(self.data_dir, "test/*.las"))
 
-        # TODO : add data augmentation using PytorchGeometric
         self.data_train = LidarTrainDataset(
             train_files,
-            transform=None,
+            transform=None,  # self.get_train_transforms()
             target_transform=transform_labels_for_building_segmentation,
             subtile_width_meters=self.subtile_width_meters,
         )
-        # self.dims is returned when you call datamodule.size()
         self.dims = tuple(self.data_train[0].x.shape)
 
         self.data_val = LidarValDataset(

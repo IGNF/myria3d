@@ -5,9 +5,7 @@ from pytorch_lightning import LightningModule
 from torch.utils.data.dataloader import default_collate
 from torch_geometric.data import Batch, Data, Dataset
 from torchmetrics import IoU
-from torchmetrics.classification.accuracy import (  # change for https://torchmetrics.readthedocs.io/en/latest/references/modules.html?highlight=iou#iou later
-    Accuracy,
-)
+from torchmetrics.classification.accuracy import Accuracy
 
 from semantic_val.models.modules.point_net import PointNet as Net
 
@@ -33,7 +31,6 @@ class PointNetModel(LightningModule):
         MLP3_channels: List[int] = [64 + 32, 128, 128, 64, 16, 2],
         subsampling_size: int = 1000,
         lr: float = 0.001,
-        # weight_decay: float = 0.0005,  # TODO: UNCOMMENT AT SOME POINT TO REGULARIZE
     ):
         super().__init__()
 

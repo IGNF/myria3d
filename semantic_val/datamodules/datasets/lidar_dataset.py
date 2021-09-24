@@ -7,11 +7,11 @@ import torch
 from torch.utils.data import Dataset, IterableDataset
 from torch_geometric.data import Data
 
-from semantic_val.datamodules.datasets.lidar_transforms import (
+from semantic_val.datamodules.datasets.lidar_utils import (
     get_all_subtile_centers,
     get_random_subtile_center,
     get_subtile_data,
-    load_las_file,
+    load_las_data,
 )
 
 
@@ -26,45 +26,42 @@ class LidarTrainDataset(Dataset):
         self.files = files
         self.transform = transform
         self.target_transform = target_transform
-
         self.subtile_width_meters = subtile_width_meters
-
-        self.in_memory_filename = None
+        self.in_memory_filepath = None
 
     def __len__(self):
         return len(self.files)
 
     def __getitem__(self, idx):
         """Get a subtitle from indexed las file, and apply the transforms specified in datamodule."""
-        filename = self.files[idx]
+        filepath = self.files[idx]
+        tile_data = self.get_cloud_data(filepath)
 
-        if self.in_memory_filename != filename:
-            cloud, labels = load_las_file(filename)
-            self.in_memory_filename = filename
-            self.in_memory_cloud = cloud
-            self.in_memory_labels = labels
-        else:
-            cloud = self.in_memory_cloud
-            labels = self.in_memory_labels
-
-        # TODO: move into transfrom to abstract more.
-        center = get_random_subtile_center(cloud, subtile_width_meters=self.subtile_width_meters)
-        cloud, labels = get_subtile_data(
-            copy.deepcopy(cloud),
-            copy.deepcopy(labels),
+        center = get_random_subtile_center(
+            tile_data, subtile_width_meters=self.subtile_width_meters
+        )
+        data = get_subtile_data(
+            tile_data,
             center,
             subtile_width_meters=self.subtile_width_meters,
         )
 
         if self.transform:
-            cloud = self.transform(cloud)
+            data = self.transform(data)
 
         if self.target_transform:
-            labels = self.target_transform(labels)
+            data = self.target_transform(data)
 
-        # TODO: consider moving up the use of Data structure for the transforms to be used on it.
-        data = Data(pos=cloud[:, :3], x=cloud, y=labels)
+        return data
 
+    def get_cloud_data(self, filepath):
+        """Get already in-memory cloud data or load it from disk."""
+        if self.in_memory_filepath == filepath:
+            data = self.data
+        else:
+            data = load_las_data(filepath)
+            self.in_memory_filepath = filepath
+            self.data = data
         return data
 
 
@@ -80,39 +77,31 @@ class LidarValDataset(IterableDataset):
         self.files = files
         self.transform = transform
         self.target_transform = target_transform
-
         self.subtile_overlap = subtile_overlap
         self.subtile_width_meters = subtile_width_meters
-
-        self.in_memory_filename = None
 
     def process_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
-        for filename in self.files:
-            cloud_full, labels_full = load_las_file(filename)
+        for filepath in self.files:
+            tile_data = load_las_data(filepath)
             centers = get_all_subtile_centers(
-                cloud_full,
+                tile_data,
                 subtile_width_meters=self.subtile_width_meters,
                 subtile_overlap=self.subtile_overlap,
             )
             for center in centers:
-                # TODO: move into transfrom to abstract more.
-                cloud, labels = get_subtile_data(
-                    cloud_full,
-                    labels_full,
+                data = get_subtile_data(
+                    tile_data,
                     center,
                     subtile_width_meters=self.subtile_width_meters,
                 )
 
                 if self.transform:
-                    cloud = self.transform(cloud)
+                    data = self.transform(data)
 
                 if self.target_transform:
-                    labels = self.target_transform(labels)
-
-                # TODO: consider moving up the use of Data structure for the transforms to be used on it.
-                data = Data(pos=cloud[:, :3], x=cloud, y=labels)
+                    data = self.target_transform(data)
 
                 yield data
 

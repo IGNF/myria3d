@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Union
 
 import laspy
@@ -26,14 +27,22 @@ def load_las_file(filename):
     return cloud, labels
 
 
-def get_random_subtile_center(cloud: np.ndarray, subtile_width_meters: float = 100.0):
+def load_las_data(filepath):
+    cloud, labels = load_las_file(filepath)
+    # TODO: remove the .copy if not useful.
+    tile_id = Path(filepath).stem
+    data = Data(pos=cloud[:, :3].copy(), x=cloud, y=labels, filepath=filepath, tile_id=tile_id)
+    return data
+
+
+def get_random_subtile_center(data: Data, subtile_width_meters: float = 100.0):
     """
     Randomly select x/y pair (in meters) as potential center of a square subtile of original tile
     (whose x and y coordinates are in meters and in 0m-1000m range).
     """
     half_subtile_width_meters = subtile_width_meters / 2
-    low = cloud[:, :2].min(0) + half_subtile_width_meters
-    high = cloud[:, :2].max(0) - half_subtile_width_meters
+    low = data.x[:, :2].min(0) + half_subtile_width_meters
+    high = data.x[:, :2].max(0) - half_subtile_width_meters
 
     subtile_center_xy = np.random.uniform(low, high)
 
@@ -41,12 +50,13 @@ def get_random_subtile_center(cloud: np.ndarray, subtile_width_meters: float = 1
 
 
 def get_all_subtile_centers(
-    cloud: np.ndarray, subtile_width_meters: float = 100.0, subtile_overlap: float = 0
+    data: Data, subtile_width_meters: float = 100.0, subtile_overlap: float = 0
 ):
-    """Get centers of subtiles of specified width, assuming rectangular form of input cloud."""
+    """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
+
     half_subtile_width_meters = subtile_width_meters / 2
-    low = cloud[:, :2].min(0) + half_subtile_width_meters
-    high = cloud[:, :2].max(0) - half_subtile_width_meters + 1
+    low = data.x[:, :2].min(0) + half_subtile_width_meters
+    high = data.x[:, :2].max(0) - half_subtile_width_meters + 1
     centers = [
         (x, y)
         for x in np.arange(start=low[0], stop=high[0], step=subtile_width_meters - subtile_overlap)
@@ -55,7 +65,7 @@ def get_all_subtile_centers(
     return centers
 
 
-def get_subsampling_mask(input_size, subsampling_size):
+def get_subsampling_mask(input_size: int, subsampling_size: int):
     """Get a mask to select subsampling_size elements from an iterable of specified size, with replacement if needed."""
 
     if input_size >= subsampling_size:
@@ -71,37 +81,34 @@ def get_subsampling_mask(input_size, subsampling_size):
 
 
 def get_subtile_data(
-    las,
-    las_labels,
+    data: Data,
     subtile_center_xy,
     subtile_width_meters: float = 100.0,
 ):
     """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
+    subtile_data = data.clone()
 
-    chebyshev_distance = np.max(np.abs(las[:, :2] - subtile_center_xy), axis=1)
+    chebyshev_distance = np.max(np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1)
     mask = chebyshev_distance < (subtile_width_meters / 2)
-    cloud = las[mask]
-    labels = las_labels[mask]
 
-    return cloud, labels
+    subtile_data.x = subtile_data.x[mask]
+    subtile_data.pos = subtile_data.pos[mask]
+    subtile_data.y = subtile_data.y[mask]
+
+    return subtile_data
 
 
-def transform_labels_for_building_segmentation(labels):
-    """Pass from multiple classes to simpler Building/Non-Building labels.
+def transform_labels_for_building_segmentation(data: Data):
+    """
+    Pass from multiple classes to simpler Building/Non-Building labels.
     Initial classes: [  1,   2,   6 (detected building, no validation),  19 (valid building),  20 (surdetection, unspecified),
     21 (building, forgotten), 104, 110 (surdetection, others), 112 (surdetection, vehicule), 114 (surdetection, others), 115 (surdetection, bridges)]
     Final classes: 0 (non-building), 1 (building)
     """
-    buildings = (labels == 19) | (labels == 21) | (labels == 6)
-    labels[buildings] = 1
-    labels[~buildings] = 0
-    return labels
-
-
-def augment(cloud):
-    """Data augmentation at training time."""
-    # TODO
-    return cloud
+    buildings = (data.y == 19) | (data.y == 21) | (data.y == 6)
+    data.y[buildings] = 1
+    data.y[~buildings] = 0
+    return data
 
 
 def collate_fn(data_list: List[Data]) -> Batch:
@@ -109,10 +116,15 @@ def collate_fn(data_list: List[Data]) -> Batch:
     From: https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn"""
     batch = Batch()
 
-    batch["x"] = torch.from_numpy(np.concatenate([data["x"] for data in data_list]))
-    batch["pos"] = torch.from_numpy(np.concatenate([data["pos"] for data in data_list]))
-    batch["y"] = torch.from_numpy(np.concatenate([data["y"] for data in data_list]))
-    batch["batch"] = torch.from_numpy(
+    # 1: add everything as list of non-Tensor object to facilitate adding new attributes.
+    for key in data_list[0].keys:
+        batch[key] = [data[key] for data in data_list]
+
+    # 2: define relevant Tensor in long PyG format.
+    batch.x = torch.from_numpy(np.concatenate([data.x for data in data_list]))
+    batch.pos = torch.from_numpy(np.concatenate([data.pos for data in data_list]))
+    batch.y = torch.from_numpy(np.concatenate([data.y for data in data_list]))
+    batch.batch = torch.from_numpy(
         np.concatenate(
             [np.full(shape=len(data.y), fill_value=i) for i, data in enumerate(data_list)]
         )

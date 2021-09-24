@@ -7,7 +7,7 @@ from torch.nn import ReLU
 from torch.nn import Sequential as Seq
 from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
-from semantic_val.datamodules.datasets.lidar_transforms import get_subsampling_mask
+from semantic_val.datamodules.datasets.lidar_utils import get_subsampling_mask
 
 
 def MLP(channels, batch_norm=False):
