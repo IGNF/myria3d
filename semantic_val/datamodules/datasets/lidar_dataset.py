@@ -1,3 +1,9 @@
+""" We define two datasets:
+  - TrainDataset with random selection of a sub-tile
+  - ValDataset = TestDataset with an exhaustive parsing of the sub-tiles.
+"""
+
+
 import copy
 import random
 from itertools import chain, cycle

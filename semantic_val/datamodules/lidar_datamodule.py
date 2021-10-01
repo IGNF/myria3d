@@ -21,10 +21,18 @@ from semantic_val.datamodules.datasets.lidar_utils import (
 )
 
 
+class KeepOriginalPos(BaseTransform):
+    r"""Make a copy of unormalized positions."""
+
+    def __call__(self, data: Data):
+        data["origin_pos"] = data["pos"].copy()
+        return data
+
+
 class ToTensor(BaseTransform):
     r"""Turn np.arrays specified by their keys into Tensor."""
 
-    def __init__(self, keys=["x", "pos", "y"]):
+    def __init__(self, keys=["x", "origin_pos", "pos", "y"]):
         self.keys = keys
 
     def __call__(self, data: Data):
@@ -76,6 +84,7 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for train phase."""
         return Compose(
             [
+                KeepOriginalPos(),
                 ToTensor(),
                 NormalizeScale(),
                 transform_labels_for_building_segmentation,
@@ -86,7 +95,14 @@ class LidarDataModule(LightningDataModule):
 
     def get_val_transforms(self) -> Compose:
         """Create a transform composition for val phase."""
-        return Compose([ToTensor(), NormalizeScale(), transform_labels_for_building_segmentation])
+        return Compose(
+            [
+                KeepOriginalPos(),
+                ToTensor(),
+                NormalizeScale(),
+                transform_labels_for_building_segmentation,
+            ]
+        )
 
     def get_test_transforms(self) -> Compose:
         return self.get_val_transforms()

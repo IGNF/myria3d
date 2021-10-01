@@ -9,7 +9,9 @@ from torch_geometric.data import Batch, Data, Dataset
 
 
 def load_las_data(filepath):
-    """Load a cloud of points and its labels. base shape: [n_points, n_features]."""
+    """Load a cloud of points and its labels. base shape: [n_points, n_features].
+    Warning: las.x is in meters, las.X is in centimeters.
+    """
     las = laspy.read(filepath)
     pos = np.asarray(
         [
@@ -97,13 +99,14 @@ def get_subtile_data(
     chebyshev_distance = np.max(np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1)
     mask = chebyshev_distance < (subtile_width_meters / 2)
 
-    subtile_data.x = subtile_data.x[mask]
     subtile_data.pos = subtile_data.pos[mask]
+    subtile_data.x = subtile_data.x[mask]
     subtile_data.y = subtile_data.y[mask]
 
     return subtile_data
 
 
+# TODO: turn into a Transform class in lidar_datamodule
 def transform_labels_for_building_segmentation(data: Data):
     """
     Pass from multiple classes to simpler Building/Non-Building labels.
@@ -131,6 +134,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
     # batch.pos = torch.from_numpy(np.concatenate([data.pos for data in data_list]))
     # batch.y = torch.from_numpy(np.concatenate([data.y for data in data_list]))
     batch.pos = torch.cat([data.pos for data in data_list])
+    batch.origin_pos = torch.cat([data.origin_pos for data in data_list])
     batch.x = torch.cat([data.x for data in data_list])
     batch.y = torch.cat([data.y for data in data_list])
     batch.batch = torch.from_numpy(

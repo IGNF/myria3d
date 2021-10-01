@@ -17,8 +17,9 @@ seed: 12345
 debug: true # Set to false to use the other limits below.
 
 trainer:
+  log_every_n_steps: 1
   min_epochs: 1
-  max_epochs: 5
-  limit_train_batches: 5
-  limit_val_batches: 2
+  max_epochs: 1
+  limit_train_batches: 10
+  limit_val_batches: 4
   limit_test_batches: 2
