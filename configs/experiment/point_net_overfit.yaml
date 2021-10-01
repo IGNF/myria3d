@@ -18,8 +18,10 @@ debug: true # Set to false to use the other limits below.
 
 trainer:
   log_every_n_steps: 1
+  overfit_batches: 1
   min_epochs: 1
-  max_epochs: 1
-  limit_train_batches: 10
-  limit_val_batches: 4
-  limit_test_batches: 2
+  max_epochs: 20
+  check_val_every_n_epoch: 5
+  limit_train_batches: 10 # should not matter
+  limit_val_batches: 1 # should not matter
+  limit_test_batches: 1 # should not matter

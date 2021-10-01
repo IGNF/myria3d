@@ -75,7 +75,7 @@ class PointNetModel(LightningModule):
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, preds, targets = self.step(batch)
-
+        log.info(f"Training Step - fraction of building points = {(targets*1.0).mean().item()}")
         # log train metrics
         acc = self.train_accuracy(preds, targets)
         iou = self.train_iou(preds, targets)[1]
