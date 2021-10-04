@@ -6,6 +6,7 @@ import laspy
 import numpy as np
 import torch
 from pytorch_lightning import LightningModule
+from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torch_geometric.data import Batch, Data, Dataset
 from torch_geometric.nn.pool import knn
@@ -55,6 +56,7 @@ class PointNetModel(LightningModule):
         self.in_memory_tile_id = ""
 
         # TODO: parametrize : https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#
+        self.softmax = nn.Softmax(dim=1)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.train_iou = IoU(num_classes, reduction="none")
         self.val_iou = IoU(num_classes, reduction="none")
@@ -68,13 +70,16 @@ class PointNetModel(LightningModule):
 
     def step(self, batch: Any):
         targets = batch.y
+
         logits = self.forward(batch)
         loss = self.criterion(logits, targets)
+
+        proba = self.softmax(logits)
         preds = torch.argmax(logits, dim=1)
-        return loss, logits, preds, targets
+        return loss, logits, proba, preds, targets
 
     def training_step(self, batch: Any, batch_idx: int):
-        loss, _, preds, targets = self.step(batch)
+        loss, _, _, preds, targets = self.step(batch)
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
         log.info(f"Train step - % building points = {targets_avg}")
@@ -102,7 +107,7 @@ class PointNetModel(LightningModule):
         pass
 
     def validation_step(self, batch: Any, batch_idx: int):
-        loss, logits, preds, targets = self.step(batch)
+        loss, _, proba, preds, targets = self.step(batch)
 
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
@@ -122,7 +127,7 @@ class PointNetModel(LightningModule):
         )
         return {
             "loss": loss,
-            "logits": logits,
+            "proba": proba,
             "preds": preds,
             "targets": targets,
             "batch": batch,
@@ -137,7 +142,7 @@ class PointNetModel(LightningModule):
         """Save the predicted classes in las format with position."""
         # see https://laspy.readthedocs.io/en/latest/complete_tutorial.html
         if self.save_predictions:
-            logits = output["logits"]
+            proba = output["proba"]
             preds = output["preds"]
             batch = output["batch"]
             for sample_idx in range(len(np.unique(batch.batch))):
@@ -187,11 +192,11 @@ class PointNetModel(LightningModule):
                     self.val_las_pos = torch.from_numpy(self.val_las_pos)
 
                 elem_preds = preds[batch.batch == sample_idx]
-                elem_logits = logits[batch.batch == sample_idx]
+                # elem_preds = preds[batch.batch == sample_idx]
                 elem_pos = batch.origin_pos[batch.batch == sample_idx]
                 assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)
                 self.val_las.classification[assign_idx] = elem_preds
-                # self.val_las.building_logit[assign_idx] = elem_logits
+                # self.val_las.building_logit[assign_idx] = elem_preds
 
     def on_validation_end(self):
         """Save the last unsaved predicted las."""
@@ -202,7 +207,7 @@ class PointNetModel(LightningModule):
         self.val_las.write(output_path)
 
     def test_step(self, batch: Any, batch_idx: int):
-        loss, _, preds, targets = self.step(batch)
+        loss, _, _, preds, targets = self.step(batch)
 
         # log test metrics
         acc = self.test_accuracy(preds, targets)

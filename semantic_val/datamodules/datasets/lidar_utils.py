@@ -106,20 +106,6 @@ def get_subtile_data(
     return subtile_data
 
 
-# TODO: turn into a Transform class in lidar_datamodule
-def transform_labels_for_building_segmentation(data: Data):
-    """
-    Pass from multiple classes to simpler Building/Non-Building labels.
-    Initial classes: [  1,   2,   6 (detected building, no validation),  19 (valid building),  20 (surdetection, unspecified),
-    21 (building, forgotten), 104, 110 (surdetection, others), 112 (surdetection, vehicule), 114 (surdetection, others), 115 (surdetection, bridges)]
-    Final classes: 0 (non-building), 1 (building)
-    """
-    buildings = (data.y == 19) | (data.y == 21) | (data.y == 6)
-    data.y[buildings] = 1
-    data.y[~buildings] = 0
-    return data
-
-
 def collate_fn(data_list: List[Data]) -> Batch:
     """Collate list of Data elements, to be used in DataLoader.
     From: https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn"""

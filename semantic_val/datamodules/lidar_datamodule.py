@@ -15,30 +15,59 @@ from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarTrainDataset,
     LidarValDataset,
 )
-from semantic_val.datamodules.datasets.lidar_utils import (
-    collate_fn,
-    transform_labels_for_building_segmentation,
-)
-
-
-class KeepOriginalPos(BaseTransform):
-    r"""Make a copy of unormalized positions."""
-
-    def __call__(self, data: Data):
-        data["origin_pos"] = data["pos"].copy()
-        return data
+from semantic_val.datamodules.datasets.lidar_utils import collate_fn
 
 
 class ToTensor(BaseTransform):
     r"""Turn np.arrays specified by their keys into Tensor."""
 
-    def __init__(self, keys=["x", "origin_pos", "pos", "y"]):
+    def __init__(self, keys=["pos", "x", "y"]):
         self.keys = keys
 
     def __call__(self, data: Data):
         for key in data.keys:
             if key in self.keys:
                 data[key] = torch.from_numpy(data[key])
+        return data
+
+
+class KeepOriginalPos(BaseTransform):
+    r"""Make a copy of unormalized positions."""
+
+    def __call__(self, data: Data):
+        data["origin_pos"] = data["pos"].clone()
+        return data
+
+
+class NormalizeFeatures(BaseTransform):
+    r"""Scale features in 0-1 range."""
+
+    def __call__(self, data: Data):
+        INTENSITY_IDX = 0
+        RETURN_NUM_IDX = 1
+        NUM_RETURN_IDX = 2
+
+        INTENSITY_MAX = 32768.0
+        RETURN_NUM_MAX = 7
+
+        data["x"][:, INTENSITY_IDX] = data["x"][:, INTENSITY_IDX] / INTENSITY_MAX
+        data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (RETURN_NUM_MAX - 1)
+        data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (RETURN_NUM_MAX - 1)
+        return data
+
+
+class MakeBuildingTargets(BaseTransform):
+    """
+    Pass from multiple classes to simpler Building/Non-Building labels.
+    Initial classes: [  1,   2,   6 (detected building, no validation),  19 (valid building),  20 (surdetection, unspecified),
+    21 (building, forgotten), 104, 110 (surdetection, others), 112 (surdetection, vehicule), 114 (surdetection, others), 115 (surdetection, bridges)]
+    Final classes: 0 (non-building), 1 (building)
+    """
+
+    def __call__(self, data: Data):
+        buildings_idx = (data.y == 19) | (data.y == 21) | (data.y == 6)
+        data.y[buildings_idx] = 1
+        data.y[~buildings_idx] = 0
         return data
 
 
@@ -84,10 +113,10 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for train phase."""
         return Compose(
             [
-                KeepOriginalPos(),
                 ToTensor(),
+                KeepOriginalPos(),
+                NormalizeFeatures(),
                 NormalizeScale(),
-                transform_labels_for_building_segmentation,
                 # TODO: set data augmentation back when overfitting is possible.
                 # RandomFlip(0, p=0.5),
                 # RandomFlip(1, p=0.5),
@@ -98,10 +127,10 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for val phase."""
         return Compose(
             [
-                KeepOriginalPos(),
                 ToTensor(),
+                KeepOriginalPos(),
+                NormalizeFeatures(),
                 NormalizeScale(),
-                transform_labels_for_building_segmentation,
             ]
         )
 
@@ -119,21 +148,21 @@ class LidarDataModule(LightningDataModule):
         self.data_train = LidarTrainDataset(
             train_files,
             transform=self.get_train_transforms(),
-            target_transform=transform_labels_for_building_segmentation,
+            target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
         )
         # self.dims = tuple(self.data_train[0].x.shape)
         self.data_val = LidarValDataset(
             val_files,
             transform=self.get_val_transforms(),
-            target_transform=transform_labels_for_building_segmentation,
+            target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
         self.data_test = LidarToyTestDataset(
             test_files,
             transform=self.get_test_transforms(),
-            target_transform=transform_labels_for_building_segmentation,
+            target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )

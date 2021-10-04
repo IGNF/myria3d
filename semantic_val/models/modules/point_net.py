@@ -29,8 +29,7 @@ class PointNet(nn.Module):
         self.mlp1 = MLP(hparams["MLP1_channels"])
         self.mlp2 = MLP(hparams["MLP2_channels"])
         self.mlp3 = MLP(hparams["MLP3_channels"])
-
-        self.softmax = nn.Softmax(dim=2)
+        self.lin = Lin(hparams["MLP3_channels"][-1], 2)
 
     def forward(self, batch):
         """
@@ -39,6 +38,7 @@ class PointNet(nn.Module):
         We use batch format (B, N, C) for nn logic, then go back to long format for KNN interpolation.
         """
 
+        # Get back to batch shape
         x_list = []
         pos_list = []
         batch_x_list = []
@@ -55,21 +55,21 @@ class PointNet(nn.Module):
             x_list.append(x)
             pos_list.append(pos_x)
             batch_x_list.append(batch_x)
-
-        # Get back to batch shape
         pos = torch.stack(pos_list)
         x = torch.stack(x_list)
         features = torch.cat([pos, x], axis=2)
+
+        # Pas through network layers
         f1 = self.mlp1(features)
         f2 = self.mlp2(f1)
         context_vector = torch.max(f2, 1)[0]
         input_size = f1.shape[1]
         expanded_context_vector = torch.unsqueeze(context_vector, 1).expand(-1, input_size, -1)
         Gf1 = torch.cat((expanded_context_vector, f1), 2)
-        scores = self.mlp3(Gf1)
-        logits = self.softmax(scores)
+        f3 = self.mlp3(Gf1)
+        logits = self.lin(f3)
 
-        # interpolate logits to all original points.
+        # interpolate scores to all original points.
         # https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=knn_interpolate#unpooling-layers
         logits = logits.view(-1, 2)  # (N_sub*B, C)
         pos_x = torch.cat(pos_list)
