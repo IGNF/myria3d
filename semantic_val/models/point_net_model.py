@@ -159,28 +159,11 @@ class PointNetModel(LightningModule):
                     elem_filepath = batch.filepath[sample_idx]
                     self.in_memory_tile_id = elem_tile_id
                     self.val_las = laspy.read(elem_filepath)
+                    # param = laspy.ExtraBytesParams(name="building_proba", type=float)
+                    # self.val_las.add_extra_dim(param)
                     # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
-                    self.val_las.classification[:] = 0  # NO-BUILDING
-                    # TODO: correct error:
-                    """ Traceback (most recent call last):
-                        File "<string>", line 1, in <module>
-                        File "/home/CGaydon/anaconda3/envs/validation_module/lib/python3.9/site-packages/laspy/lasdata.py", line 125, in add_extra_dim
-                            self.add_extra_dims([params])
-                        File "/home/CGaydon/anaconda3/envs/validation_module/lib/python3.9/site-packages/laspy/lasdata.py", line 135, in add_extra_dims
-                            self.header.add_extra_dims(params)
-                        File "/home/CGaydon/anaconda3/envs/validation_module/lib/python3.9/site-packages/laspy/header.py", line 396, in add_extra_dims
-                            self._sync_extra_bytes_vlr()
-                        File "/home/CGaydon/anaconda3/envs/validation_module/lib/python3.9/site-packages/laspy/header.py", line 736, in _sync_extra_bytes_vlr
-                            eb_struct = ExtraBytesStruct(
-                        ValueError: bytes too long (57, maximum length 32)
-                    """
-                    # self.val_las.add_extra_dim(
-                    #     laspy.ExtraBytesParams(
-                    #         name="building_logit",
-                    #         type=np.float32,
-                    #         description="Predicted probability of points being part of a building.",
-                    #     )
-                    # )
+                    self.val_las.classification[:] = 0
+                    self.val_las.gps_time[:] = 0.0
                     self.val_las_pos = np.asarray(
                         [
                             self.val_las.x,
@@ -192,11 +175,12 @@ class PointNetModel(LightningModule):
                     self.val_las_pos = torch.from_numpy(self.val_las_pos)
 
                 elem_preds = preds[batch.batch == sample_idx]
-                # elem_preds = preds[batch.batch == sample_idx]
+                elem_proba = proba[batch.batch == sample_idx][:, 1]
                 elem_pos = batch.origin_pos[batch.batch == sample_idx]
                 assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
                 self.val_las.classification[assign_idx] = elem_preds
-                # self.val_las.building_logit[assign_idx] = elem_preds
+                # TODO: remove this ugly hack that sets predictions as gps_time !!
+                self.val_las.gps_time[assign_idx] = elem_proba
 
     def on_validation_end(self):
         """Save the last unsaved predicted las."""
