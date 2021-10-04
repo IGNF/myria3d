@@ -15,7 +15,40 @@ from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarTrainDataset,
     LidarValDataset,
 )
-from semantic_val.datamodules.datasets.lidar_utils import collate_fn
+from semantic_val.datamodules.datasets.lidar_utils import (
+    collate_fn,
+    get_random_subtile_center,
+    get_subtile_data,
+    get_tile_center,
+)
+
+
+class SelectSubTile(BaseTransform):
+    r"""Select a square subtile from original tile"""
+
+    def __init__(
+        self,
+        subtile_width_meters: float = 100.0,
+        method=["deterministic", "predefined", "random"],
+    ):
+        self.subtile_width_meters = subtile_width_meters
+        self.method = method
+
+    def __call__(self, data: Data):
+        if self.method == "deterministic":
+            center = get_tile_center(data, self.subtile_width_meters)
+        elif self.method == "random":
+            center = get_random_subtile_center(data, self.subtile_width_meters)
+        elif self.method == "predefined":
+            center = data.current_subtile_center
+        else:
+            raise f"Undefined method argument: {self.method}"
+        data = get_subtile_data(
+            data,
+            center,
+            subtile_width_meters=self.subtile_width_meters,
+        )
+        return data
 
 
 class ToTensor(BaseTransform):
@@ -113,6 +146,12 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for train phase."""
         return Compose(
             [
+                # Change to deterministic to overfit a single, defined area.
+                SelectSubTile(
+                    subtile_width_meters=self.subtile_width_meters,
+                    # method="random"
+                    method="deterministic",
+                ),
                 ToTensor(),
                 KeepOriginalPos(),
                 NormalizeFeatures(),
@@ -127,6 +166,7 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for val phase."""
         return Compose(
             [
+                SelectSubTile(subtile_width_meters=self.subtile_width_meters, method="predefined"),
                 ToTensor(),
                 KeepOriginalPos(),
                 NormalizeFeatures(),

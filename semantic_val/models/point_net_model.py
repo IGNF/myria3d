@@ -82,7 +82,7 @@ class PointNetModel(LightningModule):
         loss, _, _, preds, targets = self.step(batch)
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
-        log.info(f"Train step - % building points = {targets_avg}")
+        log.debug(f"Train batch building % = {targets_avg}")
         acc = self.train_accuracy(preds, targets)
         iou = self.train_iou(preds, targets)[1]
         self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)

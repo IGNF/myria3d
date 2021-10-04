@@ -13,13 +13,7 @@ import torch
 from torch.utils.data import Dataset, IterableDataset
 from torch_geometric.data import Data
 
-from semantic_val.datamodules.datasets.lidar_utils import get_tile_center  # DEBUG
-from semantic_val.datamodules.datasets.lidar_utils import (
-    get_all_subtile_centers,
-    get_random_subtile_center,
-    get_subtile_data,
-    load_las_data,
-)
+from semantic_val.datamodules.datasets.lidar_utils import get_all_subtile_centers, load_las_data
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
@@ -45,18 +39,7 @@ class LidarTrainDataset(Dataset):
     def __getitem__(self, idx):
         """Get a subtitle from indexed las file, and apply the transforms specified in datamodule."""
         filepath = self.files[idx]
-        tile_data = self.get_cloud_data(filepath)
-
-        # center = get_random_subtile_center(
-        #     tile_data, subtile_width_meters=self.subtile_width_meters
-        # )
-        # DEBUG : to overfit easily !
-        center = get_tile_center(tile_data, subtile_width_meters=self.subtile_width_meters)
-        data = get_subtile_data(
-            tile_data,
-            center,
-            subtile_width_meters=self.subtile_width_meters,
-        )
+        data = self.get_cloud_data(filepath)
 
         if self.transform:
             data = self.transform(data)
@@ -70,7 +53,7 @@ class LidarTrainDataset(Dataset):
         if self.in_memory_filepath == filepath:
             data = self.data
         else:
-            log.info(f"Loading train file: {filepath}")
+            log.debug(f"Loading train file: {filepath}")
             data = load_las_data(filepath)
             self.in_memory_filepath = filepath
             self.data = data
@@ -102,15 +85,9 @@ class LidarValDataset(IterableDataset):
                 subtile_width_meters=self.subtile_width_meters,
                 subtile_overlap=self.subtile_overlap,
             )
-            for center in centers:
-                data = get_subtile_data(
-                    tile_data,
-                    center,
-                    subtile_width_meters=self.subtile_width_meters,
-                )
-
+            for tile_data.current_subtile_center in centers:
                 if self.transform:
-                    data = self.transform(data)
+                    data = self.transform(tile_data)
                 if self.target_transform:
                     data = self.target_transform(data)
                 yield data
