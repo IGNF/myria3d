@@ -75,13 +75,22 @@ class PointNetModel(LightningModule):
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, preds, targets = self.step(batch)
-        log.info(f"Training Step - fraction of building points = {(targets*1.0).mean().item()}")
-        # log train metrics
+        preds_avg = (preds * 1.0).mean().item()
+        targets_avg = (targets * 1.0).mean().item()
+        log.info(f"Train step - % building points = {targets_avg}")
         acc = self.train_accuracy(preds, targets)
         iou = self.train_iou(preds, targets)[1]
         self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
         self.log("train/iou", iou, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=True)
+        self.log(
+            "train/targets_avg",
+            targets_avg,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+        )
 
         # we can return here dict with any tensors
         # and then read it in some callback or in training_epoch_end() below
@@ -95,14 +104,22 @@ class PointNetModel(LightningModule):
     def validation_step(self, batch: Any, batch_idx: int):
         loss, logits, preds, targets = self.step(batch)
 
-        # log val metrics
+        preds_avg = (preds * 1.0).mean().item()
+        targets_avg = (targets * 1.0).mean().item()
         acc = self.val_accuracy(preds, targets)
         iou = self.val_iou(preds, targets)[1]
 
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
         self.log("val/iou", iou, on_step=False, on_epoch=True, prog_bar=True)
-
+        self.log("val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=True)
+        self.log(
+            "val/targets_avg",
+            targets_avg,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+        )
         return {
             "loss": loss,
             "logits": logits,

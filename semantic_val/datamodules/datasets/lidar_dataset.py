@@ -19,6 +19,9 @@ from semantic_val.datamodules.datasets.lidar_utils import (
     get_subtile_data,
     load_las_data,
 )
+from semantic_val.utils import utils
+
+log = utils.get_logger(__name__)
 
 
 class LidarTrainDataset(Dataset):
@@ -61,6 +64,7 @@ class LidarTrainDataset(Dataset):
         if self.in_memory_filepath == filepath:
             data = self.data
         else:
+            log.info(f"Loading train file: {filepath}")
             data = load_las_data(filepath)
             self.in_memory_filepath = filepath
             self.data = data

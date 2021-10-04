@@ -88,8 +88,9 @@ class LidarDataModule(LightningDataModule):
                 ToTensor(),
                 NormalizeScale(),
                 transform_labels_for_building_segmentation,
-                RandomFlip(0, p=0.5),
-                RandomFlip(1, p=0.5),
+                # TODO: set data augmentation back when overfitting is possible.
+                # RandomFlip(0, p=0.5),
+                # RandomFlip(1, p=0.5),
             ]
         )
 
@@ -121,8 +122,7 @@ class LidarDataModule(LightningDataModule):
             target_transform=transform_labels_for_building_segmentation,
             subtile_width_meters=self.subtile_width_meters,
         )
-        self.dims = tuple(self.data_train[0].x.shape)
-
+        # self.dims = tuple(self.data_train[0].x.shape)
         self.data_val = LidarValDataset(
             val_files,
             transform=self.get_val_transforms(),

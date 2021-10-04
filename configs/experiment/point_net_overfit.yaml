@@ -20,8 +20,8 @@ trainer:
   log_every_n_steps: 1
   overfit_batches: 1
   min_epochs: 1
-  max_epochs: 20
-  check_val_every_n_epoch: 5
-  limit_train_batches: 10 # should not matter
-  limit_val_batches: 1 # should not matter
-  limit_test_batches: 1 # should not matter
+  max_epochs: 300
+  check_val_every_n_epoch: 25
+  # limit_train_batches: 10 # should not matter
+  # limit_val_batches: 1 # should not matter
+  # limit_test_batches: 1 # should not matter
