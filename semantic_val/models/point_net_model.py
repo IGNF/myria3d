@@ -194,7 +194,7 @@ class PointNetModel(LightningModule):
                 elem_preds = preds[batch.batch == sample_idx]
                 # elem_preds = preds[batch.batch == sample_idx]
                 elem_pos = batch.origin_pos[batch.batch == sample_idx]
-                assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)
+                assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
                 self.val_las.classification[assign_idx] = elem_preds
                 # self.val_las.building_logit[assign_idx] = elem_preds
 
