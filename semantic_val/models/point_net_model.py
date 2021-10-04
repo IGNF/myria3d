@@ -57,7 +57,7 @@ class PointNetModel(LightningModule):
 
         # TODO: parametrize : https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#
         self.softmax = nn.Softmax(dim=1)
-        self.criterion = torch.nn.CrossEntropyLoss()
+        self.criterion = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor([0.2, 1.0]))
         self.train_iou = IoU(num_classes, reduction="none")
         self.val_iou = IoU(num_classes, reduction="none")
         self.test_iou = IoU(num_classes, reduction="none")

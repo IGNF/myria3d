@@ -57,6 +57,20 @@ def get_random_subtile_center(data: Data, subtile_width_meters: float = 100.0):
     return subtile_center_xy
 
 
+def get_tile_center(data: Data, subtile_width_meters: float = 100.0):
+    """
+    Randomly select x/y pair (in meters) as potential center of a square subtile of original tile
+    (whose x and y coordinates are in meters and in 0m-1000m range).
+    """
+    half_subtile_width_meters = subtile_width_meters / 2
+    low = data.pos[:, :2].min(0) + half_subtile_width_meters
+    high = data.pos[:, :2].max(0) - half_subtile_width_meters
+
+    subtile_center_xy = (high + low) / 2
+
+    return subtile_center_xy
+
+
 def get_all_subtile_centers(
     data: Data, subtile_width_meters: float = 100.0, subtile_overlap: float = 0
 ):

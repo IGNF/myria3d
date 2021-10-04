@@ -13,6 +13,7 @@ import torch
 from torch.utils.data import Dataset, IterableDataset
 from torch_geometric.data import Data
 
+from semantic_val.datamodules.datasets.lidar_utils import get_tile_center  # DEBUG
 from semantic_val.datamodules.datasets.lidar_utils import (
     get_all_subtile_centers,
     get_random_subtile_center,
@@ -46,9 +47,11 @@ class LidarTrainDataset(Dataset):
         filepath = self.files[idx]
         tile_data = self.get_cloud_data(filepath)
 
-        center = get_random_subtile_center(
-            tile_data, subtile_width_meters=self.subtile_width_meters
-        )
+        # center = get_random_subtile_center(
+        #     tile_data, subtile_width_meters=self.subtile_width_meters
+        # )
+        # DEBUG : to overfit easily !
+        center = get_tile_center(tile_data, subtile_width_meters=self.subtile_width_meters)
         data = get_subtile_data(
             tile_data,
             center,
