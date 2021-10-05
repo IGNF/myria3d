@@ -8,6 +8,7 @@ dependencies:
   - pip
   # --------- geo --------- #
   - laspy
+  - python-pdal
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #
