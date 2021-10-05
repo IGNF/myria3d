@@ -179,15 +179,12 @@ class PointNetModel(LightningModule):
                 if self.in_memory_tile_id != elem_tile_id:
                     if self.in_memory_tile_id:
                         self.save_val_las()
-
                     self.in_memory_tile_id = elem_tile_id
-
                     self.val_las = laspy.read(batch.filepath[sample_idx])
-                    # param = laspy.ExtraBytesParams(name="building_proba", type=float)
-                    # self.val_las.add_extra_dim(param)
+                    param = laspy.ExtraBytesParams(name="building_proba", type=float)
+                    self.val_las.add_extra_dim(param)
                     # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
                     self.val_las.classification[:] = 0
-                    self.val_las.gps_time[:] = 0.0
                     self.val_las_pos = np.asarray(
                         [
                             self.val_las.x,
@@ -206,8 +203,7 @@ class PointNetModel(LightningModule):
                 elem_pos = batch.origin_pos[batch.batch == sample_idx]
                 assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
                 self.val_las.classification[assign_idx] = elem_preds
-                # TODO: remove this ugly hack that sets predictions as gps_time !!
-                self.val_las.gps_time[assign_idx] = elem_proba
+                self.val_las.building_proba[assign_idx] = elem_proba
 
     def on_validation_end(self):
         """Save the last unsaved predicted las."""
