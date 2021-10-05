@@ -37,13 +37,12 @@ class PointNetModel(LightningModule):
     def __init__(
         self,
         num_classes: int = 2,
-        MLP1_channels: List[int] = [3, 32, 32],
-        MLP2_channels: List[int] = [32, 64, 64],
-        MLP3_channels: List[int] = [64 + 32, 128, 128, 64, 16, 2],
-        subsampling_size: int = 1000,
+        MLP1_channels: List[int] = [6, 32, 32],
+        MLP2_channels: List[int] = [32, 64, 128],
+        MLP3_channels: List[int] = [160, 128, 64, 32],
+        subsampling_size: int = 30000,
         lr: float = 0.001,
         save_predictions: bool = False,
-        in_memory_tile_id: str = "",
     ):
         super().__init__()
 
