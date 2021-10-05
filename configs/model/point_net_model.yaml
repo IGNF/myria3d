@@ -6,3 +6,4 @@ MLP3_channels: [160, 128, 64, 32] # 128 + 32 = 160
 subsampling_size: 30000
 lr: 0.001
 save_predictions: true
+confusion_mode: true # diff or binary
