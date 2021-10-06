@@ -3,7 +3,6 @@ import os.path as osp
 from typing import Optional, Union
 
 import torch
-import torchvision.transforms as T
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torch_geometric.data import Data
@@ -84,8 +83,12 @@ class NormalizeFeatures(BaseTransform):
         RETURN_NUM_MAX = 7
 
         data["x"][:, INTENSITY_IDX] = data["x"][:, INTENSITY_IDX] / INTENSITY_MAX
-        data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (RETURN_NUM_MAX - 1)
-        data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (RETURN_NUM_MAX - 1)
+        data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (
+            RETURN_NUM_MAX - 1
+        )
+        data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (
+            RETURN_NUM_MAX - 1
+        )
         return data
 
 
@@ -166,7 +169,9 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for val phase."""
         return Compose(
             [
-                SelectSubTile(subtile_width_meters=self.subtile_width_meters, method="predefined"),
+                SelectSubTile(
+                    subtile_width_meters=self.subtile_width_meters, method="predefined"
+                ),
                 ToTensor(),
                 KeepOriginalPos(),
                 NormalizeFeatures(),
