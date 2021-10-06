@@ -34,7 +34,6 @@ class PointNetModel(LightningModule):
         https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html
 
     :param save_predictions: Set to True to save LAS files with predictions as classification field.
-    :param confusion_mode: Set to True to save difference of preds with targets classes (0: TN, 1:FP, 2:FN, 3:TP).
     Only in effect if save_predictions is True.
     """
 
@@ -47,7 +46,6 @@ class PointNetModel(LightningModule):
         subsampling_size: int = 30000,
         lr: float = 0.001,
         save_predictions: bool = False,
-        confusion_mode: bool = True,
     ):
         super().__init__()
 
@@ -57,7 +55,6 @@ class PointNetModel(LightningModule):
         self.model = Net(hparams=self.hparams)
 
         self.save_predictions = save_predictions
-        self.confusion_mode = confusion_mode
         self.in_memory_tile_id = ""
 
         self.softmax = nn.Softmax(dim=1)
