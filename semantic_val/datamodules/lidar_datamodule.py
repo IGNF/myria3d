@@ -1,6 +1,7 @@
 import glob
 import os.path as osp
 from typing import Optional, Union
+import pandas as pd
 
 import torch
 from pytorch_lightning import LightningDataModule
@@ -9,6 +10,7 @@ from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform, NormalizeScale, RandomFlip
 from torch_geometric.transforms.compose import Compose
 
+
 from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarToyTestDataset,
     LidarTrainDataset,
@@ -16,10 +18,16 @@ from semantic_val.datamodules.datasets.lidar_dataset import (
 )
 from semantic_val.datamodules.datasets.lidar_utils import (
     collate_fn,
+    create_full_filepath_column,
+    get_metadata_df_from_shapefile,
     get_random_subtile_center,
+    get_split_df_of_202110_building_val,
     get_subtile_data,
     get_tile_center,
 )
+from semantic_val.utils import utils
+
+log = utils.get_logger(__name__)
 
 
 class SelectSubTile(BaseTransform):
@@ -115,7 +123,9 @@ class LidarDataModule(LightningDataModule):
 
     def __init__(
         self,
-        data_dir: str = "./data/lidar_toy/",
+        lasfiles_dir: str = "./path/to/dataset/trainvaltest/",
+        metadata_shapefile: str = "./path/to/dataset/my_shapefile.shp",
+        train_frac: float = 0.8,
         batch_size: int = 8,
         num_workers: int = 0,
         subtile_width_meters: float = 100.0,
@@ -124,13 +134,18 @@ class LidarDataModule(LightningDataModule):
     ):
         super().__init__()
 
-        self.data_dir = data_dir
-        self.batch_size = batch_size
         self.num_workers = num_workers
+
+        self.lasfiles_dir = lasfiles_dir
+        self.metadata_shapefile = metadata_shapefile
+        self.datasplit_csv_filepath = metadata_shapefile.replace(".shp", ".csv")
+
+        self.train_frac = train_frac
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
-
         self.subtile_overlap = subtile_overlap
+        self.batch_size = batch_size
+
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
@@ -139,11 +154,36 @@ class LidarDataModule(LightningDataModule):
     def num_classes(self) -> int:
         return 2
 
+    def make_datasplit_csv(
+        self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8
+    ):
+        """Turn the shapefile of tiles metadata into a csv with stratified train-val-test split."""
+        df = get_metadata_df_from_shapefile(shapefile_filepath)
+        df_split = get_split_df_of_202110_building_val(df, train_frac=train_frac)
+        df_split = create_full_filepath_column(df_split, self.lasfiles_dir)
+        assert all(osp.exists(filepath) for filepath in df_split.file_path)
+        df_split.to_csv(datasplit_csv_filepath, index=False)
+
     def prepare_data(self):
         """Download data if needed. This method is called only from a single GPU.
         Do not use it to assign state (self.x = y)."""
-        # TODO: implement train-val-test split that add a split column used as reference for later datasets
-        pass
+
+        las_filepaths = glob.glob(osp.join(self.lasfiles_dir, "*.las"))
+        assert len(las_filepaths) == 150
+
+        if not osp.exists(self.datasplit_csv_filepath):
+            if not osp.exists(self.metadata_shapefile):
+                raise FileNotFoundError(
+                    f"Data-descriptive shapefile not found at {self.metadata_shapefile}"
+                )
+            self.make_datasplit_csv(
+                self.metadata_shapefile,
+                self.datasplit_csv_filepath,
+                train_frac=self.train_frac,
+            )
+            log.info(
+                f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
+            )
 
     def get_train_transforms(self) -> Compose:
         """Create a transform composition for train phase."""
@@ -185,10 +225,12 @@ class LidarDataModule(LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         """Load data. Set variables: self.data_train, self.data_val, self.data_test."""
 
-        train_files = glob.glob(osp.join(self.data_dir, "train/*.las"))
+        df_split = pd.read_csv(self.datasplit_csv_filepath)
+
+        train_files = df_split[df_split.split == "train"].file_path.values.tolist()
         train_files = sorted(train_files * self.train_subtiles_by_tile)
-        val_files = glob.glob(osp.join(self.data_dir, "val/*.las"))
-        test_files = glob.glob(osp.join(self.data_dir, "test/*.las"))
+        val_files = df_split[df_split.split == "val"].file_path.values.tolist()
+        test_files = df_split[df_split.split == "test"].file_path.values.tolist()
 
         self.data_train = LidarTrainDataset(
             train_files,

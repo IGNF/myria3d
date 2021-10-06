@@ -1,6 +1,9 @@
 _target_: semantic_val.datamodules.lidar_datamodule.LidarDataModule
 
-data_dir: ${data_dir}lidar_toy # data_dir is specified in config.yaml
+# those two paths are specified in configs/config.yaml
+lasfiles_dir: ${lasfiles_dir} 
+metadata_shapefile: ${metadata_shapefile}
+
 train_subtiles_by_tile: 2
 batch_size: 2 # set equal to train_subtiles_by_tile when overfitting.
 subtile_width_meters: 100

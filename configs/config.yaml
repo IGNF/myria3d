@@ -24,7 +24,8 @@ defaults:
 work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data
-data_dir: ${work_dir}/data/
+lasfiles_dir: ${oc.env:LASFILES_DIR}
+metadata_shapefile: ${oc.env:METADATA_SHAPEFILE}
 
 # use `python run.py debug=true` for easy debugging!
 # this will run 1 train, val and test loop with only 1 batch
@@ -40,4 +41,4 @@ ignore_warnings: True
 
 # check performance on test set, using the best model achieved during training
 # lightning chooses best model based on metric specified in checkpoint callback
-test_after_training: True
+test_after_training: False
