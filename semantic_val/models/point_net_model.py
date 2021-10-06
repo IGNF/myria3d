@@ -94,7 +94,9 @@ class PointNetModel(LightningModule):
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
         log.debug(f"Train batch building % = {targets_avg}")
-        self.log("train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False)
+        self.log(
+            "train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
+        )
         self.log(
             "train/targets_avg",
             targets_avg,
@@ -124,7 +126,9 @@ class PointNetModel(LightningModule):
 
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
-        self.log("val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False)
+        self.log(
+            "val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
+        )
         self.log(
             "val/targets_avg",
             targets_avg,
@@ -183,6 +187,11 @@ class PointNetModel(LightningModule):
                     self.val_las = laspy.read(batch.filepath[sample_idx])
                     param = laspy.ExtraBytesParams(name="building_proba", type=float)
                     self.val_las.add_extra_dim(param)
+                    param = laspy.ExtraBytesParams(
+                        name="classification_confusion", type=int
+                    )
+                    self.val_las.add_extra_dim(param)
+
                     # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
                     self.val_las.classification[:] = 0
                     self.val_las_pos = np.asarray(
@@ -195,14 +204,16 @@ class PointNetModel(LightningModule):
                     ).transpose()
                     self.val_las_pos = torch.from_numpy(self.val_las_pos)
 
-                elem_preds = preds[batch.batch == sample_idx]
-                elem_targets = targets[batch.batch == sample_idx]
-                if self.confusion_mode:
-                    elem_preds = elem_preds + 2 * elem_targets
-                elem_proba = proba[batch.batch == sample_idx][:, 1]
                 elem_pos = batch.origin_pos[batch.batch == sample_idx]
+                elem_preds = preds[batch.batch == sample_idx]
+                elem_proba = proba[batch.batch == sample_idx][:, 1]
+                elem_targets = targets[batch.batch == sample_idx]
+
                 assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
+
                 self.val_las.classification[assign_idx] = elem_preds
+                elem_predsdiff = elem_preds + 2 * elem_targets
+                self.val_las.classification_confusion[assign_idx] = elem_predsdiff
                 self.val_las.building_proba[assign_idx] = elem_proba
 
     def on_validation_end(self):

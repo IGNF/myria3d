@@ -12,7 +12,7 @@ from torch_geometric.transforms.compose import Compose
 
 
 from semantic_val.datamodules.datasets.lidar_dataset import (
-    LidarToyTestDataset,
+    LidarTestDataset,
     LidarTrainDataset,
     LidarValDataset,
 )
@@ -131,6 +131,7 @@ class LidarDataModule(LightningDataModule):
         subtile_width_meters: float = 100.0,
         subtile_overlap: float = 0.0,
         train_subtiles_by_tile: int = 4,
+        overfit: bool = False,
     ):
         super().__init__()
 
@@ -140,6 +141,7 @@ class LidarDataModule(LightningDataModule):
         self.metadata_shapefile = metadata_shapefile
         self.datasplit_csv_filepath = metadata_shapefile.replace(".shp", ".csv")
 
+        self.overfit = overfit
         self.train_frac = train_frac
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
@@ -189,17 +191,15 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for train phase."""
         return Compose(
             [
-                # Change to deterministic to overfit a single, defined area.
                 SelectSubTile(
                     subtile_width_meters=self.subtile_width_meters,
-                    # method="random"
-                    method="deterministic",
+                    method="deterministic" if self.overfit else "random",
                 ),
                 ToTensor(),
                 KeepOriginalPos(),
                 NormalizeFeatures(),
                 NormalizeScale(),
-                # TODO: set data augmentation back when overfitting is possible.
+                # TODO: set data augmentation back when regularization is needed.
                 # RandomFlip(0, p=0.5),
                 # RandomFlip(1, p=0.5),
             ]
@@ -228,6 +228,12 @@ class LidarDataModule(LightningDataModule):
         df_split = pd.read_csv(self.datasplit_csv_filepath)
 
         train_files = df_split[df_split.split == "train"].file_path.values.tolist()
+        if self.overfit:
+            train_files = [
+                filepath
+                for filepath in train_files
+                if filepath.endswith("845000_6610000.las")
+            ]
         train_files = sorted(train_files * self.train_subtiles_by_tile)
         val_files = df_split[df_split.split == "val"].file_path.values.tolist()
         test_files = df_split[df_split.split == "test"].file_path.values.tolist()
@@ -246,7 +252,7 @@ class LidarDataModule(LightningDataModule):
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
-        self.data_test = LidarToyTestDataset(
+        self.data_test = LidarTestDataset(
             test_files,
             transform=self.get_test_transforms(),
             target_transform=MakeBuildingTargets(),

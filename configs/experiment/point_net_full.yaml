@@ -6,7 +6,7 @@
 defaults:
   - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
   - override /model: point_net_model.yaml
-  - override /datamodule: lidar_datamodule_overfit.yaml # HERE we use toy one with smaller subtiling, etc.
+  - override /datamodule: lidar_datamodule.yaml # HERE we use toy one with smaller subtiling, etc.
   - override /callbacks: comet.yaml
   - override /logger: comet
 
@@ -17,8 +17,6 @@ seed: 12345
 debug: true # Set to false to use the other limits below.
 
 trainer:
-  log_every_n_steps: 1
-  overfit_batches: 1
   min_epochs: 1
   max_epochs: 300
   check_val_every_n_epoch: 25

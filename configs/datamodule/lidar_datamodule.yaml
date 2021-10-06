@@ -4,8 +4,9 @@ _target_: semantic_val.datamodules.lidar_datamodule.LidarDataModule
 lasfiles_dir: ${lasfiles_dir} 
 metadata_shapefile: ${metadata_shapefile}
 
-train_subtiles_by_tile: 2
-batch_size: 2 # set equal to train_subtiles_by_tile when overfitting.
+overfit: false  # TODO: try to access overfit_batches here
+train_subtiles_by_tile: 8
+batch_size: 16 # set equal to train_subtiles_by_tile when overfitting.
 subtile_width_meters: 100
 subtile_overlap: 0
 num_workers: 0

@@ -13,7 +13,10 @@ import torch
 from torch.utils.data import Dataset, IterableDataset
 from torch_geometric.data import Data
 
-from semantic_val.datamodules.datasets.lidar_utils import get_all_subtile_centers, load_las_data
+from semantic_val.datamodules.datasets.lidar_utils import (
+    get_all_subtile_centers,
+    load_las_data,
+)
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
@@ -39,7 +42,7 @@ class LidarTrainDataset(Dataset):
     def __getitem__(self, idx):
         """Get a subtitle from indexed las file, and apply the transforms specified in datamodule."""
         filepath = self.files[idx]
-        data = self.get_cloud_data(filepath)
+        data = self.access_or_load_cloud_data(filepath)
 
         if self.transform:
             data = self.transform(data)
@@ -48,7 +51,7 @@ class LidarTrainDataset(Dataset):
 
         return data
 
-    def get_cloud_data(self, filepath):
+    def access_or_load_cloud_data(self, filepath):
         """Get already in-memory cloud data or load it from disk."""
         if self.in_memory_filepath == filepath:
             data = self.data
@@ -96,4 +99,4 @@ class LidarValDataset(IterableDataset):
         return self.process_data()
 
 
-LidarToyTestDataset = LidarValDataset
+LidarTestDataset = LidarValDataset
