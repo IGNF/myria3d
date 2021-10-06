@@ -10,6 +10,7 @@ dependencies:
   # --------- geo --------- #
   - laspy
   - python-pdal
+  - pyshp
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #
