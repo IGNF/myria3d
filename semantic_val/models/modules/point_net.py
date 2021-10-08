@@ -57,7 +57,7 @@ class PointNet(nn.Module):
 
         logits = knn_interpolate(
             logits,
-            batch.pos,
+            batch.pos_copy_subsampled,
             batch.pos_copy,
             batch_x=batch.batch_x,
             batch_y=batch.batch_y,
