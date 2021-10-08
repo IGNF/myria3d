@@ -56,8 +56,7 @@ class LidarTrainDataset(Dataset):
         if self.in_memory_filepath == filepath:
             data = self.data
         else:
-            # TODO: set log to debug here when we can easily change to debug mode
-            log.info(f"Loading train file: {filepath}")
+            log.debug(f"Loading train file: {filepath}")
             data = load_las_data(filepath)
             self.in_memory_filepath = filepath
             self.data = data

@@ -1,10 +1,10 @@
 _target_: semantic_val.datamodules.lidar_datamodule.LidarDataModule
 
 # those two paths are specified in configs/config.yaml
-lasfiles_dir: ${lasfiles_dir} 
+lasfiles_dir: ${lasfiles_dir}
 metadata_shapefile: ${metadata_shapefile}
 
-overfit: false  # Always false, overwritten only on command line
+overfit: false # Always false, overwritten only on command line
 train_subtiles_by_tile: 4
 batch_size: 8 # set equal to train_subtiles_by_tile when overfitting.
 subtile_width_meters: 100

@@ -1,15 +1,14 @@
 import glob
 import os.path as osp
 from typing import Optional, Union
-import pandas as pd
 
+import pandas as pd
 import torch
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform, NormalizeScale, RandomFlip
 from torch_geometric.transforms.compose import Compose
-
 
 from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarTestDataset,
@@ -102,12 +101,8 @@ class NormalizeFeatures(BaseTransform):
         RETURN_NUM_MAX = 7
 
         data["x"][:, INTENSITY_IDX] = data["x"][:, INTENSITY_IDX] / INTENSITY_MAX
-        data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (
-            RETURN_NUM_MAX - 1
-        )
-        data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (
-            RETURN_NUM_MAX - 1
-        )
+        data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (RETURN_NUM_MAX - 1)
+        data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (RETURN_NUM_MAX - 1)
         return data
 
 
@@ -167,9 +162,7 @@ class LidarDataModule(LightningDataModule):
     def num_classes(self) -> int:
         return 2
 
-    def make_datasplit_csv(
-        self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8
-    ):
+    def make_datasplit_csv(self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8):
         """Turn the shapefile of tiles metadata into a csv with stratified train-val-test split."""
         df = get_metadata_df_from_shapefile(shapefile_filepath)
         df_split = get_split_df_of_202110_building_val(df, train_frac=train_frac)
@@ -194,9 +187,7 @@ class LidarDataModule(LightningDataModule):
                 self.datasplit_csv_filepath,
                 train_frac=self.train_frac,
             )
-            log.info(
-                f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
-            )
+            log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
 
     def get_train_transforms(self) -> Compose:
         """Create a transform composition for train phase."""
@@ -220,9 +211,7 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for val phase."""
         return Compose(
             [
-                SelectSubTile(
-                    subtile_width_meters=self.subtile_width_meters, method="predefined"
-                ),
+                SelectSubTile(subtile_width_meters=self.subtile_width_meters, method="predefined"),
                 ToTensor(),
                 KeepOriginalPos(),
                 NormalizeFeatures(),
@@ -241,9 +230,7 @@ class LidarDataModule(LightningDataModule):
         train_files = df_split[df_split.split == "train"].file_path.values.tolist()
         if self.overfit:
             train_files = [
-                filepath
-                for filepath in train_files
-                if filepath.endswith("845000_6610000.las")
+                filepath for filepath in train_files if filepath.endswith("845000_6610000.las")
             ]
         train_files = sorted(train_files * self.train_subtiles_by_tile)
         val_files = df_split[df_split.split == "val"].file_path.values.tolist()

@@ -66,9 +66,7 @@ class PointNet(nn.Module):
         f2 = self.mlp2(f1)
         context_vector = torch.max(f2, 1)[0]
         input_size = f1.shape[1]
-        expanded_context_vector = torch.unsqueeze(context_vector, 1).expand(
-            -1, input_size, -1
-        )
+        expanded_context_vector = torch.unsqueeze(context_vector, 1).expand(-1, input_size, -1)
         Gf1 = torch.cat((expanded_context_vector, f1), 2)
         f3 = self.mlp3(Gf1)
         logits = self.lin(f3)
@@ -80,7 +78,5 @@ class PointNet(nn.Module):
         pos_y = batch.pos
         batch_x = torch.cat(batch_x_list)
         batch_y = batch.batch
-        logits = knn_interpolate(
-            logits, pos_x, pos_y, batch_x=batch_x, batch_y=batch_y, k=3
-        )
+        logits = knn_interpolate(logits, pos_x, pos_y, batch_x=batch_x, batch_y=batch_y, k=3)
         return logits

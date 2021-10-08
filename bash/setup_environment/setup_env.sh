@@ -2,7 +2,7 @@
 set -e
 conda install mamba -n base -c conda-forge
 # some mamba specific issue occurs as in https://github.com/conda-incubator/conda-lock/issues/101
-# mamba env create -f bash/setup_environment/requirements.yml  
+# mamba env create -f bash/setup_environment/requirements.yml
 conda env create -f bash/setup_environment/requirements.yml
 conda activate validation_module
 

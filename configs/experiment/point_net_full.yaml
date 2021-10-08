@@ -21,3 +21,4 @@ trainer:
   min_epochs: 1
   max_epochs: 300
   check_val_every_n_epoch: 5
+  num_sanity_val_steps: 0

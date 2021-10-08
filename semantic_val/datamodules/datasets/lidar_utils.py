@@ -4,13 +4,12 @@ from typing import List, Union
 
 import laspy
 import numpy as np
+import pandas as pd
+import shapefile
 import torch
+from sklearn.model_selection import StratifiedShuffleSplit
 from torch.utils.data.dataloader import default_collate
 from torch_geometric.data import Batch, Data, Dataset
-
-import shapefile
-import pandas as pd
-from sklearn.model_selection import StratifiedShuffleSplit
 
 
 def load_las_data(filepath):
@@ -86,12 +85,8 @@ def get_all_subtile_centers(
     high = data.pos[:, :2].max(0) - half_subtile_width_meters + 1
     centers = [
         (x, y)
-        for x in np.arange(
-            start=low[0], stop=high[0], step=subtile_width_meters - subtile_overlap
-        )
-        for y in np.arange(
-            start=low[1], stop=high[1], step=subtile_width_meters - subtile_overlap
-        )
+        for x in np.arange(start=low[0], stop=high[0], step=subtile_width_meters - subtile_overlap)
+        for y in np.arange(start=low[1], stop=high[1], step=subtile_width_meters - subtile_overlap)
     ]
     return centers
 
@@ -100,16 +95,12 @@ def get_subsampling_mask(input_size: int, subsampling_size: int):
     """Get a mask to select subsampling_size elements from an iterable of specified size, with replacement if needed."""
 
     if input_size >= subsampling_size:
-        sampled_points_idx = np.random.choice(
-            input_size, subsampling_size, replace=False
-        )
+        sampled_points_idx = np.random.choice(input_size, subsampling_size, replace=False)
     else:
         sampled_points_idx = np.concatenate(
             [
                 np.arange(input_size),
-                np.random.choice(
-                    input_size, subsampling_size - input_size, replace=True
-                ),
+                np.random.choice(input_size, subsampling_size - input_size, replace=True),
             ]
         )
     return sampled_points_idx
@@ -123,9 +114,7 @@ def get_subtile_data(
     """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
     subtile_data = data.clone()
 
-    chebyshev_distance = np.max(
-        np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1
-    )
+    chebyshev_distance = np.max(np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1)
     mask = chebyshev_distance <= (subtile_width_meters / 2)
 
     subtile_data.pos = subtile_data.pos[mask]
@@ -154,10 +143,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
     batch.y = torch.cat([data.y for data in data_list])
     batch.batch = torch.from_numpy(
         np.concatenate(
-            [
-                np.full(shape=len(data.y), fill_value=i)
-                for i, data in enumerate(data_list)
-            ]
+            [np.full(shape=len(data.y), fill_value=i) for i, data in enumerate(data_list)]
         )
     )
     return batch
