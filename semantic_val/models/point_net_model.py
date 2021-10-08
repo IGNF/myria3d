@@ -91,7 +91,9 @@ class PointNetModel(LightningModule):
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
         log.debug(f"Train batch building % = {targets_avg}")
-        self.log("train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False)
+        self.log(
+            "train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
+        )
         self.log(
             "train/targets_avg",
             targets_avg,
@@ -121,7 +123,9 @@ class PointNetModel(LightningModule):
 
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
-        self.log("val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False)
+        self.log(
+            "val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
+        )
         self.log(
             "val/targets_avg",
             targets_avg,
@@ -182,7 +186,9 @@ class PointNetModel(LightningModule):
                     self.val_las = laspy.read(batch.filepath[sample_idx])
                     param = laspy.ExtraBytesParams(name="building_proba", type=float)
                     self.val_las.add_extra_dim(param)
-                    param = laspy.ExtraBytesParams(name="classification_confusion", type=int)
+                    param = laspy.ExtraBytesParams(
+                        name="classification_confusion", type=int
+                    )
                     self.val_las.add_extra_dim(param)
 
                     # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
