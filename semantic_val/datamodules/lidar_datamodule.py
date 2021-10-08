@@ -42,20 +42,31 @@ class SelectSubTile(BaseTransform):
         self.method = method
 
     def __call__(self, data: Data):
-        if self.method == "deterministic":
-            center = get_tile_center(data, self.subtile_width_meters)
-        elif self.method == "random":
-            center = get_random_subtile_center(data, self.subtile_width_meters)
-        elif self.method == "predefined":
-            center = data.current_subtile_center
-        else:
-            raise f"Undefined method argument: {self.method}"
-        data = get_subtile_data(
-            data,
-            center,
-            subtile_width_meters=self.subtile_width_meters,
-        )
-        return data
+
+        for try_i in range(25):
+            if self.method == "deterministic":
+                center = get_tile_center(data, self.subtile_width_meters)
+            elif self.method == "random":
+                center = get_random_subtile_center(
+                    data, subtile_width_meters=self.subtile_width_meters
+                )
+            elif self.method == "predefined":
+                center = data.current_subtile_center
+            else:
+                raise f"Undefined method argument: {self.method}"
+            subtile_data = get_subtile_data(
+                data,
+                center,
+                subtile_width_meters=self.subtile_width_meters,
+            )
+            if subtile_data.pos.shape[0] == 0:
+                log.info(
+                    f"Error - no points in subtile extracted from {data.filepath} at position {str(center)}"
+                )
+                log.info(f"New try of a random extract (i={try_i+1}/10)")
+            else:
+                break
+        return subtile_data
 
 
 class ToTensor(BaseTransform):

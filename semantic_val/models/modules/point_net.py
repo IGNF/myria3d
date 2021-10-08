@@ -13,9 +13,10 @@ from semantic_val.datamodules.datasets.lidar_utils import get_subsampling_mask
 def MLP(channels, batch_norm=False):
     return Seq(
         *[
-            Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
-            if batch_norm
-            else Seq(Lin(channels[i - 1], channels[i]), ReLU())
+            # TODO: correct batch dims from B,N,C to B,C,N for batchnorm to be applied, or to B*N, C fort pyG functions...
+            # Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
+            # if batch_norm else
+            Seq(Lin(channels[i - 1], channels[i]), ReLU())
             for i in range(1, len(channels))
         ]
     )
@@ -36,6 +37,7 @@ class PointNet(nn.Module):
         Object batch is a PyG data.Batch, with attr x, pos and y as well as batch (integer for assignment to sample).
         Format of x is (N1 + ... + Nk, C) which we convert to format (B * N, C) with N the subsampling_size.
         We use batch format (B, N, C) for nn logic, then go back to long format for KNN interpolation.
+        TODO: cf. above TODO in MLP definition.
         """
 
         # Get back to batch shape

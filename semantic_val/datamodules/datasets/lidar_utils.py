@@ -12,6 +12,7 @@ import shapefile
 import pandas as pd
 from sklearn.model_selection import StratifiedShuffleSplit
 
+
 def load_las_data(filepath):
     """Load a cloud of points and its labels. base shape: [n_points, n_features].
     Warning: las.x is in meters, las.X is in centimeters.
@@ -125,7 +126,7 @@ def get_subtile_data(
     chebyshev_distance = np.max(
         np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1
     )
-    mask = chebyshev_distance < (subtile_width_meters / 2)
+    mask = chebyshev_distance <= (subtile_width_meters / 2)
 
     subtile_data.pos = subtile_data.pos[mask]
     subtile_data.x = subtile_data.x[mask]
@@ -248,7 +249,8 @@ def get_split_df_of_202110_building_val(df, train_frac=0.8):
 
     return df_split
 
+
 def create_full_filepath_column(df, dirpath):
-    """ Append dirpath as a suffix to file column """
+    """Append dirpath as a suffix to file column"""
     df["file_path"] = df["file"].apply(lambda stem: osp.join(dirpath, stem))
     return df

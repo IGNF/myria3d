@@ -84,9 +84,9 @@ class PointNetModel(LightningModule):
 
         acc = self.train_accuracy(preds, targets)
         iou = self.train_iou(preds, targets)[1]
-        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
-        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("train/iou", iou, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+        self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
 
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
@@ -117,9 +117,9 @@ class PointNetModel(LightningModule):
         acc = self.val_accuracy(preds, targets)
         iou = self.val_iou(preds, targets)[1]
 
-        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
-        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val/iou", iou, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+        self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("val/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
 
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
@@ -145,6 +145,8 @@ class PointNetModel(LightningModule):
         """Create repository for validation clouds with predictions."""
         log_path = os.getcwd()
         self.val_preds_folder = osp.join(log_path, "validation_preds")
+        # TODO: replace with Comet logger
+        log.info(f"Results and logs saved to {log_path}")
         os.makedirs(self.val_preds_folder, exist_ok=True)
         self.val_preds_geotiffs_folder = osp.join(self.val_preds_folder, "geotiffs")
         os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
