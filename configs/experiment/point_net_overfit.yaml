@@ -22,3 +22,6 @@ trainer:
   min_epochs: 1
   max_epochs: 300
   check_val_every_n_epoch: 25
+
+model:
+  batch_norm: false

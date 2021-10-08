@@ -3,6 +3,7 @@ _target_: semantic_val.models.point_net_model.PointNetModel
 MLP1_channels: [6, 32, 32]
 MLP2_channels: [32, 64, 128]
 MLP3_channels: [160, 128, 64, 32] # 128 + 32 = 160
-subsampling_size: 30000
+num_classes: 2
+batch_norm: false
 lr: 0.001
 save_predictions: true

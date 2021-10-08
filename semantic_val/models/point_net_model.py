@@ -43,7 +43,7 @@ class PointNetModel(LightningModule):
         MLP1_channels: List[int] = [6, 32, 32],
         MLP2_channels: List[int] = [32, 64, 128],
         MLP3_channels: List[int] = [160, 128, 64, 32],
-        subsampling_size: int = 30000,
+        batch_norm: bool = False,
         lr: float = 0.001,
         save_predictions: bool = False,
     ):
@@ -70,7 +70,7 @@ class PointNetModel(LightningModule):
         return self.model(data)
 
     def step(self, batch: Any):
-        targets = batch.y
+        targets = batch.y_copy
 
         logits = self.forward(batch)
         loss = self.criterion(logits, targets)
@@ -203,10 +203,10 @@ class PointNetModel(LightningModule):
                     ).transpose()
                     self.val_las_pos = torch.from_numpy(self.val_las_pos)
 
-                elem_pos = batch.origin_pos[batch.batch == sample_idx]
-                elem_preds = preds[batch.batch == sample_idx]
-                elem_proba = proba[batch.batch == sample_idx][:, 1]
-                elem_targets = targets[batch.batch == sample_idx]
+                elem_pos = batch.pos_copy[batch.batch_y == sample_idx]
+                elem_preds = preds[batch.batch_y == sample_idx]
+                elem_proba = proba[batch.batch_y == sample_idx][:, 1]
+                elem_targets = targets[batch.batch_y == sample_idx]
 
                 assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
 

@@ -13,7 +13,7 @@ import torch
 from torch.utils.data import Dataset, IterableDataset
 from torch_geometric.data import Data
 
-from semantic_val.datamodules.datasets.lidar_utils import (
+from semantic_val.datamodules.datasets.lidar_transforms import (
     get_all_subtile_centers,
     load_las_data,
 )

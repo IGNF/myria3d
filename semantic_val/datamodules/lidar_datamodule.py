@@ -6,8 +6,10 @@ import pandas as pd
 import torch
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
-from torch_geometric.data import Data
-from torch_geometric.transforms import BaseTransform, NormalizeScale, RandomFlip
+from torch_geometric.transforms import (
+    NormalizeScale,
+    RandomFlip,
+)
 from torch_geometric.transforms.compose import Compose
 
 from semantic_val.datamodules.datasets.lidar_dataset import (
@@ -15,110 +17,22 @@ from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarTrainDataset,
     LidarValDataset,
 )
-from semantic_val.datamodules.datasets.lidar_utils import (
+from semantic_val.datamodules.datasets.lidar_transforms import (
+    FixedPointsPosXY,
+    MakeBuildingTargets,
+    MakeCopyOfPosAndY,
+    MakeCopyOfSampledPos,
+    NormalizeFeatures,
+    SelectSubTile,
+    ToTensor,
     collate_fn,
     create_full_filepath_column,
     get_metadata_df_from_shapefile,
-    get_random_subtile_center,
     get_split_df_of_202110_building_val,
-    get_subtile_data,
-    get_tile_center,
 )
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
-
-
-class SelectSubTile(BaseTransform):
-    r"""Select a square subtile from original tile"""
-
-    def __init__(
-        self,
-        subtile_width_meters: float = 100.0,
-        method=["deterministic", "predefined", "random"],
-    ):
-        self.subtile_width_meters = subtile_width_meters
-        self.method = method
-
-    def __call__(self, data: Data):
-
-        for try_i in range(25):
-            if self.method == "deterministic":
-                center = get_tile_center(data, self.subtile_width_meters)
-            elif self.method == "random":
-                center = get_random_subtile_center(
-                    data, subtile_width_meters=self.subtile_width_meters
-                )
-            elif self.method == "predefined":
-                center = data.current_subtile_center
-            else:
-                raise f"Undefined method argument: {self.method}"
-            subtile_data = get_subtile_data(
-                data,
-                center,
-                subtile_width_meters=self.subtile_width_meters,
-            )
-            if subtile_data.pos.shape[0] == 0:
-                log.info(
-                    f"Error - no points in subtile extracted from {data.filepath} at position {str(center)}"
-                )
-                log.info(f"New try of a random extract (i={try_i+1}/10)")
-            else:
-                break
-        return subtile_data
-
-
-class ToTensor(BaseTransform):
-    r"""Turn np.arrays specified by their keys into Tensor."""
-
-    def __init__(self, keys=["pos", "x", "y"]):
-        self.keys = keys
-
-    def __call__(self, data: Data):
-        for key in data.keys:
-            if key in self.keys:
-                data[key] = torch.from_numpy(data[key])
-        return data
-
-
-class KeepOriginalPos(BaseTransform):
-    r"""Make a copy of unormalized positions."""
-
-    def __call__(self, data: Data):
-        data["origin_pos"] = data["pos"].clone()
-        return data
-
-
-class NormalizeFeatures(BaseTransform):
-    r"""Scale features in 0-1 range."""
-
-    def __call__(self, data: Data):
-        INTENSITY_IDX = 0
-        RETURN_NUM_IDX = 1
-        NUM_RETURN_IDX = 2
-
-        INTENSITY_MAX = 32768.0
-        RETURN_NUM_MAX = 7
-
-        data["x"][:, INTENSITY_IDX] = data["x"][:, INTENSITY_IDX] / INTENSITY_MAX
-        data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (RETURN_NUM_MAX - 1)
-        data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (RETURN_NUM_MAX - 1)
-        return data
-
-
-class MakeBuildingTargets(BaseTransform):
-    """
-    Pass from multiple classes to simpler Building/Non-Building labels.
-    Initial classes: [  1,   2,   6 (detected building, no validation),  19 (valid building),  20 (surdetection, unspecified),
-    21 (building, forgotten), 104, 110 (surdetection, others), 112 (surdetection, vehicule), 114 (surdetection, others), 115 (surdetection, bridges)]
-    Final classes: 0 (non-building), 1 (building)
-    """
-
-    def __call__(self, data: Data):
-        buildings_idx = (data.y == 19) | (data.y == 21) | (data.y == 6)
-        data.y[buildings_idx] = 1
-        data.y[~buildings_idx] = 0
-        return data
 
 
 class LidarDataModule(LightningDataModule):
@@ -137,6 +51,7 @@ class LidarDataModule(LightningDataModule):
         subtile_width_meters: float = 100.0,
         subtile_overlap: float = 0.0,
         train_subtiles_by_tile: int = 4,
+        subsample_size: int = 30000,
         overfit: bool = False,
     ):
         super().__init__()
@@ -152,6 +67,7 @@ class LidarDataModule(LightningDataModule):
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
         self.subtile_overlap = subtile_overlap
+        self.subsample_size = subsample_size
         self.batch_size = batch_size
 
         self.data_train: Optional[Dataset] = None
@@ -162,7 +78,9 @@ class LidarDataModule(LightningDataModule):
     def num_classes(self) -> int:
         return 2
 
-    def make_datasplit_csv(self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8):
+    def make_datasplit_csv(
+        self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8
+    ):
         """Turn the shapefile of tiles metadata into a csv with stratified train-val-test split."""
         df = get_metadata_df_from_shapefile(shapefile_filepath)
         df_split = get_split_df_of_202110_building_val(df, train_frac=train_frac)
@@ -187,7 +105,9 @@ class LidarDataModule(LightningDataModule):
                 self.datasplit_csv_filepath,
                 train_frac=self.train_frac,
             )
-            log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
+            log.info(
+                f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
+            )
 
     def get_train_transforms(self) -> Compose:
         """Create a transform composition for train phase."""
@@ -198,9 +118,13 @@ class LidarDataModule(LightningDataModule):
                     method="deterministic" if self.overfit else "random",
                 ),
                 ToTensor(),
-                KeepOriginalPos(),
-                NormalizeFeatures(),
+                MakeCopyOfPosAndY(),
+                FixedPointsPosXY(
+                    self.subsample_size, replace=False, allow_duplicates=True
+                ),
+                MakeCopyOfSampledPos(),
                 NormalizeScale(),
+                NormalizeFeatures(),
                 # TODO: set data augmentation back when regularization is needed.
                 # RandomFlip(0, p=0.5),
                 # RandomFlip(1, p=0.5),
@@ -211,11 +135,17 @@ class LidarDataModule(LightningDataModule):
         """Create a transform composition for val phase."""
         return Compose(
             [
-                SelectSubTile(subtile_width_meters=self.subtile_width_meters, method="predefined"),
+                SelectSubTile(
+                    subtile_width_meters=self.subtile_width_meters, method="predefined"
+                ),
                 ToTensor(),
-                KeepOriginalPos(),
-                NormalizeFeatures(),
+                MakeCopyOfPosAndY(),
+                FixedPointsPosXY(
+                    self.subsample_size, replace=False, allow_duplicates=True
+                ),
+                MakeCopyOfSampledPos(),
                 NormalizeScale(),
+                NormalizeFeatures(),
             ]
         )
 
@@ -230,7 +160,9 @@ class LidarDataModule(LightningDataModule):
         train_files = df_split[df_split.split == "train"].file_path.values.tolist()
         if self.overfit:
             train_files = [
-                filepath for filepath in train_files if filepath.endswith("845000_6610000.las")
+                filepath
+                for filepath in train_files
+                if filepath.endswith("845000_6610000.las")
             ]
         train_files = sorted(train_files * self.train_subtiles_by_tile)
         val_files = df_split[df_split.split == "val"].file_path.values.tolist()
