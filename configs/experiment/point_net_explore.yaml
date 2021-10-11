@@ -35,3 +35,4 @@ model:
 datamodule:
   batch_size: 8
   train_subtiles_by_tile: 4
+  num_workers: 2

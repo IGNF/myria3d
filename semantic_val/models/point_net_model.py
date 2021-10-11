@@ -152,7 +152,7 @@ class PointNetModel(LightningModule):
     def on_validation_start(self) -> None:
         self.val_iou_accumulator = []
         if not self.train_iou_has_improved:
-            log.info("Skipping validation until train IoU increases.")
+            log.info("Skipping validation until train IoU increases.\n")
         return super().on_train_start()
 
     def validation_step(self, batch: Any, batch_idx: int):
