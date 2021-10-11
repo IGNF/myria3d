@@ -24,4 +24,4 @@ trainer:
   check_val_every_n_epoch: 25
 
 model:
-  batch_norm: false
+  batch_norm: true

@@ -10,7 +10,7 @@ from torch_geometric.nn.glob.glob import global_max_pool
 from semantic_val.datamodules.datasets.lidar_transforms import get_subsampling_mask
 
 
-def MLP(channels, batch_norm=False):
+def MLP(channels, batch_norm: bool = True):
     return Seq(
         *[
             Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
@@ -32,10 +32,8 @@ class PointNet(nn.Module):
 
     def forward(self, batch):
         """
-        Object batch is a PyG data.Batch, with attr x, pos and y as well as batch (integer for assignment to sample).
-        Format of x is (N1 + ... + Nk, C) which we convert to format (B * N, C) with N the subsampling_size.
-        We use batch format (B, N, C) for nn logic, then go back to long format for KNN interpolation.
-        TODO: cf. True for BN in MLP definition.
+        Object batch is a PyG data.Batch, as defined in custom collate_fn.
+        Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods.
         """
         features = torch.cat([batch.pos, batch.x], axis=1)
         input_size = features.shape[0]
