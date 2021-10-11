@@ -9,6 +9,8 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torch_geometric.data import Batch, Data, Dataset
+from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
+
 from torch_geometric.nn.pool import knn
 from torchmetrics import IoU
 from torchmetrics.classification.accuracy import Accuracy
@@ -66,8 +68,17 @@ class PointNetModel(LightningModule):
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
 
-    def forward(self, data: torch.Tensor):
-        return self.model(data)
+    def forward(self, batch: Batch) -> torch.Tensor:
+        logits = self.model(batch)
+        logits = knn_interpolate(
+            logits,
+            batch.pos_copy_subsampled,
+            batch.pos_copy,
+            batch_x=batch.batch_x,
+            batch_y=batch.batch_y,
+            k=3,
+        )
+        return logits
 
     def step(self, batch: Any):
         targets = batch.y_copy

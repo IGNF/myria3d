@@ -5,7 +5,6 @@ from torch.nn import BatchNorm1d as BN
 from torch.nn import Linear as Lin
 from torch.nn import ReLU
 from torch.nn import Sequential as Seq
-from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 from torch_geometric.nn.glob.glob import global_max_pool
 
 from semantic_val.datamodules.datasets.lidar_transforms import get_subsampling_mask
@@ -55,12 +54,4 @@ class PointNet(nn.Module):
         f3 = self.mlp3(Gf1)
         logits = self.lin(f3)
 
-        logits = knn_interpolate(
-            logits,
-            batch.pos_copy_subsampled,
-            batch.pos_copy,
-            batch_x=batch.batch_x,
-            batch_y=batch.batch_y,
-            k=3,
-        )
         return logits
