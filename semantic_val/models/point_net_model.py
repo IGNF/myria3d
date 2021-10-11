@@ -87,8 +87,8 @@ class PointNetModel(LightningModule):
         percentage_buildings_train_val = 0.0226
         weights = torch.FloatTensor(
             [
-                0.1,
-                0.9,
+                percentage_buildings_train_val,
+                1 - percentage_buildings_train_val,
             ]
         )
         if loss == "CrossEntropyLoss":
