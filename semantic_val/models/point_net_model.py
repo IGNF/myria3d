@@ -44,7 +44,7 @@ class PointNetModel(LightningModule):
         MLP2_channels: List[int] = [32, 64, 128],
         MLP3_channels: List[int] = [160, 128, 64, 32],
         batch_norm: bool = False,
-        lr: float = 0.001,
+        lr: float = 0.01,
         save_predictions: bool = False,
     ):
         super().__init__()
