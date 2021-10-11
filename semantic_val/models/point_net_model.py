@@ -59,8 +59,15 @@ class PointNetModel(LightningModule):
         self.in_memory_tile_id = ""
 
         self.softmax = nn.Softmax(dim=1)
-        self.criterion = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor([0.2, 1.0]))
-
+        percentage_buildings_train_val = 0.0226
+        self.criterion = torch.nn.CrossEntropyLoss(
+            weight=torch.FloatTensor(
+                [
+                    1 / (1 - percentage_buildings_train_val),
+                    1 / percentage_buildings_train_val,
+                ]
+            )
+        )
         self.train_iou = IoU(num_classes, reduction="none")
         self.val_iou = IoU(num_classes, reduction="none")
         self.test_iou = IoU(num_classes, reduction="none")
