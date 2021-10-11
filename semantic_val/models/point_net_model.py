@@ -206,6 +206,8 @@ class PointNetModel(LightningModule):
             self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
             self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
 
+        self.train_iou_has_improved = False
+
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         acc = self.test_accuracy(preds, targets)

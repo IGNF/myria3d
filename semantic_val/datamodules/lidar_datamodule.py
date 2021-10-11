@@ -91,8 +91,10 @@ class LidarDataModule(LightningDataModule):
         df_split.to_csv(datasplit_csv_filepath, index=False)
 
     def prepare_data(self):
-        """Download data if needed. This method is called only from a single GPU.
-        Do not use it to assign state (self.x = y)."""
+        """
+        Stratify train/val/test data if needed.
+        Nota: Do not use it to assign state (self.x = y). This method is called only from a single GPU.
+        """
 
         las_filepaths = glob.glob(osp.join(self.lasfiles_dir, "*.las"))
         assert len(las_filepaths) == 150
@@ -155,20 +157,24 @@ class LidarDataModule(LightningDataModule):
         return self.get_val_transforms()
 
     def setup(self, stage: Optional[str] = None):
-        """Load data. Set variables: self.data_train, self.data_val, self.data_test."""
+        """
+        Load data. Set variables: self.data_train, self.data_val, self.data_test.
+        test_data = val data, because we only use all validation data after training.
+        Test data can be used but only after final model is chosen.
+        """
 
         df_split = pd.read_csv(self.datasplit_csv_filepath)
 
         train_files = df_split[df_split.split == "train"].file_path.values.tolist()
         if self.overfit:
+            # This is only needed to have a "known" file to overfit on, with many buildings at the center.
             train_files = [
                 filepath
                 for filepath in train_files
                 if filepath.endswith("845000_6610000.las")
             ]
-        # train_files = sorted(train_files * self.train_subtiles_by_tile)
         val_files = df_split[df_split.split == "val"].file_path.values.tolist()
-        test_files = df_split[df_split.split == "test"].file_path.values.tolist()
+        test_files = val_files
 
         self.data_train = LidarTrainDataset(
             train_files,
@@ -176,7 +182,6 @@ class LidarDataModule(LightningDataModule):
             target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
         )
-        # self.dims = tuple(self.data_train[0].x.shape)
         self.data_val = LidarValDataset(
             val_files,
             transform=self.get_val_transforms(),
