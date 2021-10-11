@@ -181,6 +181,7 @@ class LidarDataModule(LightningDataModule):
             transform=self.get_train_transforms(),
             target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
+            train_subtiles_by_tile=self.train_subtiles_by_tile,
         )
         self.data_val = LidarValDataset(
             val_files,
@@ -202,7 +203,7 @@ class LidarDataModule(LightningDataModule):
             dataset=self.data_train,
             batch_size=self.batch_size,
             shuffle=False,
-            sampler=TrainSampler(len(self.data_train), self.train_subtiles_by_tile),
+            sampler=TrainSampler(self.data_train.nb_files, self.train_subtiles_by_tile),
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
@@ -231,9 +232,10 @@ class TrainSampler(Sampler[int]):
 
     data_source: Sized
 
-    def __init__(self, data_source_size: int, train_subtiles_by_tile) -> None:
+    def __init__(self, nb_files: int, train_subtiles_by_tile) -> None:
         """:param data_source_size: Number of training LAS files."""
-        self.data_source_range = list(range(data_source_size))
+        self.nb_files = nb_files
+        self.data_source_range = list(range(self.nb_files))
         self.train_subtiles_by_tile = train_subtiles_by_tile
 
     def __iter__(self) -> Iterator[int]:
@@ -246,4 +248,4 @@ class TrainSampler(Sampler[int]):
         return itertools.chain.from_iterable(extended_range)
 
     def __len__(self) -> int:
-        return len(self.data_source_range)
+        return self.nb_files * self.train_subtiles_by_tile

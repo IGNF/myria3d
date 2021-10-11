@@ -4,7 +4,7 @@
 """
 
 
-import random
+from typing import List
 from torch.utils.data import Dataset, IterableDataset
 from semantic_val.datamodules.datasets.lidar_transforms import (
     get_all_subtile_centers,
@@ -18,19 +18,24 @@ log = utils.get_logger(__name__)
 class LidarTrainDataset(Dataset):
     def __init__(
         self,
-        files,
+        files: List[str],
         transform=None,
         target_transform=None,
         subtile_width_meters: float = 100,
+        train_subtiles_by_tile: int = None,
     ):
         self.files = files
         self.transform = transform
         self.target_transform = target_transform
-        self.subtile_width_meters = subtile_width_meters
-        self.in_memory_filepath = None
+
+        self.subtile_width_meters: float = subtile_width_meters
+        self.in_memory_filepath: str = None
+
+        self.nb_files = len(self.files)
+        self.train_subtiles_by_tile = train_subtiles_by_tile
 
     def __len__(self):
-        return len(self.files)
+        return self.nb_files * self.train_subtiles_by_tile
 
     def __getitem__(self, idx):
         """Get a subtitle from indexed las file, and apply the transforms specified in datamodule."""
