@@ -29,6 +29,17 @@ class PointNet(nn.Module):
         self.mlp2 = MLP(hparams["MLP2_channels"], batch_norm=hparams["batch_norm"])
         self.mlp3 = MLP(hparams["MLP3_channels"], batch_norm=hparams["batch_norm"])
         self.lin = Lin(hparams["MLP3_channels"][-1], hparams["num_classes"])
+        # TODO: make this a parameter somewhere
+        self.percentage_buildings_train_val = 0.0226
+        self.lin.bias = torch.nn.Parameter(
+            torch.Tensor(
+                [
+                    1 - self.percentage_buildings_train_val,
+                    self.percentage_buildings_train_val,
+                ]
+            )
+        )
+        nn.init.xavier_normal_(self.lin.weight)
 
     def forward(self, batch):
         """
@@ -53,3 +64,24 @@ class PointNet(nn.Module):
         logits = self.lin(f3)
 
         return logits
+
+    # TODO: define weights
+    # def init_all_weights(self):
+    #     for p in self.parameters():
+    #         self.init_weights(p)
+    #     self.lin.bias = torch.nn.Parameter(
+    #         torch.Tensor(
+    #             [
+    #                 1 - self.percentage_buildings_train_val,
+    #                 self.percentage_buildings_train_val,
+    #             ]
+    #         )
+    #     )
+    #     nn.init.xavier_normal_(self.lin.weight)
+
+    # def init_weights(self, p):
+    #     """Initialize weights of the Parameter p"""
+    #     classname = p.__class__.__name__
+    #     if classname.find("Linear") == 0 and hasattr(p, "weight"):
+    #         gain = nn.init.calculate_gain("relu")
+    #         nn.init.xavier_normal_(p, gain=gain)
