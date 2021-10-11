@@ -55,7 +55,6 @@ class PointNetModel(LightningModule):
         # it also allows to access params with 'self.hparams' attribute
         self.save_hyperparameters()
         self.model = Net(hparams=self.hparams)
-
         self.save_predictions = save_predictions
         self.in_memory_tile_id = ""
 
@@ -158,6 +157,7 @@ class PointNetModel(LightningModule):
         self.val_preds_folder = osp.join(log_path, "validation_preds")
         # TODO: replace with Comet logger
         log.info(f"Results and logs saved to {log_path}")
+        self.logger.experiment[0].log_parameter("experiment_logs_dirpath", log_path)
         os.makedirs(self.val_preds_folder, exist_ok=True)
         self.val_preds_geotiffs_folder = osp.join(self.val_preds_folder, "geotiffs")
         os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
