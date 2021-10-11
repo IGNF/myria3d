@@ -21,6 +21,8 @@ from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
+EPS = 10 ** -5
+
 
 class WeightedFocalLoss(nn.Module):
     "Weighted version of Focal Loss"
@@ -29,14 +31,17 @@ class WeightedFocalLoss(nn.Module):
         super(WeightedFocalLoss, self).__init__()
         self.alpha = weights
         self.gamma = gamma
+        self.softmax = nn.Softmax(dim=1)
+        self.eps = EPS
 
-    def forward(self, proba, targets):
+    def forward(self, logits, targets):
+        proba = self.softmax(logits)
         n_classes = proba.size(1)
-        loss = {}
+        loss = torch.zeros_like(targets).type(torch.float)
         for i in range(n_classes):
             pi = proba[:, i] * (targets == i) + (1 - proba[:, i]) * (targets != i)
             ai = self.alpha[i]
-            loss += -ai * (1 - pi) ** self.gamma * torch.log(pi)
+            loss += -ai * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
         return loss.mean()
 
 
@@ -172,7 +177,7 @@ class PointNetModel(LightningModule):
         # remember to always return loss from training_step, or else backpropagation will fail!
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def on_train_epoch_end(self, unused = None) -> None:
+    def on_train_epoch_end(self, unused=None) -> None:
         epoch_train_iou = np.mean(self.train_iou_accumulator)
         if epoch_train_iou > self.best_reached_train_iou:
             self.train_iou_has_improved = True
