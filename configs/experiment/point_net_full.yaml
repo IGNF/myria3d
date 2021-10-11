@@ -24,4 +24,4 @@ trainer:
   num_sanity_val_steps: 0
 
 model:
-  batch_norm: false
+  batch_norm: true
