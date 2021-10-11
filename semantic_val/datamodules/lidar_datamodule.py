@@ -25,6 +25,7 @@ from semantic_val.datamodules.datasets.lidar_transforms import (
     MakeCopyOfPosAndY,
     MakeCopyOfSampledPos,
     NormalizeFeatures,
+    CustomNormalizeScale,
     SelectSubTile,
     ToTensor,
     collate_fn,
@@ -127,11 +128,11 @@ class LidarDataModule(LightningDataModule):
                     self.subsample_size, replace=False, allow_duplicates=True
                 ),
                 MakeCopyOfSampledPos(),
-                NormalizeScale(),
+                CustomNormalizeScale(),
                 NormalizeFeatures(),
                 # TODO: set data augmentation back when regularization is needed.
-                # RandomFlip(0, p=0.5),
-                # RandomFlip(1, p=0.5),
+                RandomFlip(0, p=0.5),
+                RandomFlip(1, p=0.5),
             ]
         )
 
@@ -148,7 +149,7 @@ class LidarDataModule(LightningDataModule):
                     self.subsample_size, replace=False, allow_duplicates=True
                 ),
                 MakeCopyOfSampledPos(),
-                NormalizeScale(),
+                CustomNormalizeScale(),
                 NormalizeFeatures(),
             ]
         )

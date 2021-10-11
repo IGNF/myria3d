@@ -10,7 +10,7 @@ import pandas as pd
 import shapefile
 import torch
 from torch_geometric.data import Batch, Data
-from torch_geometric.transforms import BaseTransform
+from torch_geometric.transforms import BaseTransform, Center
 
 from semantic_val.utils import utils
 
@@ -269,6 +269,27 @@ class NormalizeFeatures(BaseTransform):
             RETURN_NUM_MAX - 1
         )
         return data
+
+
+class CustomNormalizeScale(BaseTransform):
+    r"""Centers and normalizes node positions to the interval :math:`(-1, 1)`."""
+
+    def __init__(self):
+        self.center = Center()
+
+    def __call__(self, data):
+        data = self.center(data)
+
+        scale = (1 / data.pos[:, :2].abs().max()) * 0.999999
+        data.pos[:, :2] = data.pos[:, :2] * scale
+
+        z_scale = 100.0
+        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) / 100
+
+        return data
+
+    def __repr__(self):
+        return "{}()".format(self.__class__.__name__)
 
 
 class MakeBuildingTargets(BaseTransform):

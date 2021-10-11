@@ -24,9 +24,9 @@ trainer:
   max_epochs: 300
   check_val_every_n_epoch: 5
   num_sanity_val_steps: 0
-  limit_train_batches: 20
-  limit_val_batches: 12
-  limit_test_batches: 12
+  limit_train_batches: 36
+  limit_val_batches: 36
+  limit_test_batches: 36
   # auto_scale_batch_size: true
 
 model:
@@ -35,4 +35,4 @@ model:
 datamodule:
   batch_size: 8
   train_subtiles_by_tile: 4
-  num_workers: 2
+  num_workers: 3
