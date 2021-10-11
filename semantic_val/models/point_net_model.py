@@ -60,12 +60,16 @@ class PointNetModel(LightningModule):
 
         self.softmax = nn.Softmax(dim=1)
         self.criterion = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor([0.2, 1.0]))
+
         self.train_iou = IoU(num_classes, reduction="none")
         self.val_iou = IoU(num_classes, reduction="none")
         self.test_iou = IoU(num_classes, reduction="none")
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
+
+        self.max_reached_val_iou = -np.inf
+        self.val_iou_accumulator = []
 
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
@@ -117,15 +121,23 @@ class PointNetModel(LightningModule):
         # remember to always return loss from training_step, or else backpropagation will fail!
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def training_epoch_end(self, outputs: List[Any]):
-        # `outputs` is a list of dicts returned from `training_step()`
-        pass
+    def on_fit_start(self):
+        log_path = os.getcwd()
+        log.info(f"Results and logs saved to {log_path}")
+        self.val_preds_folder = osp.join(log_path, "validation_preds")
+        os.makedirs(self.val_preds_folder, exist_ok=True)
+        self.val_preds_geotiffs_folder = osp.join(self.val_preds_folder, "geotiffs")
+        os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
+
+        self.experiment = self.logger.experiment[0]
+        self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
 
         acc = self.val_accuracy(preds, targets)
         iou = self.val_iou(preds, targets)[1]
+        self.val_iou_accumulator.append(iou)
 
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
@@ -150,17 +162,6 @@ class PointNetModel(LightningModule):
             "targets": targets,
             "batch": batch,
         }
-
-    def on_validation_start(self):
-        """Create repository for validation clouds with predictions."""
-        log_path = os.getcwd()
-        self.val_preds_folder = osp.join(log_path, "validation_preds")
-        # TODO: replace with Comet logger
-        log.info(f"Results and logs saved to {log_path}")
-        self.logger.experiment[0].log_parameter("experiment_logs_dirpath", log_path)
-        os.makedirs(self.val_preds_folder, exist_ok=True)
-        self.val_preds_geotiffs_folder = osp.join(self.val_preds_folder, "geotiffs")
-        os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
 
     def save_val_las(self):
         """After inference of classification in self.val_las, save:
@@ -227,12 +228,16 @@ class PointNetModel(LightningModule):
                 self.val_las.building_proba[assign_idx] = elem_proba
 
     def on_validation_end(self):
-        """Save the last unsaved predicted las."""
+        """Save the last unsaved predicted las and keep track of best IoU"""
         output_path = osp.join(
             self.val_preds_folder,
             f"{self.in_memory_tile_id}.las",
         )
         self.val_las.write(output_path)
+
+        val_iou = np.mean(self.val_iou_accumulator)
+        self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
+        self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, _, preds, targets = self.step(batch)
