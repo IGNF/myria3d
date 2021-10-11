@@ -1,16 +1,18 @@
 import glob
 import os.path as osp
-from typing import Optional, Union
+import random
+from typing import Optional, Union, Iterator, Optional, List, Sized
+import itertools
 
 import pandas as pd
-import torch
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.sampler import Sampler
+from torch_geometric.transforms.compose import Compose
 from torch_geometric.transforms import (
     NormalizeScale,
     RandomFlip,
 )
-from torch_geometric.transforms.compose import Compose
 
 from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarTestDataset,
@@ -164,7 +166,7 @@ class LidarDataModule(LightningDataModule):
                 for filepath in train_files
                 if filepath.endswith("845000_6610000.las")
             ]
-        train_files = sorted(train_files * self.train_subtiles_by_tile)
+        # train_files = sorted(train_files * self.train_subtiles_by_tile)
         val_files = df_split[df_split.split == "val"].file_path.values.tolist()
         test_files = df_split[df_split.split == "test"].file_path.values.tolist()
 
@@ -194,7 +196,8 @@ class LidarDataModule(LightningDataModule):
         return DataLoader(
             dataset=self.data_train,
             batch_size=self.batch_size,
-            shuffle=True,
+            shuffle=False,
+            sampler=TrainSampler(len(self.data_train), self.train_subtiles_by_tile),
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
@@ -216,3 +219,26 @@ class LidarDataModule(LightningDataModule):
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
+
+
+class TrainSampler(Sampler[int]):
+    """Custom sampler to draw multiple subtiles from a file in the same batch."""
+
+    data_source: Sized
+
+    def __init__(self, data_source_size: int, train_subtiles_by_tile) -> None:
+        """:param data_source_size: Number of training LAS files."""
+        self.data_source_range = list(range(data_source_size))
+        self.train_subtiles_by_tile = train_subtiles_by_tile
+
+    def __iter__(self) -> Iterator[int]:
+        """Shuffle the files query indexes, and n-plicate them while keeping their new order."""
+        random.shuffle(self.data_source_range)
+        extended_range = [
+            ([file_idx] * self.train_subtiles_by_tile)
+            for file_idx in self.data_source_range
+        ]
+        return itertools.chain.from_iterable(extended_range)
+
+    def __len__(self) -> int:
+        return len(self.data_source_range)
