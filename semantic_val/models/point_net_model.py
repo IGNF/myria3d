@@ -1,6 +1,6 @@
 import os
 import os.path as osp
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 
 import laspy
 import numpy as np
@@ -13,12 +13,31 @@ from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
 from torch_geometric.nn.pool import knn
 from torchmetrics import IoU
+from torch.nn import functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
 from semantic_val.models.modules.point_net import PointNet as Net
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
+
+
+class WeightedFocalLoss(nn.Module):
+    "Weighted version of Focal Loss"
+
+    def __init__(self, weights: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
+        super(WeightedFocalLoss, self).__init__()
+        self.alpha = weights
+        self.gamma = gamma
+
+    def forward(self, proba, targets):
+        n_classes = proba.size(1)
+        loss = {}
+        for i in range(n_classes):
+            pi = proba[:, i] * (targets == i) + (1 - proba[:, i]) * (targets != i)
+            ai = self.alpha[i]
+            loss += -ai * (1 - pi) ** self.gamma * torch.log(pi)
+        return loss.mean()
 
 
 # TODO : asbtract PN specific params into a kwargs_model argument.
@@ -46,6 +65,7 @@ class PointNetModel(LightningModule):
         MLP2_channels: List[int] = [32, 64, 128],
         MLP3_channels: List[int] = [160, 128, 64, 32],
         batch_norm: bool = False,
+        loss="CrossEntropyLoss",
         lr: float = 0.01,
         save_predictions: bool = False,
     ):
@@ -59,7 +79,17 @@ class PointNetModel(LightningModule):
         self.in_memory_tile_id = ""
 
         self.softmax = nn.Softmax(dim=1)
-        self.criterion = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor([0.2, 1.0]))
+        percentage_buildings_train_val = 0.0226
+        weights = torch.FloatTensor(
+            [
+                0.1,
+                0.9,
+            ]
+        )
+        if loss == "CrossEntropyLoss":
+            self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
+        elif loss == "FocalLoss":
+            self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
         self.train_iou = IoU(num_classes, reduction="none")
         self.val_iou = IoU(num_classes, reduction="none")
@@ -108,7 +138,7 @@ class PointNetModel(LightningModule):
         self.experiment = self.logger.experiment[0]
         self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
-    def on_train_start(self) -> None:
+    def on_train_epoch_start(self) -> None:
         self.train_iou_accumulator = []
         return super().on_train_start()
 
@@ -142,12 +172,12 @@ class PointNetModel(LightningModule):
         # remember to always return loss from training_step, or else backpropagation will fail!
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def on_train_end(self) -> None:
+    def on_train_epoch_end(self, unused = None) -> None:
         epoch_train_iou = np.mean(self.train_iou_accumulator)
         if epoch_train_iou > self.best_reached_train_iou:
             self.train_iou_has_improved = True
             self.best_reached_train_iou = epoch_train_iou
-        return super().on_train_end()
+        return super().on_train_epoch_end(unused=unused)
 
     def on_validation_start(self) -> None:
         self.val_iou_accumulator = []
