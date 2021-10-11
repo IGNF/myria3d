@@ -69,7 +69,11 @@ class PointNetModel(LightningModule):
         self.test_accuracy = Accuracy()
 
         self.max_reached_val_iou = -np.inf
-        self.val_iou_accumulator = []
+        self.val_iou_accumulator: List = []
+
+        self.best_reached_train_iou: float = 0.0
+        self.train_iou_accumulator: List = []
+        self.train_iou_has_improved: bool = False
 
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
@@ -104,17 +108,23 @@ class PointNetModel(LightningModule):
         self.experiment = self.logger.experiment[0]
         self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
+    def on_train_start(self) -> None:
+        self.train_iou_accumulator = []
+        return super().on_train_start()
+
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, _, preds, targets = self.step(batch)
 
         acc = self.train_accuracy(preds, targets)
         iou = self.train_iou(preds, targets)[1]
+        preds_avg = (preds * 1.0).mean().item()
+        targets_avg = (targets * 1.0).mean().item()
+
+        self.train_iou_accumulator.append(iou)
+
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
         self.log("train/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
-
-        preds_avg = (preds * 1.0).mean().item()
-        targets_avg = (targets * 1.0).mean().item()
         log.debug(f"Train batch building % = {targets_avg}")
         self.log(
             "train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
@@ -132,19 +142,35 @@ class PointNetModel(LightningModule):
         # remember to always return loss from training_step, or else backpropagation will fail!
         return {"loss": loss, "preds": preds, "targets": targets}
 
-    def validation_step(self, batch: Any, batch_idx: int):
-        loss, _, proba, preds, targets = self.step(batch)
+    def on_train_end(self) -> None:
+        epoch_train_iou = np.mean(self.train_iou_accumulator)
+        if epoch_train_iou > self.best_reached_train_iou:
+            self.train_iou_has_improved = True
+            self.best_reached_train_iou = epoch_train_iou
+        return super().on_train_end()
 
+    def on_validation_start(self) -> None:
+        self.val_iou_accumulator = []
+        if not self.train_iou_has_improved:
+            log.info("Skipping validation until train IoU increases.")
+        return super().on_train_start()
+
+    def validation_step(self, batch: Any, batch_idx: int):
+        if not self.train_iou_has_improved:
+            self.log("val/iou", -1.0, on_step=False, on_epoch=True, prog_bar=True)
+            return None
+
+        loss, _, proba, preds, targets = self.step(batch)
         acc = self.val_accuracy(preds, targets)
         iou = self.val_iou(preds, targets)[1]
+        preds_avg = (preds * 1.0).mean().item()
+        targets_avg = (targets * 1.0).mean().item()
+
         self.val_iou_accumulator.append(iou)
 
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
         self.log("val/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
-
-        preds_avg = (preds * 1.0).mean().item()
-        targets_avg = (targets * 1.0).mean().item()
         self.log(
             "val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
@@ -155,6 +181,10 @@ class PointNetModel(LightningModule):
             on_epoch=True,
             prog_bar=False,
         )
+
+        if self.save_predictions:
+            self.save_predictions_to_disk(proba, preds, batch, targets)
+
         return {
             "loss": loss,
             "proba": proba,
@@ -162,6 +192,119 @@ class PointNetModel(LightningModule):
             "targets": targets,
             "batch": batch,
         }
+
+    def on_validation_end(self):
+        """Save the last unsaved predicted las and keep track of best IoU"""
+        if self.train_iou_has_improved:
+            output_path = osp.join(
+                self.val_preds_folder,
+                f"{self.in_memory_tile_id}.las",
+            )
+            self.val_las.write(output_path)
+
+            val_iou = np.mean(self.val_iou_accumulator)
+            self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
+            self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
+
+    def test_step(self, batch: Any, batch_idx: int):
+        loss, _, proba, preds, targets = self.step(batch)
+        acc = self.test_accuracy(preds, targets)
+        iou = self.test_iou(preds, targets)[1]
+        preds_avg = (preds * 1.0).mean().item()
+        targets_avg = (targets * 1.0).mean().item()
+
+        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+        self.log("test/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("test/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
+        self.log(
+            "test/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
+        )
+        self.log(
+            "test/targets_avg",
+            targets_avg,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=False,
+        )
+
+        if self.save_predictions:
+            self.save_predictions_to_disk(proba, preds, batch, targets)
+
+        return {
+            "loss": loss,
+            "proba": proba,
+            "preds": preds,
+            "targets": targets,
+            "batch": batch,
+        }
+
+    def on_test_end(self):
+        """Save the last unsaved predicted las and keep track of best IoU"""
+        output_path = osp.join(
+            self.val_preds_folder,
+            f"{self.in_memory_tile_id}.las",
+        )
+        self.val_las.write(output_path)
+
+    def configure_optimizers(self):
+        """Choose what optimizers and learning-rate schedulers to use in your optimization.
+        Normally you'd need one. But in the case of GANs or similar you might have multiple.
+
+        See examples here:
+            https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
+        """
+        return torch.optim.Adam(
+            params=self.parameters(),
+            lr=self.hparams.lr,
+        )
+
+    def save_predictions_to_disk(
+        self,
+        proba: torch.Tensor,
+        preds: torch.Tensor,
+        batch: Batch,
+        targets: torch.Tensor,
+    ):
+        """Save the predicted classes in las format with position."""
+        batch_size = len(np.unique(batch.batch))
+        for sample_idx in range(batch_size):
+            elem_tile_id = batch.tile_id[sample_idx]
+            if self.in_memory_tile_id != elem_tile_id:
+                if self.in_memory_tile_id:
+                    self.save_val_las()
+                self.in_memory_tile_id = elem_tile_id
+                self.val_las = laspy.read(batch.filepath[sample_idx])
+                param = laspy.ExtraBytesParams(name="building_proba", type=float)
+                self.val_las.add_extra_dim(param)
+                param = laspy.ExtraBytesParams(
+                    name="classification_confusion", type=int
+                )
+                self.val_las.add_extra_dim(param)
+
+                # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
+                self.val_las.classification[:] = 0
+                self.val_las_pos = np.asarray(
+                    [
+                        self.val_las.x,
+                        self.val_las.y,
+                        self.val_las.z,
+                    ],
+                    dtype=np.float32,
+                ).transpose()
+                self.val_las_pos = torch.from_numpy(self.val_las_pos)
+
+            elem_pos = batch.pos_copy[batch.batch_y == sample_idx]
+            elem_preds = preds[batch.batch_y == sample_idx]
+            elem_proba = proba[batch.batch_y == sample_idx][:, 1]
+            elem_targets = targets[batch.batch_y == sample_idx]
+
+            assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
+
+            self.val_las.classification[assign_idx] = elem_preds
+            elem_predsdiff = elem_preds + 2 * elem_targets
+            self.val_las.classification_confusion[assign_idx] = elem_predsdiff
+            self.val_las.building_proba[assign_idx] = elem_proba
+        return
 
     def save_val_las(self):
         """After inference of classification in self.val_las, save:
@@ -179,87 +322,4 @@ class PointNetModel(LightningModule):
         output_path = osp.join(
             self.val_preds_geotiffs_folder,
             f"{self.in_memory_tile_id}.tif",
-        )
-
-    def validation_step_end(self, output: dict):
-        """Save the predicted classes in las format with position."""
-
-        if self.save_predictions:
-            proba = output["proba"]
-            preds = output["preds"]
-            batch = output["batch"]
-            targets = output["targets"]
-            for sample_idx in range(len(np.unique(batch.batch))):
-                elem_tile_id = batch.tile_id[sample_idx]
-                if self.in_memory_tile_id != elem_tile_id:
-                    if self.in_memory_tile_id:
-                        self.save_val_las()
-                    self.in_memory_tile_id = elem_tile_id
-                    self.val_las = laspy.read(batch.filepath[sample_idx])
-                    param = laspy.ExtraBytesParams(name="building_proba", type=float)
-                    self.val_las.add_extra_dim(param)
-                    param = laspy.ExtraBytesParams(
-                        name="classification_confusion", type=int
-                    )
-                    self.val_las.add_extra_dim(param)
-
-                    # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
-                    self.val_las.classification[:] = 0
-                    self.val_las_pos = np.asarray(
-                        [
-                            self.val_las.x,
-                            self.val_las.y,
-                            self.val_las.z,
-                        ],
-                        dtype=np.float32,
-                    ).transpose()
-                    self.val_las_pos = torch.from_numpy(self.val_las_pos)
-
-                elem_pos = batch.pos_copy[batch.batch_y == sample_idx]
-                elem_preds = preds[batch.batch_y == sample_idx]
-                elem_proba = proba[batch.batch_y == sample_idx][:, 1]
-                elem_targets = targets[batch.batch_y == sample_idx]
-
-                assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
-
-                self.val_las.classification[assign_idx] = elem_preds
-                elem_predsdiff = elem_preds + 2 * elem_targets
-                self.val_las.classification_confusion[assign_idx] = elem_predsdiff
-                self.val_las.building_proba[assign_idx] = elem_proba
-
-    def on_validation_end(self):
-        """Save the last unsaved predicted las and keep track of best IoU"""
-        output_path = osp.join(
-            self.val_preds_folder,
-            f"{self.in_memory_tile_id}.las",
-        )
-        self.val_las.write(output_path)
-
-        val_iou = np.mean(self.val_iou_accumulator)
-        self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
-        self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
-
-    def test_step(self, batch: Any, batch_idx: int):
-        loss, _, _, preds, targets = self.step(batch)
-
-        # log test metrics
-        acc = self.test_accuracy(preds, targets)
-        iou = self.test_iou(preds, targets)[1]
-
-        self.log("test/loss", loss, on_step=False, on_epoch=True)
-        self.log("test/acc", acc, on_step=False, on_epoch=True)
-        self.log("test/iou", iou, on_step=False, on_epoch=True)
-
-        return {"loss": loss, "preds": preds, "targets": targets}
-
-    def configure_optimizers(self):
-        """Choose what optimizers and learning-rate schedulers to use in your optimization.
-        Normally you'd need one. But in the case of GANs or similar you might have multiple.
-
-        See examples here:
-            https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
-        """
-        return torch.optim.Adam(
-            params=self.parameters(),
-            lr=self.hparams.lr,
         )

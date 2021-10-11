@@ -285,7 +285,7 @@ class MakeBuildingTargets(BaseTransform):
             data[key] = self.make_building_targets(data[key])
         return data
 
-    def make_building_targets(self, y: torch.Tensor) -> torch.Tensor:
+    def make_building_targets(self, y):
         buildings_idx = (y == 19) | (y == 21) | (y == 6)
         y[buildings_idx] = 1
         y[~buildings_idx] = 0
@@ -338,7 +338,7 @@ def get_shapefile_records_df(sf):
     return df
 
 
-def get_metadata_df_from_shapefile(filepath: str):
+def get_metadata_df_from_shapefile(filepath):
     """Get the shapefile records of tiles metadata as a formated pd.DataFrame."""
     sf = shapefile.Reader(filepath)
     df = get_shapefile_records_df(sf)
@@ -348,7 +348,7 @@ def get_metadata_df_from_shapefile(filepath: str):
     return df
 
 
-def get_split_df_of_202110_building_val(df: pd.DataFrame, train_frac: float = 0.8):
+def get_split_df_of_202110_building_val(df, train_frac=0.8):
     """
     Dataset name: "202110_building_val"
     From the formated pd.DataFrame of tiles metadata (output by get_metadata_df_from_shapefile)
@@ -414,7 +414,7 @@ def get_split_df_of_202110_building_val(df: pd.DataFrame, train_frac: float = 0.
     return df_split
 
 
-def create_full_filepath_column(df: pd.DataFrame, dirpath: str):
+def create_full_filepath_column(df, dirpath):
     """Append dirpath as a suffix to file column"""
     df["file_path"] = df["file"].apply(lambda stem: osp.join(dirpath, stem))
     return df
