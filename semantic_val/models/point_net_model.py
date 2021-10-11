@@ -93,6 +93,17 @@ class PointNetModel(LightningModule):
         preds = torch.argmax(logits, dim=1)
         return loss, logits, proba, preds, targets
 
+    def on_fit_start(self):
+        log_path = os.getcwd()
+        log.info(f"Results and logs saved to {log_path}")
+        self.val_preds_folder = osp.join(log_path, "validation_preds")
+        os.makedirs(self.val_preds_folder, exist_ok=True)
+        self.val_preds_geotiffs_folder = osp.join(self.val_preds_folder, "geotiffs")
+        os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
+
+        self.experiment = self.logger.experiment[0]
+        self.experiment.log_parameter("experiment_logs_dirpath", log_path)
+
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, _, preds, targets = self.step(batch)
 
@@ -120,17 +131,6 @@ class PointNetModel(LightningModule):
         # and then read it in some callback or in training_epoch_end() below
         # remember to always return loss from training_step, or else backpropagation will fail!
         return {"loss": loss, "preds": preds, "targets": targets}
-
-    def on_fit_start(self):
-        log_path = os.getcwd()
-        log.info(f"Results and logs saved to {log_path}")
-        self.val_preds_folder = osp.join(log_path, "validation_preds")
-        os.makedirs(self.val_preds_folder, exist_ok=True)
-        self.val_preds_geotiffs_folder = osp.join(self.val_preds_folder, "geotiffs")
-        os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
-
-        self.experiment = self.logger.experiment[0]
-        self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
@@ -251,9 +251,6 @@ class PointNetModel(LightningModule):
         self.log("test/iou", iou, on_step=False, on_epoch=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
-
-    def test_epoch_end(self, outputs: List[Any]):
-        pass
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
