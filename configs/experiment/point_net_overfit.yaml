@@ -25,3 +25,12 @@ trainer:
 
 model:
   batch_norm: true
+
+datamodule:
+  overfit: true
+  train_subtiles_by_tile: 2
+  batch_size: 2 # set equal to train_subtiles_by_tile when overfitting.
+  subtile_width_meters: 1000
+  subsample_size: 30000
+  subtile_overlap: 0
+  num_workers: 2
