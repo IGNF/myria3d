@@ -166,7 +166,9 @@ class LidarDataModule(LightningDataModule):
 
         df_split = pd.read_csv(self.datasplit_csv_filepath)
 
-        train_files = df_split[df_split.split == "train"].file_path.values.tolist()
+        df_split_train = df_split[df_split.split == "train"]
+        df_split_train = df_split_train.sort_values("nb_bati", ascending=False)
+        train_files = df_split_train.file_path.values.tolist()
         if self.overfit:
             # This is only needed to have a "known" file to overfit on, with many buildings at the center.
             train_files = [
@@ -174,7 +176,10 @@ class LidarDataModule(LightningDataModule):
                 for filepath in train_files
                 if filepath.endswith("845000_6610000.las")
             ]
-        val_files = df_split[df_split.split == "val"].file_path.values.tolist()
+
+        df_split_val = df_split[df_split.split == "val"]
+        df_split_val = df_split_val.sort_values("nb_bati", ascending=False)
+        val_files = df_split_val.file_path.values.tolist()
         test_files = val_files
 
         self.data_train = LidarTrainDataset(
