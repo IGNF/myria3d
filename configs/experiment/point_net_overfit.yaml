@@ -17,6 +17,7 @@ seed: 12345
 
 hydra:
   verbose: true
+test_after_training: True
 
 trainer:
   log_every_n_steps: 1
@@ -24,6 +25,7 @@ trainer:
   min_epochs: 1
   max_epochs: 300
   check_val_every_n_epoch: 25
+  limit_test_batches: 13  # adapt to predict at least the full first validation tile
 
 model:
   save_predictions: true
@@ -32,10 +34,10 @@ model:
   save_train_predictions_every_n_step: 20
 
 datamodule:
-  train_subtiles_by_tile: 2
-  batch_size: 2 # set equal to train_subtiles_by_tile when overfitting.
-  subtile_width_meters: 100
-  subsample_size: 30000
+  train_subtiles_by_tile: 32
+  batch_size: 32 # set equal to train_subtiles_by_tile when overfitting.
+  subtile_width_meters: 50
+  subsample_size: 25000  # Aim for at least 10pts/m²
   subtile_overlap: 0
   num_workers: 2
   shuffle_train: false
