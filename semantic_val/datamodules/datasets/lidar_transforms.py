@@ -2,10 +2,10 @@ import math
 import os.path as osp
 from pathlib import Path
 from typing import List
+import random
 
 import laspy
 import numpy as np
-import re
 import pandas as pd
 import shapefile
 import torch
@@ -97,6 +97,7 @@ def get_all_subtile_centers(
             start=low[1], stop=high[1], step=subtile_width_meters - subtile_overlap
         )
     ]
+    random.shuffle(centers)
     return centers
 
 
