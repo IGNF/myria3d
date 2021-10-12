@@ -11,7 +11,7 @@ model_checkpoint:
 
 early_stopping:
   _target_: pytorch_lightning.callbacks.EarlyStopping
-  monitor: "val/iou" # name of the logged metric which determines when model is improving
+  monitor: "val/iou_epoch" # name of the logged metric which determines when model is improving
   mode: "max" # can be "max" or "min"
   patience: 50 # how many epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement

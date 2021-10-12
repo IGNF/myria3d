@@ -192,7 +192,7 @@ class PointNetModel(LightningModule):
 
     def validation_step(self, batch: Any, batch_idx: int):
         if not self.train_iou_has_improved:
-            self.log("val/iou", -1.0, on_step=False, on_epoch=True, prog_bar=True)
+            self.log("val/iou", -1.0, on_step=True, on_epoch=True, prog_bar=True)
             return None
 
         loss, _, proba, preds, targets = self.step(batch)
