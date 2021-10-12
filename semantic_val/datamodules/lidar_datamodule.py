@@ -131,8 +131,8 @@ class LidarDataModule(LightningDataModule):
                 CustomNormalizeScale(),
                 NormalizeFeatures(),
                 # TODO: set data augmentation back when regularization is needed.
-                RandomFlip(0, p=0.5),
-                RandomFlip(1, p=0.5),
+                # RandomFlip(0, p=0.5),
+                # RandomFlip(1, p=0.5),
             ]
         )
 
