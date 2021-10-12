@@ -55,6 +55,7 @@ class LidarDataModule(LightningDataModule):
         subtile_overlap: float = 0.0,
         train_subtiles_by_tile: int = 4,
         subsample_size: int = 30000,
+        shuffle_train: bool = False,
     ):
         super().__init__()
 
@@ -70,6 +71,7 @@ class LidarDataModule(LightningDataModule):
         self.subtile_overlap = subtile_overlap
         self.subsample_size = subsample_size
         self.batch_size = batch_size
+        self.shuffle_train = shuffle_train
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
@@ -201,7 +203,9 @@ class LidarDataModule(LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             sampler=TrainSampler(
-                self.data_train.nb_files, self.train_subtiles_by_tile, shuffle=False
+                self.data_train.nb_files,
+                self.train_subtiles_by_tile,
+                shuffle=self.shuffle_train,
             ),
             num_workers=self.num_workers,
             collate_fn=collate_fn,

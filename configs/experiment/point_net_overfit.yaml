@@ -25,6 +25,7 @@ trainer:
 
 model:
   batch_norm: true
+  loss: "CrossEntropyLoss"
 
 datamodule:
   train_subtiles_by_tile: 2
@@ -33,3 +34,4 @@ datamodule:
   subsample_size: 30000
   subtile_overlap: 0
   num_workers: 2
+  shuffle_train: false

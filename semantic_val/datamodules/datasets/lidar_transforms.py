@@ -165,6 +165,7 @@ class SelectSubTile(BaseTransform):
                 center = data.current_subtile_center
             else:
                 raise f"Undefined method argument: {self.method}"
+
             subtile_data = get_subtile_data(
                 data,
                 center,
