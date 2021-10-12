@@ -200,7 +200,9 @@ class LidarDataModule(LightningDataModule):
             dataset=self.data_train,
             batch_size=self.batch_size,
             shuffle=False,
-            sampler=TrainSampler(self.data_train.nb_files, self.train_subtiles_by_tile),
+            sampler=TrainSampler(
+                self.data_train.nb_files, self.train_subtiles_by_tile, shuffle=False
+            ),
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
@@ -229,15 +231,19 @@ class TrainSampler(Sampler[int]):
 
     data_source: Sized
 
-    def __init__(self, nb_files: int, train_subtiles_by_tile) -> None:
+    def __init__(
+        self, nb_files: int, train_subtiles_by_tile: int, shuffle: bool = False
+    ) -> None:
         """:param data_source_size: Number of training LAS files."""
         self.nb_files = nb_files
         self.data_source_range = list(range(self.nb_files))
         self.train_subtiles_by_tile = train_subtiles_by_tile
+        self.shuffle = shuffle
 
     def __iter__(self) -> Iterator[int]:
         """Shuffle the files query indexes, and n-plicate them while keeping their new order."""
-        random.shuffle(self.data_source_range)
+        if self.shuffle:
+            random.shuffle(self.data_source_range)
         extended_range = [
             ([file_idx] * self.train_subtiles_by_tile)
             for file_idx in self.data_source_range
