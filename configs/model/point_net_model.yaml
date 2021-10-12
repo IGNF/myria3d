@@ -1,10 +1,12 @@
-_target_: semantic_val.models.point_net_model.PointNetModel
+_target_: semantic_val.models.model.SegmentationModel
 
-MLP1_channels: [6, 32, 32]
-MLP2_channels: [32, 64, 128]
-MLP3_channels: [160, 128, 64, 32] # 128 + 32 = 160
-num_classes: 2
-batch_norm: false
-lr: 0.01
 save_predictions: true
 loss: "CrossEntropyLoss"
+lr: 0.01
+
+net:
+  MLP1_channels: [6, 32, 32]
+  MLP2_channels: [32, 64, 128]
+  MLP3_channels: [160, 128, 64, 32] # 128 + 32 = 160
+  num_classes: 2
+  batch_norm: false

@@ -25,10 +25,17 @@ class PointNet(nn.Module):
     def __init__(self, hparams: dict):
         super().__init__()
 
-        self.mlp1 = MLP(hparams["MLP1_channels"], batch_norm=hparams["batch_norm"])
-        self.mlp2 = MLP(hparams["MLP2_channels"], batch_norm=hparams["batch_norm"])
-        self.mlp3 = MLP(hparams["MLP3_channels"], batch_norm=hparams["batch_norm"])
-        self.lin = Lin(hparams["MLP3_channels"][-1], hparams["num_classes"])
+        hparams_net = hparams["net"]
+        self.mlp1 = MLP(
+            hparams_net["MLP1_channels"], batch_norm=hparams_net["batch_norm"]
+        )
+        self.mlp2 = MLP(
+            hparams_net["MLP2_channels"], batch_norm=hparams_net["batch_norm"]
+        )
+        self.mlp3 = MLP(
+            hparams_net["MLP3_channels"], batch_norm=hparams_net["batch_norm"]
+        )
+        self.lin = Lin(hparams_net["MLP3_channels"][-1], hparams_net["num_classes"])
         # TODO: make this a parameter somewhere
         self.percentage_buildings_train_val = 0.0226
         self.lin.bias = torch.nn.Parameter(

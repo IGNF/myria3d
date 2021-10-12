@@ -47,7 +47,7 @@ class WeightedFocalLoss(nn.Module):
 
 # TODO : asbtract PN specific params into a kwargs_model argument.
 # TODO: refactor to ClassificationModel if this is not specific to PointNet
-class PointNetModel(LightningModule):
+class SegmentationModel(LightningModule):
     """
     A LightningModule organizes your PyTorch code into 5 sections:
         - Computations (init).
@@ -66,13 +66,10 @@ class PointNetModel(LightningModule):
     def __init__(
         self,
         num_classes: int = 2,
-        MLP1_channels: List[int] = [6, 32, 32],
-        MLP2_channels: List[int] = [32, 64, 128],
-        MLP3_channels: List[int] = [160, 128, 64, 32],
-        batch_norm: bool = False,
         loss="CrossEntropyLoss",
         lr: float = 0.01,
         save_predictions: bool = False,
+        **kwargs,
     ):
         super().__init__()
 

@@ -5,7 +5,7 @@
 
 defaults:
   - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
-  - override /model: point_net_model.yaml
+  - override /model: model.yaml
   - override /datamodule: lidar_datamodule.yaml # HERE we use toy one with smaller subtiling, etc.
   - override /callbacks: comet.yaml
   - override /logger: comet

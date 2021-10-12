@@ -24,8 +24,9 @@ trainer:
   check_val_every_n_epoch: 25
 
 model:
-  batch_norm: true
+  save_predictions: true
   loss: "CrossEntropyLoss"
+  lr: 0.01
 
 datamodule:
   train_subtiles_by_tile: 2
