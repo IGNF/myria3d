@@ -6,8 +6,8 @@ lr: 0.01
 save_train_predictions_every_n_epoch: ${trainer.check_val_every_n_epoch}
 
 net:
-  MLP1_channels: [6, 32, 32]
-  MLP2_channels: [32, 64, 128]
-  MLP3_channels: [160, 128, 64, 32] # 128 + 32 = 160
+  MLP1_channels: [6, 64, 64]
+  MLP2_channels: [64, 256, 512, 1024]
+  MLP3_channels: [1088, 512, 256, 64, 4]
   num_classes: 2
   batch_norm: false
