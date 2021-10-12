@@ -55,7 +55,6 @@ class LidarDataModule(LightningDataModule):
         subtile_overlap: float = 0.0,
         train_subtiles_by_tile: int = 4,
         subsample_size: int = 30000,
-        overfit: bool = False,
     ):
         super().__init__()
 
@@ -65,7 +64,6 @@ class LidarDataModule(LightningDataModule):
         self.metadata_shapefile = metadata_shapefile
         self.datasplit_csv_filepath = metadata_shapefile.replace(".shp", ".csv")
 
-        self.overfit = overfit
         self.train_frac = train_frac
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
@@ -120,7 +118,7 @@ class LidarDataModule(LightningDataModule):
             [
                 SelectSubTile(
                     subtile_width_meters=self.subtile_width_meters,
-                    method="deterministic" if self.overfit else "random",
+                    method="random",
                 ),
                 ToTensor(),
                 MakeCopyOfPosAndY(),
@@ -169,13 +167,6 @@ class LidarDataModule(LightningDataModule):
         df_split_train = df_split[df_split.split == "train"]
         df_split_train = df_split_train.sort_values("nb_bati", ascending=False)
         train_files = df_split_train.file_path.values.tolist()
-        if self.overfit:
-            # This is only needed to have a "known" file to overfit on, with many buildings at the center.
-            train_files = [
-                filepath
-                for filepath in train_files
-                if filepath.endswith("845000_6610000.las")
-            ]
 
         df_split_val = df_split[df_split.split == "val"]
         df_split_val = df_split_val.sort_values("nb_bati", ascending=False)

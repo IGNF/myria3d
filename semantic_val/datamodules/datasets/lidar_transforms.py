@@ -156,9 +156,7 @@ class SelectSubTile(BaseTransform):
     def __call__(self, data: Data):
 
         for try_i in range(25):
-            if self.method == "deterministic":
-                center = get_tile_center(data, self.subtile_width_meters)
-            elif self.method == "random":
+            if self.method == "random":
                 center = get_random_subtile_center(
                     data, subtile_width_meters=self.subtile_width_meters
                 )
