@@ -27,7 +27,7 @@ model:
   save_predictions: true
   loss: "CrossEntropyLoss"
   lr: 0.01
-  save_train_predictions_every_n_step: ${trainer.check_val_every_n_epoch}
+  save_train_predictions_every_n_step: 20
 
 datamodule:
   train_subtiles_by_tile: 2
