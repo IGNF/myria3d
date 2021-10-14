@@ -76,7 +76,8 @@ class SegmentationModel(LightningModule):
     def __init__(
         self,
         n_classes: int = 2,
-        loss="CrossEntropyLoss",
+        loss: str = "CrossEntropyLoss",
+        alpha: float = 0.25,
         lr: float = 0.01,
         save_predictions: bool = False,
         save_train_predictions_every_n_step: int = 50,
@@ -92,13 +93,8 @@ class SegmentationModel(LightningModule):
         self.save_train_predictions_every_n_step = save_train_predictions_every_n_step
 
         self.softmax = nn.Softmax(dim=1)
-        percentage_buildings_train_val = 0.0226
-        weights = torch.FloatTensor(
-            [
-                percentage_buildings_train_val,
-                1 - percentage_buildings_train_val,
-            ]
-        )
+
+        weights = torch.FloatTensor([alpha, 1 - alpha])
         if loss == "CrossEntropyLoss":
             self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
         elif loss == "FocalLoss":

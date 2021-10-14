@@ -2,6 +2,7 @@ _target_: semantic_val.models.model.SegmentationModel
 
 save_predictions: true
 loss: "CrossEntropyLoss"
+alpha: 0.25
 lr: 0.01
 
 net:
