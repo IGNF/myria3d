@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Union
 
 import laspy
 import numpy as np
+from pytorch_lightning.utilities.types import STEP_OUTPUT
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
@@ -80,7 +81,6 @@ class SegmentationModel(LightningModule):
         self.model = Net(hparams=self.hparams)
         self.should_save_preds: bool = save_predictions
         self.save_train_predictions_every_n_step = save_train_predictions_every_n_step
-        self.in_memory_tile_id = ""
 
         self.softmax = nn.Softmax(dim=1)
         percentage_buildings_train_val = 0.0226
@@ -102,10 +102,10 @@ class SegmentationModel(LightningModule):
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
 
+        # TODO: Abstract the tracking of max reached in a separate hook
         self.max_reached_val_iou = -np.inf
         self.val_iou_accumulator: List = []
 
-        self.train_step_global_idx: int = 0
         self.best_reached_train_iou: float = 0.0
         self.train_iou_accumulator: List = []
         self.train_iou_has_improved: bool = False
@@ -132,20 +132,8 @@ class SegmentationModel(LightningModule):
         preds = torch.argmax(logits, dim=1)
         return loss, logits, proba, preds, targets
 
-    def on_fit_start(self):
-        log_path = os.getcwd()
-        log.info(f"Results and logs saved to {log_path}")
-        self.preds_dirpath = osp.join(log_path, "validation_preds")
-        os.makedirs(self.preds_dirpath, exist_ok=True)
-        self.val_preds_geotiffs_folder = osp.join(self.preds_dirpath, "geotiffs")
-        os.makedirs(self.val_preds_geotiffs_folder, exist_ok=True)
-
-        self.experiment = self.logger.experiment[0]
-        self.experiment.log_parameter("experiment_logs_dirpath", log_path)
-
     def on_train_epoch_start(self) -> None:
         self.train_iou_accumulator = []
-        self.train_step_global_idx = self.train_step_global_idx + 1
         return super().on_train_start()
 
     def training_step(self, batch: Any, batch_idx: int):
@@ -172,20 +160,14 @@ class SegmentationModel(LightningModule):
             on_epoch=True,
             prog_bar=False,
         )
-        if (
-            self.should_save_preds
-            and self.train_step_global_idx % self.save_train_predictions_every_n_step
-            == 0
-        ):
-            self.in_memory_tile_id = None
-            self.update_las_with_preds(proba, preds, batch, targets)
-            self.save_las_with_preds("train")
-            log.info(
-                f"Saved train preds to disk for batch number {self.train_step_global_idx}"
-            )
-            self.in_memory_tile_id = None
 
-        return {"loss": loss, "preds": preds, "targets": targets}
+        return {
+            "loss": loss,
+            "proba": proba,
+            "preds": preds,
+            "targets": targets,
+            "batch": batch,
+        }
 
     def on_train_epoch_end(self, unused=None) -> None:
         epoch_train_iou = np.mean(self.train_iou_accumulator)
@@ -227,9 +209,6 @@ class SegmentationModel(LightningModule):
             prog_bar=False,
         )
 
-        if self.should_save_preds:
-            self.update_las_with_preds(proba, preds, batch, targets)
-
         return {
             "loss": loss,
             "proba": proba,
@@ -241,10 +220,6 @@ class SegmentationModel(LightningModule):
     def on_validation_end(self):
         """Save the last unsaved predicted las and keep track of best IoU"""
         if self.train_iou_has_improved:
-            log.info(
-                f"Saved validation preds to disk after train step {self.train_step_global_idx}"
-            )
-            self.save_las_with_preds("val")
             val_iou = np.mean(self.val_iou_accumulator)
             self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
             self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
@@ -272,12 +247,6 @@ class SegmentationModel(LightningModule):
             prog_bar=False,
         )
 
-        if self.should_save_preds:
-            log.info(
-                f"Saving test preds to disk after train step {self.train_step_global_idx}"
-            )
-            self.update_las_with_preds(proba, preds, batch, targets)
-
         return {
             "loss": loss,
             "proba": proba,
@@ -285,10 +254,6 @@ class SegmentationModel(LightningModule):
             "targets": targets,
             "batch": batch,
         }
-
-    def on_test_end(self):
-        """Save the last unsaved predicted las and keep track of best IoU"""
-        self.save_las_with_preds("test")
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
@@ -301,64 +266,3 @@ class SegmentationModel(LightningModule):
             params=self.parameters(),
             lr=self.hparams.lr,
         )
-
-    def update_las_with_preds(
-        self,
-        proba: torch.Tensor,
-        preds: torch.Tensor,
-        batch: Batch,
-        targets: torch.Tensor,
-        phase: str = "val",  # val, train or test
-    ):
-        """Save the predicted classes in las format with position."""
-        batch_size = len(np.unique(batch.batch))
-        for sample_idx in range(batch_size):
-            elem_tile_id = batch.tile_id[sample_idx]
-            if self.in_memory_tile_id != elem_tile_id:
-                if self.in_memory_tile_id:
-                    self.save_las_with_preds(phase)
-                self.in_memory_tile_id = elem_tile_id
-                self.las_with_preds = laspy.read(batch.filepath[sample_idx])
-                param = laspy.ExtraBytesParams(name="building_proba", type=float)
-                self.las_with_preds.add_extra_dim(param)
-                param = laspy.ExtraBytesParams(
-                    name="classification_confusion", type=int
-                )
-                self.las_with_preds.add_extra_dim(param)
-
-                # TODO: consider setting this to np.nan or equivalent to capture incomplete predictions.
-                self.las_with_preds.classification[:] = 0
-                self.val_las_pos = np.asarray(
-                    [
-                        self.las_with_preds.x,
-                        self.las_with_preds.y,
-                        self.las_with_preds.z,
-                    ],
-                    dtype=np.float32,
-                ).transpose()
-                self.val_las_pos = torch.from_numpy(self.val_las_pos)
-
-            elem_pos = batch.pos_copy[batch.batch_y == sample_idx]
-            elem_preds = preds[batch.batch_y == sample_idx]
-            elem_proba = proba[batch.batch_y == sample_idx][:, 1]
-            elem_targets = targets[batch.batch_y == sample_idx]
-
-            assign_idx = knn(self.val_las_pos, elem_pos, k=1, num_workers=1)[1]
-
-            self.las_with_preds.classification[assign_idx] = elem_preds
-            elem_predsdiff = elem_preds + 2 * elem_targets
-            self.las_with_preds.classification_confusion[assign_idx] = elem_predsdiff
-            self.las_with_preds.building_proba[assign_idx] = elem_proba.detach()
-        return
-
-    def save_las_with_preds(self, phase):
-        """After inference of classification in self.las_with_predictions, save:
-        - The LAS with updated classification
-        - A GeoTIFF of the classification, which is logged into Comet as well.
-        """
-        output_path = osp.join(
-            self.preds_dirpath,
-            f"{phase}_{self.in_memory_tile_id}.las",
-        )
-        self.las_with_preds.write(output_path)
-        log.info(f"Predictions save path : {output_path}.")

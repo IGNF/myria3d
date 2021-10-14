@@ -1,3 +1,10 @@
+save_preds:
+  _target_: semantic_val.callbacks.predictions_callbacks.SavePreds  
+
+log_code:
+  _target_: semantic_val.callbacks.comet_callbacks.LogCode
+  code_dir: ${work_dir}/semantic_val
+
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
   monitor: "val/iou" # name of the logged metric which determines when model is improving
@@ -15,3 +22,4 @@ early_stopping:
   mode: "max" # can be "max" or "min"
   patience: 50 # how many epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
+
