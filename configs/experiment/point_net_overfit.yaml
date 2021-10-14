@@ -38,6 +38,7 @@ model:
     MLP3_channels: [1088, 512, 256, 64, 4]
     num_classes: 2
     batch_norm: true
+    pi_init: 0.05
 
 datamodule:
   train_subtiles_by_tile: 6000 # Large to have single tile chosen.
