@@ -28,7 +28,8 @@ EPS = 10 ** -5
 class WeightedFocalLoss(nn.Module):
     """
     Weighted version of Focal Loss.
-    We normalize the loss by the nb of samples with rare class, inspired by original Focal Loss paper.
+    We normalize in part the loss by the nb of samples with rare class, inspired by original Focal Loss paper.
+    This is important so that the loss is properly scaled.
     """
 
     def __init__(self, weights: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
@@ -49,7 +50,10 @@ class WeightedFocalLoss(nn.Module):
             pi = proba[:, i] * ti
             ai = self.alpha[i]
             loss += -(ti * ai) * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
-        loss = loss.sum() / (targets == self.rare_class_dim).sum()
+        n_points = logits.size(0)
+        n_points_rare_class = (targets == self.rare_class_dim).sum()
+        normalization_factor = (n_points_rare_class + n_points / 100) / 2
+        loss = loss.sum() / normalization_factor
         return loss
 
 
