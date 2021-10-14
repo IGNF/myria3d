@@ -36,13 +36,14 @@ class PointNet(nn.Module):
             hparams_net["MLP3_channels"], batch_norm=hparams_net["batch_norm"]
         )
         self.lin = Lin(hparams_net["MLP3_channels"][-1], hparams_net["num_classes"])
-        # TODO: make this a parameter somewhere
-        self.percentage_buildings_train_val = 0.0226
+        pi_init = hparams_net["pi_init"]
+        a = 0
+        b = -np.log((1 - pi_init) / pi_init)
         self.lin.bias = torch.nn.Parameter(
             torch.Tensor(
                 [
-                    1 - self.percentage_buildings_train_val,
-                    self.percentage_buildings_train_val,
+                    a,
+                    b,
                 ]
             )
         )

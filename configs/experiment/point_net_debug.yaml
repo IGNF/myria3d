@@ -1,0 +1,49 @@
+# @package _global_
+
+# to execute this experiment run:
+# python run.py experiment=example_simple.yaml
+
+defaults:
+  - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
+  - override /model: point_net_model.yaml
+  - override /datamodule: lidar_datamodule_overfit.yaml # HERE we use toy one with smaller subtiling, etc.
+  - override /callbacks: callbacks.yaml
+  - override /logger: comet
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+seed: 12345
+
+hydra:
+  verbose: true
+test_after_training: True
+
+trainer:
+  log_every_n_steps: 1
+  overfit_batches: 1
+  min_epochs: 1
+  max_epochs: 300
+  check_val_every_n_epoch: 2
+
+model:
+  save_predictions: true
+  loss: "CrossEntropyLoss"
+  lr: 0.01
+  save_train_predictions_every_n_step: 20
+  net:
+    MLP1_channels: [6, 64, 64]
+    MLP2_channels: [64, 256, 512, 1024]
+    MLP3_channels: [1088, 512, 256, 64, 4]
+    num_classes: 2
+    batch_norm: false
+    pi_init: 0.05
+
+datamodule:
+  train_subtiles_by_tile: 6000 # Large to have single tile chosen.
+  batch_size: 32 # Large possible for faster training.
+  subtile_width_meters: 50
+  subsample_size: 25000  # Aim for at least 10pts/m²
+  subtile_overlap: 0
+  num_workers: 1
+  shuffle_train: false  # false to focus on the first tile only.
