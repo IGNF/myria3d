@@ -16,7 +16,7 @@ defaults:
 seed: 12345
 
 hydra:
-  verbose: true
+  verbose: false
 test_after_training: True
 
 trainer:
