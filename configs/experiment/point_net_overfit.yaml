@@ -14,7 +14,9 @@ defaults:
 # this allows you to overwrite only specified parameters
 
 seed: 12345
-debug: true # Set to false to use the other limits below.
+
+hydra:
+  verbose: true
 
 trainer:
   log_every_n_steps: 1
