@@ -134,7 +134,6 @@ class SegmentationModel(LightningModule):
 
     def on_train_epoch_start(self) -> None:
         self.train_iou_accumulator = []
-        return super().on_train_start()
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
@@ -174,13 +173,11 @@ class SegmentationModel(LightningModule):
         if epoch_train_iou > self.best_reached_train_iou:
             self.train_iou_has_improved = True
             self.best_reached_train_iou = epoch_train_iou
-        return super().on_train_epoch_end(unused=unused)
 
     def on_validation_start(self) -> None:
         self.val_iou_accumulator = []
         if not self.train_iou_has_improved:
             log.info("Skipping validation until train IoU increases.\n")
-        return super().on_train_start()
 
     def validation_step(self, batch: Any, batch_idx: int):
         if not self.train_iou_has_improved:
