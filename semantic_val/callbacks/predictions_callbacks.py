@@ -35,7 +35,7 @@ class SavePreds(Callback):
 
         trainer.model.experiment = trainer.model.logger.experiment[0]
         log_path = os.getcwd()
-        log.info(f"Results and logs saved to {log_path}")
+        log.info(f"Saving results and logs to {log_path}")
 
         self.preds_dirpath = osp.join(log_path, "validation_preds")
         os.makedirs(self.preds_dirpath, exist_ok=True)
@@ -71,10 +71,10 @@ class SavePreds(Callback):
         )
         if trainer.model.should_save_preds and reached_train_saving_step:
             self.update_las_with_preds(outputs, "train")
-            self.save_las_with_preds_and_close("train")
-            log.info(
-                f"Saved train preds to disk for batch number {self.train_step_global_idx}"
+            log.debug(
+                f"Saving train preds to disk for batch number {self.train_step_global_idx}"
             )
+            self.save_las_with_preds_and_close("train")
 
     def on_validation_batch_end(
         self,
@@ -94,8 +94,8 @@ class SavePreds(Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         if trainer.model.train_iou_has_improved:
-            log.info(
-                f"Saved validation preds to disk after train step {self.train_step_global_idx}.\n"
+            log.debug(
+                f"Saving validation preds to disk after train step {self.train_step_global_idx}.\n"
             )
             self.save_las_with_preds_and_close("val")
 
@@ -109,7 +109,7 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if trainer.model.should_save_preds:
-            log.info(
+            log.debug(
                 f"Saving test preds to disk after train step {self.train_step_global_idx}"
             )
             self.update_las_with_preds(outputs, "test")
@@ -201,7 +201,7 @@ class SavePreds(Callback):
         filename = f"{phase}_{tile_id}.las"
         output_path = osp.join(self.preds_dirpath, filename)
         self.current_las.write(output_path)
-        log.info(f"Predictions save path : {output_path}.")
+        log.debug(f"Predictions save path is {output_path}.")
         # Closing:
         self.in_memory_tile_filepath = ""
         del self.current_las

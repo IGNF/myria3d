@@ -172,10 +172,10 @@ class SelectSubTile(BaseTransform):
                 subtile_width_meters=self.subtile_width_meters,
             )
             if subtile_data.pos.shape[0] == 0:
-                log.info(
+                log.debug(
                     f"Error - no points in subtile extracted from {data.filepath} at position {str(center)}"
                 )
-                log.info(f"New try of a random extract (i={try_i+1}/10)")
+                log.debug(f"New try of a random extract (i={try_i+1}/10)")
             else:
                 break
         return subtile_data
