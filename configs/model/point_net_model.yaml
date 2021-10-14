@@ -11,3 +11,5 @@ net:
   MLP3_channels: [1088, 512, 256, 64, 4]
   num_classes: 2
   batch_norm: false
+  pi_init: 0.05
+

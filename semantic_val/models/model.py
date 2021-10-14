@@ -26,7 +26,10 @@ EPS = 10 ** -5
 
 
 class WeightedFocalLoss(nn.Module):
-    "Weighted version of Focal Loss"
+    """
+    Weighted version of Focal Loss.
+    We normalize the loss by the nb of samples with rare class, inspired by original Focal Loss paper.
+    """
 
     def __init__(self, weights: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
         super(WeightedFocalLoss, self).__init__()
@@ -34,20 +37,22 @@ class WeightedFocalLoss(nn.Module):
         self.gamma = gamma
         self.softmax = nn.Softmax(dim=1)
         self.eps = EPS
+        self.n_classes = len(weights)
+        self.rare_class_dim = 1
 
     def forward(self, logits, targets):
+        assert logits.size(1) == self.n_classes
         proba = self.softmax(logits)
-        n_classes = proba.size(1)
         loss = torch.zeros_like(targets).type(torch.float)
-        for i in range(n_classes):
-            pi = proba[:, i] * (targets == i) + (1 - proba[:, i]) * (targets != i)
+        for i in range(self.n_classes):
+            ti = targets == i
+            pi = proba[:, i] * ti
             ai = self.alpha[i]
-            loss += -ai * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
-        return loss.mean()
+            loss += -(ti * ai) * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
+        loss = loss.sum() / (targets == self.rare_class_dim).sum()
+        return loss
 
 
-# TODO : asbtract PN specific params into a kwargs_model argument.
-# TODO: refactor to ClassificationModel if this is not specific to PointNet
 class SegmentationModel(LightningModule):
     """
     A LightningModule organizes your PyTorch code into 5 sections:
@@ -66,7 +71,7 @@ class SegmentationModel(LightningModule):
 
     def __init__(
         self,
-        num_classes: int = 2,
+        n_classes: int = 2,
         loss="CrossEntropyLoss",
         lr: float = 0.01,
         save_predictions: bool = False,
@@ -95,9 +100,9 @@ class SegmentationModel(LightningModule):
         elif loss == "FocalLoss":
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
-        self.train_iou = IoU(num_classes, reduction="none")
-        self.val_iou = IoU(num_classes, reduction="none")
-        self.test_iou = IoU(num_classes, reduction="none")
+        self.train_iou = IoU(n_classes, reduction="none")
+        self.val_iou = IoU(n_classes, reduction="none")
+        self.test_iou = IoU(n_classes, reduction="none")
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
