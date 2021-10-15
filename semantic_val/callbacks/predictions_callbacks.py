@@ -129,8 +129,7 @@ class SavePreds(Callback):
         batch = outputs["batch"]
         targets = outputs["targets"]
 
-        batch_size = len(np.unique(batch.batch))
-        for elem_idx in range(batch_size):
+        for elem_idx in range(batch.batch_size):
             filepath = batch.filepath[elem_idx]
             is_a_new_tile = self.in_memory_tile_filepath != filepath
             if is_a_new_tile:
