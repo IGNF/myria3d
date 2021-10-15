@@ -129,8 +129,16 @@ class SavePreds(Callback):
         batch = outputs["batch"].detach()
         targets = outputs["targets"].detach()
 
+        # Group idx and their associated filepath if they belong to same tile
+        filepath_elem_idx_lists = {}
         for elem_idx in range(batch.batch_size):
             filepath = batch.filepath[elem_idx]
+            if filepath not in filepath_elem_idx_lists:
+                filepath_elem_idx_lists[filepath] = [elem_idx]
+            else:
+                filepath_elem_idx_lists[filepath].append(elem_idx)
+        # assign by group of elements of the same tile.
+        for filepath, elem_idx_list in filepath_elem_idx_lists.items():
             is_a_new_tile = self.in_memory_tile_filepath != filepath
             if is_a_new_tile:
                 if self.in_memory_tile_filepath:
@@ -140,10 +148,12 @@ class SavePreds(Callback):
                 with torch.no_grad():
                     self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
 
-    def assign_outputs_to_tile(self, batch, elem_idx, preds, proba, targets):
+    def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
 
-        elem_points_idx = batch.batch_y == elem_idx
+        elem_points_idx = (batch.batch_y[..., None] == torch.Tensor(elem_idx_list)).any(
+            -1
+        )
         elem_pos = batch.pos_copy[elem_points_idx]
         elem_preds = preds[elem_points_idx]
         elem_proba = proba[elem_points_idx][:, 1]
