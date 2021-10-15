@@ -151,6 +151,7 @@ class SavePreds(Callback):
 
         assign_idx = knn(self.current_las_pos, elem_pos, k=1, num_workers=1)[1]
 
+        self.current_las.BuildingsHasPredictions[assign_idx] = 1
         self.current_las.BuildingsPreds[assign_idx] = elem_preds
         self.current_las.BuildingsProba[assign_idx] = elem_proba.detach()
         elem_preds_confusion = self.get_confusion(elem_preds, elem_targets)
@@ -181,6 +182,10 @@ class SavePreds(Callback):
         param = laspy.ExtraBytesParams(name="BuildingsConfusion", type=int)
         self.current_las.add_extra_dim(param)
         self.current_las.BuildingsConfusion[:] = 0
+
+        param = laspy.ExtraBytesParams(name="BuildingsHasPredictions", type=int)
+        self.current_las.add_extra_dim(param)
+        self.current_las.BuildingsHasPredictions[:] = 0
 
         self.current_las_pos = np.asarray(
             [
