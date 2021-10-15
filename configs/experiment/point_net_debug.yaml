@@ -26,7 +26,7 @@ trainer:
   overfit_batches: 1
   min_epochs: 1
   max_epochs: 300
-  check_val_every_n_epoch: 2
+  check_val_every_n_epoch: 1
 
 model:
   model_architecture: "point_net"
@@ -43,9 +43,9 @@ model:
 
 datamodule:
   train_subtiles_by_tile: 6000 # Large to have single tile chosen.
-  batch_size: 32 # Large possible for faster training.
+  batch_size: 4 # Large possible for faster training.
   subtile_width_meters: 50
-  subsample_size: 25000  # Aim for at least 10pts/m²
+  subsample_size: 2500  # Aim for at least 10pts/m²
   subtile_overlap: 0
   num_workers: 1
   shuffle_train: false  # false to focus on the first tile only.
