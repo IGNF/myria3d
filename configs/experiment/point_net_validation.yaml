@@ -40,7 +40,7 @@ model:
   loss: "FocalLoss"
   n_classes: 2
   net:
-    MLP1_channels: [6, 64, 64]
+    MLP1_channels: [9, 64, 64]
     MLP2_channels: [64, 256, 512, 1024]
     MLP3_channels: [1088, 512, 256, 64, 4]
     batch_norm: true

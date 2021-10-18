@@ -16,6 +16,15 @@ from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
+X_FEATURES_NAMES = [
+    "intensity",
+    "return_num",
+    "num_returns",
+    "red",
+    "green",
+    "blue",
+]
+
 
 def load_las_data(filepath):
     """Load a cloud of points and its labels. base shape: [n_points, n_features].
@@ -29,17 +38,11 @@ def load_las_data(filepath):
             las.z,
         ],
         dtype=np.float32,
-    )
+    ).transpose()
     x = np.asarray(
-        [
-            las.intensity,
-            las.return_num,
-            las.num_returns,
-        ],
+        [las[x_name] for x_name in X_FEATURES_NAMES],
         dtype=np.float32,
-    )
-    pos = pos.transpose()
-    x = x.transpose()
+    ).transpose()
     y = las.classification.astype(np.int)
     tile_id = Path(filepath).stem
 
@@ -49,6 +52,7 @@ def load_las_data(filepath):
         y=y,
         filepath=filepath,
         tile_id=tile_id,
+        x_features_names=X_FEATURES_NAMES,
     )
 
 
@@ -120,6 +124,7 @@ def get_subsampling_mask(input_size: int, subsampling_size: int):
     return sampled_points_idx
 
 
+# TODO: use simple thresholding formula for extraction while allowing for augmentation.
 def get_subtile_data(
     data: Data,
     subtile_center_xy,
@@ -233,7 +238,6 @@ class ToTensor(BaseTransform):
         return data
 
 
-# TODO: find a better naming convention for copy-full vs copy-subsample vs normalized-full vs normalized-subsample...
 class MakeCopyOfPosAndY(BaseTransform):
     r"""Make a copy of the full cloud's positions and labels, for final interpolation."""
 
@@ -293,20 +297,26 @@ class NormalizeFeatures(BaseTransform):
     r"""Scale features in 0-1 range."""
 
     def __call__(self, data: Data):
-        INTENSITY_IDX = 0
-        RETURN_NUM_IDX = 1
-        NUM_RETURN_IDX = 2
 
         INTENSITY_MAX = 32768.0
-        RETURN_NUM_MAX = 7
+        INTENSITY_IDX = data.x_features_names.index("intensity")
+        data["x"][:, INTENSITY_IDX] = data["x"][:, INTENSITY_IDX] / INTENSITY_MAX - 0.5
 
-        data["x"][:, INTENSITY_IDX] = data["x"][:, INTENSITY_IDX] / INTENSITY_MAX
+        RETURN_NUM_MAX = 7
+        RETURN_NUM_IDX = data.x_features_names.index("return_num")
         data["x"][:, RETURN_NUM_IDX] = (data["x"][:, RETURN_NUM_IDX] - 1) / (
             RETURN_NUM_MAX - 1
-        )
+        ) - 0.5
+        NUM_RETURN_IDX = data.x_features_names.index("num_returns")
         data["x"][:, NUM_RETURN_IDX] = (data["x"][:, NUM_RETURN_IDX] - 1) / (
             RETURN_NUM_MAX - 1
-        )
+        ) - 0.5
+
+        COLORS_MAX = 255 * 256
+        COLORS = ["red", "green", "blue"]
+        COLORS_IDX = [data.x_features_names.index(color_name) for color_name in COLORS]
+        for color_idx in COLORS_IDX:
+            data["x"][:, color_idx] = data["x"][:, color_idx] / COLORS_MAX - 0.5
         return data
 
 
@@ -323,7 +333,7 @@ class CustomNormalizeScale(BaseTransform):
         data.pos[:, :2] = data.pos[:, :2] * scale
 
         z_scale = 100.0
-        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) / 100
+        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) / z_scale
 
         return data
 
