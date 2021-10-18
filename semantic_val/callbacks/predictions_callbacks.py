@@ -30,17 +30,17 @@ class SavePreds(Callback):
         self.in_memory_tile_filepath = ""
         self.train_step_global_idx: int = 0
 
-    def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""
 
-        trainer.model.experiment = trainer.model.logger.experiment[0]
+        self.experiment = trainer.logger.experiment[0]
         log_path = os.getcwd()
         log.info(f"Saving results and logs to {log_path}")
 
         self.preds_dirpath = osp.join(log_path, "validation_preds")
         os.makedirs(self.preds_dirpath, exist_ok=True)
 
-        trainer.model.experiment.log_parameter("experiment_logs_dirpath", log_path)
+        self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
     def on_train_batch_start(
         self,

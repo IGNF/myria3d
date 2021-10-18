@@ -1,0 +1,56 @@
+# @package _global_
+
+# Use a specified model to infer on the full validation set (i.e. Test dataloader)
+
+# to execute this experiment run:
+# python run.py experiment=example_simple.yaml
+
+defaults:
+  - override /trainer: default.yaml
+  - override /model: point_net_model.yaml
+  - override /datamodule: lidar_datamodule_overfit.yaml
+  - override /callbacks: callbacks.yaml
+  - override /logger: comet
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+seed: 12345
+
+fit_the_model: false
+test_the_model: true
+
+hydra:
+  verbose: false
+
+trainer:
+  resume_from_checkpoint: "path/to/checkpoint"  # override
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 1
+  max_epochs: 350
+  check_val_every_n_epoch: 1
+  limit_test_batches: 1  # TODO: remove when validation is stable
+
+
+# TODO: The config should be obtained from a checkpoint ?
+# Only batch size should be a variable
+
+model:
+  loss: "FocalLoss"
+#   save_predictions: true
+  net:
+    MLP1_channels: [6, 64, 64]
+    MLP2_channels: [64, 256, 512, 1024]
+    MLP3_channels: [1088, 512, 256, 64, 4]
+    num_classes: 2
+    batch_norm: true
+    pi_init: 0.05
+
+datamodule:
+  batch_size: 2
+  # subtile_width_meters: 50
+  # subsample_size: 25000  # Aim for at least 10pts/m²
+  # subtile_overlap: 0
+  num_workers: 3
+  # shuffle_train: false  # false to focus on the first tile only.

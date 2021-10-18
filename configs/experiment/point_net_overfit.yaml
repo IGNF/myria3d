@@ -17,7 +17,8 @@ seed: 12345
 
 hydra:
   verbose: false
-test_after_training: True
+fit_the_model: true
+test_the_model: True
 
 trainer:
   log_every_n_steps: 1
