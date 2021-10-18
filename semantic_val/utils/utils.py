@@ -8,6 +8,7 @@ import rich.syntax
 import rich.tree
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.utilities import rank_zero_only
+import torch
 
 
 def get_logger(name=__name__) -> logging.Logger:
@@ -73,6 +74,24 @@ def extras(config: DictConfig) -> None:
 
     # disable adding new keys to config
     OmegaConf.set_struct(config, True)
+
+
+def update_config_with_hyperparams(config):
+    """When loading from checkpoint, update hydra config with checpointed model hyperparams."""
+
+    assert config.trainer.resume_from_checkpoint
+
+    model_hyper_parameters = torch.load(config.trainer.resume_from_checkpoint)[
+        "hyper_parameters"
+    ]
+    for key, value in model_hyper_parameters.items():
+        if key == "net":
+            for net_key, net_value in value.items():
+                OmegaConf.update(
+                    config, "model.net." + net_key, net_value, force_add=True
+                )
+        else:
+            OmegaConf.update(config, "model." + key, value, force_add=True)
 
 
 @rank_zero_only

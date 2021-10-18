@@ -17,6 +17,7 @@ from torchmetrics import IoU
 from torch.nn import functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
+# TODO: the class of the model should be an hydra parameter.
 from semantic_val.models.modules.point_net import PointNet as Net
 from semantic_val.utils import utils
 

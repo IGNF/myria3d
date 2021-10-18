@@ -10,7 +10,6 @@ from pytorch_lightning import (
     seed_everything,
 )
 from pytorch_lightning.loggers import LightningLoggerBase
-import torch
 
 from semantic_val.utils import utils
 
@@ -38,6 +37,10 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Init lightning model
     log.info(f"Instantiating model <{config.model._target_}>")
+    # TODO: recursive programming
+    if config.trainer.resume_from_checkpoint:
+        utils.update_config_with_hyperparams(config)
+
     model: LightningModule = hydra.utils.instantiate(config.model)
 
     # Init lightning callbacks
@@ -79,9 +82,6 @@ def train(config: DictConfig) -> Optional[float]:
         log.info("Starting training!")
         trainer.fit(model=model, datamodule=datamodule)
 
-    # Evaluate model on test set, using the best model achieved during training, or a specified checkpoint
-    # TODO: find a way to recover hydra parameters to instantiate the model correctly everytime,
-    # while still overriding
     if config.get("test_the_model") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
         if not trainer.resume_from_checkpoint:
