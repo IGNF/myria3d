@@ -28,9 +28,9 @@ trainer:
   log_every_n_steps: 1
   num_sanity_val_steps: 0
   min_epochs: 1
-  max_epochs: 350
+  max_epochs: 1
   check_val_every_n_epoch: 1
-  limit_test_batches: 1  # TODO: remove when validation is stable
+  # limit_test_batches: 1  # Disable to predict on all data
 
 
 # TODO: The config should be obtained from a checkpoint ?
@@ -47,9 +47,9 @@ model:
     pi_init: 0.05
 
 datamodule:
-  batch_size: 2
-  # subtile_width_meters: 50
-  # subsample_size: 25000  # Aim for at least 10pts/m²
-  # subtile_overlap: 0
-  num_workers: 3
-  # shuffle_train: false  # false to focus on the first tile only.
+  batch_size: 32
+  subtile_width_meters: 50
+  subsample_size: 25000  # Aim for at least 10pts/m²
+  subtile_overlap: 0
+  num_workers: 8
+  shuffle_train: false
