@@ -25,8 +25,9 @@ trainer:
   log_every_n_steps: 1
   overfit_batches: 1
   min_epochs: 1
-  max_epochs: 300
+  max_epochs: 30
   check_val_every_n_epoch: 1
+  # gpus: "1"
 
 model:
   model_architecture: "point_net"
