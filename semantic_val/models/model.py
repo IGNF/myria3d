@@ -138,8 +138,9 @@ class SegmentationModel(LightningModule):
         logits = self.forward(batch)
         loss = self.criterion(logits, targets)
 
-        proba = self.softmax(logits)
         preds = torch.argmax(logits, dim=1)
+        with torch.no_grad():
+            proba = self.softmax(logits)
         return loss, logits, proba, preds, targets
 
     def on_train_epoch_start(self) -> None:

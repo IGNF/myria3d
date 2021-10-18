@@ -151,19 +151,17 @@ class SavePreds(Callback):
     def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
 
-        elem_points_idx = (batch.batch_y[..., None] == torch.Tensor(elem_idx_list)).any(
-            -1
-        )
-        elem_pos = batch.pos_copy[elem_points_idx]
-        elem_preds = preds[elem_points_idx]
-        elem_proba = proba[elem_points_idx][:, 1]
-        elem_targets = targets[elem_points_idx]
+        elem_points_idx = batch.batch_y == elem_idx
+        elem_pos = batch.pos_copy[elem_points_idx].cpu()
+        elem_preds = preds[elem_points_idx].cpu()
+        elem_proba = proba[elem_points_idx][:, 1].cpu()
+        elem_targets = targets[elem_points_idx].cpu()
 
         assign_idx = knn(self.current_las_pos, elem_pos, k=1, num_workers=1)[1]
 
         self.current_las.BuildingsHasPredictions[assign_idx] = 1
         self.current_las.BuildingsPreds[assign_idx] = elem_preds
-        self.current_las.BuildingsProba[assign_idx] = elem_proba.detach()
+        self.current_las.BuildingsProba[assign_idx] = elem_proba
         elem_preds_confusion = self.get_confusion(elem_preds, elem_targets)
         self.current_las.BuildingsConfusion[assign_idx] = elem_preds_confusion
 
