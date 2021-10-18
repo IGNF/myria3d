@@ -153,7 +153,7 @@ class SegmentationModel(LightningModule):
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
 
-        self.train_iou_accumulator.append(iou)
+        self.train_iou_accumulator.append(iou.cpu())
 
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
@@ -200,7 +200,7 @@ class SegmentationModel(LightningModule):
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
 
-        self.val_iou_accumulator.append(iou)
+        self.val_iou_accumulator.append(iou.cpu())
 
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
