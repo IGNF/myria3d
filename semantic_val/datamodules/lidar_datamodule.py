@@ -77,9 +77,9 @@ class LidarDataModule(LightningDataModule):
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
 
-    @property
-    def num_classes(self) -> int:
-        return 2
+    # @property
+    # def n_classes(self) -> int:
+    #     return 2
 
     def make_datasplit_csv(
         self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8

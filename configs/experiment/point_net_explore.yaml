@@ -5,7 +5,7 @@
 
 defaults:
   - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
-  - override /model: model.yaml
+  - override /model: point_net_model.yaml
   - override /datamodule: lidar_datamodule.yaml # HERE we use toy one with smaller subtiling, etc.
   - override /callbacks: comet.yaml
   - override /logger: comet
@@ -31,7 +31,7 @@ trainer:
   # auto_scale_batch_size: true
 
 model:
-  batch_norm: true
+  model_architecture: "point_net"
 
 datamodule:
   batch_size: 8

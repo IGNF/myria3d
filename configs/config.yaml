@@ -3,7 +3,7 @@
 # specify here default training configuration
 defaults:
   - trainer: default.yaml
-  - model: model.yaml
+  - model: point_net_model
   - datamodule: lidar_toy_datamodule.yaml
   - callbacks: comet.yaml # set this to null if you don't want to use callbacks
   - logger: comet # set logger here or use command line (e.g. `python run.py logger=wandb`)
