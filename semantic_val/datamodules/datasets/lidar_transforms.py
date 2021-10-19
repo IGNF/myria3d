@@ -356,6 +356,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
     """Collate list of Data elements, to be used in DataLoader.
     From: https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn"""
     batch = Batch()
+    data_list = filter(lambda x: x is not None, data_list)
 
     # 1: add everything as list of non-Tensor object to facilitate adding new attributes.
     for key in data_list[0].keys:
