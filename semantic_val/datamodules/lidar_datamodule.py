@@ -8,7 +8,6 @@ import pandas as pd
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import Sampler
-from torch_geometric.transforms.compose import Compose
 from torch_geometric.transforms import (
     NormalizeScale,
     RandomFlip,
@@ -20,6 +19,7 @@ from semantic_val.datamodules.datasets.lidar_dataset import (
     LidarValDataset,
 )
 from semantic_val.datamodules.datasets.lidar_transforms import (
+    CustomCompose,
     FixedPointsPosXY,
     MakeBuildingTargets,
     MakeCopyOfPosAndY,
@@ -114,9 +114,9 @@ class LidarDataModule(LightningDataModule):
                 f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
             )
 
-    def get_train_transforms(self) -> Compose:
+    def get_train_transforms(self) -> CustomCompose:
         """Create a transform composition for train phase."""
-        return Compose(
+        return CustomCompose(
             [
                 SelectSubTile(
                     subtile_width_meters=self.subtile_width_meters,
@@ -136,9 +136,9 @@ class LidarDataModule(LightningDataModule):
             ]
         )
 
-    def get_val_transforms(self) -> Compose:
+    def get_val_transforms(self) -> CustomCompose:
         """Create a transform composition for val phase."""
-        return Compose(
+        return CustomCompose(
             [
                 SelectSubTile(
                     subtile_width_meters=self.subtile_width_meters, method="predefined"
@@ -154,7 +154,7 @@ class LidarDataModule(LightningDataModule):
             ]
         )
 
-    def get_test_transforms(self) -> Compose:
+    def get_test_transforms(self) -> CustomCompose:
         return self.get_val_transforms()
 
     def setup(self, stage: Optional[str] = None):

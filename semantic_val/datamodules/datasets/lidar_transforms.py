@@ -1,7 +1,7 @@
 import math
 import os.path as osp
 from pathlib import Path
-from typing import List
+from typing import Callable, List
 import random
 
 import laspy
@@ -143,6 +143,33 @@ def get_subtile_data(
 # Data transforms
 
 
+class CustomCompose(BaseTransform):
+    """Composes several transforms together.
+    Edited to bypass downstream transforms if None is returned by a transform.
+
+    Args:
+        transforms (List[Callable]): List of transforms to compose.
+    """
+
+    def __init__(self, transforms: List[Callable]):
+        self.transforms = transforms
+
+    def __call__(self, data):
+        for transform in self.transforms:
+            if isinstance(data, (list, tuple)):
+                data = [transform(d) for d in data]
+                data = filter(lambda x: x is not None, data)
+            else:
+                data = transform(data)
+                if data is None:
+                    return None
+        return data
+
+    def __repr__(self):
+        args = ["    {},".format(transform) for transform in self.transforms]
+        return "{}([\n{}\n])".format(self.__class__.__name__, "\n".join(args))
+
+
 class SelectSubTile(BaseTransform):
     r"""Select a square subtile from original tile"""
 
@@ -156,7 +183,9 @@ class SelectSubTile(BaseTransform):
 
     def __call__(self, data: Data):
 
-        for try_i in range(25):
+        MAX_TRY_IN_TRAIN_MODE = 25
+
+        for try_i in range(1, MAX_TRY_IN_TRAIN_MODE + 1):
             if self.method == "random":
                 center = get_random_subtile_center(
                     data, subtile_width_meters=self.subtile_width_meters
@@ -171,14 +200,24 @@ class SelectSubTile(BaseTransform):
                 center,
                 subtile_width_meters=self.subtile_width_meters,
             )
-            if subtile_data.pos.shape[0] == 0:
-                log.debug(
-                    f"Error - no points in subtile extracted from {data.filepath} at position {str(center)}"
-                )
-                log.debug(f"New try of a random extract (i={try_i+1}/10)")
+            if len(subtile_data.pos.shape[0]) > 0:
+                return subtile_data
             else:
-                break
-        return subtile_data
+                log.debug(f"No points in {data.filepath} around xy = {str(center)}")
+                if self.method == "random":
+                    if try_i < MAX_TRY_IN_TRAIN_MODE:
+                        log.debug(
+                            f"Trying another center... [{try_i+1}/{MAX_TRY_IN_TRAIN_MODE}]"
+                        )
+                        continue
+                    else:
+                        log.debug(
+                            f"Skipping extraction after {MAX_TRY_IN_TRAIN_MODE} independant try."
+                        )
+                        return None
+                else:
+                    log.debug("Ignoring this subtile.")
+                    return None
 
 
 class ToTensor(BaseTransform):
