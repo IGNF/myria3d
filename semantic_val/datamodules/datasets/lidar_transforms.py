@@ -200,7 +200,7 @@ class SelectSubTile(BaseTransform):
                 center,
                 subtile_width_meters=self.subtile_width_meters,
             )
-            if len(subtile_data.pos.shape[0]) > 0:
+            if len(subtile_data.pos) > 0:
                 return subtile_data
             else:
                 log.debug(f"No points in {data.filepath} around xy = {str(center)}")
