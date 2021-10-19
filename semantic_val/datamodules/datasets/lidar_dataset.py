@@ -91,9 +91,10 @@ class LidarValDataset(IterableDataset):
             for tile_data.current_subtile_center in centers:
                 if self.transform:
                     data = self.transform(tile_data)
-                if self.target_transform:
-                    data = self.target_transform(data)
-                yield data
+                if data is not None:
+                    if self.target_transform:
+                        data = self.target_transform(data)
+                    yield data
 
             log.info(f"Took {(time.time() - ts):.6} seconds")
 
