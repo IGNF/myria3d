@@ -1,1 +1,1 @@
-predicted_las_dirpath: "test.folder"
+predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}

@@ -1,15 +1,9 @@
 from typing import List, Optional
 
-import hydra
 from omegaconf import DictConfig
-from pytorch_lightning import (
-    Callback,
-    LightningDataModule,
-    LightningModule,
-    Trainer,
-    seed_everything,
-)
-from pytorch_lightning.loggers import LightningLoggerBase
+from pytorch_lightning import seed_everything
+
+import geopandas
 
 from semantic_val.utils import utils
 
@@ -33,6 +27,8 @@ def validate(config: DictConfig) -> Optional[float]:
 
     # Get the LAS files
     print(config.validation_module.predicted_las_dirpath)
+    gdf = geopandas.read_file(config.validation_module.predicted_las_dirpath)
+    print(gdf.head())
 
     # Get the shapefile (geopandas)
 
