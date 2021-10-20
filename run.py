@@ -1,4 +1,3 @@
-import comet_ml
 import dotenv
 import hydra
 from omegaconf import DictConfig
@@ -14,6 +13,7 @@ def main(config: DictConfig):
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
     from semantic_val.train import train
+    from semantic_val.validate import validate
     from semantic_val.utils import utils
 
     # A couple of optional utilities:
@@ -28,7 +28,10 @@ def main(config: DictConfig):
         utils.print_config(config, resolve=True)
 
     # Train model
-    return train(config)
+    if config.get("task") == "train.py":
+        return train(config)
+    elif config.get("task") == "validate.py":
+        return validate(config)
 
 
 if __name__ == "__main__":
