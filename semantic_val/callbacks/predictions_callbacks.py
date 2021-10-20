@@ -124,10 +124,10 @@ class SavePreds(Callback):
         :param outputs: outputs of a step.
         :param phase: train, val or test phase (str).
         """
-        proba = outputs["proba"]
-        preds = outputs["preds"]
-        batch = outputs["batch"]
-        targets = outputs["targets"]
+        proba = outputs["proba"].detach()
+        preds = outputs["preds"].detach()
+        batch = outputs["batch"].detach()
+        targets = outputs["targets"].detach()
 
         for elem_idx in range(batch.batch_size):
             filepath = batch.filepath[elem_idx]
@@ -137,7 +137,8 @@ class SavePreds(Callback):
                     self.save_las_with_preds_and_close(phase)
                 self.load_new_las_for_preds(filepath)
             else:
-                self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
+                with torch.no_grad():
+                    self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
 
     def assign_outputs_to_tile(self, batch, elem_idx, preds, proba, targets):
         """Set the predicted elements in the current tile."""
@@ -189,7 +190,9 @@ class SavePreds(Callback):
             ],
             dtype=np.float32,
         ).transpose()
-        self.current_las_pos = torch.from_numpy(self.current_las_pos)
+        self.current_las_pos = torch.from_numpy(
+            self.current_las_pos,
+        )
 
     def save_las_with_preds_and_close(self, phase):
         """After inference of classification in self.las_with_predictions, save:

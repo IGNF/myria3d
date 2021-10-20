@@ -30,7 +30,7 @@ model:
   save_predictions: true
   loss: "CrossEntropyLoss"
   lr: 0.01
-  save_train_predictions_every_n_step: 20
+  save_train_predictions_every_n_step: 1
   net:
     MLP1_channels: [6, 64, 64]
     MLP2_channels: [64, 256, 512, 1024]
