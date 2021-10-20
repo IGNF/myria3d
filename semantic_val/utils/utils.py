@@ -77,7 +77,7 @@ def extras(config: DictConfig) -> None:
 
 
 def update_config_with_hyperparams(config):
-    """When loading from checkpoint, update hydra config with checpointed model hyperparams."""
+    """When loading from checkpoint, update hydra config with checkpointed model hyperparams."""
 
     assert config.trainer.resume_from_checkpoint
 
