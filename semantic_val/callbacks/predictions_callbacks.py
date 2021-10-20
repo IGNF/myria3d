@@ -151,7 +151,7 @@ class SavePreds(Callback):
     def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
 
-        elem_points_idx = batch.batch_y == elem_idx
+        elem_points_idx = batch.batch_y == elem_idx_list
         elem_pos = batch.pos_copy[elem_points_idx].cpu()
         elem_preds = preds[elem_points_idx].cpu()
         elem_proba = proba[elem_points_idx][:, 1].cpu()
