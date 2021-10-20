@@ -143,6 +143,9 @@ class SegmentationModel(LightningModule):
             proba = self.softmax(logits)
         return loss, logits, proba, preds, targets
 
+    def on_fit_start(self) -> None:
+        self.experiment = self.logger.experiment[0]
+
     def on_train_epoch_start(self) -> None:
         self.train_iou_accumulator = []
 
