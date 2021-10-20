@@ -17,10 +17,13 @@ from torchmetrics import IoU
 from torch.nn import functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
-from semantic_val.models.modules.point_net import PointNet as Net
+# TODO: the class of the model should be an hydra parameter.
+from semantic_val.models.modules.point_net import PointNet
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
+
+MODEL_ZOO = {"point_net": PointNet}
 
 EPS = 10 ** -5
 
@@ -75,6 +78,7 @@ class SegmentationModel(LightningModule):
 
     def __init__(
         self,
+        model_architecture: str = "point_net",
         n_classes: int = 2,
         loss: str = "CrossEntropyLoss",
         alpha: float = 0.25,
@@ -87,11 +91,12 @@ class SegmentationModel(LightningModule):
 
         # this line ensures params passed to LightningModule will be saved to ckpt
         # it also allows to access params with 'self.hparams' attribute
-        self.save_hyperparameters()
-        self.model = Net(hparams=self.hparams)
         self.should_save_preds: bool = save_predictions
         self.save_train_predictions_every_n_step = save_train_predictions_every_n_step
+        self.save_hyperparameters()
 
+        model_class = MODEL_ZOO[model_architecture]
+        self.model = model_class(hparams=self.hparams)
         self.softmax = nn.Softmax(dim=1)
 
         weights = torch.FloatTensor([alpha, 1 - alpha])
@@ -133,8 +138,9 @@ class SegmentationModel(LightningModule):
         logits = self.forward(batch)
         loss = self.criterion(logits, targets)
 
-        proba = self.softmax(logits)
         preds = torch.argmax(logits, dim=1)
+        with torch.no_grad():
+            proba = self.softmax(logits)
         return loss, logits, proba, preds, targets
 
     def on_train_epoch_start(self) -> None:
@@ -148,7 +154,7 @@ class SegmentationModel(LightningModule):
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
 
-        self.train_iou_accumulator.append(iou)
+        self.train_iou_accumulator.append(iou.cpu())
 
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
@@ -195,7 +201,7 @@ class SegmentationModel(LightningModule):
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
 
-        self.val_iou_accumulator.append(iou)
+        self.val_iou_accumulator.append(iou.cpu())
 
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)

@@ -1,15 +1,16 @@
 _target_: semantic_val.models.model.SegmentationModel
 
+model_architecture: "point_net"
 save_predictions: true
-loss: "CrossEntropyLoss"
+loss: "FocalLoss"
 alpha: 0.25
 lr: 0.01
+n_classes: 2
 
 net:
   MLP1_channels: [6, 64, 64]
   MLP2_channels: [64, 256, 512, 1024]
   MLP3_channels: [1088, 512, 256, 64, 4]
-  num_classes: 2
   batch_norm: false
   pi_init: 0.05
 

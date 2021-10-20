@@ -1,12 +1,14 @@
 # @package _global_
 
+# Use a specified model to infer on the full validation set (i.e. Test dataloader)
+
 # to execute this experiment run:
 # python run.py experiment=example_simple.yaml
 
 defaults:
-  - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
+  - override /trainer: default.yaml
   - override /model: point_net_model.yaml
-  - override /datamodule: lidar_datamodule_overfit.yaml # HERE we use toy one with smaller subtiling, etc.
+  - override /datamodule: lidar_datamodule_overfit.yaml
   - override /callbacks: callbacks.yaml
   - override /logger: comet
 
@@ -15,24 +17,27 @@ defaults:
 
 seed: 12345
 
+fit_the_model: false
+test_the_model: true
+
 hydra:
   verbose: false
-fit_the_model: true
-test_the_model: True
 
 trainer:
+  resume_from_checkpoint: "path/to/checkpoint"  # override
   log_every_n_steps: 1
-  overfit_batches: 13  # redundancy, but may cover a large part of a tile for inspection.
+  num_sanity_val_steps: 0
   min_epochs: 1
-  max_epochs: 300
-  check_val_every_n_epoch: 10
-  # limit_test_batches: 13  # not called in overfit mode
+  max_epochs: 1
+  check_val_every_n_epoch: 1
+  # limit_test_batches: 1  # Disable to predict on all data
+
+
+# TODO: The config should be obtained from a checkpoint ?
+# Only batch size should be a variable
 
 model:
-  save_predictions: true
-  loss: "CrossEntropyLoss"
-  lr: 0.01
-  save_train_predictions_every_n_step: 65
+  loss: "FocalLoss"
   n_classes: 2
   net:
     MLP1_channels: [6, 64, 64]
@@ -42,10 +47,9 @@ model:
     pi_init: 0.05
 
 datamodule:
-  train_subtiles_by_tile: 6000 # Large to have single tile chosen.
-  batch_size: 32 # Large possible for faster training.
+  batch_size: 32
   subtile_width_meters: 50
   subsample_size: 25000  # Aim for at least 10pts/m²
   subtile_overlap: 0
-  num_workers: 3
-  shuffle_train: false  # false to focus on the first tile only.
+  num_workers: 8
+  shuffle_train: false

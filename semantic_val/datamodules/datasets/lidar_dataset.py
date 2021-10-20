@@ -3,7 +3,7 @@
   - ValDataset = TestDataset with an exhaustive parsing of the sub-tiles.
 """
 
-
+import time
 from typing import List
 from torch.utils.data import Dataset, IterableDataset
 from semantic_val.datamodules.datasets.lidar_transforms import (
@@ -79,19 +79,24 @@ class LidarValDataset(IterableDataset):
     def process_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
-        for filepath in self.files:
+        for idx, filepath in enumerate(self.files):
+            log.info(f"Predicting for file {idx+1}/{len(self.files)} [{filepath}]")
             tile_data = load_las_data(filepath)
             centers = get_all_subtile_centers(
                 tile_data,
                 subtile_width_meters=self.subtile_width_meters,
                 subtile_overlap=self.subtile_overlap,
             )
+            ts = time.time()
             for tile_data.current_subtile_center in centers:
                 if self.transform:
                     data = self.transform(tile_data)
-                if self.target_transform:
-                    data = self.target_transform(data)
-                yield data
+                if data is not None:
+                    if self.target_transform:
+                        data = self.target_transform(data)
+                    yield data
+
+            log.info(f"Took {(time.time() - ts):.6} seconds")
 
     def __iter__(self):
         return self.process_data()

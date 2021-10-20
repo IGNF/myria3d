@@ -37,6 +37,10 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Init lightning model
     log.info(f"Instantiating model <{config.model._target_}>")
+    # TODO: recursive programming
+    if config.trainer.resume_from_checkpoint:
+        utils.update_config_with_hyperparams(config)
+
     model: LightningModule = hydra.utils.instantiate(config.model)
 
     # Init lightning callbacks
@@ -74,14 +78,17 @@ def train(config: DictConfig) -> Optional[float]:
     )
 
     # Train the model
-    log.info("Starting training!")
-    trainer.fit(model=model, datamodule=datamodule)
+    if config.get("fit_the_model"):
+        log.info("Starting training!")
+        trainer.fit(model=model, datamodule=datamodule)
 
-    # Evaluate model on test set, using the best model achieved during training
-    if config.get("test_after_training") and not config.trainer.get("fast_dev_run"):
+    if config.get("test_the_model") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
-        trainer.test()
-
+        if not trainer.resume_from_checkpoint:
+            trainer.test()
+        else:
+            model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
+            trainer.test(model=model, datamodule=datamodule)
     # Make sure everything closed properly
     log.info("Finalizing!")
     utils.finish(

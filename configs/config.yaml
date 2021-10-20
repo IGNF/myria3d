@@ -3,7 +3,7 @@
 # specify here default training configuration
 defaults:
   - trainer: default.yaml
-  - model: model.yaml
+  - model: point_net_model
   - datamodule: lidar_toy_datamodule.yaml
   - callbacks: comet.yaml # set this to null if you don't want to use callbacks
   - logger: comet # set logger here or use command line (e.g. `python run.py logger=wandb`)
@@ -41,4 +41,5 @@ ignore_warnings: True
 
 # check performance on test set, using the best model achieved during training
 # lightning chooses best model based on metric specified in checkpoint callback
-test_after_training: False
+fit_the_model: true
+test_the_model: False

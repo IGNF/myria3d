@@ -30,17 +30,17 @@ class SavePreds(Callback):
         self.in_memory_tile_filepath = ""
         self.train_step_global_idx: int = 0
 
-    def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""
 
-        trainer.model.experiment = trainer.model.logger.experiment[0]
+        self.experiment = trainer.logger.experiment[0]
         log_path = os.getcwd()
         log.info(f"Saving results and logs to {log_path}")
 
         self.preds_dirpath = osp.join(log_path, "validation_preds")
         os.makedirs(self.preds_dirpath, exist_ok=True)
 
-        trainer.model.experiment.log_parameter("experiment_logs_dirpath", log_path)
+        self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
     def on_train_batch_start(
         self,
@@ -129,8 +129,16 @@ class SavePreds(Callback):
         batch = outputs["batch"].detach()
         targets = outputs["targets"].detach()
 
+        # Group idx and their associated filepath if they belong to same tile
+        filepath_elem_idx_lists = {}
         for elem_idx in range(batch.batch_size):
             filepath = batch.filepath[elem_idx]
+            if filepath not in filepath_elem_idx_lists:
+                filepath_elem_idx_lists[filepath] = [elem_idx]
+            else:
+                filepath_elem_idx_lists[filepath].append(elem_idx)
+        # assign by group of elements of the same tile.
+        for filepath, elem_idx_list in filepath_elem_idx_lists.items():
             is_a_new_tile = self.in_memory_tile_filepath != filepath
             if is_a_new_tile:
                 if self.in_memory_tile_filepath:
@@ -140,19 +148,20 @@ class SavePreds(Callback):
                 with torch.no_grad():
                     self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
 
-    def assign_outputs_to_tile(self, batch, elem_idx, preds, proba, targets):
+    def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
 
-        elem_points_idx = batch.batch_y == elem_idx
-        elem_pos = batch.pos_copy[elem_points_idx]
-        elem_preds = preds[elem_points_idx]
-        elem_proba = proba[elem_points_idx][:, 1]
-        elem_targets = targets[elem_points_idx]
+        elem_points_idx = batch.batch_y == elem_idx_list
+        elem_pos = batch.pos_copy[elem_points_idx].cpu()
+        elem_preds = preds[elem_points_idx].cpu()
+        elem_proba = proba[elem_points_idx][:, 1].cpu()
+        elem_targets = targets[elem_points_idx].cpu()
 
         assign_idx = knn(self.current_las_pos, elem_pos, k=1, num_workers=1)[1]
 
+        self.current_las.BuildingsHasPredictions[assign_idx] = 1
         self.current_las.BuildingsPreds[assign_idx] = elem_preds
-        self.current_las.BuildingsProba[assign_idx] = elem_proba.detach()
+        self.current_las.BuildingsProba[assign_idx] = elem_proba
         elem_preds_confusion = self.get_confusion(elem_preds, elem_targets)
         self.current_las.BuildingsConfusion[assign_idx] = elem_preds_confusion
 
@@ -181,6 +190,10 @@ class SavePreds(Callback):
         param = laspy.ExtraBytesParams(name="BuildingsConfusion", type=int)
         self.current_las.add_extra_dim(param)
         self.current_las.BuildingsConfusion[:] = 0
+
+        param = laspy.ExtraBytesParams(name="BuildingsHasPredictions", type=int)
+        self.current_las.add_extra_dim(param)
+        self.current_las.BuildingsHasPredictions[:] = 0
 
         self.current_las_pos = np.asarray(
             [
