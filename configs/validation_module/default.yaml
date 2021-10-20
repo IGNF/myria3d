@@ -1,1 +1,3 @@
+post_correction_shapefile: ${oc.env:POST_CORRECTION_SHAPEFILE}
 predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}
+operationnal_output_shapefile_name: "contrasted_predictions.shp" 
