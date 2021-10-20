@@ -216,7 +216,7 @@ class LidarDataModule(LightningDataModule):
             dataset=self.data_val,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=self.num_workers,
+            num_workers=1,
             collate_fn=collate_fn,
         )
 
@@ -225,7 +225,7 @@ class LidarDataModule(LightningDataModule):
             dataset=self.data_test,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=self.num_workers,
+            num_workers=1,
             collate_fn=collate_fn,
         )
 
