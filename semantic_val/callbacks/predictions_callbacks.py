@@ -51,7 +51,6 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         """Keep track of global step idx."""
-
         self.train_step_global_idx = self.train_step_global_idx + 1
 
     def on_train_batch_end(
@@ -64,17 +63,18 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         # TODO: can we get rid of should_save_preds but deal with saving with other params?
-        reached_train_saving_step = (
-            self.train_step_global_idx
-            % trainer.model.save_train_predictions_every_n_step
-            == 0
-        )
-        if trainer.model.should_save_preds and reached_train_saving_step:
-            self.update_las_with_preds(outputs, "train")
-            log.debug(
-                f"Saving train preds to disk for batch number {self.train_step_global_idx}"
+        if trainer.model.should_save_preds:
+            reached_train_saving_step = (
+                self.train_step_global_idx
+                % trainer.model.save_train_predictions_every_n_step
+                == 0
             )
-            self.save_las_with_preds_and_close("train")
+            if reached_train_saving_step:
+                self.update_las_with_preds(outputs, "train")
+                log.debug(
+                    f"Saving train preds to disk for batch number {self.train_step_global_idx}"
+                )
+                self.save_las_with_preds_and_close("train")
 
     def on_validation_batch_end(
         self,
@@ -85,7 +85,6 @@ class SavePreds(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ) -> None:
-
         if trainer.model.should_save_preds:
             if outputs is not None:
                 self.update_las_with_preds(outputs, "val")
@@ -93,11 +92,12 @@ class SavePreds(Callback):
     def on_validation_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
-        if trainer.model.train_iou_has_improved:
-            log.debug(
-                f"Saving validation preds to disk after train step {self.train_step_global_idx}.\n"
-            )
-            self.save_las_with_preds_and_close("val")
+        if trainer.model.should_save_preds:
+            if trainer.model.train_iou_has_improved:
+                log.debug(
+                    f"Saving validation preds to disk after train step {self.train_step_global_idx}.\n"
+                )
+                self.save_las_with_preds_and_close("val")
 
     def on_test_batch_end(
         self,
@@ -115,7 +115,8 @@ class SavePreds(Callback):
             self.update_las_with_preds(outputs, "test")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        self.save_las_with_preds_and_close("test")
+        if trainer.model.should_save_preds:
+            self.save_las_with_preds_and_close("test")
 
     def update_las_with_preds(self, outputs: dict, phase: str):
         """
