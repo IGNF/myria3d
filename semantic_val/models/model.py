@@ -116,10 +116,6 @@ class SegmentationModel(LightningModule):
         self.max_reached_val_iou = -np.inf
         self.val_iou_accumulator: List = []
 
-        self.best_reached_train_iou: float = 0.0
-        self.train_iou_accumulator: List = []
-        self.train_iou_has_improved: bool = False
-
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
         logits = knn_interpolate(
@@ -146,9 +142,6 @@ class SegmentationModel(LightningModule):
     def on_fit_start(self) -> None:
         self.experiment = self.logger.experiment[0]
 
-    def on_train_epoch_start(self) -> None:
-        self.train_iou_accumulator = []
-
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
 
@@ -156,8 +149,6 @@ class SegmentationModel(LightningModule):
         iou = self.train_iou(preds, targets)[1]
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
-
-        self.train_iou_accumulator.append(iou.cpu())
 
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
@@ -182,21 +173,11 @@ class SegmentationModel(LightningModule):
             "batch": batch,
         }
 
-    def on_train_epoch_end(self, unused=None) -> None:
-        epoch_train_iou = np.mean(self.train_iou_accumulator)
-        if epoch_train_iou > self.best_reached_train_iou:
-            self.train_iou_has_improved = True
-            self.best_reached_train_iou = epoch_train_iou
-
     def on_validation_start(self) -> None:
         self.val_iou_accumulator = []
-        if not self.train_iou_has_improved:
-            log.info("Skipping validation until train IoU increases.\n")
+        log.info("Validating.")
 
     def validation_step(self, batch: Any, batch_idx: int):
-        if not self.train_iou_has_improved:
-            self.log("val/iou", -1.0, on_step=True, on_epoch=True, prog_bar=True)
-            return None
 
         loss, _, proba, preds, targets = self.step(batch)
         acc = self.val_accuracy(preds, targets)
@@ -230,12 +211,9 @@ class SegmentationModel(LightningModule):
 
     def on_validation_end(self):
         """Save the last unsaved predicted las and keep track of best IoU"""
-        if self.train_iou_has_improved:
-            val_iou = np.mean(self.val_iou_accumulator)
-            self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
-            self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
-
-        self.train_iou_has_improved = False
+        val_iou = np.mean(self.val_iou_accumulator)
+        self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
+        self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)

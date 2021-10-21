@@ -93,11 +93,10 @@ class SavePreds(Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         if trainer.model.should_save_preds:
-            if trainer.model.train_iou_has_improved:
-                log.debug(
-                    f"Saving validation preds to disk after train step {self.train_step_global_idx}.\n"
-                )
-                self.save_las_with_preds_and_close("val")
+            log.debug(
+                f"Saving validation preds to disk after train step {self.train_step_global_idx}.\n"
+            )
+            self.save_las_with_preds_and_close("val")
 
     def on_test_batch_end(
         self,
