@@ -16,8 +16,9 @@ from tqdm import tqdm
 from semantic_val.utils import utils
 from semantic_val.validation.validation_utils import (
     compare_classification_with_predictions,
-    load_post_correction_predicted_las,
-    load_post_correction_shapefile,
+    get_candidates_buildings,
+    load_post_correction_predicted_las_gdf,
+    # load_post_correction_shapefile,
     proportion_of_confirmed_building_points,
 )
 
@@ -45,15 +46,14 @@ def validate(config: DictConfig) -> Optional[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
 
-    input_shp = config.validation_module.post_correction_shapefile
-    shapes_gdf = load_post_correction_shapefile(input_shp)
-
     contrasted_shapes = []
-    input_las = config.validation_module.predicted_las_dirpath
-    las_filepath = glob.glob(osp.join(input_las, "*.las"))
+    input_las_dirpath = config.validation_module.predicted_las_dirpath
+    las_filepath = glob.glob(osp.join(input_las_dirpath, "*.las"))
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
 
-        las_gdf = load_post_correction_predicted_las(las_filepath, shapes_gdf.crs)
+        las_gdf = load_post_correction_predicted_las_gdf(las_filepath)
+        shapes_gdf = get_candidates_buildings(las_gdf)
+        # TODO: edit compare_classification_with_predictions, cf. load_post_correction_predicted_las
         contrasted_shape = compare_classification_with_predictions(shapes_gdf, las_gdf)
         contrasted_shapes.append(contrasted_shape)
 
