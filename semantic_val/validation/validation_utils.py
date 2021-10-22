@@ -33,23 +33,27 @@ from shapely.ops import unary_union
 
 
 # # TODO: check what 104 is
-def load_post_correction_predicted_las_gdf(
+def load_geodf_of_candidate_building_points(
     las_filepath: str,
     crs="EPSG:2154",
-    keep_classes: List[int] = [6, 19, 20, 110, 112, 114, 115],
 ) -> GeoDataFrame:
     """
     Load a las that went through correction and was predicted by trained model.
     Focus on points that were detected as building (keep_classes).
     """
+    las = laspy.read(las_filepath)
+    # TODO: uncomment to focus on predicted points only !
+    # [WARNING: we should assert that all points have preds for production mode]
+
+    # las.points = las.points[las["BuildingsHasPreds"]]
+
     true_positive_code = [19]
     false_positive_codes = [20, 110, 112, 114, 115]
-
-    las = laspy.read(las_filepath)
     candidate_building = np.isin(
         las["classification"], true_positive_code + false_positive_codes
     )
     las.points = las[candidate_building]
+
     # for debug:
     # las.points = las.points[:50000]
     include_colnames = ["classification", "BuildingsProba"]
@@ -82,7 +86,7 @@ def simplify_shape(shape):
     return shape.simplify(0.1, preserve_topology=False)
 
 
-def get_candidates_buildings(lidar_geodf):
+def vectorize_into_candidate_building_shapes(lidar_geodf):
     """
     From LAS with original classification, get candidate shapes
     Rules: >3m², holes filled, simplified geometry.
@@ -110,12 +114,13 @@ def compare_classification_with_predictions(
     # Aggregate confusion of points from the same shape in a list
     # TODO: also aggregate FalsePositive flag.
     lidar_geodf_inside_lists = lidar_geodf_inside.groupby("shape_index")[
-        "BuildingsProba"
+        "BuildingsProba", "FalsePositive"
     ].agg(lambda x: x.tolist())
     return lidar_geodf_inside_lists
 
 
 def proportion_of_confirmed_building_points(shape_signals):
+    proba = shape_signals[0]
     # use a threshold that varies
     arr = np.array(shape_signals)
     arr = np.sum(arr >= 0.5) / len(arr)

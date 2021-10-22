@@ -16,8 +16,8 @@ from tqdm import tqdm
 from semantic_val.utils import utils
 from semantic_val.validation.validation_utils import (
     compare_classification_with_predictions,
-    get_candidates_buildings,
-    load_post_correction_predicted_las_gdf,
+    vectorize_into_candidate_building_shapes,
+    load_geodf_of_candidate_building_points,
     # load_post_correction_shapefile,
     proportion_of_confirmed_building_points,
 )
@@ -51,15 +51,15 @@ def validate(config: DictConfig) -> Optional[float]:
     las_filepath = glob.glob(osp.join(input_las_dirpath, "*.las"))
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
 
-        las_gdf = load_post_correction_predicted_las_gdf(las_filepath)
-        shapes_gdf = get_candidates_buildings(las_gdf)
+        las_gdf = load_geodf_of_candidate_building_points(las_filepath)
+        shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
         # TODO: edit compare_classification_with_predictions, cf. load_post_correction_predicted_las
         contrasted_shape = compare_classification_with_predictions(shapes_gdf, las_gdf)
         contrasted_shapes.append(contrasted_shape)
 
     contrasted_shapes = pd.concat(contrasted_shapes)
     contrasted_shapes = contrasted_shapes.apply(
-        lambda x: proportion_of_confirmed_building_points(x)
+        lambda x: proportion_of_confirmed_building_points(x), axis=1
     )
     # join back with geometries
     df_out = shapes_gdf.join(contrasted_shapes, on="shape_index", how="left")
