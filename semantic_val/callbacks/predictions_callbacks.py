@@ -1,20 +1,19 @@
-import os
+import comet_ml
 from pathlib import Path
 from typing import Any, List, Optional
+import os
+
 import laspy
 import numpy as np
-from pytorch_lightning.utilities.types import STEP_OUTPUT
 
-import torch
-from comet_ml import Experiment
-from torch_geometric.nn.pool import knn
-from pytorch_lightning import Callback, Trainer
-from pytorch_lightning.loggers import CometLogger, LoggerCollection
-from pytorch_lightning.utilities import rank_zero_only
 import pytorch_lightning as pl
-from torch_geometric.data.batch import Batch
-from semantic_val.utils import utils
+from pytorch_lightning import Callback
+from pytorch_lightning.utilities.types import STEP_OUTPUT
 import os.path as osp
+import torch
+from torch_geometric.nn.pool import knn
+
+from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
