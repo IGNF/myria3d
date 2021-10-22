@@ -112,6 +112,16 @@ class SegmentationModel(LightningModule):
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
 
+        # Need to move metrics to self.device on_fit_start
+        self.metrics = [
+            self.train_iou,
+            self.val_iou,
+            self.test_iou,
+            self.train_accuracy,
+            self.val_accuracy,
+            self.test_accuracy,
+        ]
+
         # TODO: Abstract the tracking of max reached in a separate hook
         self.max_reached_val_iou = -np.inf
         self.val_iou_accumulator: List = []
@@ -141,6 +151,9 @@ class SegmentationModel(LightningModule):
 
     def on_fit_start(self) -> None:
         self.experiment = self.logger.experiment[0]
+        for metric in self.metrics:
+            metric = metric.to(self.device)
+        assert all(metric.device == self.device for metric in self.metrics)
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
