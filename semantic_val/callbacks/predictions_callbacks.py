@@ -132,12 +132,12 @@ class SavePreds(Callback):
         for filepath, elem_idx_list in filepath_elem_idx_lists.items():
             is_a_new_tile = self.in_memory_tile_filepath != filepath
             if is_a_new_tile:
-                if self.in_memory_tile_filepath:
+                close_previous_las_first = self.in_memory_tile_filepath != ""
+                if close_previous_las_first:
                     self.save_las_with_preds_and_close(phase)
                 self.load_new_las_for_preds(filepath)
-            else:
-                with torch.no_grad():
-                    self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
+            with torch.no_grad():
+                self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
 
     def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
