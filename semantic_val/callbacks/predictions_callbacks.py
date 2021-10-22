@@ -137,7 +137,7 @@ class SavePreds(Callback):
                     self.save_las_with_preds_and_close(phase)
                 self.load_new_las_for_preds(filepath)
             with torch.no_grad():
-                self.assign_outputs_to_tile(batch, elem_idx, preds, proba, targets)
+                self.assign_outputs_to_tile(batch, elem_idx_list, preds, proba, targets)
 
     def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
