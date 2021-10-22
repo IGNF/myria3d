@@ -207,7 +207,7 @@ class SavePreds(Callback):
         filename = f"{phase}_{tile_id}.las"
         output_path = osp.join(self.preds_dirpath, filename)
         self.current_las.write(output_path)
-        log.debug(f"Predictions save path is {output_path}.")
+        log.info(f"Predictions saved to : {output_path}.")
         # Closing:
         self.in_memory_tile_filepath = ""
         del self.current_las
