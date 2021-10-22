@@ -58,7 +58,10 @@ def validate(config: DictConfig) -> Optional[float]:
         contrasted_shapes.append(contrasted_shape)
 
     contrasted_shapes = pd.concat(contrasted_shapes)
-    contrasted_shapes = contrasted_shapes.apply(
+    contrasted_shapes["ConfirmedBuildings_frac"] = contrasted_shapes.apply(
+        lambda x: proportion_of_confirmed_building_points(x), axis=1
+    )
+    contrasted_shapes["FalsePositive_frac"] = contrasted_shapes.apply(
         lambda x: proportion_of_confirmed_building_points(x), axis=1
     )
     # join back with geometries

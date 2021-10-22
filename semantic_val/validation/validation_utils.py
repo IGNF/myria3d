@@ -114,14 +114,19 @@ def compare_classification_with_predictions(
     # Aggregate confusion of points from the same shape in a list
     # TODO: also aggregate FalsePositive flag.
     lidar_geodf_inside_lists = lidar_geodf_inside.groupby("shape_index")[
-        "BuildingsProba", "FalsePositive"
+        ["BuildingsProba", "FalsePositive"]
     ].agg(lambda x: x.tolist())
     return lidar_geodf_inside_lists
 
 
-def proportion_of_confirmed_building_points(shape_signals):
-    proba = shape_signals[0]
-    # use a threshold that varies
-    arr = np.array(shape_signals)
-    arr = np.sum(arr >= 0.5) / len(arr)
-    return arr
+# TODO : use a threshold that varies
+def proportion_of_confirmed_building_points(row):
+    proba = row["BuildingsProba"]
+    arr = np.array(proba)
+    return np.sum(arr >= 0.5) / len(arr)
+
+
+def proportion_of_false_positives(row):
+    proba = row["FalsePositive"]
+    arr = np.array(proba)
+    return np.mean(arr)
