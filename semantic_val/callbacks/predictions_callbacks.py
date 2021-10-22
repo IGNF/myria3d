@@ -25,9 +25,14 @@ class SavePreds(Callback):
     Added channels: BuildingPreds, BuildingProba, BuildingConfusion
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        save_predictions: bool = False,
+        save_train_predictions_every_n_step: int = 10 ** 6,
+    ):
         self.in_memory_tile_filepath = ""
-        self.train_step_global_idx: int = 0
+        self.save_predictions = save_predictions
+        self.save_train_predictions_every_n_step = save_train_predictions_every_n_step
 
     def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""
@@ -35,22 +40,11 @@ class SavePreds(Callback):
         self.experiment = trainer.logger.experiment[0]
         log_path = os.getcwd()
         log.info(f"Saving results and logs to {log_path}")
-
-        self.preds_dirpath = osp.join(log_path, "validation_preds")
-        os.makedirs(self.preds_dirpath, exist_ok=True)
-
         self.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
-    def on_train_batch_start(
-        self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule,
-        batch: Any,
-        batch_idx: int,
-        dataloader_idx: int,
-    ) -> None:
-        """Keep track of global step idx."""
-        self.train_step_global_idx = self.train_step_global_idx + 1
+        if self.save_predictions:
+            self.preds_dirpath = osp.join(log_path, "validation_preds")
+            os.makedirs(self.preds_dirpath, exist_ok=True)
 
     def on_train_batch_end(
         self,
@@ -62,16 +56,14 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         # TODO: can we get rid of should_save_preds but deal with saving with other params?
-        if trainer.model.should_save_preds:
+        if self.save_predictions:
             reached_train_saving_step = (
-                self.train_step_global_idx
-                % trainer.model.save_train_predictions_every_n_step
-                == 0
+                trainer.global_step % self.save_train_predictions_every_n_step == 0
             )
             if reached_train_saving_step:
                 self.update_las_with_preds(outputs, "train")
                 log.debug(
-                    f"Saving train preds to disk for batch number {self.train_step_global_idx}"
+                    f"Saving train preds to disk for batch number {trainer.global_step}"
                 )
                 self.save_las_with_preds_and_close("train")
 
@@ -84,16 +76,16 @@ class SavePreds(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ) -> None:
-        if trainer.model.should_save_preds:
+        if self.save_predictions:
             if outputs is not None:
                 self.update_las_with_preds(outputs, "val")
 
     def on_validation_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
-        if trainer.model.should_save_preds:
+        if self.save_predictions:
             log.debug(
-                f"Saving validation preds to disk after train step {self.train_step_global_idx}.\n"
+                f"Saving validation preds to disk after train step {trainer.global_step}.\n"
             )
             self.save_las_with_preds_and_close("val")
 
@@ -106,14 +98,14 @@ class SavePreds(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ) -> None:
-        if trainer.model.should_save_preds:
+        if self.save_predictions:
             log.debug(
-                f"Saving test preds to disk after train step {self.train_step_global_idx}"
+                f"Saving test preds to disk after train step {trainer.global_step}"
             )
             self.update_las_with_preds(outputs, "test")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        if trainer.model.should_save_preds:
+        if self.save_predictions:
             self.save_las_with_preds_and_close("test")
 
     def update_las_with_preds(self, outputs: dict, phase: str):

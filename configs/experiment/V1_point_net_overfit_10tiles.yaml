@@ -29,10 +29,7 @@ trainer:
   gpus: "1"
 
 model:
-  save_predictions: false
   loss: "FocalLoss"
-  lr: 0.01
-  save_train_predictions_every_n_step: 100000000
   n_classes: 2
   alpha: 0.25
   net:
