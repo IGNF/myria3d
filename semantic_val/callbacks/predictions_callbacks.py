@@ -142,7 +142,9 @@ class SavePreds(Callback):
     def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
 
-        elem_points_idx = batch.batch_y == elem_idx_list
+        elem_points_idx = (batch.batch_y[..., None] == torch.Tensor(elem_idx_list)).any(
+            -1
+        )
         elem_pos = batch.pos_copy[elem_points_idx].cpu()
         elem_preds = preds[elem_points_idx].cpu()
         elem_proba = proba[elem_points_idx][:, 1].cpu()
@@ -158,7 +160,6 @@ class SavePreds(Callback):
 
     def get_confusion(self, elem_preds, elem_targets):
         """Get a confusion vector: TN=0, Tp=1, FN=2, FP=3 - Nodata or Nan is 4."""
-        elem_preds_confusion = elem_preds + 2 * elem_targets
         A = elem_preds * (elem_preds == elem_targets)
         B = (2 + elem_preds) * (elem_preds != elem_targets)
         elem_preds_confusion = A + B
