@@ -53,11 +53,12 @@ def validate(config: DictConfig) -> Optional[float]:
         las_gdf = load_geodf_of_candidate_building_points(las_filepath)
         shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
         comparison = compare_classification_with_predictions(shapes_gdf, las_gdf)
-        
+
         df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
         keep = [item.value for item in ShapeFileCols] + ["geometry"]
         df_out = df_out[keep]
 
         output_shp = config.validation_module.operationnal_output_shapefile_name
-        mode = "w" if not os.path.isfile(output_shp) else "a"
+        output_shp = osp.join(os.getcwd(), output_shp)
+        mode = "w" if not osp.isfile(output_shp) else "a"
         df_out.to_file(output_shp, mode=mode, index=False)
