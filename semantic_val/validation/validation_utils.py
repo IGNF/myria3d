@@ -15,6 +15,8 @@ class ShapeFileCols(Enum):
     FALSE_POSITIVE_COL = "MTS_FP"
     FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE = "B_CONFIRM"
     FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE = "B_REFUTED"
+    NUMBER_OF_CANDIDATE_BUILDINGS_POINT = "B_NUM_PTS"
+    MEAN_BUILDINGS_PROBA = "B_AVG_PRED"
 
 
 TRUE_POSITIVE_CODE = [19]
@@ -43,12 +45,12 @@ def load_geodf_of_candidate_building_points(
     las.points = las[candidate_building_points_idx]
 
     # DEBUG : for debug:
-    las.points = las.points[:50000]
+    # las.points = las.points[:50000]
     include_colnames = ["classification", "BuildingsProba"]
     data = np.array([las[colname] for colname in include_colnames]).transpose()
     lidar_df = pd.DataFrame(data, columns=include_colnames)
     # TODO: this lst comprehension is slow and could be improved.
-    # -> in a map directly when calling GeoDataFrame ?
+    # GDF does not accept a map object here.
     geometry = [Point(xy) for xy in zip(las.x, las.y)]
     las_gdf = GeoDataFrame(lidar_df, crs=crs, geometry=geometry)
 
@@ -100,11 +102,28 @@ def compare_classification_with_predictions(
     shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame
 ):
     """Group the info and preds of candidate building points forming a candidate bulding shape."""
-    lidar_geodf_inside = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
-    lidar_geodf_inside_lists = lidar_geodf_inside.groupby("shape_idx")[
+    points_within = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
+    groups = points_within.groupby("shape_idx")[
         ["BuildingsProba", "FalsePositive"]
     ].agg(lambda x: x.tolist())
-    return lidar_geodf_inside_lists
+
+    groups[ShapeFileCols.NUMBER_OF_CANDIDATE_BUILDINGS_POINT.value] = groups.apply(
+        lambda x: len(x["BuildingsProba"]), axis=1
+    )
+    groups[ShapeFileCols.MEAN_BUILDINGS_PROBA.value] = groups.apply(
+        lambda x: np.mean(x["BuildingsProba"]), axis=1
+    )
+    groups[
+        ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE.value
+    ] = groups.apply(lambda x: get_frac_of_confirmed_building_points(x), axis=1)
+    groups[
+        ShapeFileCols.FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE.value
+    ] = groups.apply(lambda x: get_frac_of_refuted_building_points(x), axis=1)
+    groups[ShapeFileCols.FALSE_POSITIVE_COL.value] = groups.apply(
+        lambda x: get_frac_of_MTS_false_positives(x), axis=1
+    )
+
+    return groups
 
 
 # TODO : use a threshold that varies
@@ -112,6 +131,12 @@ def get_frac_of_confirmed_building_points(row):
     proba = row["BuildingsProba"]
     arr = np.array(proba)
     return np.sum(arr >= 0.5) / len(arr)
+
+
+def get_frac_of_refuted_building_points(row):
+    proba = row["BuildingsProba"]
+    arr = np.array(proba)
+    return np.sum(arr <= 0.5) / len(arr)
 
 
 def get_frac_of_MTS_false_positives(row):

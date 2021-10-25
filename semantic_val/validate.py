@@ -14,6 +14,7 @@ from semantic_val.validation.validation_utils import (
     ShapeFileCols,
     compare_classification_with_predictions,
     get_frac_of_MTS_false_positives,
+    get_frac_of_refuted_building_points,
     vectorize_into_candidate_building_shapes,
     load_geodf_of_candidate_building_points,
     get_frac_of_confirmed_building_points,
@@ -51,18 +52,12 @@ def validate(config: DictConfig) -> Optional[float]:
 
         las_gdf = load_geodf_of_candidate_building_points(las_filepath)
         shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
-        contrasted_shape = compare_classification_with_predictions(shapes_gdf, las_gdf)
-
-        contrasted_shape[
-            ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE
-        ] = contrasted_shape.apply(
-            lambda x: get_frac_of_confirmed_building_points(x), axis=1
-        )
-        contrasted_shape[ShapeFileCols.FALSE_POSITIVE_COL] = contrasted_shape.apply(
-            lambda x: get_frac_of_MTS_false_positives(x), axis=1
-        )
-        df_out = shapes_gdf.join(contrasted_shape, on="shape_idx", how="left")
+        comparison = compare_classification_with_predictions(shapes_gdf, las_gdf)
+        
+        df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
+        keep = [item.value for item in ShapeFileCols] + ["geometry"]
+        df_out = df_out[keep]
 
         output_shp = config.validation_module.operationnal_output_shapefile_name
-        mode = "w" if not os.isfile(output_shp) else "a"
-        df_out.to_file(output_shp, mode=mode)
+        mode = "w" if not os.path.isfile(output_shp) else "a"
+        df_out.to_file(output_shp, mode=mode, index=False)
