@@ -51,7 +51,6 @@ def validate(config: DictConfig) -> Optional[float]:
 
         las_gdf = load_geodf_of_candidate_building_points(las_filepath)
         shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
-        # TODO: edit compare_classification_with_predictions, cf. load_post_correction_predicted_las
         contrasted_shape = compare_classification_with_predictions(shapes_gdf, las_gdf)
 
         contrasted_shape[
