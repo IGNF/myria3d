@@ -1,14 +1,21 @@
 from typing import List
 import laspy
 import numpy as np
+from enum import Enum
 
 import pandas as pd
-import pyproj
 from pytorch_lightning import seed_everything
 import geopandas
 from geopandas import GeoDataFrame
 from shapely.geometry.point import Point
 from shapely.ops import unary_union
+
+
+class ShapeFileCols(Enum):
+    FALSE_POSITIVE_COL = "MTS_FP"
+    FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE = "B_CONFIRM"
+    FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE = "B_REFUTED"
+
 
 # Get the LAS files
 # def load_post_correction_shapefile(filepath: str) -> GeoDataFrame:
@@ -18,7 +25,7 @@ from shapely.ops import unary_union
 #     """
 #     gdf = geopandas.read_file(filepath)
 #     gdf = gdf.drop(columns=["num_classe", "_area"])
-#     gdf = gdf.reset_index().rename(columns={"index": "shape_index"})
+#     gdf = gdf.reset_index().rename(columns={"index": "shape_idx"})
 
 #     candidate_buildings_classes = [
 #         "bati_valide",
@@ -100,7 +107,7 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
     MINIMAL_AREA = 3
     candidate_buildings = candidate_buildings[candidate_buildings.area > MINIMAL_AREA]
     candidate_buildings = candidate_buildings.reset_index().rename(
-        columns={"index": "shape_index"}
+        columns={"index": "shape_idx"}
     )
     return candidate_buildings
 
@@ -108,25 +115,25 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
 def compare_classification_with_predictions(
     shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame
 ):
-    """Compare the model predictions for points that are candidate building and within a bulding shape."""
+    """Compare the model predictions for points that are candidate building and within a building shape."""
     # Keep only points that are within a detected shape
     lidar_geodf_inside = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
     # Aggregate confusion of points from the same shape in a list
     # TODO: also aggregate FalsePositive flag.
-    lidar_geodf_inside_lists = lidar_geodf_inside.groupby("shape_index")[
+    lidar_geodf_inside_lists = lidar_geodf_inside.groupby("shape_idx")[
         ["BuildingsProba", "FalsePositive"]
     ].agg(lambda x: x.tolist())
     return lidar_geodf_inside_lists
 
 
 # TODO : use a threshold that varies
-def proportion_of_confirmed_building_points(row):
+def get_frac_of_confirmed_building_points(row):
     proba = row["BuildingsProba"]
     arr = np.array(proba)
     return np.sum(arr >= 0.5) / len(arr)
 
 
-def proportion_of_false_positives(row):
+def get_frac_of_MTS_false_positives(row):
     proba = row["FalsePositive"]
     arr = np.array(proba)
     return np.mean(arr)

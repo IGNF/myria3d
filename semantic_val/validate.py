@@ -1,11 +1,7 @@
 import os
 from typing import List, Optional
-import laspy
-import numpy as np
 
 from omegaconf import DictConfig
-import pandas as pd
-import pyproj
 from pytorch_lightning import seed_everything
 import glob
 import os.path as osp
@@ -15,11 +11,12 @@ from shapely.geometry.point import Point
 from tqdm import tqdm
 from semantic_val.utils import utils
 from semantic_val.validation.validation_utils import (
+    ShapeFileCols,
     compare_classification_with_predictions,
+    get_frac_of_MTS_false_positives,
     vectorize_into_candidate_building_shapes,
     load_geodf_of_candidate_building_points,
-    # load_post_correction_shapefile,
-    proportion_of_confirmed_building_points,
+    get_frac_of_confirmed_building_points,
 )
 
 log = utils.get_logger(__name__)
@@ -46,27 +43,27 @@ def validate(config: DictConfig) -> Optional[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
 
-    contrasted_shapes = []
-    input_las_dirpath = config.validation_module.predicted_las_dirpath
-    las_filepath = glob.glob(osp.join(input_las_dirpath, "*.las"))
+    log.info(f"Logging directory: {os.getcwd()}")
+    las_filepath = glob.glob(
+        osp.join(config.validation_module.predicted_las_dirpath, "*.las")
+    )
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
 
         las_gdf = load_geodf_of_candidate_building_points(las_filepath)
         shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
         # TODO: edit compare_classification_with_predictions, cf. load_post_correction_predicted_las
         contrasted_shape = compare_classification_with_predictions(shapes_gdf, las_gdf)
-        contrasted_shapes.append(contrasted_shape)
 
-    contrasted_shapes = pd.concat(contrasted_shapes)
-    contrasted_shapes["ConfirmedBuildings_frac"] = contrasted_shapes.apply(
-        lambda x: proportion_of_confirmed_building_points(x), axis=1
-    )
-    contrasted_shapes["FalsePositive_frac"] = contrasted_shapes.apply(
-        lambda x: proportion_of_confirmed_building_points(x), axis=1
-    )
-    # join back with geometries
-    df_out = shapes_gdf.join(contrasted_shapes, on="shape_index", how="left")
+        contrasted_shape[
+            ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE
+        ] = contrasted_shape.apply(
+            lambda x: get_frac_of_confirmed_building_points(x), axis=1
+        )
+        contrasted_shape[ShapeFileCols.FALSE_POSITIVE_COL] = contrasted_shape.apply(
+            lambda x: get_frac_of_MTS_false_positives(x), axis=1
+        )
+        df_out = shapes_gdf.join(contrasted_shape, on="shape_idx", how="left")
 
-    log.info(f"Logging directory: {os.getcwd()}")
-    output_shp = config.validation_module.operationnal_output_shapefile_name
-    df_out.to_file(output_shp)
+        output_shp = config.validation_module.operationnal_output_shapefile_name
+        mode = "w" if not os.isfile(output_shp) else "a"
+        df_out.to_file(output_shp, mode=mode)
