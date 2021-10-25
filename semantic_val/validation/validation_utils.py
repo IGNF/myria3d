@@ -12,11 +12,21 @@ from shapely.ops import unary_union
 
 
 class ShapeFileCols(Enum):
-    FALSE_POSITIVE_COL = "MTS_FP"
-    FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE = "B_CONFIRM"
-    FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE = "B_REFUTED"
     NUMBER_OF_CANDIDATE_BUILDINGS_POINT = "B_NUM_PTS"
+
+    FRAC_OF_MTS_TRUE_POSITIVE = "B_FRAC_TP"
+    FLAG_MTS_TRUE_POSITIVE = "B_MTS_TP"
+
+    FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE = "B_FRAC_YES"
+    FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE = "B_FRAC_NO"
     MEAN_BUILDINGS_PROBA = "B_AVG_PRED"
+
+    NATURE_OF_FINAL_DECISION = "IA_B_VALID"
+
+    # subfield belows are equivalent to B_DECISION
+    CONFIRMED_BUILDING = "IA_B_YES"
+    REFUTED_BUILDING = "IA_B_NO"
+    UNCERTAINTY = "IA_B_UNSUR"
 
 
 TRUE_POSITIVE_CODE = [19]
@@ -36,7 +46,6 @@ def load_geodf_of_candidate_building_points(
     las = laspy.read(las_filepath)
     # TODO: uncomment to focus on predicted points only !
     # [WARNING: we should assert that all points have preds for production mode]
-
     # las.points = las.points[las["BuildingsHasPreds"]]
 
     candidate_building_points_idx = np.isin(
@@ -54,8 +63,8 @@ def load_geodf_of_candidate_building_points(
     geometry = [Point(xy) for xy in zip(las.x, las.y)]
     las_gdf = GeoDataFrame(lidar_df, crs=crs, geometry=geometry)
 
-    las_gdf["FalsePositive"] = las_gdf["classification"].apply(
-        lambda x: 1 * (x in FALSE_POSITIVE_CODE)
+    las_gdf["TruePositive"] = las_gdf["classification"].apply(
+        lambda x: 1 * (x in TRUE_POSITIVE_CODE)
     )
     del las_gdf["classification"]
     return las_gdf
@@ -67,14 +76,14 @@ def get_unique_geometry_from_points(lidar_geodf):
 
 
 def fill_holes(shape):
-    shape = shape.buffer(0.75)
+    shape = shape.buffer(0.80)
     shape = unary_union(shape)
-    shape = shape.buffer(-0.75)
+    shape = shape.buffer(-0.80)
     return shape
 
 
 def simplify_shape(shape):
-    return shape.simplify(0.1, preserve_topology=False)
+    return shape.simplify(0.2, preserve_topology=False)
 
 
 def vectorize_into_candidate_building_shapes(lidar_geodf):
@@ -102,44 +111,97 @@ def compare_classification_with_predictions(
     shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame
 ):
     """Group the info and preds of candidate building points forming a candidate bulding shape."""
-    points_within = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
-    groups = points_within.groupby("shape_idx")[
-        ["BuildingsProba", "FalsePositive"]
-    ].agg(lambda x: x.tolist())
-
-    groups[ShapeFileCols.NUMBER_OF_CANDIDATE_BUILDINGS_POINT.value] = groups.apply(
-        lambda x: len(x["BuildingsProba"]), axis=1
+    gdf = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
+    gdf = gdf.groupby("shape_idx")[["BuildingsProba", "TruePositive"]].agg(
+        lambda x: x.tolist()
     )
-    groups[ShapeFileCols.MEAN_BUILDINGS_PROBA.value] = groups.apply(
+
+    gdf = set_num_pts_col(gdf)
+    gdf = set_mean_proba_col(gdf)
+    gdf = set_frac_confirmed_building_col(gdf)
+    gdf = set_frac_refuted_building_col(gdf)
+    gdf = set_frac_false_positive_col(gdf)
+    gdf = set_true_positive_col(gdf)
+
+    return gdf
+
+
+def validate(gdf, validation_threshold: float = 0.7, refutation_threshold: float = 0.7):
+    """Add different flags to study the validation quality."""
+    gdf[ShapeFileCols.CONFIRMED_BUILDING] = 1 * (
+        gdf[ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE]
+        > validation_threshold
+    )
+    gdf[ShapeFileCols.REFUTED_BUILDING] = 1 * (
+        gdf[ShapeFileCols.FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE]
+        > refutation_threshold
+    )
+    gdf[ShapeFileCols.UNCERTAINTY] = 1 * (
+        (gdf[ShapeFileCols.REFUTED_BUILDING] + gdf[ShapeFileCols.CONFIRMED_BUILDING])
+        == 0
+    )
+    gdf[ShapeFileCols.NATURE_OF_FINAL_DECISION] = -1 * (
+        gdf[ShapeFileCols.UNCERTAINTY] == 1
+    ) + 1 * (gdf[ShapeFileCols.CONFIRMED_BUILDING] == 1)
+
+    return gdf
+
+
+def set_true_positive_col(gdf):
+    gdf[ShapeFileCols.FLAG_MTS_TRUE_POSITIVE.value] = (
+        gdf[ShapeFileCols.FRAC_OF_MTS_TRUE_POSITIVE.value] > 0.9
+    )
+    return gdf
+
+
+def set_frac_false_positive_col(gdf):
+    gdf[ShapeFileCols.FRAC_OF_MTS_TRUE_POSITIVE.value] = gdf.apply(
+        lambda x: get_frac_MTS_true_positives(x), axis=1
+    )
+    return gdf
+
+
+def set_frac_refuted_building_col(gdf):
+    gdf[ShapeFileCols.FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE.value] = gdf.apply(
+        lambda x: get_frac_refuted_building_points(x), axis=1
+    )
+    return gdf
+
+
+def set_frac_confirmed_building_col(gdf):
+    gdf[ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE.value] = gdf.apply(
+        lambda x: get_frac_confirmed_building_points(x), axis=1
+    )
+    return gdf
+
+
+def set_mean_proba_col(gdf):
+    gdf[ShapeFileCols.MEAN_BUILDINGS_PROBA.value] = gdf.apply(
         lambda x: np.mean(x["BuildingsProba"]), axis=1
     )
-    groups[
-        ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE.value
-    ] = groups.apply(lambda x: get_frac_of_confirmed_building_points(x), axis=1)
-    groups[
-        ShapeFileCols.FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE.value
-    ] = groups.apply(lambda x: get_frac_of_refuted_building_points(x), axis=1)
-    groups[ShapeFileCols.FALSE_POSITIVE_COL.value] = groups.apply(
-        lambda x: get_frac_of_MTS_false_positives(x), axis=1
-    )
+    return gdf
 
-    return groups
+
+def set_num_pts_col(gdf):
+    gdf[ShapeFileCols.NUMBER_OF_CANDIDATE_BUILDINGS_POINT.value] = gdf.apply(
+        lambda x: len(x["BuildingsProba"]), axis=1
+    )
+    return gdf
 
 
 # TODO : use a threshold that varies
-def get_frac_of_confirmed_building_points(row):
+def get_frac_confirmed_building_points(row):
     proba = row["BuildingsProba"]
     arr = np.array(proba)
     return np.sum(arr >= 0.5) / len(arr)
 
 
-def get_frac_of_refuted_building_points(row):
+def get_frac_refuted_building_points(row):
     proba = row["BuildingsProba"]
     arr = np.array(proba)
     return np.sum(arr <= 0.5) / len(arr)
 
 
-def get_frac_of_MTS_false_positives(row):
-    proba = row["FalsePositive"]
-    arr = np.array(proba)
-    return np.mean(arr)
+def get_frac_MTS_true_positives(row):
+    true_positives = row["TruePositive"]
+    return np.mean(true_positives)
