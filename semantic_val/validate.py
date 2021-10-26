@@ -18,21 +18,14 @@ from semantic_val.validation.validation_utils import (
 log = utils.get_logger(__name__)
 
 
-# TODO: Use append mode in to_file mode=”a” to avoid ugly pandas concatenation
-# TODO: Become independant of post-correction shapefile by creating shapefil "as if" it did not undergo correction ?
-# We have Classification in the LAS files so we can evaluate method on the newly created shapefile.
-# (we can identify surclassification on the fly with associated points).
-
-
 def validate(config: DictConfig) -> Optional[float]:
-    """Contains training pipeline.
-    Instantiates all PyTorch Lightning objects from config.
+    """
+    Contains validation pipeline, which takes predicted las and generate a single,
+    large shapefile with vectorized candidate building and the trained model
+    decision (confirm/refute).
 
     Args:
         config (DictConfig): Configuration composed by Hydra.
-
-    Returns:
-        Optional[float]: Metric score for hyperparameter optimization.
     """
 
     # Set seed for random number generators in pytorch, numpy and python.random
@@ -51,7 +44,11 @@ def validate(config: DictConfig) -> Optional[float]:
             log.info("/!\ Skipping tile with no candidate building points.")
             continue
         shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
+        log.info(
+            "Grouping points info by the shapes they form and deriving raw indicators by shape"
+        )
         comparison = compare_classification_with_predictions(shapes_gdf, las_gdf)
+        log.info("Confirm or refute each candidate building if enough confidence.")
         comparison = make_decisions(comparison)
 
         df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")

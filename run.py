@@ -33,7 +33,7 @@ def main(config: DictConfig):
         return train(config)
     elif config.get("task") == "validate":
         return validate(config)
-    elif config.get("task") == "evaluate":
+    elif config.get("task") == "tune_module":
         return tune_module(config)
 
 
