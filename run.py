@@ -15,7 +15,7 @@ def main(config: DictConfig):
     from semantic_val.utils import utils
     from semantic_val.train import train
     from semantic_val.validate import validate
-    from semantic_val.evaluate import evaluate
+    from semantic_val.tune_module import tune_module
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -29,12 +29,12 @@ def main(config: DictConfig):
         utils.print_config(config, resolve=True)
 
     # Train model
-    if config.get("task") == "train.py":
+    if config.get("task") == "train":
         return train(config)
-    elif config.get("task") == "validate.py":
+    elif config.get("task") == "validate":
         return validate(config)
-    elif config.get("task") == "evaluate.py":
-        return evaluate(config)
+    elif config.get("task") == "evaluate":
+        return tune_module(config)
 
 
 if __name__ == "__main__":

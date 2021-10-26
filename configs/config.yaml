@@ -19,8 +19,8 @@ defaults:
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 
-# Task at hand. Can be either "train.py" or validate.py 
-task: train.py
+# Task at hand. Can be "train", validate, or tune_model  
+task: train
 
 # path to original working directory
 # hydra hijacks working directory by changing it to the current log directory,

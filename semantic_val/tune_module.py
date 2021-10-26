@@ -13,7 +13,7 @@ from semantic_val.validation.validation_utils import ShapeFileCols
 log = utils.get_logger(__name__)
 
 
-def evaluate(config: DictConfig) -> Optional[float]:
+def tune_module(config: DictConfig) -> Optional[float]:
     """Contains training pipeline.
     Instantiates all PyTorch Lightning objects from config.
 
