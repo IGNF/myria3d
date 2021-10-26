@@ -12,9 +12,10 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
+    from semantic_val.utils import utils
     from semantic_val.train import train
     from semantic_val.validate import validate
-    from semantic_val.utils import utils
+    from semantic_val.evaluate import evaluate
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -32,6 +33,8 @@ def main(config: DictConfig):
         return train(config)
     elif config.get("task") == "validate.py":
         return validate(config)
+    elif config.get("task") == "evaluate.py":
+        return evaluate(config)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,9 @@
+# MAKE COMPARISONS
+
 post_correction_shapefile: ${oc.env:POST_CORRECTION_SHAPEFILE}
 predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}
 operationnal_output_shapefile_name: "contrasted_predictions.shp" 
+
+# EVALUATE COMPARISONS
+
+comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/2021-10-26/10-14-16/${validation_module.operationnal_output_shapefile_name}"
