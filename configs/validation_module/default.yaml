@@ -6,7 +6,7 @@ operationnal_output_shapefile_name: "contrasted_predictions.shp"
 
 # EVALUATE COMPARISONS
 
-comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/2021-10-26/10-14-16/${validation_module.operationnal_output_shapefile_name}"
-minimal_JC_threshold: 0.98
-minimal_JD_threshold: 0.98
+comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/${oc.env:SHAPEFILE_VERSION_TO_TUNE}/${validation_module.operationnal_output_shapefile_name}"
+minimal_confirmation_accuracy_threshold: 0.98
+minimal_refutation_accuracy_threshold: 0.98
 hparams_opti_output_csv_path: "module_hparams_opti.csv"

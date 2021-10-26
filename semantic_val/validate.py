@@ -9,7 +9,8 @@ from tqdm import tqdm
 from semantic_val.utils import utils
 from semantic_val.validation.validation_utils import (
     ShapeFileCols,
-    compare_classification_with_predictions,
+    agg_pts_info_by_shape,
+    derive_raw_shape_level_indicators,
     make_decisions,
     vectorize_into_candidate_building_shapes,
     load_geodf_of_candidate_building_points,
@@ -47,7 +48,11 @@ def validate(config: DictConfig) -> Optional[float]:
         log.info(
             "Grouping points info by the shapes they form and deriving raw indicators by shape"
         )
-        comparison = compare_classification_with_predictions(shapes_gdf, las_gdf)
+        comparison = agg_pts_info_by_shape(shapes_gdf, las_gdf)
+
+        log.info("Derive raw shape level info from ground truths and predictions.")
+        comparison = derive_raw_shape_level_indicators(comparison)
+
         log.info("Confirm or refute each candidate building if enough confidence.")
         comparison = make_decisions(comparison)
 
