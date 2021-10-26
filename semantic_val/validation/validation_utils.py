@@ -10,6 +10,10 @@ from geopandas import GeoDataFrame
 from shapely.geometry.point import Point
 from shapely.ops import unary_union
 
+from semantic_val.utils import utils
+
+log = utils.get_logger(__name__)
+
 
 class ShapeFileCols(Enum):
     NUMBER_OF_CANDIDATE_BUILDINGS_POINT = "B_NUM_PTS"
@@ -43,6 +47,7 @@ def load_geodf_of_candidate_building_points(
     Load a las that went through correction and was predicted by trained model.
     Focus on points that were detected as building (keep_classes).
     """
+    log.info("Loading LAS.")
     las = laspy.read(las_filepath)
     # TODO: uncomment to focus on predicted points only !
     # [WARNING: we should assert that all points have preds for production mode]
@@ -52,12 +57,13 @@ def load_geodf_of_candidate_building_points(
         las["classification"], TRUE_POSITIVE_CODE + FALSE_POSITIVE_CODE
     )
     las.points = las[candidate_building_points_idx]
-
-    # DEBUG : for debug:
-    # las.points = las.points[:50000]
+    # DEBUG :
+    # las.points = las.points[:30000]
     include_colnames = ["classification", "BuildingsProba"]
     data = np.array([las[colname] for colname in include_colnames]).transpose()
     lidar_df = pd.DataFrame(data, columns=include_colnames)
+
+    log.info("Turning LAS into GeoDataFrame.")
     # TODO: this lst comprehension is slow and could be improved.
     # GDF does not accept a map object here.
     geometry = [Point(xy) for xy in zip(las.x, las.y)]
@@ -91,13 +97,18 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
     From LAS with original classification, get candidate shapes
     Rules: >3m², holes filled, simplified geometry.
     """
+    log.info("Vectorizing into candidate buildings.")
     union = get_unique_geometry_from_points(lidar_geodf)
     # TODO: maybe use maps here for  GeoDataFrame ? Or compose functions ?
+    log.info("Filling vector holes.")
     shapes_no_holes = [fill_holes(shape) for shape in union]
+    log.info("Simplifying shapes.")
     shapes_simplified = [simplify_shape(shape) for shape in shapes_no_holes]
     candidate_buildings = geopandas.GeoDataFrame(
         shapes_simplified, columns=["geometry"], crs="EPSG:2154"
     )
+    log.info(f"Keeping shapes larger than {MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS}m².")
+
     candidate_buildings = candidate_buildings[
         candidate_buildings.area > MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
@@ -111,11 +122,13 @@ def compare_classification_with_predictions(
     shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame
 ):
     """Group the info and preds of candidate building points forming a candidate bulding shape."""
+    log.info("Grouping points info by the shapes they form.")
+
     gdf = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
     gdf = gdf.groupby("shape_idx")[["BuildingsProba", "TruePositive"]].agg(
         lambda x: x.tolist()
     )
-
+    log.info("Deriving raw indicators for each shape")
     gdf = set_num_pts_col(gdf)
     gdf = set_mean_proba_col(gdf)
     gdf = set_frac_confirmed_building_col(gdf)
@@ -126,23 +139,29 @@ def compare_classification_with_predictions(
     return gdf
 
 
-def validate(gdf, validation_threshold: float = 0.7, refutation_threshold: float = 0.7):
+def make_decisions(
+    gdf, validation_threshold: float = 0.7, refutation_threshold: float = 0.7
+):
     """Add different flags to study the validation quality."""
-    gdf[ShapeFileCols.CONFIRMED_BUILDING] = 1 * (
-        gdf[ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE]
+    log.info("Confirm or refute each candidate building if enough confidence.")
+    gdf[ShapeFileCols.CONFIRMED_BUILDING.value] = 1 * (
+        gdf[ShapeFileCols.FRAC_OF_CONFIRMED_BUILDINGS_AMONG_CANDIDATE.value]
         > validation_threshold
     )
-    gdf[ShapeFileCols.REFUTED_BUILDING] = 1 * (
-        gdf[ShapeFileCols.FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE]
+    gdf[ShapeFileCols.REFUTED_BUILDING.value] = 1 * (
+        gdf[ShapeFileCols.FRAC_OF_REFUTED_BUILDINGS_AMONG_CANDIDATE.value]
         > refutation_threshold
     )
-    gdf[ShapeFileCols.UNCERTAINTY] = 1 * (
-        (gdf[ShapeFileCols.REFUTED_BUILDING] + gdf[ShapeFileCols.CONFIRMED_BUILDING])
+    gdf[ShapeFileCols.UNCERTAINTY.value] = 1 * (
+        (
+            gdf[ShapeFileCols.REFUTED_BUILDING.value]
+            + gdf[ShapeFileCols.CONFIRMED_BUILDING.value]
+        )
         == 0
     )
-    gdf[ShapeFileCols.NATURE_OF_FINAL_DECISION] = -1 * (
-        gdf[ShapeFileCols.UNCERTAINTY] == 1
-    ) + 1 * (gdf[ShapeFileCols.CONFIRMED_BUILDING] == 1)
+    gdf[ShapeFileCols.NATURE_OF_FINAL_DECISION.value] = -1 * (
+        gdf[ShapeFileCols.UNCERTAINTY.value] == 1
+    ) + 1 * (gdf[ShapeFileCols.CONFIRMED_BUILDING.value] == 1)
 
     return gdf
 
