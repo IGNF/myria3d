@@ -63,3 +63,4 @@ def validate(config: DictConfig) -> Optional[float]:
         )
         mode = "w" if not osp.isfile(output_shp) else "a"
         df_out.to_file(output_shp, mode=mode, index=False)
+    log.info(f"Output shapefile is in {output_shp}")
