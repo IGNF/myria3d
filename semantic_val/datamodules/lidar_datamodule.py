@@ -66,6 +66,7 @@ class LidarDataModule(LightningDataModule):
         self.datasplit_csv_filepath = metadata_shapefile.replace(".shp", ".csv")
 
         self.train_frac = train_frac
+
         self.subtile_width_meters = subtile_width_meters
         self.train_subtiles_by_tile = train_subtiles_by_tile
         self.subtile_overlap = subtile_overlap
@@ -76,10 +77,6 @@ class LidarDataModule(LightningDataModule):
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
-
-    # @property
-    # def n_classes(self) -> int:
-    #     return 2
 
     def make_datasplit_csv(
         self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8
@@ -232,8 +229,6 @@ class LidarDataModule(LightningDataModule):
 
 class TrainSampler(Sampler[int]):
     """Custom sampler to draw multiple subtiles from a file in the same batch."""
-
-    data_source: Sized
 
     def __init__(
         self, nb_files: int, train_subtiles_by_tile: int, shuffle: bool = False
