@@ -1,3 +1,4 @@
+
 save_preds:
   _target_: semantic_val.callbacks.predictions_callbacks.SavePreds
   save_predictions: false
@@ -6,6 +7,10 @@ save_preds:
 log_code:
   _target_: semantic_val.callbacks.comet_callbacks.LogCode
   code_dir: ${work_dir}/semantic_val
+
+lr_monitor:
+  _target_:  pytorch_lightning.callbacks.LearningRateMonitor
+  logging_interval: "step"
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
