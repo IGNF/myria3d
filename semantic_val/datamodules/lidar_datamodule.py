@@ -204,7 +204,6 @@ class LidarDataModule(LightningDataModule):
         return DataLoader(
             dataset=self.data_train,
             batch_size=self.batch_size,
-            shuffle=self.shuffle_train,
             sampler=TrainSampler(
                 self.data_train.nb_files,
                 self.train_subtiles_by_tile,
