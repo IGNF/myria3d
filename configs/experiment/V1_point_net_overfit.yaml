@@ -29,10 +29,8 @@ trainer:
   # limit_test_batches: 13  # not called in overfit mode
 
 model:
-  save_predictions: true
   loss: "CrossEntropyLoss"
   lr: 0.01
-  save_train_predictions_every_n_step: 65
   n_classes: 2
   net:
     MLP1_channels: [9, 64, 64]

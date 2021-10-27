@@ -31,10 +31,8 @@ trainer:
 
 model:
   model_architecture: "point_net"
-  save_predictions: false
   loss: "CrossEntropyLoss"
   lr: 0.01
-  save_train_predictions_every_n_step: 10000000000
   net:
     MLP1_channels: [9, 64, 64]
     MLP2_channels: [64, 256, 512, 1024]

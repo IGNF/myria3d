@@ -32,9 +32,9 @@ trainer:
   check_val_every_n_epoch: 1
   # limit_test_batches: 1  # Disable to predict on all data
 
-
-# TODO: The config should be obtained from a checkpoint ?
-# Only batch size should be a variable
+callbacks:
+  save_preds:
+    save_predictions: true
 
 model:
   loss: "FocalLoss"
@@ -51,5 +51,5 @@ datamodule:
   subtile_width_meters: 50
   subsample_size: 25000  # Aim for at least 10pts/m²
   subtile_overlap: 0
-  num_workers: 8
+  num_workers: 1
   shuffle_train: false

@@ -17,7 +17,6 @@ from torchmetrics import IoU
 from torch.nn import functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
-# TODO: the class of the model should be an hydra parameter.
 from semantic_val.models.modules.point_net import PointNet
 from semantic_val.utils import utils
 
@@ -71,9 +70,6 @@ class SegmentationModel(LightningModule):
 
     Read the docs:
         https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html
-
-    :param save_predictions: Set to True to save LAS files with predictions as classification field.
-    Only in effect if save_predictions is True.
     """
 
     def __init__(
@@ -83,16 +79,13 @@ class SegmentationModel(LightningModule):
         loss: str = "CrossEntropyLoss",
         alpha: float = 0.25,
         lr: float = 0.01,
-        save_predictions: bool = False,
-        save_train_predictions_every_n_step: int = 50,
         **kwargs,
     ):
         super().__init__()
 
         # this line ensures params passed to LightningModule will be saved to ckpt
         # it also allows to access params with 'self.hparams' attribute
-        self.should_save_preds: bool = save_predictions
-        self.save_train_predictions_every_n_step = save_train_predictions_every_n_step
+        self.lr = lr
         self.save_hyperparameters()
 
         model_class = MODEL_ZOO[model_architecture]
@@ -103,6 +96,7 @@ class SegmentationModel(LightningModule):
         if loss == "CrossEntropyLoss":
             self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
         elif loss == "FocalLoss":
+            # TODO: gamma should be a parameter ?
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
         self.train_iou = IoU(n_classes, reduction="none")
@@ -112,7 +106,6 @@ class SegmentationModel(LightningModule):
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
 
-        # Need to move metrics to self.device on_fit_start
         self.metrics = [
             self.train_iou,
             self.val_iou,
@@ -266,5 +259,5 @@ class SegmentationModel(LightningModule):
         """
         return torch.optim.Adam(
             params=self.parameters(),
-            lr=self.hparams.lr,
+            lr=self.lr,
         )

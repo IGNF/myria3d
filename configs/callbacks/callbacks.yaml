@@ -1,5 +1,7 @@
 save_preds:
-  _target_: semantic_val.callbacks.predictions_callbacks.SavePreds  
+  _target_: semantic_val.callbacks.predictions_callbacks.SavePreds
+  save_predictions: false
+  save_train_predictions_every_n_step: 1000000
 
 log_code:
   _target_: semantic_val.callbacks.comet_callbacks.LogCode

@@ -1,7 +1,6 @@
 _target_: semantic_val.models.model.SegmentationModel
 
 model_architecture: "point_net"
-save_predictions: true
 loss: "FocalLoss"
 alpha: 0.25
 lr: 0.01
