@@ -40,39 +40,32 @@ log = utils.get_logger(__name__)
 
 class LidarDataModule(LightningDataModule):
     """
-    Nota: we do not collate cloud in order to feed full cloud of various size to models directly,
-    so they can give full outputs for evaluation and inference.
+    Datamdule to feed train and validation data to the model.
+    We use a custome sampler during training to consecutively load several subtiles from a single tile,
+    to reduce the I/O footprint.
     """
 
-    def __init__(
-        self,
-        lasfiles_dir: str = "./path/to/dataset/trainvaltest/",
-        metadata_shapefile: str = "./path/to/dataset/my_shapefile.shp",
-        train_frac: float = 0.8,
-        batch_size: int = 8,
-        num_workers: int = 0,
-        subtile_width_meters: float = 100.0,
-        subtile_overlap: float = 0.0,
-        train_subtiles_by_tile: int = 4,
-        subsample_size: int = 30000,
-        shuffle_train: bool = False,
-    ):
+    def __init__(self, **kwargs):
         super().__init__()
 
-        self.num_workers = num_workers
+        self.num_workers = kwargs.get("num_workers", 0)
 
-        self.lasfiles_dir = lasfiles_dir
-        self.metadata_shapefile = metadata_shapefile
-        self.datasplit_csv_filepath = metadata_shapefile.replace(".shp", ".csv")
+        self.lasfiles_dir = kwargs.get("lasfiles_dir")
+        self.metadata_shapefile = kwargs.get("metadata_shapefile")
+        self.datasplit_csv_filepath = kwargs.get("metadata_shapefile").replace(
+            ".shp", ".csv"
+        )
 
-        self.train_frac = train_frac
+        self.train_frac = kwargs.get("train_frac", 0.8)
+        self.shuffle_train = kwargs.get("shuffle_train", "true")
+        self.limit_top_k_tiles_train = kwargs.get("limit_top_k_tiles_train", 1000000)
+        self.limit_top_k_tiles_val = kwargs.get("limit_top_k_tiles_val", 1000000)
+        self.train_subtiles_by_tile = kwargs.get("train_subtiles_by_tile", 12)
+        self.batch_size = kwargs.get("batch_size", 32)
 
-        self.subtile_width_meters = subtile_width_meters
-        self.train_subtiles_by_tile = train_subtiles_by_tile
-        self.subtile_overlap = subtile_overlap
-        self.subsample_size = subsample_size
-        self.batch_size = batch_size
-        self.shuffle_train = shuffle_train
+        self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
+        self.subtile_overlap = kwargs.get("subtile_overlap", 0)
+        self.subsample_size = kwargs.get("subsample_size", 25000)
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
@@ -163,52 +156,62 @@ class LidarDataModule(LightningDataModule):
 
         df_split = pd.read_csv(self.datasplit_csv_filepath)
 
+        self.data_train = self.get_data_train(df_split)
+        self.data_val = self.get_data_val(df_split)
+        self.data_test = self.get_data_test(df_split)
+
+    def get_data_train(self, df_split):
+        """Get the train dataset"""
         df_split_train = df_split[df_split.split == "train"]
         df_split_train = df_split_train.sort_values("nb_bati", ascending=False)
         train_files = df_split_train.file_path.values.tolist()
-
-        df_split_val = df_split[df_split.split == "val"]
-        df_split_val = df_split_val.sort_values("nb_bati", ascending=False)
-        val_files = df_split_val.file_path.values.tolist()
-        test_files = val_files
-
-        self.data_train = LidarTrainDataset(
+        if self.include_top_k_train_clouds:
+            train_files = train_files[: self.include_top_k_train_clouds]
+        return LidarTrainDataset(
             train_files,
             transform=self.get_train_transforms(),
             target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
             train_subtiles_by_tile=self.train_subtiles_by_tile,
         )
-        self.data_val = LidarValDataset(
+
+    def get_data_val(self, df_split):
+        """Get the validation dataset"""
+        df_split_val = df_split[df_split.split == "val"]
+        df_split_val = df_split_val.sort_values("nb_bati", ascending=False)
+        val_files = df_split_val.file_path.values.tolist()
+        if self.include_top_k_val_clouds:
+            val_files = val_files[: self.include_top_k_val_clouds]
+        return LidarValDataset(
             val_files,
             transform=self.get_val_transforms(),
             target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
-        self.data_test = LidarTestDataset(
-            test_files,
-            transform=self.get_test_transforms(),
-            target_transform=MakeBuildingTargets(),
-            subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
-        )
+
+    def get_data_test(self, df_split):
+        """Get the test dataset - for now this is the validation dataset"""
+        return self.get_data_val(df_split)
 
     def train_dataloader(self):
         return DataLoader(
             dataset=self.data_train,
             batch_size=self.batch_size,
-            shuffle=False,
+            shuffle=self.shuffle_train,
             sampler=TrainSampler(
                 self.data_train.nb_files,
                 self.train_subtiles_by_tile,
-                shuffle=self.shuffle_train,
+                shuffle_train=self.shuffle_train,
             ),
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
 
     def val_dataloader(self):
+        """
+        Get val dataloader. num_workers is only one because load must be split for IterableDataset.
+        """
         return DataLoader(
             dataset=self.data_val,
             batch_size=self.batch_size,
@@ -231,17 +234,17 @@ class TrainSampler(Sampler[int]):
     """Custom sampler to draw multiple subtiles from a file in the same batch."""
 
     def __init__(
-        self, nb_files: int, train_subtiles_by_tile: int, shuffle: bool = False
+        self, nb_files: int, train_subtiles_by_tile: int, shuffle_train: bool = False
     ) -> None:
         """:param data_source_size: Number of training LAS files."""
         self.nb_files = nb_files
         self.data_source_range = list(range(self.nb_files))
         self.train_subtiles_by_tile = train_subtiles_by_tile
-        self.shuffle = shuffle
+        self.shuffle_train = shuffle_train
 
     def __iter__(self) -> Iterator[int]:
         """Shuffle the files query indexes, and n-plicate them while keeping their new order."""
-        if self.shuffle:
+        if self.shuffle_train:
             random.shuffle(self.data_source_range)
         extended_range = [
             ([file_idx] * self.train_subtiles_by_tile)

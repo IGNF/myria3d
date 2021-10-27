@@ -11,7 +11,7 @@ subsample_size: 25000
 subtile_width_meters: 50
 subtile_overlap: 0
 
-include_top_k_train_clouds: 50  # top-n clouds in terms of % building points
+limit_top_k_tiles_train: None  # if defined, use top-n clouds in terms of % building points
 num_workers: 12
 shuffle_train: true
 
