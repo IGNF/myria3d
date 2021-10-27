@@ -165,10 +165,11 @@ class LidarDataModule(LightningDataModule):
         df_split_train = df_split[df_split.split == "train"]
         df_split_train = df_split_train.sort_values("nb_bati", ascending=False)
         train_files = df_split_train.file_path.values.tolist()
-        if self.include_top_k_train_clouds:
-            train_files = train_files[: self.include_top_k_train_clouds]
-            msg = "Training on tiles: /n" + "/n".join(train_files)
-            log.info(msg)
+        if self.limit_top_k_tiles_train:
+            train_files = train_files[: self.limit_top_k_tiles_train]
+            log.info(
+                "\n Training on: \n " + str([osp.basename(f) for f in train_files])
+            )
         return LidarTrainDataset(
             train_files,
             transform=self.get_train_transforms(),
@@ -182,10 +183,11 @@ class LidarDataModule(LightningDataModule):
         df_split_val = df_split[df_split.split == "val"]
         df_split_val = df_split_val.sort_values("nb_bati", ascending=False)
         val_files = df_split_val.file_path.values.tolist()
-        if self.include_top_k_val_clouds:
-            val_files = val_files[: self.include_top_k_val_clouds]
-            msg = "Validation on tiles: /n" + "/n".join(val_files)
-            log.info(msg)
+        if self.limit_top_k_tiles_val:
+            val_files = val_files[: self.limit_top_k_tiles_val]
+            log.info(
+                "\n Validating on: \n " + str([osp.basename(f) for f in val_files])
+            )
         return LidarValDataset(
             val_files,
             transform=self.get_val_transforms(),
