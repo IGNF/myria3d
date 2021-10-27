@@ -19,7 +19,7 @@ defaults:
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 
-# Task at hand. Can be "train", validate, or tune_model  
+# Task at hand. Can be "train", validate, or tune_module  
 task: train
 
 # path to original working directory
