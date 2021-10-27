@@ -34,7 +34,11 @@ def validate(config: DictConfig) -> Optional[float]:
     )
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
-        df_out = get_inspection_shapefile(las_filepath)
+        df_out = get_inspection_shapefile(
+            las_filepath,
+            confirmation_threshold=config.validation_module.confirmation_threshold,
+            refutation_threshold=config.validation_module.refutation_threshold,
+        )
         if df_out is not None:
             mode = "w" if not osp.isfile(output_shp) else "a"
             df_out.to_file(output_shp, mode=mode, index=False)

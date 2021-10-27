@@ -16,6 +16,19 @@ from semantic_val.utils import utils
 log = utils.get_logger(__name__)
 
 
+TRUE_POSITIVE_CODE = [19]
+FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
+
+MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
+
+# could be increased to demand high global proba for confirmation
+PROBA_DECISION_THRESHOLD_FOR_CONFIRMATION = 0.5
+# could be diminushed to demand low global proba fort refutation
+PROBA_DECISION_THRESHOLD_FOR_REFUTATION = 0.5
+
+DECISION_LABELS = ["unsure", "not-building", "building"]
+
+
 class ShapeFileCols(Enum):
     NUMBER_OF_CANDIDATE_BUILDINGS_POINT = "B_NUM_PTS"
 
@@ -31,35 +44,27 @@ class ShapeFileCols(Enum):
 
 
 class MetricsNames(Enum):
-    # Constraints:
-    CONFIRMATION_ACCURACY = "CA"
-    REFUTATION_ACCURACY = "RA"
+    # Amount of each deicison
+    PROPORTION_OF_UNCERTAINTY = "P_UNSURE"
+    PROPORTION_OF_CONFIRMATION = "P_CONFIRM"
+    PROPORTION_OF_REFUTATION = "P_REFUTE"
+
     # To maximize:
-    LEVEL_OF_ACHIEVED_ACCURATE_CONFIRMATION = "P_AC"
-    LEVEL_OF_ACHIEVED_ACCURATE_REFUTATION = "P_AR"
-    SURFACE_OF_ACHIEVED_ACCURATE_ACTION = "P_A(C*R)"
+    PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
+    # Constraints:
+    CONFIRMATION_ACCURACY = "A_CONFIRM"
+    REFUTATION_ACCURACY = "A_REFUTE"
     # Metainfo to evaluate absolute gain and what rests to validate post-module
-    PROPORTION_OF_UNCERTAINTY = "P_U"
-    PROPORTION_OF_CONFIRMATION = "P_C"
-    PROPORTION_OF_REFUTATION = "P_R"
-    PROPORTION_OF_AUTOMATED_DECISIONS = "P_(C+R)"
+    NET_GAIN_CONFIRMATION = "NG_CONFIRM"
+    NET_GAIN_REFUTATION = "NG_REFUTE"
 
 
-TRUE_POSITIVE_CODE = [19]
-FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
-
-MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
-
-# could be increased to demand high global proba for confirmation
-PROBA_DECISION_THRESHOLD_FOR_CONFIRMATION = 0.5
-# could be diminushed to demand low global proba fort refutation
-PROBA_DECISION_THRESHOLD_FOR_REFUTATION = 0.5
-
-DECISION_LABELS = ["unsure", "not-building", "building"]
-
-
-def get_inspection_shapefile(las_filepath):
-    """From a predicted LAS, returns the validation shapefile (or None if no candidate buildings)."""
+def get_inspection_shapefile(
+    las_filepath: str,
+    confirmation_threshold: float = 0.05,
+    refutation_threshold: float = 1.0,
+):
+    """From a predicted LAS, returns the inspection shapefile (or None if no candidate buildings)."""
     las_gdf = load_geodf_of_candidate_building_points(las_filepath)
 
     if len(las_gdf) == 0:
@@ -74,7 +79,11 @@ def get_inspection_shapefile(las_filepath):
     comparison = derive_raw_shape_level_indicators(comparison)
 
     log.info("Confirm or refute each candidate building if enough confidence.")
-    comparison = make_decisions(comparison)
+    comparison = make_decisions(
+        comparison,
+        confimation_threshold=confirmation_threshold,
+        refutation_threshold=refutation_threshold,
+    )
 
     df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
     keep = [item.value for item in ShapeFileCols] + ["geometry"]
@@ -253,12 +262,12 @@ def set_MTS_ground_truth_flag(gdf):
 
 
 def make_decision_(
-    row, validation_threshold: float = 0.7, refutation_threshold: float = 0.7
+    row, confirmation_threshold: float = 0.05, refutation_threshold: float = 1.0
 ):
     """Helper: module decision based on fraction of confirmed/refuted points"""
     yes_frac = ShapeFileCols.IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
     no_frac = ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
-    if row[yes_frac] >= validation_threshold:
+    if row[yes_frac] >= confirmation_threshold:
         return DECISION_LABELS[2]
     elif row[no_frac] >= refutation_threshold:
         return DECISION_LABELS[1]
@@ -267,14 +276,14 @@ def make_decision_(
 
 
 def make_decisions(
-    gdf, validation_threshold: float = 0.7, refutation_threshold: float = 0.7
+    gdf, confimation_threshold: float = 0.05, refutation_threshold: float = 1.0
 ):
     """Add different flags to study the validation quality."""
     ia_decision = ShapeFileCols.IA_DECISION.value
     gdf[ia_decision] = gdf.apply(
-        lambda x: make_decision_(
-            x,
-            validation_threshold=validation_threshold,
+        lambda row: make_decision_(
+            row,
+            confirmation_threshold=confimation_threshold,
             refutation_threshold=refutation_threshold,
         ),
         axis=1,
@@ -283,42 +292,48 @@ def make_decisions(
 
 
 def evaluate_decisions(gdf: geopandas.GeoDataFrame):
-    """Get dict of metrics to evaluate how good module decisions where in reference to ground truths."""
-    mts_gt = ShapeFileCols.MTS_GROUND_TRUTH.value
-    ia_decision = ShapeFileCols.IA_DECISION.value
+    """
+    Get dict of metrics to evaluate how good module decisions were in reference to ground truths.
+    Decisions : U=Unsure, C=Confirmation, R=Refutation
+    Maximization criteria :
+      Proportion of each decision among total of candidates.
+      We want to maximize it. The max is not 1 since there are "ambiguous ground truth" cases.
+    Constraints:
+      Confirmation/Refutation Accuracy.
+      Equéals 1 if each decision to confirm or refute was the right one.
+    Net gain:
+      Proportions of accurate C/R.
+      Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
+      for ambiguous groud truths)
+    """
+    mts_gt = gdf[ShapeFileCols.MTS_GROUND_TRUTH.value]
+    ia_decision = gdf[ShapeFileCols.IA_DECISION.value]
 
-    # Level of validation achieved (--> 1 is perfect validation)
-    cm = confusion_matrix(
-        gdf[mts_gt], gdf[ia_decision], labels=DECISION_LABELS, normalize="true"
-    )
-    PAR = cm[1, 1]
-    PAC = cm[2, 2]
-    PACxR = PAC * PAR
+    # CRITERIA
+    cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="all")
+    PU, PR, PC = cm.sum(axis=1)
+    # Proportion of decisions made among total (= 1 - PU)
+    PAD = PC + PR
 
-    # Accuracy of decision taken (--> 1 is each decision was the good one)
-    cm = confusion_matrix(
-        gdf[mts_gt], gdf[ia_decision], labels=DECISION_LABELS, normalize="pred"
-    )
+    # CONSTRAINTS
+    cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="pred")
     RA = cm[1, 1]
     CA = cm[2, 2]
 
-    # Proportion of each decision among total of candidates (PCR = 1 reached when we make a decision for each candidate.)
-    cm = confusion_matrix(
-        gdf[mts_gt], gdf[ia_decision], labels=DECISION_LABELS, normalize="all"
-    )
-    PU, PR, PC = cm.sum(axis=1)
-    PAD = PC + PR
+    # NET GAIN
+    cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="true")
+    NGR = cm[1, 1]
+    NGC = cm[2, 2]
 
     metrics_dict = {
-        MetricsNames.REFUTATION_ACCURACY.value: RA,
-        MetricsNames.CONFIRMATION_ACCURACY.value: CA,
-        MetricsNames.LEVEL_OF_ACHIEVED_ACCURATE_REFUTATION.value: PAR,
-        MetricsNames.LEVEL_OF_ACHIEVED_ACCURATE_CONFIRMATION.value: PAC,
-        MetricsNames.SURFACE_OF_ACHIEVED_ACCURATE_ACTION.value: PACxR,
-        MetricsNames.PROPORTION_OF_UNCERTAINTY.value: PU,
-        MetricsNames.PROPORTION_OF_REFUTATION.value: PR,
-        MetricsNames.PROPORTION_OF_CONFIRMATION.value: PC,
         MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value: PAD,
+        MetricsNames.CONFIRMATION_ACCURACY.value: CA,
+        MetricsNames.REFUTATION_ACCURACY.value: RA,
+        MetricsNames.PROPORTION_OF_UNCERTAINTY.value: PU,
+        MetricsNames.PROPORTION_OF_CONFIRMATION.value: PC,
+        MetricsNames.PROPORTION_OF_REFUTATION.value: PR,
+        MetricsNames.NET_GAIN_REFUTATION.value: NGR,
+        MetricsNames.NET_GAIN_CONFIRMATION.value: NGC,
     }
 
     return metrics_dict
@@ -338,10 +353,10 @@ def apply_constraint_and_sort(
     df = df[df[ra] > minimal_refutation_accuracy_threshold]
     N_2 = len(df)
     log.info(
-        f"Applying JC (>{minimal_confirmation_accuracy_threshold}) and JD (>{minimal_refutation_accuracy_threshold}) constraint :"
-        f"N = {N_0} --JC-> {N_1} --TD-> {N_2}"
+        f"Applying confirmation accuracy (>{minimal_confirmation_accuracy_threshold}) and refutation accuracy (>{minimal_refutation_accuracy_threshold}) constraint :"
+        f"N = {N_0} --CA-> {N_1} --RA-> {N_2}"
     )
     df = df.sort_values(
-        MetricsNames.SURFACE_OF_ACHIEVED_ACCURATE_ACTION.value, ascending=False
+        MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value, ascending=False
     )
     return df

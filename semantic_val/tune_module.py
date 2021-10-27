@@ -37,15 +37,15 @@ def tune_module(config: DictConfig) -> Optional[float]:
     gdf = geopandas.read_file(module_shp_filepath)
 
     df_hparams_opti = pd.DataFrame()
-    for validation_threshold in np.linspace(start=0.0, stop=1.0, num=20):
-        for refutation_threshold in np.linspace(start=0.0, stop=1.0, num=20):
+    for confimation_threshold in np.linspace(start=0.0, stop=1.0, num=21):
+        for refutation_threshold in np.linspace(start=0.0, stop=1.0, num=21):
             gdf = make_decisions(
                 gdf=gdf,
-                validation_threshold=validation_threshold,
+                confimation_threshold=confimation_threshold,
                 refutation_threshold=refutation_threshold,
             )
             metrics_dict = evaluate_decisions(gdf)
-            metrics_dict.update({"validation_threshold": validation_threshold})
+            metrics_dict.update({"confimation_threshold": confimation_threshold})
             metrics_dict.update({"refutation_threshold": refutation_threshold})
             df_hparams_opti = df_hparams_opti.append(metrics_dict, ignore_index=True)
 
