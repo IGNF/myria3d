@@ -21,12 +21,8 @@ from semantic_val.validation.validation_utils import (
 log = utils.get_logger(__name__)
 
 # Use HPO if more than two params : https://github.com/ashleve/lightning-hydra-template#hyperparameter-search
-# Need to add constraints, etc.
-
-
 def tune_module(config: DictConfig) -> Optional[float]:
     """Contains tuning pipeline which takes a building validation shapefile and change decision threshold.
-
 
     Args:
         config (DictConfig): Configuration composed by Hydra.

@@ -42,7 +42,7 @@ class MetricsNames(Enum):
     PROPORTION_OF_UNCERTAINTY = "P_U"
     PROPORTION_OF_CONFIRMATION = "P_C"
     PROPORTION_OF_REFUTATION = "P_R"
-    PROPORTION_OF_ACTIONS_TAKEN = "P_(C+R)"
+    PROPORTION_OF_AUTOMATED_DECISIONS = "P_(C+R)"
 
 
 TRUE_POSITIVE_CODE = [19]
@@ -56,6 +56,31 @@ PROBA_DECISION_THRESHOLD_FOR_CONFIRMATION = 0.5
 PROBA_DECISION_THRESHOLD_FOR_REFUTATION = 0.5
 
 DECISION_LABELS = ["unsure", "not-building", "building"]
+
+
+def get_inspection_shapefile(las_filepath):
+    """From a predicted LAS, returns the validation shapefile (or None if no candidate buildings)."""
+    las_gdf = load_geodf_of_candidate_building_points(las_filepath)
+
+    if len(las_gdf) == 0:
+        log.info("/!\ Skipping tile with no candidate building points.")
+        return None
+
+    shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
+    log.info("Grouping points and deriving indicators by shape")
+    comparison = agg_pts_info_by_shape(shapes_gdf, las_gdf)
+
+    log.info("Derive raw shape level info from ground truths and predictions.")
+    comparison = derive_raw_shape_level_indicators(comparison)
+
+    log.info("Confirm or refute each candidate building if enough confidence.")
+    comparison = make_decisions(comparison)
+
+    df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
+    keep = [item.value for item in ShapeFileCols] + ["geometry"]
+    df_out = df_out[keep]
+    return df_out
+
 
 # # TODO: check what 104 is
 def load_geodf_of_candidate_building_points(
@@ -145,7 +170,7 @@ def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame):
 
 
 def derive_raw_shape_level_indicators(gdf):
-    """Derive raw shape level info from ground truths and predictions."""
+    """Derive raw shape level info from ground truths (TruePositive) and predictions (BuildingsProba)"""
     gdf = set_num_pts_col(gdf)
     gdf = set_mean_proba_col(gdf)
     gdf = set_frac_confirmed_building_col(gdf)
@@ -208,7 +233,7 @@ def set_frac_refuted_building_col(gdf):
 
 
 def set_MTS_ground_truth_flag_(row):
-    """Helper : Based on the fraction of confirmed building points, set the nature of the shape or declare an ambiguous case (flag = -1)"""
+    """Helper : Based on the fraction of confirmed building points, set the nature of the shape or declare an ambiguous case"""
     FP_FRAC = 0.05
     TP_FRAC = 0.95
     tp = ShapeFileCols.MTS_TRUE_POSITIVE_FRAC.value
@@ -277,12 +302,12 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     RA = cm[1, 1]
     CA = cm[2, 2]
 
-    # Proportion of each decision among total of candidates (PCR -> 1 is when we make a decision for each one.)
+    # Proportion of each decision among total of candidates (PCR = 1 reached when we make a decision for each candidate.)
     cm = confusion_matrix(
         gdf[mts_gt], gdf[ia_decision], labels=DECISION_LABELS, normalize="all"
     )
     PU, PR, PC = cm.sum(axis=1)
-    PCR = PC + PR
+    PAD = PC + PR
 
     metrics_dict = {
         MetricsNames.REFUTATION_ACCURACY.value: RA,
@@ -293,7 +318,7 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
         MetricsNames.PROPORTION_OF_UNCERTAINTY.value: PU,
         MetricsNames.PROPORTION_OF_REFUTATION.value: PR,
         MetricsNames.PROPORTION_OF_CONFIRMATION.value: PC,
-        MetricsNames.PROPORTION_OF_ACTIONS_TAKEN.value: PCR,
+        MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value: PAD,
     }
 
     return metrics_dict
