@@ -99,9 +99,9 @@ class SegmentationModel(LightningModule):
             # TODO: gamma should be a parameter ?
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
-        self.train_iou = IoU(n_classes, reduction="none")
-        self.val_iou = IoU(n_classes, reduction="none")
-        self.test_iou = IoU(n_classes, reduction="none")
+        self.train_iou = IoU(n_classes, reduction="none", absent_score=1.0)
+        self.val_iou = IoU(n_classes, reduction="none", absent_score=1.0)
+        self.test_iou = IoU(n_classes, reduction="none", absent_score=1.0)
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
