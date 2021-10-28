@@ -30,17 +30,18 @@ DECISION_LABELS = ["unsure", "not-building", "building"]
 
 
 class ShapeFileCols(Enum):
-    NUMBER_OF_CANDIDATE_BUILDINGS_POINT = "B_NUM_PTS"
+    # Ground Truths: -1: ambiguous, 0: no, 1: yes
+    MTS_GROUND_TRUTH = "MTS_B_GT"
+    # Decision of module to confirm (Yes) or refute (No) candidate
+    IA_DECISION = "IA_B_VALID"  # -1: unsure, 0: no, 1: yes
 
     MTS_TRUE_POSITIVE_FRAC = "B_FRAC_TP"
-    MTS_GROUND_TRUTH = "MTS_B_GT"  # -1: ambiguous, 0: no, 1: yes
+    IA_AVERAGE_BUILDINGS_PROBA_FLOAT = "B_AVG_PRED"
 
     IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC = "B_FRAC_YES"
     MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC = "B_FRAC_NO"
-    IA_AVERAGE_BUILDINGS_PROBA_FLOAT = "B_AVG_PRED"
 
-    # Fields about decision of module to confirm (Yes) or refute (No) candidate
-    IA_DECISION = "IA_B_VALID"  # -1: unsure, 0: no, 1: yes
+    NUMBER_OF_CANDIDATE_BUILDINGS_POINT = "B_NUM_PTS"
 
 
 class MetricsNames(Enum):
