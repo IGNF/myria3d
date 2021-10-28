@@ -21,10 +21,10 @@ FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
 
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 
-# could be increased to demand high global proba for confirmation
-PROBA_DECISION_THRESHOLD_FOR_CONFIRMATION = 0.5
-# could be diminushed to demand low global proba fort refutation
-PROBA_DECISION_THRESHOLD_FOR_REFUTATION = 0.5
+# could be increased to demand higher proba  of being building for confirmation
+CONFIDENCE_THRESHOLD_FOR_CONFIRMATION = 0.5
+# could be augmented to demand higher proba of not being building for refutation
+CONFIDENCE_THRESHOLD_FOR_REFUTATION = 0.5
 
 DECISION_LABELS = ["unsure", "not-building", "building"]
 
@@ -205,9 +205,11 @@ def set_mean_proba_col(gdf):
 
 
 def get_frac_confirmed_building_points_(row):
-    proba = row["BuildingsProba"]
-    arr = np.array(proba)
-    return np.sum(arr >= PROBA_DECISION_THRESHOLD_FOR_CONFIRMATION) / len(arr)
+    data = row["BuildingsProba"]
+    proba_building = np.array(data)
+    return np.sum(proba_building >= CONFIDENCE_THRESHOLD_FOR_CONFIRMATION) / len(
+        proba_building
+    )
 
 
 def set_frac_confirmed_building_col(gdf):
@@ -218,9 +220,11 @@ def set_frac_confirmed_building_col(gdf):
 
 
 def get_frac_refuted_building_points_(row):
-    proba = row["BuildingsProba"]
-    arr = np.array(proba)
-    return np.sum(arr < PROBA_DECISION_THRESHOLD_FOR_REFUTATION) / len(arr)
+    data = row["BuildingsProba"]
+    proba_not_building = 1 - np.array(data)
+    return np.sum(proba_not_building >= CONFIDENCE_THRESHOLD_FOR_REFUTATION) / len(
+        proba_not_building
+    )
 
 
 def get_frac_MTS_true_positives_(row):
