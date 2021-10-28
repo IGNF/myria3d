@@ -311,7 +311,7 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
 
     # CRITERIA
     cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="all")
-    PU, PR, PC = cm.sum(axis=1)
+    PU, PR, PC = cm.sum(axis=0)
     # Proportion of decisions made among total (= 1 - PU)
     PAD = PC + PR
 
