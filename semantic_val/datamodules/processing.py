@@ -1,13 +1,10 @@
 # pylint: disable
 import math
-import os.path as osp
 from pathlib import Path
 from typing import Callable, List
 
 import laspy
 import numpy as np
-import pandas as pd
-import shapefile
 import torch
 from torch_geometric.data import Batch, Data
 from torch_geometric.transforms import BaseTransform
@@ -35,6 +32,7 @@ HALF_UNIT = 0.5
 UNIT = 1
 
 # DATA LOADING
+
 
 def load_las_data(filepath):
     """Load a cloud of points and its labels. base shape: [n_points, n_features].
@@ -380,5 +378,3 @@ def collate_fn(data_list: List[Data]) -> Batch:
     )
     batch.batch_size = len(data_list)
     return batch
-
-

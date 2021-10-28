@@ -21,7 +21,7 @@ from semantic_val.datamodules.datasets.SemValBuildings202110 import (
     LidarValDataset,
     make_datasplit_csv,
 )
-from semantic_val.datamodules.datasets.processing import *
+from semantic_val.datamodules.processing import *
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
