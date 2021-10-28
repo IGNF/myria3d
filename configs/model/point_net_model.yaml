@@ -1,4 +1,4 @@
-_target_: semantic_val.models.model.SegmentationModel
+_target_: semantic_val.models.model.Model
 
 model_architecture: "point_net"
 loss: "FocalLoss"
