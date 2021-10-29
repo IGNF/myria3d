@@ -82,7 +82,7 @@ def get_inspection_shapefile(
     log.info("Confirm or refute each candidate building if enough confidence.")
     comparison = make_decisions(
         comparison,
-        confimation_threshold=confirmation_threshold,
+        confirmation_threshold=confirmation_threshold,
         refutation_threshold=refutation_threshold,
     )
 
@@ -281,14 +281,14 @@ def make_decision_(
 
 
 def make_decisions(
-    gdf, confimation_threshold: float = 0.05, refutation_threshold: float = 1.0
+    gdf, confirmation_threshold: float = 0.05, refutation_threshold: float = 1.0
 ):
     """Add different flags to study the validation quality."""
     ia_decision = ShapeFileCols.IA_DECISION.value
     gdf[ia_decision] = gdf.apply(
         lambda row: make_decision_(
             row,
-            confirmation_threshold=confimation_threshold,
+            confirmation_threshold=confirmation_threshold,
             refutation_threshold=refutation_threshold,
         ),
         axis=1,
