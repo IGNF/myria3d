@@ -1,7 +1,7 @@
 import glob
 import os.path as osp
 import random
-from typing import Optional, Union, Iterator, Optional, List, Sized
+from typing import Optional, Iterator, Optional
 import itertools
 
 import pandas as pd
@@ -9,40 +9,29 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import Sampler
 from torch_geometric.transforms import (
-    NormalizeScale,
+    RandomRotate,
+    RandomTranslate,
+    RandomScale,
     RandomFlip,
 )
+from torch_geometric.transforms.center import Center
 
-from semantic_val.datamodules.datasets.lidar_dataset import (
-    LidarTestDataset,
+from semantic_val.datamodules.datasets.SemValBuildings202110 import (
     LidarTrainDataset,
     LidarValDataset,
+    make_datasplit_csv,
 )
-from semantic_val.datamodules.datasets.lidar_transforms import (
-    CustomCompose,
-    FixedPointsPosXY,
-    MakeBuildingTargets,
-    MakeCopyOfPosAndY,
-    MakeCopyOfSampledPos,
-    NormalizeFeatures,
-    CustomNormalizeScale,
-    SelectSubTile,
-    ToTensor,
-    collate_fn,
-    create_full_filepath_column,
-    get_metadata_df_from_shapefile,
-    get_split_df_of_202110_building_val,
-)
+from semantic_val.datamodules.processing import *
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
 
-class LidarDataModule(LightningDataModule):
+class DataModule(LightningDataModule):
     """
     Datamdule to feed train and validation data to the model.
-    We use a custome sampler during training to consecutively load several subtiles from a single tile,
-    to reduce the I/O footprint.
+    We use a custome sampler during training to consecutively load several
+    subtiles from a single tile, to reduce the I/O footprint.
     """
 
     def __init__(self, **kwargs):
@@ -51,7 +40,7 @@ class LidarDataModule(LightningDataModule):
         self.num_workers = kwargs.get("num_workers", 0)
 
         self.lasfiles_dir = kwargs.get("lasfiles_dir")
-        self.metadata_shapefile = kwargs.get("metadata_shapefile")
+        self.metadata_shapefile_filepath = kwargs.get("metadata_shapefile")
         self.datasplit_csv_filepath = kwargs.get("metadata_shapefile").replace(
             ".shp", ".csv"
         )
@@ -67,19 +56,9 @@ class LidarDataModule(LightningDataModule):
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 25000)
 
-        self.data_train: Optional[Dataset] = None
-        self.data_val: Optional[Dataset] = None
-        self.data_test: Optional[Dataset] = None
-
-    def make_datasplit_csv(
-        self, shapefile_filepath, datasplit_csv_filepath, train_frac=0.8
-    ):
-        """Turn the shapefile of tiles metadata into a csv with stratified train-val-test split."""
-        df = get_metadata_df_from_shapefile(shapefile_filepath)
-        df_split = get_split_df_of_202110_building_val(df, train_frac=train_frac)
-        df_split = create_full_filepath_column(df_split, self.lasfiles_dir)
-        assert all(osp.exists(filepath) for filepath in df_split.file_path)
-        df_split.to_csv(datasplit_csv_filepath, index=False)
+        self.train_data: Optional[Dataset] = None
+        self.val_data: Optional[Dataset] = None
+        self.test_data: Optional[Dataset] = None
 
     def prepare_data(self):
         """
@@ -91,61 +70,19 @@ class LidarDataModule(LightningDataModule):
         assert len(las_filepaths) == 150
 
         if not osp.exists(self.datasplit_csv_filepath):
-            if not osp.exists(self.metadata_shapefile):
+            if not osp.exists(self.metadata_shapefile_filepath):
                 raise FileNotFoundError(
-                    f"Data-descriptive shapefile not found at {self.metadata_shapefile}"
+                    f"Metadata shapefile not found at {self.metadata_shapefile_filepath}"
                 )
-            self.make_datasplit_csv(
-                self.metadata_shapefile,
+            make_datasplit_csv(
+                self.lasfiles_dir,
+                self.metadata_shapefile_filepath,
                 self.datasplit_csv_filepath,
                 train_frac=self.train_frac,
             )
             log.info(
                 f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
             )
-
-    def get_train_transforms(self) -> CustomCompose:
-        """Create a transform composition for train phase."""
-        return CustomCompose(
-            [
-                SelectSubTile(
-                    subtile_width_meters=self.subtile_width_meters,
-                    method="random",
-                ),
-                ToTensor(),
-                MakeCopyOfPosAndY(),
-                FixedPointsPosXY(
-                    self.subsample_size, replace=False, allow_duplicates=True
-                ),
-                MakeCopyOfSampledPos(),
-                CustomNormalizeScale(),
-                NormalizeFeatures(),
-                # TODO: set data augmentation back when regularization is needed.
-                # RandomFlip(0, p=0.5),
-                # RandomFlip(1, p=0.5),
-            ]
-        )
-
-    def get_val_transforms(self) -> CustomCompose:
-        """Create a transform composition for val phase."""
-        return CustomCompose(
-            [
-                SelectSubTile(
-                    subtile_width_meters=self.subtile_width_meters, method="predefined"
-                ),
-                ToTensor(),
-                MakeCopyOfPosAndY(),
-                FixedPointsPosXY(
-                    self.subsample_size, replace=False, allow_duplicates=True
-                ),
-                MakeCopyOfSampledPos(),
-                CustomNormalizeScale(),
-                NormalizeFeatures(),
-            ]
-        )
-
-    def get_test_transforms(self) -> CustomCompose:
-        return self.get_val_transforms()
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -154,13 +91,15 @@ class LidarDataModule(LightningDataModule):
         Test data can be used but only after final model is chosen.
         """
 
+        self._set_all_transforms()
+
         df_split = pd.read_csv(self.datasplit_csv_filepath)
 
-        self.data_train = self.get_data_train(df_split)
-        self.data_val = self.get_data_val(df_split)
-        self.data_test = self.get_data_test(df_split)
+        self._set_train_data(df_split)
+        self._set_val_data(df_split)
+        self._set_test_data(df_split)
 
-    def get_data_train(self, df_split):
+    def _set_train_data(self, df_split):
         """Get the train dataset"""
         df_split_train = df_split[df_split.split == "train"]
         df_split_train = df_split_train.sort_values("nb_bati", ascending=False)
@@ -170,15 +109,16 @@ class LidarDataModule(LightningDataModule):
             log.info(
                 "\n Training on: \n " + str([osp.basename(f) for f in train_files])
             )
-        return LidarTrainDataset(
+        self.train_data = LidarTrainDataset(
             train_files,
-            transform=self.get_train_transforms(),
+            loading_function=load_las_data,
+            transform=self._get_train_transforms(),
             target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
             train_subtiles_by_tile=self.train_subtiles_by_tile,
         )
 
-    def get_data_val(self, df_split):
+    def _set_val_data(self, df_split):
         """Get the validation dataset"""
         df_split_val = df_split[df_split.split == "val"]
         df_split_val = df_split_val.sort_values("nb_bati", ascending=False)
@@ -188,27 +128,30 @@ class LidarDataModule(LightningDataModule):
             log.info(
                 "\n Validating on: \n " + str([osp.basename(f) for f in val_files])
             )
-        return LidarValDataset(
+        self.val_data = LidarValDataset(
             val_files,
-            transform=self.get_val_transforms(),
+            loading_function=load_las_data,
+            transform=self._get_val_transforms(),
             target_transform=MakeBuildingTargets(),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
 
-    def get_data_test(self, df_split):
+    def _set_test_data(self, df_split):
         """Get the test dataset - for now this is the validation dataset"""
-        return self.get_data_val(df_split)
+        self.test_data = self.val_data
 
     def train_dataloader(self):
+        """Get train dataloader."""
+        sampler = TrainSampler(
+            self.train_data.nb_files,
+            self.train_subtiles_by_tile,
+            shuffle_train=self.shuffle_train,
+        )
         return DataLoader(
-            dataset=self.data_train,
+            dataset=self.train_data,
             batch_size=self.batch_size,
-            sampler=TrainSampler(
-                self.data_train.nb_files,
-                self.train_subtiles_by_tile,
-                shuffle_train=self.shuffle_train,
-            ),
+            sampler=sampler,
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
@@ -218,7 +161,7 @@ class LidarDataModule(LightningDataModule):
         Get val dataloader. num_workers is only one because load must be split for IterableDataset.
         """
         return DataLoader(
-            dataset=self.data_val,
+            dataset=self.val_data,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=1,
@@ -227,12 +170,66 @@ class LidarDataModule(LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            dataset=self.data_test,
+            dataset=self.test_data,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=1,
             collate_fn=collate_fn,
         )
+
+    def _set_all_transforms(self):
+        """
+        Set transforms that are shared between train/val-test.
+        Called at initialization.
+        """
+
+        MAX_ROTATION_DEGREES = 10
+        MIN_RANDOM_SCALE = 0.8
+        MAX_RANDOM_SCALE = 1.2
+        POS_TRANSLATIONS_METERS = (0.25, 0.25, 0.25)
+
+        self.preparation = [
+            ToTensor(),
+            MakeCopyOfPosAndY(),
+            FixedPointsPosXY(self.subsample_size, replace=False, allow_duplicates=True),
+            MakeCopyOfSampledPos(),
+            Center(),
+        ]
+        # TODO: add a 90° rotation using LinearTransformation nested in a custom transforms
+        self.augmentation = [
+            RandomFlip(0, p=0.5),
+            RandomFlip(1, p=0.5),
+            RandomRotate(MAX_ROTATION_DEGREES, axis=2),
+            RandomScale((MIN_RANDOM_SCALE, MAX_RANDOM_SCALE)),
+            RandomTranslate(POS_TRANSLATIONS_METERS),
+            RandomTranslateFeatures(),
+        ]
+        self.normalization = [
+            CustomNormalizeScale(),
+            CustomNormalizeFeatures(),
+        ]
+
+    def _get_train_transforms(self) -> CustomCompose:
+        """Create a transform composition for train phase."""
+        selection = SelectSubTile(
+            subtile_width_meters=self.subtile_width_meters,
+            method="random",
+        )
+
+        return CustomCompose(
+            [selection] + self.preparation + self.augmentation + self.normalization
+        )
+
+    def _get_val_transforms(self) -> CustomCompose:
+        """Create a transform composition for val phase."""
+        selection = SelectSubTile(
+            subtile_width_meters=self.subtile_width_meters, method="predefined"
+        )
+
+        return CustomCompose([selection] + self.preparation + self.normalization)
+
+    def _get_test_transforms(self) -> CustomCompose:
+        return self._get_val_transforms()
 
 
 class TrainSampler(Sampler[int]):
