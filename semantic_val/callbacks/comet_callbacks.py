@@ -1,9 +1,6 @@
-import subprocess
+import comet_ml
 from pathlib import Path
-from typing import List
 
-import torch
-from comet_ml import Experiment
 from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import CometLogger, LoggerCollection
 from pytorch_lightning.utilities import rank_zero_only

@@ -7,8 +7,6 @@ from torch.nn import ReLU
 from torch.nn import Sequential as Seq
 from torch_geometric.nn.glob.glob import global_max_pool
 
-from semantic_val.datamodules.datasets.lidar_transforms import get_subsampling_mask
-
 
 def MLP(channels, batch_norm: bool = True):
     return Seq(

@@ -1,4 +1,3 @@
-import comet_ml
 from pathlib import Path
 from typing import Any, List, Optional
 import os

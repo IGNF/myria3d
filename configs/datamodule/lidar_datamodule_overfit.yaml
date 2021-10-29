@@ -1,4 +1,4 @@
-_target_: semantic_val.datamodules.lidar_datamodule.LidarDataModule
+_target_: semantic_val.datamodules.datamodule.DataModule
 
 # those two paths are specified in configs/config.yaml
 lasfiles_dir: ${lasfiles_dir}

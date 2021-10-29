@@ -1,4 +1,4 @@
-_target_: semantic_val.models.model.SegmentationModel
+_target_: semantic_val.models.model.Model
 
 model_architecture: "point_net"
 loss: "FocalLoss"
@@ -10,6 +10,6 @@ net:
   MLP1_channels: [9, 64, 64]
   MLP2_channels: [64, 256, 512, 1024]
   MLP3_channels: [1088, 512, 256, 64, 4]
-  batch_norm: false
+  batch_norm: true
   pi_init: 0.05
 

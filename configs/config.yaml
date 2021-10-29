@@ -1,5 +1,7 @@
 # @package _global_
 
+seed: 12345
+
 # specify here default training configuration
 defaults:
   - trainer: default.yaml
@@ -44,7 +46,5 @@ print_config: True
 # disable python warnings if they annoy you
 ignore_warnings: True
 
-# check performance on test set, using the best model achieved during training
-# lightning chooses best model based on metric specified in checkpoint callback
 fit_the_model: true
 test_the_model: False

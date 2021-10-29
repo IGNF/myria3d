@@ -27,39 +27,7 @@ MODEL_ZOO = {"point_net": PointNet}
 EPS = 10 ** -5
 
 
-class WeightedFocalLoss(nn.Module):
-    """
-    Weighted version of Focal Loss.
-    We normalize in part the loss by the nb of samples with rare class, inspired by original Focal Loss paper.
-    This is important so that the loss is properly scaled.
-    """
-
-    def __init__(self, weights: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
-        super(WeightedFocalLoss, self).__init__()
-        self.alpha = weights
-        self.gamma = gamma
-        self.softmax = nn.Softmax(dim=1)
-        self.eps = EPS
-        self.n_classes = len(weights)
-        self.rare_class_dim = 1
-
-    def forward(self, logits, targets):
-        assert logits.size(1) == self.n_classes
-        proba = self.softmax(logits)
-        loss = torch.zeros_like(targets).type(torch.float)
-        for i in range(self.n_classes):
-            ti = targets == i
-            pi = proba[:, i] * ti
-            ai = self.alpha[i]
-            loss += -(ti * ai) * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
-        n_points = logits.size(0)
-        n_points_rare_class = (targets == self.rare_class_dim).sum()
-        normalization_factor = (n_points_rare_class + n_points / 100) / 2
-        loss = loss.sum() / normalization_factor
-        return loss
-
-
-class SegmentationModel(LightningModule):
+class Model(LightningModule):
     """
     A LightningModule organizes your PyTorch code into 5 sections:
         - Computations (init).
@@ -99,9 +67,9 @@ class SegmentationModel(LightningModule):
             # TODO: gamma should be a parameter ?
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
-        self.train_iou = IoU(n_classes, reduction="none")
-        self.val_iou = IoU(n_classes, reduction="none")
-        self.test_iou = IoU(n_classes, reduction="none")
+        self.train_iou = IoU(n_classes, reduction="none", absent_score=1.0)
+        self.val_iou = IoU(n_classes, reduction="none", absent_score=1.0)
+        self.test_iou = IoU(n_classes, reduction="none", absent_score=1.0)
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
@@ -261,3 +229,35 @@ class SegmentationModel(LightningModule):
             params=self.parameters(),
             lr=self.lr,
         )
+
+
+class WeightedFocalLoss(nn.Module):
+    """
+    Weighted version of Focal Loss.
+    We normalize in part the loss by the nb of samples with rare class, inspired by original Focal Loss paper.
+    This is important so that the loss is properly scaled.
+    """
+
+    def __init__(self, weights: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
+        super(WeightedFocalLoss, self).__init__()
+        self.alpha = weights
+        self.gamma = gamma
+        self.softmax = nn.Softmax(dim=1)
+        self.eps = EPS
+        self.n_classes = len(weights)
+        self.rare_class_dim = 1
+
+    def forward(self, logits, targets):
+        assert logits.size(1) == self.n_classes
+        proba = self.softmax(logits)
+        loss = torch.zeros_like(targets).type(torch.float)
+        for i in range(self.n_classes):
+            ti = targets == i
+            pi = proba[:, i] * ti
+            ai = self.alpha[i]
+            loss += -(ti * ai) * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
+        n_points = logits.size(0)
+        n_points_rare_class = (targets == self.rare_class_dim).sum()
+        normalization_factor = (n_points_rare_class + n_points / 100) / 2
+        loss = loss.sum() / normalization_factor
+        return loss
