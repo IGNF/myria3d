@@ -51,6 +51,7 @@ class DataModule(LightningDataModule):
         self.limit_top_k_tiles_val = kwargs.get("limit_top_k_tiles_val", 1000000)
         self.train_subtiles_by_tile = kwargs.get("train_subtiles_by_tile", 12)
         self.batch_size = kwargs.get("batch_size", 32)
+        self.augment = kwargs.get("augment", True)
 
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
@@ -196,14 +197,16 @@ class DataModule(LightningDataModule):
             Center(),
         ]
         # TODO: add a 90° rotation using LinearTransformation nested in a custom transforms
-        self.augmentation = [
-            RandomFlip(0, p=0.5),
-            RandomFlip(1, p=0.5),
-            RandomRotate(MAX_ROTATION_DEGREES, axis=2),
-            RandomScale((MIN_RANDOM_SCALE, MAX_RANDOM_SCALE)),
-            RandomTranslate(POS_TRANSLATIONS_METERS),
-            RandomTranslateFeatures(),
-        ]
+        self.augmentation = []
+        if self.augment:
+            self.augmentation = [
+                RandomFlip(0, p=0.5),
+                RandomFlip(1, p=0.5),
+                RandomRotate(MAX_ROTATION_DEGREES, axis=2),
+                RandomScale((MIN_RANDOM_SCALE, MAX_RANDOM_SCALE)),
+                RandomTranslate(POS_TRANSLATIONS_METERS),
+                RandomTranslateFeatures(),
+            ]
         self.normalization = [
             CustomNormalizeScale(),
             CustomNormalizeFeatures(),
