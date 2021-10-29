@@ -11,6 +11,7 @@ from semantic_val.datamodules.datasets.lidar_transforms import (
     load_las_data,
 )
 from semantic_val.utils import utils
+from tqdm import tqdm
 
 log = utils.get_logger(__name__)
 
@@ -88,7 +89,7 @@ class LidarValDataset(IterableDataset):
                 subtile_overlap=self.subtile_overlap,
             )
             ts = time.time()
-            for tile_data.current_subtile_center in centers:
+            for tile_data.current_subtile_center in tqdm(centers, desc="Subtiles"):
                 if self.transform:
                     data = self.transform(tile_data)
                 if data is not None:
