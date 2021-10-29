@@ -1,3 +1,4 @@
+import comet_ml
 from typing import List, Optional
 
 import hydra
