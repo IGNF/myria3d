@@ -345,11 +345,11 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
 
 
 def apply_constraint_and_sort(
-    df: geopandas.GeoDataFrame,
+    df: pd.DataFrame,
     minimal_confirmation_accuracy_threshold: float = 0.98,
     minimal_refutation_accuracy_threshold: float = 0.98,
 ):
-    """Filter out metrics that do not"""
+    """Filter out metrics that do not meet constraints, and sort based on level of automation achieved."""
     ca = MetricsNames.CONFIRMATION_ACCURACY.value
     ra = MetricsNames.REFUTATION_ACCURACY.value
     N_0 = len(df)
