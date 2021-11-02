@@ -38,8 +38,10 @@ def validate(config: DictConfig) -> Optional[float]:
         log.info(f"Evaluation of tile {las_filepath}...")
         gdf_out, df_out = get_inspection_shapefile(
             las_filepath,
-            confirmation_threshold=config.validation_module.confirmation_threshold,
-            refutation_threshold=config.validation_module.refutation_threshold,
+            min_frac_confirmation=config.validation_module.min_frac_confirmation,
+            min_frac_refutation=config.validation_module.min_frac_refutation,
+            min_confidence_confirmation=config.validation_module.min_confidence_confirmation,
+            min_confidence_refutation=config.validation_module.min_confidence_refutation,
         )
         if gdf_out is not None:
             mode = "w" if not osp.isfile(inspection_shp_path) else "a"

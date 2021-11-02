@@ -21,6 +21,7 @@ from semantic_val.validation.validation_utils import (
 
 log = utils.get_logger(__name__)
 
+# TODO: rename everything as "tune"
 # Use HPO if more than two params : https://github.com/ashleve/lightning-hydra-template#hyperparameter-search
 def tune_module(config: DictConfig) -> Optional[float]:
     """Contains tuning pipeline which takes a building validation shapefile and change decision threshold.
@@ -41,21 +42,38 @@ def tune_module(config: DictConfig) -> Optional[float]:
         pts_level_info_csv_path,
         converters={"BuildingsProba": eval, "TruePositive": eval},
     )
-
+    num = 3
     df_hparams_opti = pd.DataFrame()
-    for confirmation_threshold in np.linspace(start=0.0, stop=1.0, num=11):
-        for refutation_threshold in np.linspace(start=0.0, stop=1.0, num=11):
-            df = derive_raw_shape_level_indicators(df)
-            df = make_decisions(
-                gdf=df,
-                confirmation_threshold=confirmation_threshold,
-                refutation_threshold=refutation_threshold,
-            )
-            metrics_dict = evaluate_decisions(df)
-            metrics_dict.update({"confirmation_threshold": confirmation_threshold})
-            metrics_dict.update({"refutation_threshold": refutation_threshold})
-            df_hparams_opti = df_hparams_opti.append(metrics_dict, ignore_index=True)
-
+    for min_frac_confirmation in np.linspace(start=0.0, stop=1.0, num=num):
+        for min_frac_refutation in np.linspace(start=0.0, stop=1.0, num=num):
+            for min_confidence_confirmation in np.linspace(
+                start=0.0, stop=1.0, num=num
+            ):
+                for min_confidence_refutation in np.linspace(
+                    start=0.0, stop=1.0, num=num
+                ):
+                    df = derive_raw_shape_level_indicators(
+                        df,
+                        min_confidence_confirmation=min_confidence_confirmation,
+                        min_confidence_refutation=min_confidence_refutation,
+                    )
+                    df = make_decisions(
+                        gdf=df,
+                        min_frac_confirmation=min_frac_confirmation,
+                        min_frac_refutation=min_frac_refutation,
+                    )
+                    params = {
+                        "min_frac_confirmation": min_frac_confirmation,
+                        "min_frac_refutation": min_frac_refutation,
+                        "min_confidence_confirmation": min_confidence_confirmation,
+                        "min_confidence_refutation": min_confidence_refutation,
+                    }
+                    metrics_dict = evaluate_decisions(df)
+                    metrics_dict.update(params)
+                    df_hparams_opti = df_hparams_opti.append(
+                        metrics_dict, ignore_index=True
+                    )
+    # TODO: sort by P_AUTO and then A*A
     df_hparams_opti = apply_constraint_and_sort(
         df_hparams_opti,
         minimal_confirmation_accuracy_threshold=config.validation_module.minimal_confirmation_accuracy_threshold,

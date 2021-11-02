@@ -25,9 +25,9 @@ SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 
 # could be increased to demand higher proba  of being building for confirmation
-CONFIDENCE_THRESHOLD_FOR_CONFIRMATION = 0.5
+min_confidence_confirmation = 0.5
 # could be augmented to demand higher proba of not being building for refutation
-CONFIDENCE_THRESHOLD_FOR_REFUTATION = 0.5
+min_confidence_refutation = 0.5
 
 DECISION_LABELS = ["unsure", "not-building", "building"]
 
@@ -65,8 +65,10 @@ class MetricsNames(Enum):
 
 def get_inspection_shapefile(
     las_filepath: str,
-    confirmation_threshold: float = 0.05,
-    refutation_threshold: float = 1.0,
+    min_frac_confirmation: float = 0.05,
+    min_frac_refutation: float = 1.0,
+    min_confidence_confirmation: float = 0.5,
+    min_confidence_refutation: float = 0.5,
 ):
     """From a predicted LAS, returns the inspection shapefile (or None if no candidate buildings)."""
     las_gdf = load_geodf_of_candidate_building_points(las_filepath)
@@ -80,13 +82,17 @@ def get_inspection_shapefile(
     comparison = agg_pts_info_by_shape(shapes_gdf, las_gdf)
 
     log.info("Derive raw shape level info from ground truths and predictions.")
-    comparison = derive_raw_shape_level_indicators(comparison)
+    comparison = derive_raw_shape_level_indicators(
+        comparison,
+        min_confidence_confirmation=min_confidence_confirmation,
+        min_confidence_refutation=min_confidence_refutation,
+    )
 
     log.info("Confirm or refute each candidate building if enough confidence.")
     comparison = make_decisions(
         comparison,
-        confirmation_threshold=confirmation_threshold,
-        refutation_threshold=refutation_threshold,
+        min_frac_confirmation=min_frac_confirmation,
+        min_frac_refutation=min_frac_refutation,
     )
 
     df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
@@ -185,12 +191,25 @@ def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame):
     return gdf
 
 
-def derive_raw_shape_level_indicators(gdf):
+def derive_raw_shape_level_indicators(
+    gdf,
+    min_confidence_confirmation: float = 0.5,
+    min_confidence_refutation: float = 0.5,
+):
     """Derive raw shape level info from ground truths (TruePositive) and predictions (BuildingsProba)"""
+    # POINTS-LEVEL DECISIONS
+    gdf = set_frac_confirmed_building_col(
+        gdf, min_confidence_confirmation=min_confidence_confirmation
+    )
+    gdf = set_frac_refuted_building_col(
+        gdf, min_confidence_refutation=min_confidence_refutation
+    )
+
+    # METAINFO
     gdf = set_num_pts_col(gdf)
     gdf = set_mean_proba_col(gdf)
-    gdf = set_frac_confirmed_building_col(gdf)
-    gdf = set_frac_refuted_building_col(gdf)
+
+    # GROUND TRUTHS INFO
     gdf = set_frac_false_positive_col(gdf)
     gdf = set_MTS_ground_truth_flag(gdf)
     return gdf
@@ -210,27 +229,44 @@ def set_mean_proba_col(gdf):
     return gdf
 
 
-def get_frac_confirmed_building_points_(row):
+def _get_frac_confirmed_building_points(row, min_confidence_confirmation: float = 0.5):
     data = row["BuildingsProba"]
     proba_building = np.array(data)
-    return np.sum(proba_building >= CONFIDENCE_THRESHOLD_FOR_CONFIRMATION) / len(
-        proba_building
-    )
+    return np.sum(proba_building >= min_confidence_confirmation) / len(proba_building)
 
 
-def set_frac_confirmed_building_col(gdf):
+def set_frac_confirmed_building_col(gdf, min_confidence_confirmation: float = 0.5):
     gdf[
         ShapeFileCols.IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
-    ] = gdf.apply(lambda x: get_frac_confirmed_building_points_(x), axis=1)
+    ] = gdf.apply(
+        lambda x: _get_frac_confirmed_building_points(
+            x,
+            min_confidence_confirmation=min_confidence_confirmation,
+        ),
+        axis=1,
+    )
     return gdf
 
 
-def get_frac_refuted_building_points_(row):
+def _get_frac_refuted_building_points(row, min_confidence_refutation: float = 0.5):
     data = row["BuildingsProba"]
     proba_not_building = 1 - np.array(data)
-    return np.sum(proba_not_building >= CONFIDENCE_THRESHOLD_FOR_REFUTATION) / len(
+    return np.sum(proba_not_building >= min_confidence_refutation) / len(
         proba_not_building
     )
+
+
+def set_frac_refuted_building_col(
+    gdf,
+    min_confidence_refutation: float = 0.5,
+):
+    gdf[ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value] = gdf.apply(
+        lambda x: _get_frac_refuted_building_points(
+            x, min_confidence_refutation=min_confidence_refutation
+        ),
+        axis=1,
+    )
+    return gdf
 
 
 def get_frac_MTS_true_positives_(row):
@@ -241,13 +277,6 @@ def get_frac_MTS_true_positives_(row):
 def set_frac_false_positive_col(gdf):
     gdf[ShapeFileCols.MTS_TRUE_POSITIVE_FRAC.value] = gdf.apply(
         lambda x: get_frac_MTS_true_positives_(x), axis=1
-    )
-    return gdf
-
-
-def set_frac_refuted_building_col(gdf):
-    gdf[ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value] = gdf.apply(
-        lambda x: get_frac_refuted_building_points_(x), axis=1
     )
     return gdf
 
@@ -273,29 +302,29 @@ def set_MTS_ground_truth_flag(gdf):
 
 
 def make_decision_(
-    row, confirmation_threshold: float = 0.05, refutation_threshold: float = 1.0
+    row, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 1.0
 ):
     """Helper: module decision based on fraction of confirmed/refuted points"""
     yes_frac = ShapeFileCols.IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
     no_frac = ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
-    if row[yes_frac] >= confirmation_threshold:
+    if row[yes_frac] >= min_frac_confirmation:
         return DECISION_LABELS[2]
-    elif row[no_frac] >= refutation_threshold:
+    elif row[no_frac] >= min_frac_refutation:
         return DECISION_LABELS[1]
     else:
         return DECISION_LABELS[0]
 
 
 def make_decisions(
-    gdf, confirmation_threshold: float = 0.05, refutation_threshold: float = 1.0
+    gdf, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 1.0
 ):
     """Add different flags to study the validation quality."""
     ia_decision = ShapeFileCols.IA_DECISION.value
     gdf[ia_decision] = gdf.apply(
         lambda row: make_decision_(
             row,
-            confirmation_threshold=confirmation_threshold,
-            refutation_threshold=refutation_threshold,
+            min_frac_confirmation=min_frac_confirmation,
+            min_frac_refutation=min_frac_refutation,
         ),
         axis=1,
     )
