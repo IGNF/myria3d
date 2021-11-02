@@ -91,8 +91,8 @@ def get_inspection_shapefile(
 
     df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
     keep = [item.value for item in ShapeFileCols] + ["geometry"]
-    df_out = df_out[keep]
-    return df_out
+    gdf_out = df_out[keep]
+    return gdf_out, df_out
 
 
 # # TODO: check what 104 is
