@@ -14,6 +14,7 @@ from semantic_val.utils import utils
 from semantic_val.validation.validation_utils import (
     ShapeFileCols,
     apply_constraint_and_sort,
+    derive_raw_shape_level_indicators,
     make_decisions,
     evaluate_decisions,
 )
@@ -32,19 +33,25 @@ def tune_module(config: DictConfig) -> Optional[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
 
-    module_shp_filepath = config.validation_module.comparison_shapefile_path
-    log.info(f"Evaluation of validation tools from : {module_shp_filepath}")
-    gdf = geopandas.read_file(module_shp_filepath)
+    inspection_shp_path = config.validation_module.comparison_shapefile_path
+    assert inspection_shp_path.endswith(".shp")
+    pts_level_info_csv_path = inspection_shp_path.replace(".shp", ".csv")
+    log.info(f"Evaluation of validation tools from : {inspection_shp_path}")
+    df = pd.read_csv(
+        pts_level_info_csv_path,
+        converters={"BuildingsProba": eval, "TruePositive": eval},
+    )
 
     df_hparams_opti = pd.DataFrame()
-    for confirmation_threshold in np.linspace(start=0.0, stop=1.0, num=21):
-        for refutation_threshold in np.linspace(start=0.0, stop=1.0, num=21):
-            gdf = make_decisions(
-                gdf=gdf,
+    for confirmation_threshold in np.linspace(start=0.0, stop=1.0, num=11):
+        for refutation_threshold in np.linspace(start=0.0, stop=1.0, num=11):
+            df = derive_raw_shape_level_indicators(df)
+            df = make_decisions(
+                gdf=df,
                 confirmation_threshold=confirmation_threshold,
                 refutation_threshold=refutation_threshold,
             )
-            metrics_dict = evaluate_decisions(gdf)
+            metrics_dict = evaluate_decisions(df)
             metrics_dict.update({"confirmation_threshold": confirmation_threshold})
             metrics_dict.update({"refutation_threshold": refutation_threshold})
             df_hparams_opti = df_hparams_opti.append(metrics_dict, ignore_index=True)
