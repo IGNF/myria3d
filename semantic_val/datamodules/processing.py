@@ -241,7 +241,7 @@ class RandomTranslateFeatures(BaseTransform):
     Return number: +1/+0/-1 with equal probability, max-clamped by number of returns.
     """
 
-    def __call__(self, data: Data, rel_translation: float = 0.05):
+    def __call__(self, data: Data, rel_translation: float = 0.02):
 
         x = data.x
         (n, _) = x.size()

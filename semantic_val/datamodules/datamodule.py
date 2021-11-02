@@ -184,9 +184,9 @@ class DataModule(LightningDataModule):
         Called at initialization.
         """
 
-        MAX_ROTATION_DEGREES = 10
-        MIN_RANDOM_SCALE = 0.8
-        MAX_RANDOM_SCALE = 1.2
+        MAX_ROTATION_DEGREES = 5
+        MIN_RANDOM_SCALE = 0.9
+        MAX_RANDOM_SCALE = 1.1
         POS_TRANSLATIONS_METERS = (0.25, 0.25, 0.25)
 
         self.preparation = [
@@ -203,8 +203,8 @@ class DataModule(LightningDataModule):
                 RandomFlip(0, p=0.5),
                 RandomFlip(1, p=0.5),
                 RandomRotate(MAX_ROTATION_DEGREES, axis=2),
-                RandomScale((MIN_RANDOM_SCALE, MAX_RANDOM_SCALE)),
                 RandomTranslate(POS_TRANSLATIONS_METERS),
+                RandomScale((MIN_RANDOM_SCALE, MAX_RANDOM_SCALE)),
                 RandomTranslateFeatures(),
             ]
         self.normalization = [
