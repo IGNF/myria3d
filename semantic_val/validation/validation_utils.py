@@ -19,9 +19,10 @@ log = utils.get_logger(__name__)
 TRUE_POSITIVE_CODE = [19]
 FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
 
-MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
+POINT_BUFFER_FOR_UNION = 0.5
 SIMPLIFICATION_TOLERANCE_METERS = 1
 SIMPLIFICATION_PRESERVE_TOPOLOGY = True
+MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 
 # could be increased to demand higher proba  of being building for confirmation
 CONFIDENCE_THRESHOLD_FOR_CONFIRMATION = 0.5
@@ -131,7 +132,7 @@ def load_geodf_of_candidate_building_points(
 
 
 def get_unique_geometry_from_points(lidar_geodf):
-    df = lidar_geodf.copy().buffer(0.25)
+    df = lidar_geodf.copy().buffer(POINT_BUFFER_FOR_UNION)
     return df.unary_union
 
 
