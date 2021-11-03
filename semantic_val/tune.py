@@ -37,7 +37,7 @@ def tune(config: DictConfig) -> Optional[float]:
     inspection_shp_path = config.validation_module.comparison_shapefile_path
     assert inspection_shp_path.endswith(".shp")
     pts_level_info_csv_path = inspection_shp_path.replace(".shp", ".csv")
-    log.info(f"Evaluation of validation tools from : {inspection_shp_path}")
+    log.debug(f"Evaluation of validation tools from : {inspection_shp_path}")
     df = pd.read_csv(
         pts_level_info_csv_path,
         converters={"BuildingsProba": eval, "TruePositive": eval},
@@ -62,15 +62,16 @@ def tune(config: DictConfig) -> Optional[float]:
     metrics_dict = evaluate_decisions(df)
     metrics_dict.update(params)
     df_hparams_opti = df_hparams_opti.append(metrics_dict, ignore_index=True)
-    df_hparams_opti = apply_constraint_and_sort(
-        df_hparams_opti,
-        minimal_confirmation_accuracy_threshold=config.validation_module.minimal_confirmation_accuracy_threshold,
-        minimal_refutation_accuracy_threshold=config.validation_module.minimal_refutation_accuracy_threshold,
-    )
-    if len(df_hparams_opti) == 0:
-        return 0
+    # df_hparams_opti = apply_constraint_and_sort(
+    #     df_hparams_opti,
+    #     minimal_confirmation_accuracy_threshold=config.validation_module.minimal_confirmation_accuracy_threshold,
+    #     minimal_refutation_accuracy_threshold=config.validation_module.minimal_refutation_accuracy_threshold,
+    # )
+    # if len(df_hparams_opti) == 0:
+    #     return 0
     PA = df_hparams_opti[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value].values[0]
     CA = df_hparams_opti[MetricsNames.CONFIRMATION_ACCURACY.value].values[0]
     RA = df_hparams_opti[MetricsNames.REFUTATION_ACCURACY.value].values[0]
     # AA = CA + RA
+    log.info(f"--------> PA={PA:.3}  RA={RA:.3}  CA={CA:.3}")
     return PA, RA, CA
