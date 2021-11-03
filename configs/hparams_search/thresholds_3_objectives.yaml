@@ -22,7 +22,6 @@ hydra:
     direction: [maximize, maximize, maximize]
 
     # number of experiments that will be executed
-    n_trials: 100
 
     # choose Optuna hyperparameter sampler
     # learn more here: https://optuna.readthedocs.io/en/stable/reference/samplers.html
@@ -39,6 +38,7 @@ hydra:
       # warn_independent_sampling: true
 
     # NARROW RANGE
+    n_trials: 40
     search_space:
       validation_module.min_confidence_confirmation:
         type: float
@@ -58,6 +58,7 @@ hydra:
         high: 0.75
 
     # # FULL RANGE
+    # n_trials: 100
     # search_space:
     #   validation_module.min_confidence_confirmation:
     #     type: float
