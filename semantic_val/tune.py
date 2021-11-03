@@ -70,10 +70,7 @@ def tune(config: DictConfig) -> Optional[float]:
     if len(df_hparams_opti) == 0:
         return 0
     PA = df_hparams_opti[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value].values[0]
-    if PA is None:
-        print("error")
-    # TODO: two params opti later.
-    # CA = df_hparams_opti[MetricsNames.CONFIRMATION_ACCURACY.value].values[0]
-    # RA = df_hparams_opti[MetricsNames.REFUTATION_ACCURACY.value].values[0]
-    # AA = CA*RA
-    return PA
+    CA = df_hparams_opti[MetricsNames.CONFIRMATION_ACCURACY.value].values[0]
+    RA = df_hparams_opti[MetricsNames.REFUTATION_ACCURACY.value].values[0]
+    # AA = CA + RA
+    return PA, RA, CA

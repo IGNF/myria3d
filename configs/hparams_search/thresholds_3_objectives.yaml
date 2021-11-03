@@ -7,7 +7,7 @@
 
 defaults:
   - override /hydra/sweeper: optuna
-
+  - override /hydra/sweeper/sampler: nsgaii
 hydra:
   # here we define Optuna hyperparameter search
   # it optimizes for value returned from function with @hydra.main decorator
@@ -15,11 +15,11 @@ hydra:
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     storage: null
-    study_name: "threshold_simple_max"
-    n_jobs: 10
+    study_name: thresholds_multiobjective
+    n_jobs: 5
 
     # 'minimize' or 'maximize' the objective
-    direction: maximize
+    direction: [maximize, maximize, maximize]
 
     # number of experiments that will be executed
     n_trials: 100
@@ -27,16 +27,16 @@ hydra:
     # choose Optuna hyperparameter sampler
     # learn more here: https://optuna.readthedocs.io/en/stable/reference/samplers.html
     sampler:
-      _target_: optuna.samplers.TPESampler
+      _target_: optuna.samplers.NSGAIISampler
       seed: 12345
-      consider_prior: true
-      prior_weight: 1.0
-      consider_magic_clip: true
-      consider_endpoints: false
-      n_startup_trials: 10
-      n_ei_candidates: 24
-      multivariate: true
-      warn_independent_sampling: true
+      # consider_prior: true
+      # prior_weight: 1.0
+      # consider_magic_clip: true
+      # consider_endpoints: false
+      # n_startup_trials: 10
+      # n_ei_candidates: 24
+      # multivariate: true
+      # warn_independent_sampling: true
 
     # define range of hyperparameters
     search_space:
