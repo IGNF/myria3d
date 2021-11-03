@@ -42,9 +42,10 @@ def tune_module(config: DictConfig) -> Optional[float]:
         pts_level_info_csv_path,
         converters={"BuildingsProba": eval, "TruePositive": eval},
     )
-    num = 3
+    num = 21
     df_hparams_opti = pd.DataFrame()
     for min_frac_confirmation in np.linspace(start=0.0, stop=1.0, num=num):
+        log.info(f"Min frac confirmation : {min_frac_confirmation}")
         for min_frac_refutation in np.linspace(start=0.0, stop=1.0, num=num):
             for min_confidence_confirmation in np.linspace(
                 start=0.0, stop=1.0, num=num

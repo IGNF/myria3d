@@ -75,7 +75,7 @@ def get_inspection_shapefile(
 
     if len(las_gdf) == 0:
         log.info("/!\ Skipping tile with no candidate building points.")
-        return None
+        return None, None
 
     shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
     log.info("Grouping points and deriving indicators by shape")
