@@ -334,13 +334,20 @@ def make_decisions(
 def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     """
     Get dict of metrics to evaluate how good module decisions were in reference to ground truths.
-    Decisions : U=Unsure, C=Confirmation, R=Refutation
-    Maximization criteria :
+    Targets: U=Unsure, N=No (not a building), Y=Yes (building)
+    PRedictions : U=Unsure, C=Confirmation, R=Refutation
+    Confusion Matrix :
+            predictions
+            [Uu Ur Uc]
+    target  [Nu Nr Nc]
+            [Yu Yr Yc]
+
+    Maximization criteria:
       Proportion of each decision among total of candidates.
       We want to maximize it. The max is not 1 since there are "ambiguous ground truth" cases.
     Constraints:
       Confirmation/Refutation Accuracy.
-      Equéals 1 if each decision to confirm or refute was the right one.
+      Equals 1 if no confirmation or refutation was a mistake (-> being unsure should not decrease accuracy)
     Net gain:
       Proportions of accurate C/R.
       Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
