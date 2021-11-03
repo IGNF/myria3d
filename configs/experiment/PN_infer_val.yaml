@@ -8,7 +8,7 @@
 defaults:
   - override /trainer: default.yaml
   - override /model: point_net_model.yaml
-  - override /datamodule: lidar_datamodule_overfit.yaml
+  - override /datamodule: datamodule_overfit.yaml
   - override /callbacks: callbacks.yaml
   - override /logger: comet
 
