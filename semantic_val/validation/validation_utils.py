@@ -167,7 +167,7 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
     log.info(f"Keeping shapes larger than {MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS}m².")
 
     candidate_buildings = candidate_buildings[
-        candidate_buildings.area > MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
+        candidate_buildings.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
     candidate_buildings = candidate_buildings.reset_index().rename(
         columns={"index": "shape_idx"}
