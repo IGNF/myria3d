@@ -20,6 +20,8 @@ TRUE_POSITIVE_CODE = [19]
 FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
 
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
+SIMPLIFICATION_TOLERANCE_METERS = 1
+SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 
 # could be increased to demand higher proba  of being building for confirmation
 CONFIDENCE_THRESHOLD_FOR_CONFIRMATION = 0.5
@@ -141,7 +143,10 @@ def fill_holes(shape):
 
 
 def simplify_shape(shape):
-    return shape.simplify(0.2, preserve_topology=False)
+    return shape.simplify(
+        SIMPLIFICATION_TOLERANCE_METERS,
+        preserve_topology=SIMPLIFICATION_PRESERVE_TOPOLOGY,
+    )
 
 
 def vectorize_into_candidate_building_shapes(lidar_geodf):
