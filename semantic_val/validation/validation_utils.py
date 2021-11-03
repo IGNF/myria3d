@@ -19,6 +19,9 @@ log = utils.get_logger(__name__)
 TRUE_POSITIVE_CODE = [19]
 FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
 
+POINT_BUFFER_FOR_UNION = 0.5
+SIMPLIFICATION_TOLERANCE_METERS = 1
+SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 
 # could be increased to demand higher proba  of being building for confirmation
@@ -129,7 +132,7 @@ def load_geodf_of_candidate_building_points(
 
 
 def get_unique_geometry_from_points(lidar_geodf):
-    df = lidar_geodf.copy().buffer(0.25)
+    df = lidar_geodf.copy().buffer(POINT_BUFFER_FOR_UNION)
     return df.unary_union
 
 
@@ -141,7 +144,10 @@ def fill_holes(shape):
 
 
 def simplify_shape(shape):
-    return shape.simplify(0.2, preserve_topology=False)
+    return shape.simplify(
+        SIMPLIFICATION_TOLERANCE_METERS,
+        preserve_topology=SIMPLIFICATION_PRESERVE_TOPOLOGY,
+    )
 
 
 def vectorize_into_candidate_building_shapes(lidar_geodf):
@@ -162,7 +168,7 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
     log.info(f"Keeping shapes larger than {MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS}m².")
 
     candidate_buildings = candidate_buildings[
-        candidate_buildings.area > MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
+        candidate_buildings.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
     candidate_buildings = candidate_buildings.reset_index().rename(
         columns={"index": "shape_idx"}
