@@ -10,9 +10,9 @@ comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/${oc.env:SHAPEFILE_V
 minimal_confirmation_accuracy_threshold: 0.9
 minimal_refutation_accuracy_threshold: 0.9
 # Comparison paramers
-min_frac_confirmation: 0.3
-min_frac_refutation: 1.0
-min_confidence_confirmation: 0.5
-min_confidence_refutation: 0.5
+min_confidence_confirmation: 0.530670228606621
+min_confidence_refutation: 0.8883092588939281
+min_frac_confirmation: 0.8038408386802507
+min_frac_refutation: 0.529331992372645
 
 hparams_opti_output_csv_path: "module_hparams_opti.csv"
