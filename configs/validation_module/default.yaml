@@ -4,14 +4,15 @@ post_correction_shapefile: ${oc.env:POST_CORRECTION_SHAPEFILE}
 predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}
 operationnal_output_shapefile_name: "contrasted_predictions.shp" 
 
-# Comparison paramers
-min_frac_confirmation: 0.3
-min_frac_refutation: 1.0
 
 # EVALUATE COMPARISONS
 comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/${oc.env:SHAPEFILE_VERSION_TO_TUNE}/${validation_module.operationnal_output_shapefile_name}"
 minimal_confirmation_accuracy_threshold: 0.9
 minimal_refutation_accuracy_threshold: 0.7
+# Comparison paramers
+min_frac_confirmation: 0.3
+min_frac_refutation: 1.0
 min_confidence_confirmation: 0.5
 min_confidence_refutation: 0.5
+
 hparams_opti_output_csv_path: "module_hparams_opti.csv"
