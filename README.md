@@ -1,15 +1,23 @@
-# Segmentation Validation Model [Early Stage Repo]
+<div align="center">
+
+# Semantic Segmentation - Inspection Module
 
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
 <a href="https://hydra.cc/"><img alt="Config: Hydra" src="https://img.shields.io/badge/Config-Hydra-89b8cd"></a>
 
+[![](https://shields.io/badge/-Lightning--Hydra--Template-017F2F?style=flat&logo=github&labelColor=303030)](https://github.com/ashleve/lightning-hydra-template)
+</div>
+<br><br>
+
 ## Description
-Situation : a semantic segmentation of High Density Lidar data is performed with geometric rule-based algorithm, whihc is fast to run and sensitive to actual buldings points. However, it yields a high number of false positive. The semantic segmentation must be fully audited to spot errors and missing information. At large scale, this becomes intractable.
+### Context
+A fast and sensitive semantic segmentation of High Density Lidar data was performed with geometric rule-based algorithm to identify buildings. It yielded a high number of false positive. Around 160km² of Lidar data was thoroughly inspected to identify false positive and false negative. At larger scale, this kind of human inspection would be intractable.
 
-This project propose to train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. We use ~160km² of High Density Lidar data which went trough torough human inspection (identifying most false positive and false negative).
+### Objective
+We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings points obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected. Inspection is facilitated thorugh the production of an inspection shapefile in order to efficiently select and validate (or invalidate) candidate building points.
 
-In this repo is the code for:
+### Content
 
 1) Training and evaluating of the model
 2) Inference of a semantic segmentation
@@ -44,7 +52,7 @@ Train model with a specific experiment from [configs/experiment/](configs/experi
 python run.py experiment=PN_debug
 ```
 
-Evaluate the model and get inference reuslts on the validation dataset
+Evaluate the model and get inference results on the validation dataset
 ```yaml
 # to evaluate and infer at the same time
 python run.py experiment=PN_infer_val trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt
@@ -60,9 +68,9 @@ python run.py task=decide
 ```
 Then, update variable `SHAPEFILE_VERSION_TO_TUNE` in [`.env`](.env) with the path to the inspection shapefile.
 
-Run a multi-objectives optimization of decision threshold. The optimization maximizes three metrics: 1) proportion of automated decisions, 2) Refutation accuracy, and 3) Confirmation accuracy.
+Run a multi-objectives optimization of decision threshold
 ```yaml
 python run.py -m task=tune hparams_search=thresholds_3_objectives hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100
 ```
-
+The optimization maximizes three metrics: 1) proportion of automated decisions, 2) Refutation accuracy, and 3) Confirmation accuracy.
 You can then check optimization results and choose a set of thresholds among the Pareto solutions, then rerun the production of the inspection shapefile with the parameters.
