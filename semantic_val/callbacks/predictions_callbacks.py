@@ -128,15 +128,15 @@ class SavePreds(Callback):
         targets = outputs["targets"].detach()
 
         # Group idx and their associated filepath if they belong to same tile
-        filepath_elem_idx_lists = {}
+        filepath_idx_lists = {}
         for elem_idx in range(batch.batch_size):
             filepath = batch.filepath[elem_idx]
-            if filepath not in filepath_elem_idx_lists:
-                filepath_elem_idx_lists[filepath] = [elem_idx]
+            if filepath not in filepath_idx_lists:
+                filepath_idx_lists[filepath] = [elem_idx]
             else:
-                filepath_elem_idx_lists[filepath].append(elem_idx)
+                filepath_idx_lists[filepath].append(elem_idx)
         # assign by group of elements of the same tile.
-        for filepath, elem_idx_list in filepath_elem_idx_lists.items():
+        for filepath, idx_list in filepath_idx_lists.items():
             is_a_new_tile = self.in_memory_tile_filepath != filepath
             if is_a_new_tile:
                 close_previous_las_first = self.in_memory_tile_filepath != ""
@@ -144,33 +144,31 @@ class SavePreds(Callback):
                     self.save_las_with_preds_and_close(phase)
                 self.load_new_las_for_preds(filepath)
             with torch.no_grad():
-                self.assign_outputs_to_tile(batch, elem_idx_list, preds, proba, targets)
+                self.assign_outputs_to_tile(batch, idx_list, preds, proba, targets)
 
     def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba, targets):
         """Set the predicted elements in the current tile."""
 
-        elem_points_idx = (batch.batch_y[..., None] == torch.Tensor(elem_idx_list)).any(
-            -1
-        )
-        elem_pos = batch.pos_copy[elem_points_idx].cpu()
-        elem_preds = preds[elem_points_idx].cpu()
-        elem_proba = proba[elem_points_idx][:, 1].cpu()
-        elem_targets = targets[elem_points_idx].cpu()
+        points_idx = (batch.batch_y[..., None] == torch.Tensor(elem_idx_list)).any(-1)
+        pos = batch.pos_copy[points_idx].cpu()
+        preds = preds[points_idx].cpu()
+        proba = proba[points_idx][:, 1].cpu()
+        targets = targets[points_idx].cpu()
 
-        assign_idx = knn(self.current_las_pos, elem_pos, k=1, num_workers=1)[1]
+        assign_idx = knn(self.current_las_pos, pos, k=1, num_workers=1)[1]
 
         self.current_las[ChannelNames.BuildingsHasPredictions.value][assign_idx] = 1
-        self.current_las[ChannelNames.BuildingsPreds.value][assign_idx] = elem_preds
-        self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = elem_proba
-        elem_preds_confusion = self.get_confusion(elem_preds, elem_targets)
+        self.current_las[ChannelNames.BuildingsPreds.value][assign_idx] = preds
+        self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = proba
+        elem_preds_confusion = self.get_confusion(preds, targets)
         self.current_las[ChannelNames.BuildingsConfusion.value][
             assign_idx
         ] = elem_preds_confusion
 
-    def get_confusion(self, elem_preds, elem_targets):
+    def get_confusion(self, preds, targets):
         """Get a confusion vector: TN=0, Tp=1, FN=2, FP=3 - Nodata or Nan is 4."""
-        A = elem_preds * (elem_preds == elem_targets)
-        B = (2 + elem_preds) * (elem_preds != elem_targets)
+        A = preds * (preds == targets)
+        B = (2 + preds) * (preds != targets)
         elem_preds_confusion = A + B
         return elem_preds_confusion
 
