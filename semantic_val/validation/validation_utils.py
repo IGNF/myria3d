@@ -25,6 +25,7 @@ SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 SHARED_CRS = "EPSG:2154"
 
+SHAPE_IDX_COLNAME = "shape_idx"
 TRUE_POSITIVES_COLNAME = "TruePositive"
 
 
@@ -103,7 +104,7 @@ def get_inspection_shapefile(
         min_frac_refutation=min_frac_refutation,
     )
 
-    df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
+    df_out = shapes_gdf.join(comparison, on=SHAPE_IDX_COLNAME, how="left")
     keep = [item.value for item in ShapeFileCols] + ["geometry"]
     gdf_out = df_out[keep]
     return gdf_out, df_out
@@ -186,7 +187,7 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
         candidate_buildings.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
     candidate_buildings = candidate_buildings.reset_index().rename(
-        columns={"index": "shape_idx"}
+        columns={"index": SHAPE_IDX_COLNAME}
     )
     return candidate_buildings
 
@@ -194,7 +195,7 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
 def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame):
     """Group the info and preds of candidate building points forming a candidate bulding shape."""
     gdf = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
-    gdf = gdf.groupby("shape_idx")[
+    gdf = gdf.groupby(SHAPE_IDX_COLNAME)[
         [ChannelNames.BuildingsProba.value, TRUE_POSITIVES_COLNAME]
     ].agg(lambda x: x.tolist())
     return gdf
