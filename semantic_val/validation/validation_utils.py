@@ -1,11 +1,9 @@
-from typing import List
-import laspy
-import numpy as np
 from enum import Enum
 
-import pandas as pd
-from pytorch_lightning import seed_everything
 import geopandas
+import laspy
+import numpy as np
+import pandas as pd
 from geopandas import GeoDataFrame
 from shapely.geometry.point import Point
 from shapely.ops import unary_union
@@ -16,20 +14,15 @@ from semantic_val.utils import utils
 log = utils.get_logger(__name__)
 
 
-TRUE_POSITIVE_CODE = [19]
-FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
+MTS_TRUE_POSITIVE_CODE = [19]
+MTS_FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
 
 POINT_BUFFER_FOR_UNION = 0.5
+CLOSURE_BUFFER = 0.80
 SIMPLIFICATION_TOLERANCE_METERS = 1
 SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
-
-# could be increased to demand higher proba  of being building for confirmation
-CONFIDENCE_THRESHOLD_FOR_CONFIRMATION = 0.5
-# could be augmented to demand higher proba of not being building for refutation
-CONFIDENCE_THRESHOLD_FOR_REFUTATION = 0.5
-
-DECISION_LABELS = ["unsure", "not-building", "building"]
+SHARED_CRS = "EPSG:2154"
 
 
 class ShapeFileCols(Enum):
@@ -63,39 +56,60 @@ class MetricsNames(Enum):
     NET_GAIN_REFUTATION = "NG_REFUTE"
 
 
+class DecisionLabels(Enum):
+    UNSURE = "unsure"  # 0
+    NOT_BUILDING = "not-building"  # 1
+    BUILDING = "building"  # 2
+
+
+DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
+
+
+# Functions
+
+
 def get_inspection_shapefile(
     las_filepath: str,
-    confirmation_threshold: float = 0.05,
-    refutation_threshold: float = 1.0,
+    min_frac_confirmation: float = 0.05,
+    min_frac_refutation: float = 1.0,
+    min_confidence_confirmation: float = 0.5,
+    min_confidence_refutation: float = 0.5,
 ):
     """From a predicted LAS, returns the inspection shapefile (or None if no candidate buildings)."""
     las_gdf = load_geodf_of_candidate_building_points(las_filepath)
 
     if len(las_gdf) == 0:
         log.info("/!\ Skipping tile with no candidate building points.")
-        return None
+        return None, None
 
     shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
     log.info("Grouping points and deriving indicators by shape")
     comparison = agg_pts_info_by_shape(shapes_gdf, las_gdf)
 
     log.info("Derive raw shape level info from ground truths and predictions.")
-    comparison = derive_raw_shape_level_indicators(comparison)
+    comparison = derive_shape_indicators(
+        comparison,
+        min_confidence_confirmation=min_confidence_confirmation,
+        min_confidence_refutation=min_confidence_refutation,
+    )
 
     log.info("Confirm or refute each candidate building if enough confidence.")
     comparison = make_decisions(
         comparison,
-        confirmation_threshold=confirmation_threshold,
-        refutation_threshold=refutation_threshold,
+        min_frac_confirmation=min_frac_confirmation,
+        min_frac_refutation=min_frac_refutation,
     )
 
     df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
     keep = [item.value for item in ShapeFileCols] + ["geometry"]
-    df_out = df_out[keep]
-    return df_out
+    gdf_out = df_out[keep]
+    return gdf_out, df_out
 
 
-# # TODO: check what 104 is
+# TODO: this could be splited into
+# 1) Load predicted LAS and focus on subselection : MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE by default
+# and Turn it into a geodataframe
+# 2) Set the TruePositive flag, only useful for post-correction files...
 def load_geodf_of_candidate_building_points(
     las_filepath: str,
     crs="EPSG:2154",
@@ -106,12 +120,9 @@ def load_geodf_of_candidate_building_points(
     """
     log.info("Loading LAS.")
     las = laspy.read(las_filepath)
-    # TODO: uncomment to focus on predicted points only !
-    # [WARNING: we should assert that all points have preds for production mode]
-    # las.points = las.points[las["BuildingsHasPreds"]]
 
     candidate_building_points_idx = np.isin(
-        las["classification"], TRUE_POSITIVE_CODE + FALSE_POSITIVE_CODE
+        las["classification"], MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE
     )
     las.points = las[candidate_building_points_idx]
     include_colnames = ["classification", "BuildingsProba"]
@@ -125,25 +136,28 @@ def load_geodf_of_candidate_building_points(
     las_gdf = GeoDataFrame(lidar_df, crs=crs, geometry=geometry)
 
     las_gdf["TruePositive"] = las_gdf["classification"].apply(
-        lambda x: 1 * (x in TRUE_POSITIVE_CODE)
+        lambda x: 1 * (x in MTS_TRUE_POSITIVE_CODE)
     )
     del las_gdf["classification"]
     return las_gdf
 
 
 def get_unique_geometry_from_points(lidar_geodf):
+    """Buffer all points to merge thoses within 2 * buffer from one another."""
     df = lidar_geodf.copy().buffer(POINT_BUFFER_FOR_UNION)
     return df.unary_union
 
 
-def fill_holes(shape):
-    shape = shape.buffer(0.80)
+def close_holes(shape):
+    """Closure operation to fill holes in shape"""
+    shape = shape.buffer(CLOSURE_BUFFER)
     shape = unary_union(shape)
-    shape = shape.buffer(-0.80)
+    shape = shape.buffer(-CLOSURE_BUFFER)
     return shape
 
 
 def simplify_shape(shape):
+    """Reduce the number of points that define a shape."""
     return shape.simplify(
         SIMPLIFICATION_TOLERANCE_METERS,
         preserve_topology=SIMPLIFICATION_PRESERVE_TOPOLOGY,
@@ -153,20 +167,18 @@ def simplify_shape(shape):
 def vectorize_into_candidate_building_shapes(lidar_geodf):
     """
     From LAS with original classification, get candidate shapes
-    Rules: >3m², holes filled, simplified geometry.
+    Rules: holes filled, simplified geometry, area>=3m².
     """
     log.info("Vectorizing into candidate buildings.")
     union = get_unique_geometry_from_points(lidar_geodf)
-    # TODO: maybe use maps here for  GeoDataFrame ? Or compose functions ?
     log.info("Filling vector holes.")
-    shapes_no_holes = [fill_holes(shape) for shape in union]
+    shapes_no_holes = [close_holes(shape) for shape in union]
     log.info("Simplifying shapes.")
     shapes_simplified = [simplify_shape(shape) for shape in shapes_no_holes]
     candidate_buildings = geopandas.GeoDataFrame(
-        shapes_simplified, columns=["geometry"], crs="EPSG:2154"
+        shapes_simplified, columns=["geometry"], crs=SHARED_CRS
     )
     log.info(f"Keeping shapes larger than {MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS}m².")
-
     candidate_buildings = candidate_buildings[
         candidate_buildings.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
@@ -185,18 +197,30 @@ def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame):
     return gdf
 
 
-def derive_raw_shape_level_indicators(gdf):
+def derive_shape_indicators(
+    gdf,
+    min_confidence_confirmation: float = 0.5,
+    min_confidence_refutation: float = 0.5,
+):
     """Derive raw shape level info from ground truths (TruePositive) and predictions (BuildingsProba)"""
+    # POINTS-LEVEL DECISIONS
+    gdf = set_frac_confirmed_building_col(
+        gdf, min_confidence_confirmation=min_confidence_confirmation
+    )
+    gdf = set_frac_refuted_building_col(
+        gdf, min_confidence_refutation=min_confidence_refutation
+    )
+    # METAINFO
     gdf = set_num_pts_col(gdf)
     gdf = set_mean_proba_col(gdf)
-    gdf = set_frac_confirmed_building_col(gdf)
-    gdf = set_frac_refuted_building_col(gdf)
+    # GROUND TRUTHS INFO
     gdf = set_frac_false_positive_col(gdf)
     gdf = set_MTS_ground_truth_flag(gdf)
     return gdf
 
 
 def set_num_pts_col(gdf):
+    """Count number of point in shape."""
     gdf[ShapeFileCols.NUMBER_OF_CANDIDATE_BUILDINGS_POINT.value] = gdf.apply(
         lambda x: len(x["BuildingsProba"]), axis=1
     )
@@ -204,98 +228,115 @@ def set_num_pts_col(gdf):
 
 
 def set_mean_proba_col(gdf):
+    """Average probability of being a building."""
     gdf[ShapeFileCols.IA_AVERAGE_BUILDINGS_PROBA_FLOAT.value] = gdf.apply(
         lambda x: np.mean(x["BuildingsProba"]), axis=1
     )
     return gdf
 
 
-def get_frac_confirmed_building_points_(row):
+def _get_frac_confirmed_building_points(row, min_confidence_confirmation: float = 0.5):
+    """Helper: Get fraction of building points in each shape that are confirmed to be building with enough confidence."""
     data = row["BuildingsProba"]
     proba_building = np.array(data)
-    return np.sum(proba_building >= CONFIDENCE_THRESHOLD_FOR_CONFIRMATION) / len(
-        proba_building
-    )
+    return np.sum(proba_building >= min_confidence_confirmation) / len(proba_building)
 
 
-def set_frac_confirmed_building_col(gdf):
+def set_frac_confirmed_building_col(gdf, min_confidence_confirmation: float = 0.5):
+    """Set fraction of building points in each shape that are confirmed to be building with enough confidence."""
     gdf[
         ShapeFileCols.IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
-    ] = gdf.apply(lambda x: get_frac_confirmed_building_points_(x), axis=1)
+    ] = gdf.apply(
+        lambda x: _get_frac_confirmed_building_points(
+            x,
+            min_confidence_confirmation=min_confidence_confirmation,
+        ),
+        axis=1,
+    )
     return gdf
 
 
-def get_frac_refuted_building_points_(row):
+def _get_frac_refuted_building_points(row, min_confidence_refutation: float = 0.5):
+    """Helper: Get fraction of building points in each shape that are confirmed to be not-building with enough confidence."""
     data = row["BuildingsProba"]
     proba_not_building = 1 - np.array(data)
-    return np.sum(proba_not_building >= CONFIDENCE_THRESHOLD_FOR_REFUTATION) / len(
+    return np.sum(proba_not_building >= min_confidence_refutation) / len(
         proba_not_building
     )
 
 
-def get_frac_MTS_true_positives_(row):
+def set_frac_refuted_building_col(
+    gdf,
+    min_confidence_refutation: float = 0.5,
+):
+    """Set fraction of building points in each shape that are confirmed to be not-building with enough confidence."""
+    gdf[ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value] = gdf.apply(
+        lambda x: _get_frac_refuted_building_points(
+            x, min_confidence_refutation=min_confidence_refutation
+        ),
+        axis=1,
+    )
+    return gdf
+
+
+def _get_frac_MTS_true_positives(row):
+    """Helper: Get fraction of candidate building points from initial classification that were actual building."""
     true_positives = row["TruePositive"]
     return np.mean(true_positives)
 
 
 def set_frac_false_positive_col(gdf):
+    """Set fraction of candidate building points from initial classification that were actual building."""
     gdf[ShapeFileCols.MTS_TRUE_POSITIVE_FRAC.value] = gdf.apply(
-        lambda x: get_frac_MTS_true_positives_(x), axis=1
+        lambda x: _get_frac_MTS_true_positives(x), axis=1
     )
     return gdf
 
 
-def set_frac_refuted_building_col(gdf):
-    gdf[ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value] = gdf.apply(
-        lambda x: get_frac_refuted_building_points_(x), axis=1
-    )
-    return gdf
-
-
-def set_MTS_ground_truth_flag_(row):
+def _set_MTS_ground_truth_flag(row):
     """Helper : Based on the fraction of confirmed building points, set the nature of the shape or declare an ambiguous case"""
     FP_FRAC = 0.05
     TP_FRAC = 0.95
     tp = ShapeFileCols.MTS_TRUE_POSITIVE_FRAC.value
     if row[tp] >= TP_FRAC:
-        return DECISION_LABELS[2]
+        return DecisionLabels.BUILDING.value
     elif row[tp] < FP_FRAC:
-        return DECISION_LABELS[1]
+        return DecisionLabels.NOT_BUILDING.value
     else:
-        return DECISION_LABELS[0]
+        return DecisionLabels.UNSURE.value
 
 
 def set_MTS_ground_truth_flag(gdf):
     """Set flags fr false positive / false positive / ambigous MTS ground truths."""
     mts_gt = ShapeFileCols.MTS_GROUND_TRUTH.value
-    gdf[mts_gt] = gdf.apply(set_MTS_ground_truth_flag_, axis=1)
+    gdf[mts_gt] = gdf.apply(_set_MTS_ground_truth_flag, axis=1)
     return gdf
 
 
-def make_decision_(
-    row, confirmation_threshold: float = 0.05, refutation_threshold: float = 1.0
+def _make_decision(
+    row, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 1.0
 ):
     """Helper: module decision based on fraction of confirmed/refuted points"""
     yes_frac = ShapeFileCols.IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
     no_frac = ShapeFileCols.MTS_REFUTED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
-    if row[yes_frac] >= confirmation_threshold:
-        return DECISION_LABELS[2]
-    elif row[no_frac] >= refutation_threshold:
-        return DECISION_LABELS[1]
+    if row[yes_frac] >= min_frac_confirmation:
+        return DecisionLabels.BUILDING.value
+    elif row[no_frac] >= min_frac_refutation:
+        return DecisionLabels.NOT_BUILDING.value
     else:
-        return DECISION_LABELS[0]
+        return DecisionLabels.UNSURE.value
 
 
 def make_decisions(
-    gdf, confirmation_threshold: float = 0.05, refutation_threshold: float = 1.0
+    gdf, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 1.0
 ):
-    """Add different flags to study the validation quality."""
+    """Confirm or refute candidate building shape based on fraction of confirmed/refuted points."""
     ia_decision = ShapeFileCols.IA_DECISION.value
     gdf[ia_decision] = gdf.apply(
-        lambda row: make_decision_(
+        lambda row: _make_decision(
             row,
-            confirmation_threshold=confirmation_threshold,
-            refutation_threshold=refutation_threshold,
+            min_frac_confirmation=min_frac_confirmation,
+            min_frac_refutation=min_frac_refutation,
         ),
         axis=1,
     )
@@ -305,13 +346,20 @@ def make_decisions(
 def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     """
     Get dict of metrics to evaluate how good module decisions were in reference to ground truths.
-    Decisions : U=Unsure, C=Confirmation, R=Refutation
-    Maximization criteria :
+    Targets: U=Unsure, N=No (not a building), Y=Yes (building)
+    PRedictions : U=Unsure, C=Confirmation, R=Refutation
+    Confusion Matrix :
+            predictions
+            [Uu Ur Uc]
+    target  [Nu Nr Nc]
+            [Yu Yr Yc]
+
+    Maximization criteria:
       Proportion of each decision among total of candidates.
       We want to maximize it. The max is not 1 since there are "ambiguous ground truth" cases.
     Constraints:
       Confirmation/Refutation Accuracy.
-      Equéals 1 if each decision to confirm or refute was the right one.
+      Equals 1 if no confirmation or refutation was a mistake (-> being unsure should not decrease accuracy)
     Net gain:
       Proportions of accurate C/R.
       Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
@@ -321,18 +369,24 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     ia_decision = gdf[ShapeFileCols.IA_DECISION.value]
 
     # CRITERIA
-    cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="all")
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="all"
+    )
     PU, PR, PC = cm.sum(axis=0)
     # Proportion of decisions made among total (= 1 - PU)
     PAD = PC + PR
 
     # CONSTRAINTS
-    cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="pred")
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="pred"
+    )
     RA = cm[1, 1]
     CA = cm[2, 2]
 
     # NET GAIN
-    cm = confusion_matrix(mts_gt, ia_decision, labels=DECISION_LABELS, normalize="true")
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="true"
+    )
     NGR = cm[1, 1]
     NGC = cm[2, 2]
 
@@ -350,24 +404,10 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     return metrics_dict
 
 
-def apply_constraint_and_sort(
-    df: pd.DataFrame,
-    minimal_confirmation_accuracy_threshold: float = 0.98,
-    minimal_refutation_accuracy_threshold: float = 0.98,
+def change_filepath_suffix(
+    origin_filepath, origin_suffix: str = ".shp", target_suffix: str = ".csv"
 ):
-    """Filter out metrics that do not meet constraints, and sort based on level of automation achieved."""
-    ca = MetricsNames.CONFIRMATION_ACCURACY.value
-    ra = MetricsNames.REFUTATION_ACCURACY.value
-    N_0 = len(df)
-    df = df[df[ca] > minimal_confirmation_accuracy_threshold]
-    N_1 = len(df)
-    df = df[df[ra] > minimal_refutation_accuracy_threshold]
-    N_2 = len(df)
-    log.info(
-        f"Applying confirmation accuracy (>{minimal_confirmation_accuracy_threshold}) and refutation accuracy (>{minimal_refutation_accuracy_threshold}) constraint :"
-        f"N = {N_0} --CA-> {N_1} --RA-> {N_2}"
-    )
-    df = df.sort_values(
-        MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value, ascending=False
-    )
-    return df
+    """Change a filepath suffix."""
+    assert origin_filepath.endswith(".shp")
+    target_filepath = origin_filepath.replace(origin_suffix, target_suffix)
+    return target_filepath

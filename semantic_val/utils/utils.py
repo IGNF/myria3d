@@ -51,7 +51,7 @@ def extras(config: DictConfig) -> None:
 
     # disable python warnings if <config.ignore_warnings=True>
     if config.get("ignore_warnings"):
-        log.info("Disabling python warnings! <config.ignore_warnings=True>")
+        log.debug("Disabling python warnings! <config.ignore_warnings=True>")
         warnings.filterwarnings("ignore")
 
     # set <config.trainer.fast_dev_run=True> if <config.debug=True>

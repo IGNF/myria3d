@@ -29,18 +29,26 @@ def validate(config: DictConfig) -> Optional[float]:
     las_filepath = glob.glob(
         osp.join(config.validation_module.predicted_las_dirpath, "*.las")
     )
-    output_shp = osp.join(
+    inspection_shp_path = osp.join(
         os.getcwd(), config.validation_module.operationnal_output_shapefile_name
     )
+    assert inspection_shp_path.endswith(".shp")
+    pts_level_info_csv_path = inspection_shp_path.replace(".shp", ".csv")
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
-        df_out = get_inspection_shapefile(
+        gdf_out, df_out = get_inspection_shapefile(
             las_filepath,
-            confirmation_threshold=config.validation_module.confirmation_threshold,
-            refutation_threshold=config.validation_module.refutation_threshold,
+            min_frac_confirmation=config.validation_module.min_frac_confirmation,
+            min_frac_refutation=config.validation_module.min_frac_refutation,
+            min_confidence_confirmation=config.validation_module.min_confidence_confirmation,
+            min_confidence_refutation=config.validation_module.min_confidence_refutation,
         )
-        if df_out is not None:
-            mode = "w" if not osp.isfile(output_shp) else "a"
-            df_out.to_file(output_shp, mode=mode, index=False)
+        if gdf_out is not None:
+            mode = "w" if not osp.isfile(inspection_shp_path) else "a"
+            header = True if mode == "w" else False
+            gdf_out.to_file(inspection_shp_path, mode=mode, index=False, header=header)
+            df_out.to_csv(
+                pts_level_info_csv_path, mode=mode, index=False, header=header
+            )
 
-    log.info(f"Output shapefile is in {output_shp}")
+    log.info(f"Output shapefile is in {inspection_shp_path}")
