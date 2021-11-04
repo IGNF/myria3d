@@ -9,7 +9,9 @@ from semantic_val.validation.validation_utils import (
     derive_shape_indicators,
     make_decisions,
     evaluate_decisions,
+    TRUE_POSITIVES_COLNAME,
 )
+from semantic_val.callbacks.predictions_callbacks import ChannelNames
 
 log = utils.get_logger(__name__)
 
@@ -33,7 +35,10 @@ def tune(config: DictConfig) -> Tuple[float]:
 
     df = pd.read_csv(
         pts_level_info_csv_path,
-        converters={"BuildingsProba": eval, "TruePositive": eval},
+        converters={
+            ChannelNames.BuildingsProba.value: eval,
+            TRUE_POSITIVES_COLNAME: eval,
+        },
     )
     df = derive_shape_indicators(
         df,

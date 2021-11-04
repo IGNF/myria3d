@@ -10,6 +10,7 @@ from shapely.ops import unary_union
 from sklearn.metrics import confusion_matrix
 
 from semantic_val.utils import utils
+from semantic_val.callbacks.predictions_callbacks import ChannelNames
 
 log = utils.get_logger(__name__)
 
@@ -23,6 +24,8 @@ SIMPLIFICATION_TOLERANCE_METERS = 1
 SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 SHARED_CRS = "EPSG:2154"
+
+TRUE_POSITIVES_COLNAME = "TruePositive"
 
 
 class ShapeFileCols(Enum):
@@ -122,10 +125,10 @@ def load_geodf_of_candidate_building_points(
     las = laspy.read(las_filepath)
 
     candidate_building_points_idx = np.isin(
-        las["classification"], MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE
+        las.classification, MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE
     )
     las.points = las[candidate_building_points_idx]
-    include_colnames = ["classification", "BuildingsProba"]
+    include_colnames = ["classification", ChannelNames.BuildingsProba.value]
     data = np.array([las[colname] for colname in include_colnames]).transpose()
     lidar_df = pd.DataFrame(data, columns=include_colnames)
 
@@ -135,7 +138,7 @@ def load_geodf_of_candidate_building_points(
     geometry = [Point(xy) for xy in zip(las.x, las.y)]
     las_gdf = GeoDataFrame(lidar_df, crs=crs, geometry=geometry)
 
-    las_gdf["TruePositive"] = las_gdf["classification"].apply(
+    las_gdf[TRUE_POSITIVES_COLNAME] = las_gdf.classification.apply(
         lambda x: 1 * (x in MTS_TRUE_POSITIVE_CODE)
     )
     del las_gdf["classification"]
@@ -191,9 +194,9 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
 def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame):
     """Group the info and preds of candidate building points forming a candidate bulding shape."""
     gdf = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
-    gdf = gdf.groupby("shape_idx")[["BuildingsProba", "TruePositive"]].agg(
-        lambda x: x.tolist()
-    )
+    gdf = gdf.groupby("shape_idx")[
+        [ChannelNames.BuildingsProba.value, TRUE_POSITIVES_COLNAME]
+    ].agg(lambda x: x.tolist())
     return gdf
 
 
@@ -222,7 +225,7 @@ def derive_shape_indicators(
 def set_num_pts_col(gdf):
     """Count number of point in shape."""
     gdf[ShapeFileCols.NUMBER_OF_CANDIDATE_BUILDINGS_POINT.value] = gdf.apply(
-        lambda x: len(x["BuildingsProba"]), axis=1
+        lambda x: len(x[ChannelNames.BuildingsProba.value]), axis=1
     )
     return gdf
 
@@ -230,14 +233,14 @@ def set_num_pts_col(gdf):
 def set_mean_proba_col(gdf):
     """Average probability of being a building."""
     gdf[ShapeFileCols.IA_AVERAGE_BUILDINGS_PROBA_FLOAT.value] = gdf.apply(
-        lambda x: np.mean(x["BuildingsProba"]), axis=1
+        lambda x: np.mean(x[ChannelNames.BuildingsProba.value]), axis=1
     )
     return gdf
 
 
 def _get_frac_confirmed_building_points(row, min_confidence_confirmation: float = 0.5):
     """Helper: Get fraction of building points in each shape that are confirmed to be building with enough confidence."""
-    data = row["BuildingsProba"]
+    data = row[ChannelNames.BuildingsProba.value]
     proba_building = np.array(data)
     return np.sum(proba_building >= min_confidence_confirmation) / len(proba_building)
 
@@ -258,7 +261,7 @@ def set_frac_confirmed_building_col(gdf, min_confidence_confirmation: float = 0.
 
 def _get_frac_refuted_building_points(row, min_confidence_refutation: float = 0.5):
     """Helper: Get fraction of building points in each shape that are confirmed to be not-building with enough confidence."""
-    data = row["BuildingsProba"]
+    data = row[ChannelNames.BuildingsProba.value]
     proba_not_building = 1 - np.array(data)
     return np.sum(proba_not_building >= min_confidence_refutation) / len(
         proba_not_building
@@ -281,7 +284,7 @@ def set_frac_refuted_building_col(
 
 def _get_frac_MTS_true_positives(row):
     """Helper: Get fraction of candidate building points from initial classification that were actual building."""
-    true_positives = row["TruePositive"]
+    true_positives = row[TRUE_POSITIVES_COLNAME]
     return np.mean(true_positives)
 
 
