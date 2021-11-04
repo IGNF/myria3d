@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from typing import Any, List, Optional
 import os
@@ -15,6 +16,13 @@ from torch_geometric.nn.pool import knn
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
+
+
+class ChannelNames(Enum):
+    BuildingsPreds = "BuildingsPreds"
+    BuildingsProba = "BuildingsProba"
+    BuildingsConfusion = "BuildingsConfusion"
+    BuildingsHasPredictions = "BuildingsHasPredictions"
 
 
 class SavePreds(Callback):
@@ -151,11 +159,13 @@ class SavePreds(Callback):
 
         assign_idx = knn(self.current_las_pos, elem_pos, k=1, num_workers=1)[1]
 
-        self.current_las.BuildingsHasPredictions[assign_idx] = 1
-        self.current_las.BuildingsPreds[assign_idx] = elem_preds
-        self.current_las.BuildingsProba[assign_idx] = elem_proba
+        self.current_las[ChannelNames.BuildingsHasPredictions.value][assign_idx] = 1
+        self.current_las[ChannelNames.BuildingsPreds.value][assign_idx] = elem_preds
+        self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = elem_proba
         elem_preds_confusion = self.get_confusion(elem_preds, elem_targets)
-        self.current_las.BuildingsConfusion[assign_idx] = elem_preds_confusion
+        self.current_las[ChannelNames.BuildingsConfusion.value][
+            assign_idx
+        ] = elem_preds_confusion
 
     def get_confusion(self, elem_preds, elem_targets):
         """Get a confusion vector: TN=0, Tp=1, FN=2, FP=3 - Nodata or Nan is 4."""
@@ -170,21 +180,25 @@ class SavePreds(Callback):
         self.current_las = laspy.read(filepath)
         self.in_memory_tile_filepath = filepath
 
-        param = laspy.ExtraBytesParams(name="BuildingsPreds", type=int)
+        coln = ChannelNames.BuildingsHasPredictions.value
+        param = laspy.ExtraBytesParams(name=coln, type=int)
         self.current_las.add_extra_dim(param)
-        self.current_las.BuildingsPreds[:] = 0
+        self.current_las[coln][:] = 0
 
-        param = laspy.ExtraBytesParams(name="BuildingsProba", type=float)
+        coln = ChannelNames.BuildingsPreds.value
+        param = laspy.ExtraBytesParams(name=coln, type=int)
         self.current_las.add_extra_dim(param)
-        self.current_las.BuildingsProba[:] = 0.0
+        self.current_las[coln][:] = 0
 
-        param = laspy.ExtraBytesParams(name="BuildingsConfusion", type=int)
+        coln = ChannelNames.BuildingsProba.value
+        param = laspy.ExtraBytesParams(name=coln, type=float)
         self.current_las.add_extra_dim(param)
-        self.current_las.BuildingsConfusion[:] = 0
+        self.current_las[coln][:] = 0.0
 
-        param = laspy.ExtraBytesParams(name="BuildingsHasPredictions", type=int)
+        coln = ChannelNames.BuildingsConfusion.value
+        param = laspy.ExtraBytesParams(name=coln, type=int)
         self.current_las.add_extra_dim(param)
-        self.current_las.BuildingsHasPredictions[:] = 0
+        self.current_las[coln][:] = 0
 
         self.current_las_pos = np.asarray(
             [
