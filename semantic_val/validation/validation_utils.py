@@ -1,4 +1,7 @@
+# TODO: rename validation_utils into "decision"
+
 from enum import Enum
+from typing import List
 
 import geopandas
 import laspy
@@ -14,9 +17,15 @@ from semantic_val.callbacks.predictions_callbacks import ChannelNames
 
 log = utils.get_logger(__name__)
 
+MTS_AUTO_DETECTED_CODE = 6
+# which was splitted into...
+MTS_TRUE_POSITIVE_CODE_LIST = [19]
+MTS_FALSE_POSITIVE_CODE_LIST = [20, 110, 112, 114, 115]
 
-MTS_TRUE_POSITIVE_CODE = [19]
-MTS_FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
+MTS_FALSE_NEGATIVE_CODE_LIST = [21]
+
+CONFIRMED_BUILDING_CODE = 19
+DEFAULT_CODE = 1  # TODO: check that 1 is the "default" class
 
 POINT_BUFFER_FOR_UNION = 0.5
 CLOSURE_BUFFER = 0.80
@@ -25,6 +34,9 @@ SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
 SHARED_CRS = "EPSG:2154"
 
+CLASSIFICATION_CHANNEL_NAME = "classification"
+POINT_IDX_COLNAME = "point_idx"
+SHAPE_IDX_COLNAME = "shape_idx"
 TRUE_POSITIVES_COLNAME = "TruePositive"
 
 
@@ -70,79 +82,121 @@ DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
 
 # Functions
 
-
-def get_inspection_shapefile(
-    las_filepath: str,
-    min_frac_confirmation: float = 0.05,
-    min_frac_refutation: float = 1.0,
-    min_confidence_confirmation: float = 0.5,
-    min_confidence_refutation: float = 0.5,
-):
-    """From a predicted LAS, returns the inspection shapefile (or None if no candidate buildings)."""
-    las_gdf = load_geodf_of_candidate_building_points(las_filepath)
-
-    if len(las_gdf) == 0:
-        log.info("/!\ Skipping tile with no candidate building points.")
-        return None, None
-
-    shapes_gdf = vectorize_into_candidate_building_shapes(las_gdf)
-    log.info("Grouping points and deriving indicators by shape")
-    comparison = agg_pts_info_by_shape(shapes_gdf, las_gdf)
-
-    log.info("Derive raw shape level info from ground truths and predictions.")
-    comparison = derive_shape_indicators(
-        comparison,
-        min_confidence_confirmation=min_confidence_confirmation,
-        min_confidence_refutation=min_confidence_refutation,
-    )
-
-    log.info("Confirm or refute each candidate building if enough confidence.")
-    comparison = make_decisions(
-        comparison,
-        min_frac_confirmation=min_frac_confirmation,
-        min_frac_refutation=min_frac_refutation,
-    )
-
-    df_out = shapes_gdf.join(comparison, on="shape_idx", how="left")
-    keep = [item.value for item in ShapeFileCols] + ["geometry"]
-    gdf_out = df_out[keep]
-    return gdf_out, df_out
-
-
-# TODO: this could be splited into
+# NOTE: this could be splited into
 # 1) Load predicted LAS and focus on subselection : MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE by default
 # and Turn it into a geodataframe
 # 2) Set the TruePositive flag, only useful for post-correction files...
 def load_geodf_of_candidate_building_points(
     las_filepath: str,
-    crs="EPSG:2154",
+    candidates_buildings_codes: List[int] = MTS_TRUE_POSITIVE_CODE_LIST
+    + MTS_FALSE_POSITIVE_CODE_LIST,
 ) -> GeoDataFrame:
     """
     Load a las that went through correction and was predicted by trained model.
     Focus on points that were detected as building (keep_classes).
     """
-    log.info("Loading LAS.")
+    log.info("Loading LAS to get candidate points.")
     las = laspy.read(las_filepath)
 
-    candidate_building_points_idx = np.isin(
-        las.classification, MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE
+    candidate_building_points_mask = np.isin(
+        las.classification, candidates_buildings_codes
     )
-    las.points = las[candidate_building_points_idx]
-    include_colnames = ["classification", ChannelNames.BuildingsProba.value]
-    data = np.array([las[colname] for colname in include_colnames]).transpose()
-    lidar_df = pd.DataFrame(data, columns=include_colnames)
+    las.points = las[candidate_building_points_mask]
+
+    no_candidate_building_points = len(las.points) == 0
+    if no_candidate_building_points:
+        return None
+
+    # TODO: abstract classification somewhere as a constant
+    keep_cols = [CLASSIFICATION_CHANNEL_NAME, ChannelNames.BuildingsProba.value]
+    candidate_building_points_idx = candidate_building_points_mask.nonzero()[0]
+    data = [candidate_building_points_idx] + [las[c] for c in keep_cols]
+    data = np.array(data).transpose()
+    columns = [POINT_IDX_COLNAME] + keep_cols
+    lidar_df = pd.DataFrame(data, columns=columns)
 
     log.info("Turning LAS into GeoDataFrame.")
     # TODO: this lst comprehension is slow and could be improved.
     # GDF does not accept a map object here.
     geometry = [Point(xy) for xy in zip(las.x, las.y)]
-    las_gdf = GeoDataFrame(lidar_df, crs=crs, geometry=geometry)
+    las_gdf = GeoDataFrame(lidar_df, crs=SHARED_CRS, geometry=geometry)
 
     las_gdf[TRUE_POSITIVES_COLNAME] = las_gdf.classification.apply(
-        lambda x: 1 * (x in MTS_TRUE_POSITIVE_CODE)
+        lambda x: 1 * (x in MTS_TRUE_POSITIVE_CODE_LIST)
     )
-    del las_gdf["classification"]
+    # TODO: add POINT_IDX_COLNAME to get back to the las
+
+    del las_gdf[CLASSIFICATION_CHANNEL_NAME]
     return las_gdf
+
+
+def get_inspection_gdf(
+    points_gdf: laspy.LasData,
+    min_frac_confirmation: float = 0.05,
+    min_frac_refutation: float = 1.0,
+    min_confidence_confirmation: float = 0.5,
+    min_confidence_refutation: float = 0.5,
+):
+    """From a predicted LAS, returns 1) inspection geoDataFrame and 2) inspection csv with point-level info, for thresholds optimization."""
+
+    shapes_gdf = vectorize(points_gdf)
+    no_candidate_buildings_shape = len(shapes_gdf) == 0
+    if no_candidate_buildings_shape:
+        return None
+
+    log.info("Group points by shape")
+    points_gdf = agg_pts_info_by_shape(shapes_gdf, points_gdf)
+
+    log.info("Derive shape-level indicators.")
+    points_gdf = derive_shape_ground_truths(points_gdf)
+    points_gdf = derive_shape_indicators(
+        points_gdf,
+        min_confidence_confirmation=min_confidence_confirmation,
+        min_confidence_refutation=min_confidence_refutation,
+    )
+
+    log.info("Confirm or refute each candidate building if enough confidence.")
+    points_gdf = make_decisions(
+        points_gdf,
+        min_frac_confirmation=min_frac_confirmation,
+        min_frac_refutation=min_frac_refutation,
+    )
+
+    df_inspection = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="left")
+    return df_inspection
+
+
+def reset_classification(classification: np.array):
+    """
+    Set the classification to pre-correction codes. This is not needed for production.
+    FP+TP -> set to auto-detected code
+    FN -> set to background code
+    """
+    candidate_building_points_mask = np.isin(
+        classification, MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
+    )
+    classification[candidate_building_points_mask] = MTS_AUTO_DETECTED_CODE
+    forgotten_buillding_points_mask = np.isin(
+        classification, MTS_FALSE_NEGATIVE_CODE_LIST
+    )
+    classification[forgotten_buillding_points_mask] = DEFAULT_CODE
+    return classification
+
+
+def update_las_with_decisions(las, df_inspection):
+    """Update point cloud classification channel, and save to specified path."""
+    for _, row in df_inspection.copy().iterrows():
+        ia_decision = row[ShapeFileCols.IA_DECISION.value]
+        points_idx = np.array(row[POINT_IDX_COLNAME], dtype=int)
+        if ia_decision == DecisionLabels.UNSURE.value:
+            continue
+        elif ia_decision == DecisionLabels.BUILDING.value:
+            las[CLASSIFICATION_CHANNEL_NAME][points_idx] = CONFIRMED_BUILDING_CODE
+        elif ia_decision == DecisionLabels.NOT_BUILDING.value:
+            las[CLASSIFICATION_CHANNEL_NAME][points_idx] = DEFAULT_CODE
+        else:
+            raise KeyError(f"Unexpected IA decision: {ia_decision}")
+    return las
 
 
 def get_unique_geometry_from_points(lidar_geodf):
@@ -167,7 +221,7 @@ def simplify_shape(shape):
     )
 
 
-def vectorize_into_candidate_building_shapes(lidar_geodf):
+def vectorize(lidar_geodf):
     """
     From LAS with original classification, get candidate shapes
     Rules: holes filled, simplified geometry, area>=3m².
@@ -178,24 +232,22 @@ def vectorize_into_candidate_building_shapes(lidar_geodf):
     shapes_no_holes = [close_holes(shape) for shape in union]
     log.info("Simplifying shapes.")
     shapes_simplified = [simplify_shape(shape) for shape in shapes_no_holes]
-    candidate_buildings = geopandas.GeoDataFrame(
+    candidates_gdf = geopandas.GeoDataFrame(
         shapes_simplified, columns=["geometry"], crs=SHARED_CRS
     )
     log.info(f"Keeping shapes larger than {MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS}m².")
-    candidate_buildings = candidate_buildings[
-        candidate_buildings.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
+    candidates_gdf = candidates_gdf[
+        candidates_gdf.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
-    candidate_buildings = candidate_buildings.reset_index().rename(
-        columns={"index": "shape_idx"}
-    )
-    return candidate_buildings
+    candidates_gdf = candidates_gdf.rename_axis(SHAPE_IDX_COLNAME).reset_index()
+    return candidates_gdf
 
 
-def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, lidar_gdf: GeoDataFrame):
-    """Group the info and preds of candidate building points forming a candidate bulding shape."""
-    gdf = lidar_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
-    gdf = gdf.groupby("shape_idx")[
-        [ChannelNames.BuildingsProba.value, TRUE_POSITIVES_COLNAME]
+def agg_pts_info_by_shape(shapes_gdf: GeoDataFrame, points_gdf: GeoDataFrame):
+    """Group the info, preds, and original LAS idx of candidate building points forming a candidate bulding shape."""
+    gdf = points_gdf.sjoin(shapes_gdf, how="inner", predicate="within")
+    gdf = gdf.groupby(SHAPE_IDX_COLNAME)[
+        [POINT_IDX_COLNAME, ChannelNames.BuildingsProba.value, TRUE_POSITIVES_COLNAME]
     ].agg(lambda x: x.tolist())
     return gdf
 
@@ -206,6 +258,10 @@ def derive_shape_indicators(
     min_confidence_refutation: float = 0.5,
 ):
     """Derive raw shape level info from ground truths (TruePositive) and predictions (BuildingsProba)"""
+    # METAINFO - Optionnal
+    gdf = set_num_pts_col(gdf)
+    gdf = set_mean_proba_col(gdf)
+
     # POINTS-LEVEL DECISIONS
     gdf = set_frac_confirmed_building_col(
         gdf, min_confidence_confirmation=min_confidence_confirmation
@@ -213,9 +269,12 @@ def derive_shape_indicators(
     gdf = set_frac_refuted_building_col(
         gdf, min_confidence_refutation=min_confidence_refutation
     )
-    # METAINFO
-    gdf = set_num_pts_col(gdf)
-    gdf = set_mean_proba_col(gdf)
+
+    return gdf
+
+
+def derive_shape_ground_truths(gdf):
+    """derive ground truth related info and flags."""
     # GROUND TRUTHS INFO
     gdf = set_frac_false_positive_col(gdf)
     gdf = set_MTS_ground_truth_flag(gdf)

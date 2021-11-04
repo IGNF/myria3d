@@ -1,5 +1,6 @@
 import os
 from typing import List, Optional
+import laspy
 
 from omegaconf import DictConfig
 from pytorch_lightning import seed_everything
@@ -7,8 +8,13 @@ import glob
 import os.path as osp
 from tqdm import tqdm
 from semantic_val.validation.validation_utils import (
+    DecisionLabels,
+    ShapeFileCols,
     change_filepath_suffix,
-    get_inspection_shapefile,
+    get_inspection_gdf,
+    load_geodf_of_candidate_building_points,
+    reset_classification,
+    update_las_with_decisions,
 )
 from semantic_val.utils import utils
 
@@ -30,25 +36,64 @@ def decide(config: DictConfig) -> Optional[float]:
     log.info(f"Logging directory: {os.getcwd()}")
 
     las_filepath = glob.glob(osp.join(config.inspection.predicted_las_dirpath, "*.las"))
-    inspection_shp_path = config.inspection.comparison_shapefile_path
+    inspection_shp_all_path = osp.join(
+        os.getcwd(), config.inspection.inspection_shapefile_name.format(subset="all")
+    )
+    inspection_shp_unsure_path = osp.join(
+        os.getcwd(),
+        config.inspection.inspection_shapefile_name.format(subset="unsure"),
+    )
     pts_level_info_csv_path = change_filepath_suffix(
-        inspection_shp_path, ".shp", ".csv"
+        inspection_shp_all_path, ".shp", ".csv"
     )
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
-        gdf_out, df_out = get_inspection_shapefile(
-            las_filepath,
+        points_gdf = load_geodf_of_candidate_building_points(las_filepath)
+
+        if points_gdf is None:
+            log.info("/!\ Skipping tile: there are no candidate building points.")
+            continue
+
+        gdf_inspection = get_inspection_gdf(
+            points_gdf,
             min_frac_confirmation=config.inspection.min_frac_confirmation,
             min_frac_refutation=config.inspection.min_frac_refutation,
             min_confidence_confirmation=config.inspection.min_confidence_confirmation,
             min_confidence_refutation=config.inspection.min_confidence_refutation,
         )
-        if gdf_out is not None:
-            mode = "w" if not osp.isfile(inspection_shp_path) else "a"
-            header = True if mode == "w" else False
-            gdf_out.to_file(inspection_shp_path, mode=mode, index=False, header=header)
-            df_out.to_csv(
-                pts_level_info_csv_path, mode=mode, index=False, header=header
+        if gdf_inspection is None:
+            log.info(
+                f"No candidate shape could be derived from the N={len(points_gdf.points)} candidate points buildings."
             )
+            continue
 
-    log.info(f"Output shapefile is in {inspection_shp_path}")
+        mode = "w" if not osp.isfile(pts_level_info_csv_path) else "a"
+        header = True if mode == "w" else False
+
+        gdf_inspection.to_csv(
+            pts_level_info_csv_path, mode=mode, index=False, header=header
+        )
+
+        keep = [item.value for item in ShapeFileCols] + ["geometry"]
+        shp_inspection_all = gdf_inspection[keep]
+        shp_inspection_all.to_file(inspection_shp_all_path, mode=mode)
+        shp_inspection_unsure = shp_inspection_all[
+            shp_inspection_all[ShapeFileCols.IA_DECISION.value]
+            == DecisionLabels.UNSURE.value
+        ]
+        shp_inspection_unsure.to_file(inspection_shp_unsure_path, mode=mode)
+
+        if config.inspection.update_las or True:  # TRUE for DEBUG ONLY
+            log.info("Loading LAS to update candidate points.")
+            las = laspy.read(las_filepath)
+            las.classification = reset_classification(las.classification)
+            points_gdf = update_las_with_decisions(las, gdf_inspection)
+            out_dir = osp.dirname(inspection_shp_unsure_path)
+            out_dir = osp.join(out_dir, "las")
+            os.makedirs(out_dir, exist_ok=True)
+            out_name = osp.basename(las_filepath)
+            out_path = osp.join(out_dir, out_name)
+            points_gdf.write(out_path)
+            log.info(f"Saved updated LAS to {out_path}")
+
+    log.info(f"Output inspection shapefile is {inspection_shp_unsure_path}")
