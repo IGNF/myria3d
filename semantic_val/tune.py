@@ -29,7 +29,7 @@ def tune(config: DictConfig) -> Tuple[float]:
         seed_everything(config.seed, workers=True)
 
     pts_level_info_csv_path = change_filepath_suffix(
-        config.validation_module.comparison_shapefile_path, ".shp", ".csv"
+        config.inspection.comparison_shapefile_path, ".shp", ".csv"
     )
     log.debug(f"Evaluation of inspection using: {pts_level_info_csv_path}")
 
@@ -42,13 +42,13 @@ def tune(config: DictConfig) -> Tuple[float]:
     )
     df = derive_shape_indicators(
         df,
-        min_confidence_confirmation=config.validation_module.min_confidence_confirmation,
-        min_confidence_refutation=config.validation_module.min_confidence_refutation,
+        min_confidence_confirmation=config.inspection.min_confidence_confirmation,
+        min_confidence_refutation=config.inspection.min_confidence_refutation,
     )
     df = make_decisions(
         gdf=df,
-        min_frac_confirmation=config.validation_module.min_frac_confirmation,
-        min_frac_refutation=config.validation_module.min_frac_refutation,
+        min_frac_confirmation=config.inspection.min_frac_confirmation,
+        min_frac_refutation=config.inspection.min_frac_refutation,
     )
     metrics_dict = evaluate_decisions(df)
 

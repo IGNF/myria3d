@@ -29,10 +29,8 @@ def decide(config: DictConfig) -> Optional[float]:
 
     log.info(f"Logging directory: {os.getcwd()}")
 
-    las_filepath = glob.glob(
-        osp.join(config.validation_module.predicted_las_dirpath, "*.las")
-    )
-    inspection_shp_path = config.validation_module.comparison_shapefile_path
+    las_filepath = glob.glob(osp.join(config.inspection.predicted_las_dirpath, "*.las"))
+    inspection_shp_path = config.inspection.comparison_shapefile_path
     pts_level_info_csv_path = change_filepath_suffix(
         inspection_shp_path, ".shp", ".csv"
     )
@@ -40,10 +38,10 @@ def decide(config: DictConfig) -> Optional[float]:
         log.info(f"Evaluation of tile {las_filepath}...")
         gdf_out, df_out = get_inspection_shapefile(
             las_filepath,
-            min_frac_confirmation=config.validation_module.min_frac_confirmation,
-            min_frac_refutation=config.validation_module.min_frac_refutation,
-            min_confidence_confirmation=config.validation_module.min_confidence_confirmation,
-            min_confidence_refutation=config.validation_module.min_confidence_refutation,
+            min_frac_confirmation=config.inspection.min_frac_confirmation,
+            min_frac_refutation=config.inspection.min_frac_refutation,
+            min_confidence_confirmation=config.inspection.min_confidence_confirmation,
+            min_confidence_refutation=config.inspection.min_confidence_refutation,
         )
         if gdf_out is not None:
             mode = "w" if not osp.isfile(inspection_shp_path) else "a"

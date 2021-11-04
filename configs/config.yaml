@@ -15,7 +15,7 @@ defaults:
 
   - hydra: default.yaml
 
-  - validation_module: default.yaml
+  - inspection: default.yaml
 
   # enable color logging
   - override hydra/hydra_logging: colorlog

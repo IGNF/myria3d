@@ -4,6 +4,8 @@
 # Run with something like:
 # python run.py -m task=tune hparams_search=thresholds_3_objectives hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 print_config=false
 
+print_config: false
+
 defaults:
   - override /hydra/sweeper: optuna
   - override /hydra/sweeper/sampler: nsgaii
@@ -24,19 +26,19 @@ hydra:
     # # FULL RANGE
     # n_trials: 100
     # search_space:
-    #   validation_module.min_confidence_confirmation:
+    #   inspection.min_confidence_confirmation:
     #     type: float
     #     low: 0.0
     #     high: 1.0
-    #   validation_module.min_confidence_refutation:
+    #   inspection.min_confidence_refutation:
     #     type: float
     #     low: 0.0
     #     high: 1.0
-    #   validation_module.min_frac_confirmation:
+    #   inspection.min_frac_confirmation:
     #     type: float
     #     low: 0.0
     #     high: 1.0
-    #   validation_module.min_frac_refutation:
+    #   inspection.min_frac_refutation:
     #     type: float
     #     low: 0.0
     #     high: 1.0
@@ -44,19 +46,19 @@ hydra:
     # NARROW RANGE - based on first results of full range HPO
     n_trials: 40
     search_space:
-      validation_module.min_confidence_confirmation:
+      inspection.min_confidence_confirmation:
         type: float
         low: 0.10
         high: 0.8
-      validation_module.min_confidence_refutation:
+      inspection.min_confidence_refutation:
         type: float
         low: 0.7
         high: 0.9
-      validation_module.min_frac_confirmation:
+      inspection.min_frac_confirmation:
         type: float
         low: 0.7
         high: 0.95
-      validation_module.min_frac_refutation:
+      inspection.min_frac_refutation:
         type: float
         low: 0.45
         high: 0.75
