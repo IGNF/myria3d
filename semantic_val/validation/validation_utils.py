@@ -1,6 +1,7 @@
 # TODO: rename validation_utils into "decision"
 
 from enum import Enum
+from typing import List
 
 import geopandas
 import laspy
@@ -16,9 +17,15 @@ from semantic_val.callbacks.predictions_callbacks import ChannelNames
 
 log = utils.get_logger(__name__)
 
+MTS_AUTO_DETECTED_CODE = 6
+# which was splitted into...
+MTS_TRUE_POSITIVE_CODE_LIST = [19]
+MTS_FALSE_POSITIVE_CODE_LIST = [20, 110, 112, 114, 115]
 
-MTS_TRUE_POSITIVE_CODE = [19]
-MTS_FALSE_POSITIVE_CODE = [20, 110, 112, 114, 115]
+MTS_FALSE_NEGATIVE_CODE_LIST = [21]
+
+CONFIRMED_BUILDING_CODE = 19
+DEFAULT_CODE = 1  # TODO: check that 1 is the "default" class
 
 POINT_BUFFER_FOR_UNION = 0.5
 CLOSURE_BUFFER = 0.80
@@ -81,18 +88,20 @@ DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
 # 2) Set the TruePositive flag, only useful for post-correction files...
 def load_geodf_of_candidate_building_points(
     las_filepath: str,
+    candidates_buildings_codes: List[int] = MTS_TRUE_POSITIVE_CODE_LIST
+    + MTS_FALSE_POSITIVE_CODE_LIST,
 ) -> GeoDataFrame:
     """
     Load a las that went through correction and was predicted by trained model.
     Focus on points that were detected as building (keep_classes).
     """
-    log.info("Loading LAS.")
+    log.info("Loading LAS to get candidate points.")
     las = laspy.read(las_filepath)
 
-    candidate_building_points_idx = np.isin(
-        las.classification, MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE
+    candidate_building_points_mask = np.isin(
+        las.classification, candidates_buildings_codes
     )
-    las.points = las[candidate_building_points_idx]
+    las.points = las[candidate_building_points_mask]
 
     no_candidate_building_points = len(las.points) == 0
     if no_candidate_building_points:
@@ -100,6 +109,7 @@ def load_geodf_of_candidate_building_points(
 
     # TODO: abstract classification somewhere as a constant
     keep_cols = [CLASSIFICATION_CHANNEL_NAME, ChannelNames.BuildingsProba.value]
+    candidate_building_points_idx = candidate_building_points_mask.nonzero()[0]
     data = [candidate_building_points_idx] + [las[c] for c in keep_cols]
     data = np.array(data).transpose()
     columns = [POINT_IDX_COLNAME] + keep_cols
@@ -112,7 +122,7 @@ def load_geodf_of_candidate_building_points(
     las_gdf = GeoDataFrame(lidar_df, crs=SHARED_CRS, geometry=geometry)
 
     las_gdf[TRUE_POSITIVES_COLNAME] = las_gdf.classification.apply(
-        lambda x: 1 * (x in MTS_TRUE_POSITIVE_CODE)
+        lambda x: 1 * (x in MTS_TRUE_POSITIVE_CODE_LIST)
     )
     # TODO: add POINT_IDX_COLNAME to get back to the las
 
@@ -156,15 +166,37 @@ def get_inspection_gdf(
     return df_inspection
 
 
-def update_las_with_decisions(points_gdf, df_inspection):
+def reset_classification(classification: np.array):
+    """
+    Set the classification to pre-correction codes. This is not needed for production.
+    FP+TP -> set to auto-detected code
+    FN -> set to background code
+    """
+    candidate_building_points_mask = np.isin(
+        classification, MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
+    )
+    classification[candidate_building_points_mask] = MTS_AUTO_DETECTED_CODE
+    forgotten_buillding_points_mask = np.isin(
+        classification, MTS_FALSE_NEGATIVE_CODE_LIST
+    )
+    classification[forgotten_buillding_points_mask] = DEFAULT_CODE
+    return classification
+
+
+def update_las_with_decisions(las, df_inspection):
     """Update point cloud classification channel, and save to specified path."""
-
-    # Pour chaque shape,
-    # IA_DECISION = C
-    # use POINT_IDX_COLNAME to get index and set code for confirmed buildings.
-    #
-
-    return points_gdf
+    for _, row in df_inspection.copy().iterrows():
+        ia_decision = row[ShapeFileCols.IA_DECISION.value]
+        points_idx = np.array(row[POINT_IDX_COLNAME], dtype=int)
+        if ia_decision == DecisionLabels.UNSURE.value:
+            continue
+        elif ia_decision == DecisionLabels.BUILDING.value:
+            las[CLASSIFICATION_CHANNEL_NAME][points_idx] = CONFIRMED_BUILDING_CODE
+        elif ia_decision == DecisionLabels.NOT_BUILDING.value:
+            las[CLASSIFICATION_CHANNEL_NAME][points_idx] = DEFAULT_CODE
+        else:
+            raise KeyError(f"Unexpected IA decision: {ia_decision}")
+    return las
 
 
 def get_unique_geometry_from_points(lidar_geodf):

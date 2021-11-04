@@ -1,5 +1,6 @@
 import os
 from typing import List, Optional
+import laspy
 
 from omegaconf import DictConfig
 from pytorch_lightning import seed_everything
@@ -12,6 +13,7 @@ from semantic_val.validation.validation_utils import (
     change_filepath_suffix,
     get_inspection_gdf,
     load_geodf_of_candidate_building_points,
+    reset_classification,
     update_las_with_decisions,
 )
 from semantic_val.utils import utils
@@ -35,10 +37,11 @@ def decide(config: DictConfig) -> Optional[float]:
 
     las_filepath = glob.glob(osp.join(config.inspection.predicted_las_dirpath, "*.las"))
     inspection_shp_all_path = osp.join(
-        os.getcwd(), config.inspection.inspection_shapefile_name.format("all")
+        os.getcwd(), config.inspection.inspection_shapefile_name.format(subset="all")
     )
     inspection_shp_unsure_path = osp.join(
-        os.getcwd(), config.inspection.inspection_shapefile_name.format("unsure")
+        os.getcwd(),
+        config.inspection.inspection_shapefile_name.format(subset="unsure"),
     )
     pts_level_info_csv_path = change_filepath_suffix(
         inspection_shp_all_path, ".shp", ".csv"
@@ -73,22 +76,24 @@ def decide(config: DictConfig) -> Optional[float]:
 
         keep = [item.value for item in ShapeFileCols] + ["geometry"]
         shp_inspection_all = gdf_inspection[keep]
-        shp_inspection_all.to_file(
-            inspection_shp_all_path, mode=mode, index=False, header=header
-        )
-
-        if config.inspection.update_las:
-            points_gdf = update_las_with_decisions(points_gdf, gdf_inspection)
-            out_dir = osp.dirname(config.inspection.comparison_shapefile_path)
-            out_name = osp.basename(las_filepath)
-            out_path = osp.join(out_dir, "las", out_name)
-            points_gdf.write(out_path)
-
+        shp_inspection_all.to_file(inspection_shp_all_path, mode=mode)
         shp_inspection_unsure = shp_inspection_all[
             shp_inspection_all[ShapeFileCols.IA_DECISION.value]
             == DecisionLabels.UNSURE.value
         ]
-        shp_inspection_unsure.to_file(
-            inspection_shp_unsure_path, mode=mode, index=False, header=header
-        )
+        shp_inspection_unsure.to_file(inspection_shp_unsure_path, mode=mode)
+
+        if config.inspection.update_las or True:  # TRUE for DEBUG ONLY
+            log.info("Loading LAS to update candidate points.")
+            las = laspy.read(las_filepath)
+            las.classification = reset_classification(las.classification)
+            points_gdf = update_las_with_decisions(las, gdf_inspection)
+            out_dir = osp.dirname(inspection_shp_unsure_path)
+            out_dir = osp.join(out_dir, "las")
+            os.makedirs(out_dir, exist_ok=True)
+            out_name = osp.basename(las_filepath)
+            out_path = osp.join(out_dir, out_name)
+            points_gdf.write(out_path)
+            log.info(f"Saved updated LAS to {out_path}")
+
     log.info(f"Output inspection shapefile is {inspection_shp_unsure_path}")

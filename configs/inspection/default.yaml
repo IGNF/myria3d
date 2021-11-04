@@ -1,6 +1,6 @@
 # DECIDE
 predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}
-inspection_shapefile_name: "inspection_{content}.shp"
+inspection_shapefile_name: "inspection_{subset}.shp"
 # "${oc.env:DATASET_DIR}/logs/runs/${oc.env:INSPECTION_SHAPEFILE_FOR_TUNING}/${inspection.inspection_shapefile_name}"
 update_las: false  # memory intensive
 
