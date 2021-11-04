@@ -6,6 +6,7 @@ from semantic_val.utils import utils
 from semantic_val.validation.validation_utils import (
     MetricsNames,
     change_filepath_suffix,
+    derive_shape_ground_truths,
     derive_shape_indicators,
     make_decisions,
     evaluate_decisions,
@@ -33,24 +34,25 @@ def tune(config: DictConfig) -> Tuple[float]:
     )
     log.debug(f"Evaluation of inspection using: {pts_level_info_csv_path}")
 
-    df = pd.read_csv(
+    points_gdf = pd.read_csv(
         pts_level_info_csv_path,
         converters={
             ChannelNames.BuildingsProba.value: eval,
             TRUE_POSITIVES_COLNAME: eval,
         },
     )
-    df = derive_shape_indicators(
-        df,
+    points_gdf = derive_shape_ground_truths(points_gdf)
+    points_gdf = derive_shape_indicators(
+        points_gdf,
         min_confidence_confirmation=config.inspection.min_confidence_confirmation,
         min_confidence_refutation=config.inspection.min_confidence_refutation,
     )
-    df = make_decisions(
-        gdf=df,
+    points_gdf = make_decisions(
+        gdf=points_gdf,
         min_frac_confirmation=config.inspection.min_frac_confirmation,
         min_frac_refutation=config.inspection.min_frac_refutation,
     )
-    metrics_dict = evaluate_decisions(df)
+    metrics_dict = evaluate_decisions(points_gdf)
 
     PA = metrics_dict[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value]
     CA = metrics_dict[MetricsNames.CONFIRMATION_ACCURACY.value]

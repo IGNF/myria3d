@@ -1,3 +1,5 @@
+# TODO: rename validation_utils into "decision"
+
 from enum import Enum
 
 import geopandas
@@ -73,42 +75,6 @@ DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
 
 # Functions
 
-
-def get_inspection_shapefile(
-    points_gdf: laspy.LasData,
-    min_frac_confirmation: float = 0.05,
-    min_frac_refutation: float = 1.0,
-    min_confidence_confirmation: float = 0.5,
-    min_confidence_refutation: float = 0.5,
-):
-    """From a predicted LAS, returns 1) inspection geoDataFrame and 2) inspection csv with point-level info, for thresholds optimization."""
-
-    shapes_gdf = vectorize(points_gdf)
-    no_candidate_buildings_shape = len(shapes_gdf) == 0
-    if no_candidate_buildings_shape:
-        return None
-
-    log.info("Group points by shape")
-    points_gdf = agg_pts_info_by_shape(shapes_gdf, points_gdf)
-
-    log.info("Derive shape-level indicators.")
-    points_gdf = derive_shape_indicators(
-        points_gdf,
-        min_confidence_confirmation=min_confidence_confirmation,
-        min_confidence_refutation=min_confidence_refutation,
-    )
-
-    log.info("Confirm or refute each candidate building if enough confidence.")
-    points_gdf = make_decisions(
-        points_gdf,
-        min_frac_confirmation=min_frac_confirmation,
-        min_frac_refutation=min_frac_refutation,
-    )
-
-    df_out = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="left")
-    return df_out
-
-
 # NOTE: this could be splited into
 # 1) Load predicted LAS and focus on subselection : MTS_TRUE_POSITIVE_CODE + MTS_FALSE_POSITIVE_CODE by default
 # and Turn it into a geodataframe
@@ -152,6 +118,51 @@ def load_geodf_of_candidate_building_points(
 
     del las_gdf[CLASSIFICATION_CHANNEL_NAME]
     return las_gdf
+
+
+def get_inspection_gdf(
+    points_gdf: laspy.LasData,
+    min_frac_confirmation: float = 0.05,
+    min_frac_refutation: float = 1.0,
+    min_confidence_confirmation: float = 0.5,
+    min_confidence_refutation: float = 0.5,
+):
+    """From a predicted LAS, returns 1) inspection geoDataFrame and 2) inspection csv with point-level info, for thresholds optimization."""
+
+    shapes_gdf = vectorize(points_gdf)
+    no_candidate_buildings_shape = len(shapes_gdf) == 0
+    if no_candidate_buildings_shape:
+        return None
+
+    log.info("Group points by shape")
+    points_gdf = agg_pts_info_by_shape(shapes_gdf, points_gdf)
+
+    log.info("Derive shape-level indicators.")
+    points_gdf = derive_shape_ground_truths(points_gdf)
+    points_gdf = derive_shape_indicators(
+        points_gdf,
+        min_confidence_confirmation=min_confidence_confirmation,
+        min_confidence_refutation=min_confidence_refutation,
+    )
+
+    log.info("Confirm or refute each candidate building if enough confidence.")
+    points_gdf = make_decisions(
+        points_gdf,
+        min_frac_confirmation=min_frac_confirmation,
+        min_frac_refutation=min_frac_refutation,
+    )
+
+    df_inspection = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="left")
+    return df_inspection
+
+
+def update_las_with_decisions(points_gdf, df_inspection):
+    """Update point cloud classification channel, and save to specified path."""
+
+    # Pour chaque shape,
+    # IA_DECISION = C
+    # use POINT_IDX_COLNAME to get index and set code for confirmed buildings.
+    #
 
 
 def get_unique_geometry_from_points(lidar_geodf):
@@ -213,6 +224,10 @@ def derive_shape_indicators(
     min_confidence_refutation: float = 0.5,
 ):
     """Derive raw shape level info from ground truths (TruePositive) and predictions (BuildingsProba)"""
+    # METAINFO - Optionnal
+    gdf = set_num_pts_col(gdf)
+    gdf = set_mean_proba_col(gdf)
+
     # POINTS-LEVEL DECISIONS
     gdf = set_frac_confirmed_building_col(
         gdf, min_confidence_confirmation=min_confidence_confirmation
@@ -220,9 +235,12 @@ def derive_shape_indicators(
     gdf = set_frac_refuted_building_col(
         gdf, min_confidence_refutation=min_confidence_refutation
     )
-    # METAINFO
-    gdf = set_num_pts_col(gdf)
-    gdf = set_mean_proba_col(gdf)
+
+    return gdf
+
+
+def derive_shape_ground_truths(gdf):
+    """derive ground truth related info and flags."""
     # GROUND TRUTHS INFO
     gdf = set_frac_false_positive_col(gdf)
     gdf = set_MTS_ground_truth_flag(gdf)
