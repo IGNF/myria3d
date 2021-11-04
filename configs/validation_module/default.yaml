@@ -1,12 +1,12 @@
-# MAKE COMPARISONS
-
+# DECIDE
 post_correction_shapefile: ${oc.env:POST_CORRECTION_SHAPEFILE}
 predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}
-operationnal_output_shapefile_name: "contrasted_predictions.shp" 
+operationnal_output_shapefile_name: "inspection_shapefile.shp" 
 
 
-# EVALUATE COMPARISONS
+# EVALUATE
 comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/${oc.env:SHAPEFILE_VERSION_TO_TUNE}/${validation_module.operationnal_output_shapefile_name}"
+
 minimal_confirmation_accuracy_threshold: 0.9
 minimal_refutation_accuracy_threshold: 0.9
 # Comparison paramers

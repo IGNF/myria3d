@@ -173,7 +173,7 @@ def get_splitted_SemValBuildings202110(df, train_frac=0.8):
     tesval_n = int((1 - train_frac) * len(df_to_split))
     train_n = len(df_to_split) - tesval_n
 
-    train, val, test = train, validate, test = np.split(
+    train, val, test = np.split(
         df_to_split.sample(frac=1, random_state=0),
         [train_n + 1, train_n + int(tesval_n / 2) + 1],
     )
@@ -185,7 +185,7 @@ def get_splitted_SemValBuildings202110(df, train_frac=0.8):
     df_to_split = df[df.layer == "forca_polygo"]
     tesval_n = int((1 - train_frac) * len(df_to_split))
     train_n = len(df_to_split) - tesval_n
-    train, val, test = train, validate, test = np.split(
+    train, val, test = np.split(
         df_to_split.sample(frac=1, random_state=0),
         [train_n, train_n + int(tesval_n / 2)],
     )

@@ -29,9 +29,9 @@ def tune(config: DictConfig) -> Tuple[float]:
         seed_everything(config.seed, workers=True)
 
     pts_level_info_csv_path = change_filepath_suffix(
-        config.validation_module.comparison_shapefile_path
+        config.validation_module.comparison_shapefile_path, ".shp", ".csv"
     )
-    log.debug(f"Evaluation of inspection - {pts_level_info_csv_path}")
+    log.debug(f"Evaluation of inspection using: {pts_level_info_csv_path}")
 
     df = pd.read_csv(
         pts_level_info_csv_path,

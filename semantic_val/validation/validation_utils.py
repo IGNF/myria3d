@@ -54,7 +54,7 @@ class MetricsNames(Enum):
     # Constraints:
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
-    # Metainfo to evaluate absolute gain and what rests to validate post-module
+    # Metainfo to evaluate absolute gain and what is still to inspect
     NET_GAIN_CONFIRMATION = "NG_CONFIRM"
     NET_GAIN_REFUTATION = "NG_REFUTE"
 
@@ -407,9 +407,7 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     return metrics_dict
 
 
-def change_filepath_suffix(
-    origin_filepath, origin_suffix: str = ".shp", target_suffix: str = ".csv"
-):
+def change_filepath_suffix(origin_filepath, origin_suffix: str, target_suffix: str):
     """Change a filepath suffix."""
     assert origin_filepath.endswith(".shp")
     target_filepath = origin_filepath.replace(origin_suffix, target_suffix)
