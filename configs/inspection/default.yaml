@@ -1,12 +1,13 @@
 # DECIDE
 predicted_las_dirpath: ${oc.env:PREDICTED_LAS_DIRPATH}
-operationnal_output_shapefile_name: "inspection_shapefile.shp" 
+inspection_shapefile_name: "inspection_{content}.shp"
+# "${oc.env:DATASET_DIR}/logs/runs/${oc.env:INSPECTION_SHAPEFILE_FOR_TUNING}/${inspection.inspection_shapefile_name}"
+update_las: false  # memory intensive
 
-# EVALUATE
-comparison_shapefile_path: "${oc.env:DATASET_DIR}/logs/runs/${oc.env:SHAPEFILE_VERSION_TO_TUNE}/${inspection.operationnal_output_shapefile_name}"
 
-minimal_confirmation_accuracy_threshold: 0.9
-minimal_refutation_accuracy_threshold: 0.9
+# OPTIMIZE
+comparison_shapefile_path: "${oc.env:INSPECTION_SHAPEFILE_FOR_OPTIMIZATION}"
+
 # Comparison paramers
 # could be increased to demand higher proba  of being building for confirmation
 min_confidence_confirmation: 0.530670228606621

@@ -164,6 +164,8 @@ def update_las_with_decisions(points_gdf, df_inspection):
     # use POINT_IDX_COLNAME to get index and set code for confirmed buildings.
     #
 
+    return points_gdf
+
 
 def get_unique_geometry_from_points(lidar_geodf):
     """Buffer all points to merge thoses within 2 * buffer from one another."""

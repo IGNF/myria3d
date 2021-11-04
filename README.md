@@ -66,7 +66,7 @@ Make decisions and produce an inspection shapefile from predictions
 
 python run.py task=decide
 ```
-Then, update variable `SHAPEFILE_VERSION_TO_TUNE` in [`.env`](.env) with the path to the inspection shapefile.
+Then, update variable `INSPECTION_SHAPEFILE_FOR_OPTIMIZATION` in [`.env`](.env) with the path to the inspection shapefile.
 
 Run a multi-objectives optimization of decision threshold
 ```yaml

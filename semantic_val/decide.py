@@ -7,6 +7,7 @@ import glob
 import os.path as osp
 from tqdm import tqdm
 from semantic_val.validation.validation_utils import (
+    DecisionLabels,
     ShapeFileCols,
     change_filepath_suffix,
     get_inspection_gdf,
@@ -33,9 +34,14 @@ def decide(config: DictConfig) -> Optional[float]:
     log.info(f"Logging directory: {os.getcwd()}")
 
     las_filepath = glob.glob(osp.join(config.inspection.predicted_las_dirpath, "*.las"))
-    inspection_shp_path = config.inspection.comparison_shapefile_path
+    inspection_shp_all_path = osp.join(
+        os.getcwd(), config.inspection.inspection_shapefile_name.format("all")
+    )
+    inspection_shp_unsure_path = osp.join(
+        os.getcwd(), config.inspection.inspection_shapefile_name.format("unsure")
+    )
     pts_level_info_csv_path = change_filepath_suffix(
-        inspection_shp_path, ".shp", ".csv"
+        inspection_shp_all_path, ".shp", ".csv"
     )
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
@@ -66,11 +72,23 @@ def decide(config: DictConfig) -> Optional[float]:
         )
 
         keep = [item.value for item in ShapeFileCols] + ["geometry"]
-        shp_inspection = gdf_inspection[keep]
-        shp_inspection.to_file(
-            inspection_shp_path, mode=mode, index=False, header=header
+        shp_inspection_all = gdf_inspection[keep]
+        shp_inspection_all.to_file(
+            inspection_shp_all_path, mode=mode, index=False, header=header
         )
 
-        update_las_with_decisions(points_gdf, gdf_inspection)
+        if config.inspection.update_las:
+            points_gdf = update_las_with_decisions(points_gdf, gdf_inspection)
+            out_dir = osp.dirname(config.inspection.comparison_shapefile_path)
+            out_name = osp.basename(las_filepath)
+            out_path = osp.join(out_dir, "las", out_name)
+            points_gdf.write(out_path)
 
-    log.info(f"Output shapefile is in {inspection_shp_path}")
+        shp_inspection_unsure = shp_inspection_all[
+            shp_inspection_all[ShapeFileCols.IA_DECISION.value]
+            == DecisionLabels.UNSURE.value
+        ]
+        shp_inspection_unsure.to_file(
+            inspection_shp_unsure_path, mode=mode, index=False, header=header
+        )
+    log.info(f"Output inspection shapefile is {inspection_shp_unsure_path}")
