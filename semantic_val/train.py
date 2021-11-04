@@ -85,7 +85,7 @@ def train(config: DictConfig) -> Optional[float]:
 
     if config.get("test_the_model") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
-        if not trainer.resume_from_checkpoint:
+        if not trainer.resume_from_checkpoint or config.get("fit_the_model"):
             trainer.test()
         else:
             model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
