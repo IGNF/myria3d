@@ -1,61 +1,25 @@
 # @package _global_
 
-# example hyperparameter optimization of some experiment with Optuna:
-# python run.py -m hparams_search=mnist_optuna experiment=example_simple
-# python run.py -m hparams_search=mnist_optuna experiment=example_simple hydra.sweeper.n_trials=30
-# python run.py -m hparams_search=mnist_optuna experiment=example_simple logger=wandb
+# Multi-objective optimization: on PA, RA and CA (Proportion of Automatization + Refutation/Confirmation Accuracy)
+# Run with something like:
+# python run.py -m task=tune hparams_search=thresholds_3_objectives hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 print_config=false
 
 defaults:
   - override /hydra/sweeper: optuna
   - override /hydra/sweeper/sampler: nsgaii
 hydra:
-  # here we define Optuna hyperparameter search
-  # it optimizes for value returned from function with @hydra.main decorator
-  # learn more here: https://hydra.cc/docs/next/plugins/optuna_sweeper
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     storage: null
     study_name: thresholds_multiobjective
     n_jobs: 5
-
-    # 'minimize' or 'maximize' the objective
     direction: [maximize, maximize, maximize]
-
-    # number of experiments that will be executed
 
     # choose Optuna hyperparameter sampler
     # learn more here: https://optuna.readthedocs.io/en/stable/reference/samplers.html
     sampler:
       _target_: optuna.samplers.NSGAIISampler
       seed: 12345
-      # consider_prior: true
-      # prior_weight: 1.0
-      # consider_magic_clip: true
-      # consider_endpoints: false
-      # n_startup_trials: 10
-      # n_ei_candidates: 24
-      # multivariate: true
-      # warn_independent_sampling: true
-
-    # NARROW RANGE
-    n_trials: 40
-    search_space:
-      validation_module.min_confidence_confirmation:
-        type: float
-        low: 0.10
-        high: 0.8
-      validation_module.min_confidence_refutation:
-        type: float
-        low: 0.7
-        high: 0.9
-      validation_module.min_frac_confirmation:
-        type: float
-        low: 0.7
-        high: 0.95
-      validation_module.min_frac_refutation:
-        type: float
-        low: 0.45
-        high: 0.75
 
     # # FULL RANGE
     # n_trials: 100
@@ -76,3 +40,24 @@ hydra:
     #     type: float
     #     low: 0.0
     #     high: 1.0
+
+    # NARROW RANGE - based on first results of full range HPO
+    n_trials: 40
+    search_space:
+      validation_module.min_confidence_confirmation:
+        type: float
+        low: 0.10
+        high: 0.8
+      validation_module.min_confidence_refutation:
+        type: float
+        low: 0.7
+        high: 0.9
+      validation_module.min_frac_confirmation:
+        type: float
+        low: 0.7
+        high: 0.95
+      validation_module.min_frac_refutation:
+        type: float
+        low: 0.45
+        high: 0.75
+
