@@ -15,7 +15,7 @@
 A fast and sensitive semantic segmentation of High Density Lidar data was performed with geometric rule-based algorithm to identify buildings. It yielded a high number of false positive. Around 160km² of Lidar data was thoroughly inspected to identify false positive and false negative. At larger scale, this kind of human inspection would be intractable.
 
 ### Objective
-We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings points obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected. Inspection is facilitated thorugh the production of an inspection shapefile in order to efficiently select and validate (or invalidate) candidate building points.
+We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings points obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected. Inspection is facilitated through the production of an inspection shapefile in order to efficiently select and validate (or invalidate) candidate building points.
 
 ### Content
 
