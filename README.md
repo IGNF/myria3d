@@ -22,13 +22,16 @@ We train a semantic segmentation neural network to confirm or refute automatical
 1) Training and evaluating of the model
 2) Inference of a semantic segmentation
 3) validation module decision process:
-  a) Vectorization from candidate buildings points into candidate building shapes
-  b) Decision:
-    i) Confirmation, if the proportion of "confirmed" points within a candidate building shape is sufficient.
-    ii) Refutation, if the proportion of "refuted" points within a candidate building shape is sufficient.
-    iii) Uncertainty, elsewise: candidate building shapes are still identified for faster human inspection.
-  c) Update of the point cloud based on those decisions [To be done]
+    1) Vectorization from candidate buildings points into candidate building shapes
+    2) Decision:
+        1) Confirmation, if the proportion of "confirmed" points within a candidate building shape is sufficient.
+        2) Refutation, if the proportion of "refuted" points within a candidate building shape is sufficient.
+        3) Uncertainty, elsewise: candidate building shapes are still identified for faster human inspection.
+    3) Update of the point cloud based on those decisions
+
 4) Multiobjective hyperparameter Optimization of the decision process (point-level and shape-level thresholds) to maximize decision accuracy and automation.
+
+Current inspection shapefile might look like this:
 
 ## How to run
 Install dependencies
