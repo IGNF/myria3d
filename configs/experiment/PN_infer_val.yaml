@@ -17,6 +17,7 @@ defaults:
 
 seed: 12345
 
+# These needs to be override nt 
 fit_the_model: false
 test_the_model: true
 

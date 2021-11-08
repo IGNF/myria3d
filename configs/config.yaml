@@ -23,6 +23,8 @@ defaults:
 
 # Task at hand. Can be train, decide, or tune  
 task: train
+fit_the_model: true
+test_the_model: false
 
 # path to original working directory
 # hydra hijacks working directory by changing it to the current log directory,
@@ -45,6 +47,3 @@ print_config: True
 
 # disable python warnings if they annoy you
 ignore_warnings: True
-
-fit_the_model: true
-test_the_model: False
