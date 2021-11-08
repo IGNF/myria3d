@@ -13,6 +13,6 @@ subtile_width_meters: 50
 subtile_overlap: 0
 
 limit_top_k_tiles_train: None  # if defined, use top-n clouds in terms of % building points
-num_workers: 12
+num_workers: 3
 shuffle_train: true
 
