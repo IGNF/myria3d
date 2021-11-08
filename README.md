@@ -15,20 +15,23 @@
 A fast and sensitive semantic segmentation of High Density Lidar data was performed with geometric rule-based algorithm to identify buildings. It yielded a high number of false positive. Around 160km² of Lidar data was thoroughly inspected to identify false positive and false negative. At larger scale, this kind of human inspection would be intractable.
 
 ### Objective
-We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings points obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected. Inspection is facilitated thorugh the production of an inspection shapefile in order to efficiently select and validate (or invalidate) candidate building points.
+We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings points obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected. Inspection is facilitated through the production of an inspection shapefile in order to efficiently select and validate (or invalidate) candidate building points.
 
 ### Content
 
 1) Training and evaluating of the model
 2) Inference of a semantic segmentation
 3) validation module decision process:
-  a) Vectorization from candidate buildings points into candidate building shapes
-  b) Decision:
-    i) Confirmation, if the proportion of "confirmed" points within a candidate building shape is sufficient.
-    ii) Refutation, if the proportion of "refuted" points within a candidate building shape is sufficient.
-    iii) Uncertainty, elsewise: candidate building shapes are still identified for faster human inspection.
-  c) Update of the point cloud based on those decisions [To be done]
+    1) Vectorization from candidate buildings points into candidate building shapes
+    2) Decision:
+        1) Confirmation, if the proportion of "confirmed" points within a candidate building shape is sufficient.
+        2) Refutation, if the proportion of "refuted" points within a candidate building shape is sufficient.
+        3) Uncertainty, elsewise: candidate building shapes are still identified for faster human inspection.
+    3) Update of the point cloud based on those decisions
+
 4) Multiobjective hyperparameter Optimization of the decision process (point-level and shape-level thresholds) to maximize decision accuracy and automation.
+
+Current inspection shapefile might look like this:
 
 ## How to run
 Install dependencies
