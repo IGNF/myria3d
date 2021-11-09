@@ -7,6 +7,7 @@ metadata_shapefile: ${metadata_shapefile}
 train_subtiles_by_tile: 2
 batch_size: 2 # set equal to train_subtiles_by_tile when overfitting.
 subtile_width_meters: 100
+subsample_size: 12500
 subtile_overlap: 0
 num_workers: 0
 shuffle_train: false

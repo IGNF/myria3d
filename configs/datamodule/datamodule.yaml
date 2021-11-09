@@ -8,7 +8,7 @@ train_subtiles_by_tile: 12
 batch_size: 32
 
 augment: false
-subsample_size: 25000
+subsample_size: 12500
 subtile_width_meters: 50
 subtile_overlap: 0
 
