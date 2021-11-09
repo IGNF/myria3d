@@ -36,8 +36,8 @@ def decide(config: DictConfig) -> Optional[float]:
     log.info(f"Logging directory: {os.getcwd()}")
 
     las_filepath = glob.glob(osp.join(config.inspection.predicted_las_dirpath, "*.las"))
-    shp_path = osp.join(os.getcwd(), "inspection_shapefiles")
-    os.makedirs(osp.dirname(shp_path), exist_ok=True)
+    shp_path = osp.join(os.getcwd(), "inspection_shapefiles/")
+    os.makedirs(shp_path, exist_ok=True)
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
         points_gdf = load_geodf_of_candidate_building_points(las_filepath)
