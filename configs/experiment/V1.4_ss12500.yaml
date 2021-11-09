@@ -14,12 +14,16 @@ hydra:
 fit_the_model: true
 test_the_model: false
 
+logger:
+  comet:
+    experiment_name: "V1.4+ss12500"
+
 trainer:
   num_sanity_val_steps: 1
   log_every_n_steps: 1
   min_epochs: 1
   max_epochs: 500
-  check_val_every_n_epoch: 5
+  check_val_every_n_epoch: 2
   gpus: 0
 
 model:
@@ -40,5 +44,5 @@ datamodule:
   train_subtiles_by_tile: 12 # Large to have single tile chosen.
   batch_size: 32 # Large possible for faster training.
   subtile_width_meters: 50
-  subsample_size: 25000  # Aim for at least 10pts/m²
+  subsample_size: 12500  # Aim for at least 10pts/m²
   subtile_overlap: 0
