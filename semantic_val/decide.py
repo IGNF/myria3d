@@ -36,16 +36,8 @@ def decide(config: DictConfig) -> Optional[float]:
     log.info(f"Logging directory: {os.getcwd()}")
 
     las_filepath = glob.glob(osp.join(config.inspection.predicted_las_dirpath, "*.las"))
-    inspection_shp_all_path = osp.join(
-        os.getcwd(), config.inspection.inspection_shapefile_name.format(subset="all")
-    )
-    inspection_shp_unsure_path = osp.join(
-        os.getcwd(),
-        config.inspection.inspection_shapefile_name.format(subset="unsure"),
-    )
-    pts_level_info_csv_path = change_filepath_suffix(
-        inspection_shp_all_path, ".shp", ".csv"
-    )
+    shp_path = osp.join(os.getcwd(), "inspection_shapefiles")
+    os.makedirs(osp.dirname(shp_path), exist_ok=True)
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
         points_gdf = load_geodf_of_candidate_building_points(las_filepath)
@@ -67,28 +59,37 @@ def decide(config: DictConfig) -> Optional[float]:
             )
             continue
 
-        mode = "w" if not osp.isfile(pts_level_info_csv_path) else "a"
+        shp_all_path = osp.join(
+            shp_path, config.inspection.inspection_shapefile_name.format(subset="all")
+        )
+        csv_path = change_filepath_suffix(shp_all_path, ".shp", ".csv")
+        mode = "w" if not osp.isfile(csv_path) else "a"
         header = True if mode == "w" else False
 
-        gdf_inspection.to_csv(
-            pts_level_info_csv_path, mode=mode, index=False, header=header
-        )
+        gdf_inspection.to_csv(csv_path, mode=mode, index=False, header=header)
 
         keep = [item.value for item in ShapeFileCols] + ["geometry"]
-        shp_inspection_all = gdf_inspection[keep]
-        shp_inspection_all.to_file(inspection_shp_all_path, mode=mode)
-        shp_inspection_unsure = shp_inspection_all[
-            shp_inspection_all[ShapeFileCols.IA_DECISION.value]
-            == DecisionLabels.UNSURE.value
-        ]
-        shp_inspection_unsure.to_file(inspection_shp_unsure_path, mode=mode)
+        shp_decisions = gdf_inspection[keep]
+        shp_decisions.to_file(shp_all_path, mode=mode)
+
+        for decision in DecisionLabels:
+            subset_path = osp.join(
+                os.getcwd(),
+                config.inspection.inspection_shapefile_name.format(
+                    subset=decision.value
+                ),
+            )
+            shp_subset = shp_decisions[
+                shp_decisions[ShapeFileCols.IA_DECISION.value] == decision.value
+            ]
+            shp_subset.to_file(subset_path, mode=mode)
 
         if config.inspection.update_las:
-            log.info("Loading LAS to update candidate points.")
+            log.info("Loading LAS agin to update candidate points.")
             las = laspy.read(las_filepath)
             las.classification = reset_classification(las.classification)
             points_gdf = update_las_with_decisions(las, gdf_inspection)
-            out_dir = osp.dirname(inspection_shp_unsure_path)
+            out_dir = osp.dirname(shp_all_path)
             out_dir = osp.join(out_dir, "las")
             os.makedirs(out_dir, exist_ok=True)
             out_name = osp.basename(las_filepath)
@@ -96,4 +97,4 @@ def decide(config: DictConfig) -> Optional[float]:
             points_gdf.write(out_path)
             log.info(f"Saved updated LAS to {out_path}")
 
-    log.info(f"Output inspection shapefile is {inspection_shp_unsure_path}")
+    log.info(f"Output inspection shapefile is {shp_all_path}")
