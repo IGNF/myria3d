@@ -74,7 +74,7 @@ def decide(config: DictConfig) -> Optional[float]:
 
         for decision in DecisionLabels:
             subset_path = osp.join(
-                os.getcwd(),
+                shp_path,
                 config.inspection.inspection_shapefile_name.format(
                     subset=decision.value
                 ),
