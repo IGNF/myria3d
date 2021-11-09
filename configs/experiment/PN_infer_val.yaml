@@ -50,7 +50,7 @@ model:
 datamodule:
   batch_size: 32
   subtile_width_meters: 50
-  subsample_size: 25000  # Aim for at least 10pts/m²
+  subsample_size: 12500  # Aim for at least 10pts/m²
   subtile_overlap: 0
   num_workers: 1
   shuffle_train: false
