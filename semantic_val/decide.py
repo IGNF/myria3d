@@ -82,7 +82,8 @@ def decide(config: DictConfig) -> Optional[float]:
             shp_subset = shp_decisions[
                 shp_decisions[ShapeFileCols.IA_DECISION.value] == decision.value
             ]
-            shp_subset.to_file(subset_path, mode=mode)
+            if not shp_subset.empty:
+                shp_subset.to_file(subset_path, mode=mode)
 
         if config.inspection.update_las:
             log.info("Loading LAS agin to update candidate points.")
