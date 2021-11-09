@@ -83,7 +83,7 @@ def decide(config: DictConfig) -> Optional[float]:
         ]
         shp_inspection_unsure.to_file(inspection_shp_unsure_path, mode=mode)
 
-        if config.inspection.update_las or True:  # TRUE for DEBUG ONLY
+        if config.inspection.update_las:
             log.info("Loading LAS to update candidate points.")
             las = laspy.read(las_filepath)
             las.classification = reset_classification(las.classification)
