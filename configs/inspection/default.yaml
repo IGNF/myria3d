@@ -7,8 +7,10 @@ update_las: false  # memory intensive
 
 # OPTIMIZE
 comparison_shapefile_path: "${oc.env:INSPECTION_SHAPEFILE_FOR_OPTIMIZATION}"
-# metric_pair_maximize_minimize: ['PROPORTION_OF_CONFIRMATION','CONFIRMATION_ACCURACY']
-# metric_pair_maximize_minimize: ['PROPORTION_OF_REFUTATION', 'REFUTATION_ACCURACY']
+metric_pair_to_maximize: none  # override when running with:
+# +metric_pair_to_maximize=[CONFIRMATION_OF_REFUTATION,CONFIRMATION_ACCURACY]
+# or
+# +metric_pair_to_maximize=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
 
 # Comparison paramers
 # could be increased to demand higher proba  of being building for confirmation

@@ -53,16 +53,14 @@ def tune(config: DictConfig) -> Tuple[float]:
         min_frac_refutation=config.inspection.min_frac_refutation,
     )
     metrics_dict = evaluate_decisions(points_gdf)
-    assert len(config.inspection.metric_pair_maximize_minimize) == 2
+    assert len(config.inspection.metric_pair_to_maximize) == 2
     results = [
         metrics_dict[MetricsNames[metric_name].value]
-        for metric_name in config.inspection.metric_pair_maximize_minimize
+        for metric_name in config.inspection.metric_pair_to_maximize
     ]
     results_logs = "  |  ".join(
         f"{MetricsNames[name].value}={metric:.3}"
-        for metric, name in zip(
-            results, config.inspection.metric_pair_maximize_minimize
-        )
+        for metric, name in zip(results, config.inspection.metric_pair_to_maximize)
     )
     log.info(f"--------> {results_logs}")
     return results
