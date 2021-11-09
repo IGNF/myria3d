@@ -13,7 +13,7 @@ hydra:
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     storage: null
-    study_name: thresholds_2max
+    study_name: thresholds_2max_confirm
     n_jobs: 1
     direction: [maximize, maximize]
 
