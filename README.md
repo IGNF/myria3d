@@ -73,7 +73,9 @@ Then, update variable `INSPECTION_SHAPEFILE_FOR_OPTIMIZATION` in [`.env`](.env) 
 
 Run a multi-objectives optimization of decision threshold
 ```yaml
-python run.py -m task=tune hparams_search=thresholds_3_objectives hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100
+python run.py -m task=tune hparams_search=thresholds_2max_confirm hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100
+python run.py -m task=tune hparams_search=thresholds_2max_refute hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100
+
 ```
-The optimization maximizes three metrics: 1) proportion of automated decisions, 2) Refutation accuracy, and 3) Confirmation accuracy.
+The optimization maximizes two metrics: 1) proportion of automated decisions and 2) Decision accuracy, for the chosen decision (confirmation/refutation). 
 You can then check optimization results and choose a set of thresholds among the Pareto solutions, then rerun the production of the inspection shapefile with the parameters.
