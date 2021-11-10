@@ -83,6 +83,8 @@ def decide(config: DictConfig) -> Optional[float]:
                 shp_decisions[ShapeFileCols.IA_DECISION.value] == decision.value
             ]
             if not shp_subset.empty:
+                mode = "w" if not osp.isfile(subset_path) else "a"
+                header = True if mode == "w" else False
                 shp_subset.to_file(subset_path, mode=mode)
 
         if config.inspection.update_las:
