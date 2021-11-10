@@ -29,13 +29,13 @@ def tune(config: DictConfig) -> Tuple[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
 
-    pts_level_info_csv_path = change_filepath_suffix(
+    csv_path = change_filepath_suffix(
         config.inspection.comparison_shapefile_path, ".shp", ".csv"
     )
-    log.debug(f"Evaluation of inspection using: {pts_level_info_csv_path}")
+    log.debug(f"Evaluation of inspection using: {csv_path}")
 
     points_gdf = pd.read_csv(
-        pts_level_info_csv_path,
+        csv_path,
         converters={
             ChannelNames.BuildingsProba.value: eval,
             TRUE_POSITIVES_COLNAME: eval,
@@ -53,9 +53,14 @@ def tune(config: DictConfig) -> Tuple[float]:
         min_frac_refutation=config.inspection.min_frac_refutation,
     )
     metrics_dict = evaluate_decisions(points_gdf)
-
-    PA = metrics_dict[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value]
-    CA = metrics_dict[MetricsNames.CONFIRMATION_ACCURACY.value]
-    RA = metrics_dict[MetricsNames.REFUTATION_ACCURACY.value]
-    log.info(f"--------> PA={PA:.3} | RA={RA:.3}  CA={CA:.3}")
-    return PA, RA, CA
+    assert len(config.inspection.metric_pair_to_maximize) == 2
+    results = [
+        metrics_dict[MetricsNames[metric_name].value]
+        for metric_name in config.inspection.metric_pair_to_maximize
+    ]
+    results_logs = "  |  ".join(
+        f"{MetricsNames[name].value}={metric:.3}"
+        for metric, name in zip(results, config.inspection.metric_pair_to_maximize)
+    )
+    log.info(f"--------> {results_logs}")
+    return results

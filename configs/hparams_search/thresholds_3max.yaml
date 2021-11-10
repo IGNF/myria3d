@@ -13,7 +13,7 @@ hydra:
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     storage: null
-    study_name: thresholds_multiobjective
+    study_name: thresholds_3max_CxR
     n_jobs: 5
     direction: [maximize, maximize, maximize]
 
@@ -24,42 +24,42 @@ hydra:
       seed: 12345
 
     # # FULL RANGE
-    # n_trials: 100
-    # search_space:
-    #   inspection.min_confidence_confirmation:
-    #     type: float
-    #     low: 0.0
-    #     high: 1.0
-    #   inspection.min_confidence_refutation:
-    #     type: float
-    #     low: 0.0
-    #     high: 1.0
-    #   inspection.min_frac_confirmation:
-    #     type: float
-    #     low: 0.0
-    #     high: 1.0
-    #   inspection.min_frac_refutation:
-    #     type: float
-    #     low: 0.0
-    #     high: 1.0
-
-    # NARROW RANGE - based on first results of full range HPO
-    n_trials: 40
+    n_trials: 100
     search_space:
       inspection.min_confidence_confirmation:
         type: float
-        low: 0.10
-        high: 0.8
+        low: 0.0
+        high: 1.0
       inspection.min_confidence_refutation:
         type: float
-        low: 0.7
-        high: 0.9
+        low: 0.0
+        high: 1.0
       inspection.min_frac_confirmation:
         type: float
-        low: 0.7
-        high: 0.95
+        low: 0.0
+        high: 1.0
       inspection.min_frac_refutation:
         type: float
-        low: 0.45
-        high: 0.75
+        low: 0.0
+        high: 1.0
+
+    # # NARROW RANGE - based on first results of full range HPO
+    # n_trials: 40
+    # search_space:
+    #   inspection.min_confidence_confirmation:
+    #     type: float
+    #     low: 0.10
+    #     high: 0.8
+    #   inspection.min_confidence_refutation:
+    #     type: float
+    #     low: 0.7
+    #     high: 0.9
+    #   inspection.min_frac_confirmation:
+    #     type: float
+    #     low: 0.7
+    #     high: 0.95
+    #   inspection.min_frac_refutation:
+    #     type: float
+    #     low: 0.45
+    #     high: 0.75
 
