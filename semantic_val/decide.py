@@ -40,14 +40,14 @@ def decide(config: DictConfig) -> Optional[float]:
     os.makedirs(shp_path, exist_ok=True)
     for las_filepath in tqdm(las_filepath, desc="Evaluating predicted point cloud"):
         log.info(f"Evaluation of tile {las_filepath}...")
-        points_gdf = load_geodf_of_candidate_building_points(las_filepath)
+        las = load_geodf_of_candidate_building_points(las_filepath)
 
-        if points_gdf is None:
+        if las is None:
             log.info("/!\ Skipping tile: there are no candidate building points.")
             continue
 
         gdf_inspection = get_inspection_gdf(
-            points_gdf,
+            las,
             min_frac_confirmation=config.inspection.min_frac_confirmation,
             min_frac_refutation=config.inspection.min_frac_refutation,
             min_confidence_confirmation=config.inspection.min_confidence_confirmation,
@@ -55,7 +55,7 @@ def decide(config: DictConfig) -> Optional[float]:
         )
         if gdf_inspection is None:
             log.info(
-                f"No candidate shape could be derived from the N={len(points_gdf.points)} candidate points buildings."
+                f"No candidate shape could be derived from the N={len(las.points)} candidate points buildings."
             )
             continue
 
@@ -89,13 +89,13 @@ def decide(config: DictConfig) -> Optional[float]:
             log.info("Loading LAS agin to update candidate points.")
             las = laspy.read(las_filepath)
             las.classification = reset_classification(las.classification)
-            points_gdf = update_las_with_decisions(las, gdf_inspection)
+            las = update_las_with_decisions(las, gdf_inspection)
             out_dir = osp.dirname(shp_all_path)
             out_dir = osp.join(out_dir, "las")
             os.makedirs(out_dir, exist_ok=True)
             out_name = osp.basename(las_filepath)
             out_path = osp.join(out_dir, out_name)
-            points_gdf.write(out_path)
+            las.write(out_path)
             log.info(f"Saved updated LAS to {out_path}")
 
     log.info(f"Output inspection shapefile is {shp_all_path}")
