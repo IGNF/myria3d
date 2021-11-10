@@ -78,8 +78,8 @@ python run.py -m task=tune hparams_search=thresholds_3_objectives hydra.sweeper.
 The optimization maximizes three metrics: 1) proportion of automated decisions, 2) Refutation accuracy, and 3) Confirmation accuracy.
 You can then check optimization results and choose a set of thresholds among the Pareto solutions, then rerun the production of the inspection shapefile with the parameters.
 
-Then use optimized threshold to produce final inspection shapefile.
+Then use optimized threshold to produce final inspection shapefile and update las with predictions.
 ```yaml
 
-python run.py task=decide inspection.min_confidence_confirmation=X inspection.min_frac_confirmation=X inspection.min_confidence_refutation=X inspection.min_frac_refutation=X
+python run.py task=decide inspection.min_confidence_confirmation=X inspection.min_frac_confirmation=X inspection.min_confidence_refutation=X inspection.min_frac_refutation=X inspection.update_las=true
 ```
