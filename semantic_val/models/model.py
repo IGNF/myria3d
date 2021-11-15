@@ -116,9 +116,7 @@ class Model(LightningModule):
             "train/acc", self.train_accuracy, on_step=True, on_epoch=True, prog_bar=True
         )
 
-        self.train_iou(preds, targets)[
-            1
-        ]  # todo: modify object to only keep IoU of class 1.
+        self.train_iou(preds, targets)
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
@@ -157,9 +155,7 @@ class Model(LightningModule):
             "val/acc", self.val_accuracy, on_step=True, on_epoch=True, prog_bar=True
         )
 
-        self.val_iou(preds, targets)[
-            1
-        ]  # todo : modify this at init time to log the right thing !
+        self.val_iou(preds, targets)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
 
         preds_avg = (preds * 1.0).mean().item()
@@ -193,7 +189,7 @@ class Model(LightningModule):
             "test/acc", self.test_accuracy, on_step=True, on_epoch=True, prog_bar=True
         )
 
-        self.test_iou(preds, targets)[1]
+        self.test_iou(preds, targets)
         self.log("test/iou", self.test_iou, on_step=True, on_epoch=True, prog_bar=True)
 
         preds_avg = (preds * 1.0).mean().item()
