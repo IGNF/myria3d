@@ -1,21 +1,16 @@
-import os
-import os.path as osp
-from typing import Any, List, Optional, Union
+from typing import Any, Optional
 
-import laspy
-import numpy as np
 from pytorch_lightning.utilities.types import STEP_OUTPUT
 import torch
+from torch import Tensor
 from pytorch_lightning import LightningModule
 from torch import nn
-from torch.utils.data.dataloader import default_collate
-from torch_geometric.data import Batch, Data, Dataset
+from torch_geometric.data import Batch
 from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
-from torch_geometric.nn.pool import knn
 from torchmetrics import IoU
-from torch.nn import functional as F
 from torchmetrics.classification.accuracy import Accuracy
+from torchmetrics.functional.classification.iou import _iou_from_confmat
 
 from semantic_val.models.modules.point_net import PointNet
 from semantic_val.utils import utils
@@ -67,9 +62,9 @@ class Model(LightningModule):
             # TODO: gamma should be a parameter ?
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
-        self.train_iou = IoU(n_classes, reduction="none", absent_score=1.0)
-        self.val_iou = IoU(n_classes, reduction="none", absent_score=1.0)
-        self.test_iou = IoU(n_classes, reduction="none", absent_score=1.0)
+        self.train_iou = BuildingsIoU()
+        self.val_iou = BuildingsIoU()
+        self.test_iou = BuildingsIoU()
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
@@ -265,3 +260,35 @@ class WeightedFocalLoss(nn.Module):
         normalization_factor = (n_points_rare_class + n_points / 100) / 2
         loss = loss.sum() / normalization_factor
         return loss
+
+
+class BuildingsIoU(IoU):
+    """Custom IoU metrics to log building IoU only using PytorchLighting log system."""
+
+    def __init__(
+        self,
+        compute_on_step: bool = True,
+        dist_sync_on_step: bool = False,
+        process_group: Optional[Any] = None,
+    ) -> None:
+        super().__init__(
+            num_classes=2,
+            threshold=0.5,
+            reduction="none",
+            absent_score=1.0,
+            compute_on_step=compute_on_step,
+            dist_sync_on_step=dist_sync_on_step,
+            process_group=process_group,
+        )
+
+    def compute(self) -> Tensor:
+        """Computes intersection over union (IoU)"""
+        iou_no_reduction = _iou_from_confmat(
+            self.confmat,
+            self.num_classes,
+            self.ignore_index,
+            self.absent_score,
+            self.reduction,
+        )
+        iou_building = iou_no_reduction[1]
+        return iou_building
