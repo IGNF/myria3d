@@ -1,21 +1,16 @@
-import os
-import os.path as osp
-from typing import Any, List, Optional, Union
+from typing import Any, Optional
 
-import laspy
-import numpy as np
 from pytorch_lightning.utilities.types import STEP_OUTPUT
 import torch
+from torch import Tensor
 from pytorch_lightning import LightningModule
 from torch import nn
-from torch.utils.data.dataloader import default_collate
-from torch_geometric.data import Batch, Data, Dataset
+from torch_geometric.data import Batch
 from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
-from torch_geometric.nn.pool import knn
 from torchmetrics import IoU
-from torch.nn import functional as F
 from torchmetrics.classification.accuracy import Accuracy
+from torchmetrics.functional.classification.iou import _iou_from_confmat
 
 from semantic_val.models.modules.point_net import PointNet
 from semantic_val.utils import utils
@@ -67,9 +62,9 @@ class Model(LightningModule):
             # TODO: gamma should be a parameter ?
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
-        self.train_iou = IoU(n_classes, reduction="none", absent_score=1.0)
-        self.val_iou = IoU(n_classes, reduction="none", absent_score=1.0)
-        self.test_iou = IoU(n_classes, reduction="none", absent_score=1.0)
+        self.train_iou = BuildingsIoU()
+        self.val_iou = BuildingsIoU()
+        self.test_iou = BuildingsIoU()
         self.train_accuracy = Accuracy()
         self.val_accuracy = Accuracy()
         self.test_accuracy = Accuracy()
@@ -82,10 +77,6 @@ class Model(LightningModule):
             self.val_accuracy,
             self.test_accuracy,
         ]
-
-        # TODO: Abstract the tracking of max reached in a separate hook
-        self.max_reached_val_iou = -np.inf
-        self.val_iou_accumulator: List = []
 
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
@@ -118,16 +109,20 @@ class Model(LightningModule):
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-
-        acc = self.train_accuracy(preds, targets)
-        iou = self.train_iou(preds, targets)[1]
-        preds_avg = (preds * 1.0).mean().item()
-        targets_avg = (targets * 1.0).mean().item()
-
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("train/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
-        log.debug(f"Train batch building % = {targets_avg}")
+
+        self.train_accuracy(preds, targets)
+        self.log(
+            "train/acc", self.train_accuracy, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        self.train_iou(preds, targets)
+        self.log(
+            "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        targets_avg = (targets * 1.0).mean().item()
+        preds_avg = (preds * 1.0).mean().item()
         self.log(
             "train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
@@ -148,22 +143,24 @@ class Model(LightningModule):
         }
 
     def on_validation_start(self) -> None:
-        self.val_iou_accumulator = []
         log.info("Validating.")
 
     def validation_step(self, batch: Any, batch_idx: int):
 
         loss, _, proba, preds, targets = self.step(batch)
-        acc = self.val_accuracy(preds, targets)
-        iou = self.val_iou(preds, targets)[1]
+        self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+
+        self.val_accuracy(preds, targets)
+        self.log(
+            "val/acc", self.val_accuracy, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        self.val_iou(preds, targets)
+        self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
+
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
 
-        self.val_iou_accumulator.append(iou.cpu())
-
-        self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("val/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
         self.log(
             "val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
@@ -183,22 +180,20 @@ class Model(LightningModule):
             "batch": batch,
         }
 
-    def on_validation_end(self):
-        """Save the last unsaved predicted las and keep track of best IoU"""
-        val_iou = np.mean(self.val_iou_accumulator)
-        self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
-        self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
-
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-        acc = self.test_accuracy(preds, targets)
-        iou = self.test_iou(preds, targets)[1]
+        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+
+        self.test_accuracy(preds, targets)
+        self.log(
+            "test/acc", self.test_accuracy, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        self.test_iou(preds, targets)
+        self.log("test/iou", self.test_iou, on_step=True, on_epoch=True, prog_bar=True)
+
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
-
-        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("test/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("test/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
         self.log(
             "test/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
@@ -261,3 +256,35 @@ class WeightedFocalLoss(nn.Module):
         normalization_factor = (n_points_rare_class + n_points / 100) / 2
         loss = loss.sum() / normalization_factor
         return loss
+
+
+class BuildingsIoU(IoU):
+    """Custom IoU metrics to log building IoU only using PytorchLighting log system."""
+
+    def __init__(
+        self,
+        compute_on_step: bool = True,
+        dist_sync_on_step: bool = False,
+        process_group: Optional[Any] = None,
+    ) -> None:
+        super().__init__(
+            num_classes=2,
+            threshold=0.5,
+            reduction="none",
+            absent_score=1.0,
+            compute_on_step=compute_on_step,
+            dist_sync_on_step=dist_sync_on_step,
+            process_group=process_group,
+        )
+
+    def compute(self) -> Tensor:
+        """Computes intersection over union (IoU)"""
+        iou_no_reduction = _iou_from_confmat(
+            self.confmat,
+            self.num_classes,
+            self.ignore_index,
+            self.absent_score,
+            self.reduction,
+        )
+        iou_building = iou_no_reduction[1]
+        return iou_building
