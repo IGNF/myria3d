@@ -83,10 +83,6 @@ class Model(LightningModule):
             self.test_accuracy,
         ]
 
-        # TODO: Abstract the tracking of max reached in a separate hook
-        self.max_reached_val_iou = -np.inf
-        self.val_iou_accumulator: List = []
-
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
         logits = knn_interpolate(
@@ -118,16 +114,22 @@ class Model(LightningModule):
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-
-        acc = self.train_accuracy(preds, targets)
-        iou = self.train_iou(preds, targets)[1]
-        preds_avg = (preds * 1.0).mean().item()
-        targets_avg = (targets * 1.0).mean().item()
-
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("train/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
-        log.debug(f"Train batch building % = {targets_avg}")
+
+        self.train_accuracy(preds, targets)
+        self.log(
+            "train/acc", self.train_accuracy, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        self.train_iou(preds, targets)[
+            1
+        ]  # todo: modify object to only keep IoU of class 1.
+        self.log(
+            "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        targets_avg = (targets * 1.0).mean().item()
+        preds_avg = (preds * 1.0).mean().item()
         self.log(
             "train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
@@ -148,22 +150,26 @@ class Model(LightningModule):
         }
 
     def on_validation_start(self) -> None:
-        self.val_iou_accumulator = []
         log.info("Validating.")
 
     def validation_step(self, batch: Any, batch_idx: int):
 
         loss, _, proba, preds, targets = self.step(batch)
-        acc = self.val_accuracy(preds, targets)
-        iou = self.val_iou(preds, targets)[1]
+        self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+
+        self.val_accuracy(preds, targets)
+        self.log(
+            "val/acc", self.val_accuracy, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        self.val_iou(preds, targets)[
+            1
+        ]  # todo : modify this at init time to log the right thing !
+        self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
+
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
 
-        self.val_iou_accumulator.append(iou.cpu())
-
-        self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("val/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("val/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
         self.log(
             "val/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
@@ -183,22 +189,20 @@ class Model(LightningModule):
             "batch": batch,
         }
 
-    def on_validation_end(self):
-        """Save the last unsaved predicted las and keep track of best IoU"""
-        val_iou = np.mean(self.val_iou_accumulator)
-        self.max_reached_val_iou = max(val_iou, self.max_reached_val_iou)
-        self.experiment.log_metric("val/max_iou", self.max_reached_val_iou)
-
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-        acc = self.test_accuracy(preds, targets)
-        iou = self.test_iou(preds, targets)[1]
+        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+
+        self.test_accuracy(preds, targets)
+        self.log(
+            "test/acc", self.test_accuracy, on_step=True, on_epoch=True, prog_bar=True
+        )
+
+        self.test_iou(preds, targets)[1]
+        self.log("test/iou", self.test_iou, on_step=True, on_epoch=True, prog_bar=True)
+
         preds_avg = (preds * 1.0).mean().item()
         targets_avg = (targets * 1.0).mean().item()
-
-        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("test/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("test/iou", iou, on_step=True, on_epoch=True, prog_bar=True)
         self.log(
             "test/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
         )
