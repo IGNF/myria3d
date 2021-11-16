@@ -3,7 +3,7 @@ _target_: semantic_val.models.model.Model
 model_architecture: "point_net"
 loss: "FocalLoss"
 alpha: 0.25
-lr: 0.01
+lr: 0.001
 n_classes: 2
 
 net:

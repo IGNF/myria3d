@@ -41,7 +41,7 @@ class Model(LightningModule):
         n_classes: int = 2,
         loss: str = "CrossEntropyLoss",
         alpha: float = 0.25,
-        lr: float = 0.01,
+        lr: float = 0.001,
         **kwargs,
     ):
         super().__init__()
