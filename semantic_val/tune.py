@@ -55,11 +55,11 @@ def tune(config: DictConfig) -> Tuple[float]:
     metrics_dict = evaluate_decisions(points_gdf)
     results = [
         metrics_dict[MetricsNames[metric_name].value]
-        for metric_name in config.inspection.metric_pair_to_maximize
+        for metric_name in config.inspection.metrics
     ]
     results_logs = "  |  ".join(
         f"{MetricsNames[name].value}={metric:.3}"
-        for metric, name in zip(results, config.inspection.metric_pair_to_maximize)
+        for metric, name in zip(results, config.inspection.metrics)
     )
     log.info(f"--------> {results_logs}")
     return results

@@ -71,16 +71,16 @@ python run.py task=decide
 ```
 Then, update variable `INSPECTION_SHAPEFILE_FOR_OPTIMIZATION` in [`.env`](.env) with the path to the inspection shapefile.
 
-Evaluate the decision results with
+Without changing any parameters, evaluate the decision results with
 
 ```yaml
-python run.py task=tune inspection.metric_pair_to_maximize=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY,PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY,SENSITIVITY,SPECIFICITY]
+python run.py task=tune inspection.metrics=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY,PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY,SENSITIVITY,SPECIFICITY]
 ```
 
 Run a multi-objectives optimization of decision threshold
 ```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_2max_confirm hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 +inspection.metric_pair_to_maximize=[PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY]
-python run.py -m task=tune print_config=false hparams_search=thresholds_2max_refute hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 +inspection.metric_pair_to_maximize=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
+python run.py -m task=tune print_config=false hparams_search=thresholds_2max_confirm hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 +inspection.metrics=[PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY]
+python run.py -m task=tune print_config=false hparams_search=thresholds_2max_refute hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 +inspection.metrics=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
 
 ```
 The optimization maximizes two metrics: 1) proportion of automated decisions and 2) Decision accuracy, for the chosen decision (confirmation/refutation). 
