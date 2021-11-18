@@ -211,7 +211,7 @@ def get_unique_geometry_from_points(lidar_geodf):
 def close_holes(shape):
     """Closure operation to fill holes in shape"""
     shape = shape.buffer(CLOSURE_BUFFER_POSITIVE)
-    shape = shape.buffer(-CLOSURE_BUFFER_NEGATIVE)
+    shape = shape.buffer(CLOSURE_BUFFER_NEGATIVE)
     return shape
 
 
