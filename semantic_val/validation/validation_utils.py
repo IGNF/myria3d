@@ -72,6 +72,8 @@ class MetricsNames(Enum):
     # Metainfo to evaluate absolute gain and what is still to inspect
     NET_GAIN_CONFIRMATION = "NG_CONFIRM"
     NET_GAIN_REFUTATION = "NG_REFUTE"
+    SENSITIVITY = "SENSITIVITY"
+    SPECIFICITY = "SPECIFICITY"
 
 
 class DecisionLabels(Enum):
@@ -430,9 +432,12 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
       Proportions of accurate C/R.
       Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
       for ambiguous groud truths)
+    Quality
+      Specificity and Recall resulting from C/R, assuming perfect posterior decision for unsure predictions.
+      Only candidate shapes with known ground truths are considered.
     """
-    mts_gt = gdf[ShapeFileCols.MTS_GROUND_TRUTH.value]
-    ia_decision = gdf[ShapeFileCols.IA_DECISION.value]
+    mts_gt = gdf[ShapeFileCols.MTS_GROUND_TRUTH.value].copy()
+    ia_decision = gdf[ShapeFileCols.IA_DECISION.value].copy()
 
     # CRITERIA
     cm = confusion_matrix(
@@ -456,6 +461,21 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     NGR = cm[1, 1]
     NGC = cm[2, 2]
 
+    # QUALITY
+    ambiguous_idx = mts_gt == DecisionLabels.UNSURE.value
+    ia_decision = ia_decision[ambiguous_idx]
+    mts_gt = mts_gt[ambiguous_idx]
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="all"
+    )
+    final_positives = cm[2, 0] + cm[2, 2] + cm[1, 2]  # Yu + Yc + Nc
+    final_false_negatives = cm[2, 1]  # Yr
+    specificity = final_positives / (final_positives + final_false_negatives)
+
+    positives = cm[2, :].sum()
+    final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
+    sensitivity = final_true_positives / positives
+
     metrics_dict = {
         MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value: PAD,
         MetricsNames.CONFIRMATION_ACCURACY.value: CA,
@@ -465,6 +485,8 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
         MetricsNames.PROPORTION_OF_REFUTATION.value: PR,
         MetricsNames.NET_GAIN_REFUTATION.value: NGR,
         MetricsNames.NET_GAIN_CONFIRMATION.value: NGC,
+        MetricsNames.SENSITIVITY.value: sensitivity,
+        MetricsNames.SPECIFICITY.value: specificity,
     }
 
     return metrics_dict
