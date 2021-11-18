@@ -16,7 +16,7 @@ log = utils.get_logger(__name__)
 # CONSTANTS
 
 # Warning: be sure that this oder matches the one in load_las_data.
-COLORS_NAMES = ["red", "green", "blue"]
+COLORS_NAMES = ["red", "green", "blue", "nir"]
 X_FEATURES_NAMES = [
     "intensity",
     "return_num",
