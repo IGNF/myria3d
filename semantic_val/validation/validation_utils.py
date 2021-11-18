@@ -164,8 +164,11 @@ def get_inspection_gdf(
         min_frac_confirmation=min_frac_confirmation,
         min_frac_refutation=min_frac_refutation,
     )
-
     df_inspection = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="left")
+    log.info("Add an ergonomie buffer to select in-fence points without omission.")
+    df_inspection = df_inspection.buffer(
+        FINAL_BUFFER_FOR_CAPTURE, cap_style=CAP_STYLE.flat
+    )
     return df_inspection
 
 
@@ -238,11 +241,6 @@ def vectorize(lidar_geodf):
     ]
     log.info("Simplifying shapes.")
     shapes = [simplify_shape(shape) for shape in shapes]
-    log.info("Adding a small buffer to capture all points.")
-    shapes = [
-        shape.buffer(FINAL_BUFFER_FOR_CAPTURE, cap_style=CAP_STYLE.flat)
-        for shape in shapes
-    ]
     candidates_gdf = geopandas.GeoDataFrame(
         shapes, columns=["geometry"], crs=SHARED_CRS
     )
