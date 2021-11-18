@@ -166,7 +166,7 @@ def get_inspection_gdf(
     )
     df_inspection = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="left")
     log.info("Add an ergonomie buffer to select in-fence points without omission.")
-    df_inspection = df_inspection.buffer(
+    df_inspection.geometry = df_inspection.buffer(
         FINAL_BUFFER_FOR_CAPTURE, cap_style=CAP_STYLE.flat
     )
     return df_inspection
