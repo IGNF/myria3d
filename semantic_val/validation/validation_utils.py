@@ -462,15 +462,15 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     NGC = cm[2, 2]
 
     # QUALITY
-    ambiguous_idx = mts_gt == DecisionLabels.UNSURE.value
-    ia_decision = ia_decision[ambiguous_idx]
-    mts_gt = mts_gt[ambiguous_idx]
+    non_ambiguous_idx = mts_gt != DecisionLabels.UNSURE.value
+    ia_decision = ia_decision[non_ambiguous_idx]
+    mts_gt = mts_gt[non_ambiguous_idx]
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="all"
     )
     final_positives = cm[2, 0] + cm[2, 2] + cm[1, 2]  # Yu + Yc + Nc
-    final_false_negatives = cm[2, 1]  # Yr
-    specificity = final_positives / (final_positives + final_false_negatives)
+    final_false_positives = cm[1, 2]  # Yr
+    specificity = final_positives / (final_positives + final_false_positives)
 
     positives = cm[2, :].sum()
     final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
