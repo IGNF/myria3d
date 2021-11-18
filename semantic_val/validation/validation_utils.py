@@ -280,7 +280,7 @@ def derive_shape_indicators(
 def derive_shape_ground_truths(gdf):
     """derive ground truth related info and flags."""
     # GROUND TRUTHS INFO
-    gdf = set_frac_false_positive_col(gdf)
+    gdf = set_frac_true_positive_col(gdf)
     gdf = set_MTS_ground_truth_flag(gdf)
     return gdf
 
@@ -351,7 +351,7 @@ def _get_frac_MTS_true_positives(row):
     return np.mean(true_positives)
 
 
-def set_frac_false_positive_col(gdf):
+def set_frac_true_positive_col(gdf):
     """Set fraction of candidate building points from initial classification that were actual building."""
     gdf[ShapeFileCols.MTS_TRUE_POSITIVE_FRAC.value] = gdf.apply(
         lambda x: _get_frac_MTS_true_positives(x), axis=1
