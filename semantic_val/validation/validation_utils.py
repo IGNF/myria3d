@@ -8,6 +8,7 @@ import laspy
 import numpy as np
 import pandas as pd
 from geopandas import GeoDataFrame
+from shapely.geometry import CAP_STYLE
 from shapely.geometry.point import Point
 from shapely.ops import unary_union
 from sklearn.metrics import confusion_matrix
@@ -27,11 +28,13 @@ MTS_FALSE_NEGATIVE_CODE_LIST = [21]
 CONFIRMED_BUILDING_CODE = 19
 DEFAULT_CODE = 1
 
-POINT_BUFFER_FOR_UNION = 0.5
-CLOSURE_BUFFER = 0.80
+POINT_BUFFER_FOR_UNION = 0.25
+CLOSURE_BUFFER_POSITIVE = 1
+CLOSURE_BUFFER_NEGATIVE = -0.75
 SIMPLIFICATION_TOLERANCE_METERS = 1
 SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
+FINAL_BUFFER_FOR_CAPTURE = 0.5
 SHARED_CRS = "EPSG:2154"
 
 CLASSIFICATION_CHANNEL_NAME = "classification"
@@ -207,8 +210,8 @@ def get_unique_geometry_from_points(lidar_geodf):
 
 def close_holes(shape):
     """Closure operation to fill holes in shape"""
-    shape = shape.buffer(CLOSURE_BUFFER)
-    shape = shape.buffer(-CLOSURE_BUFFER)
+    shape = shape.buffer(CLOSURE_BUFFER_POSITIVE)
+    shape = shape.buffer(-CLOSURE_BUFFER_NEGATIVE)
     return shape
 
 
@@ -226,18 +229,23 @@ def vectorize(lidar_geodf):
     Rules: holes filled, simplified geometry, area>=3m².
     """
     log.info("Vectorizing into candidate buildings.")
-    union = get_unique_geometry_from_points(lidar_geodf)
+    shapes = get_unique_geometry_from_points(lidar_geodf)
     log.info("Filling vector holes.")
-    shapes_no_holes = [close_holes(shape) for shape in union]
-    log.info("Simplifying shapes.")
-    shapes_simplified = [simplify_shape(shape) for shape in shapes_no_holes]
-    candidates_gdf = geopandas.GeoDataFrame(
-        shapes_simplified, columns=["geometry"], crs=SHARED_CRS
-    )
+    shapes = [close_holes(shape) for shape in shapes]
     log.info(f"Keeping shapes larger than {MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS}m².")
-    candidates_gdf = candidates_gdf[
-        candidates_gdf.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
+    shapes = [
+        shape for shape in shapes if shape.area >= MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS
     ]
+    log.info("Simplifying shapes.")
+    shapes = [simplify_shape(shape) for shape in shapes]
+    log.info("Adding a small buffer to capture all points.")
+    shapes = [
+        shape.buffer(FINAL_BUFFER_FOR_CAPTURE, cap_style=CAP_STYLE.flat)
+        for shape in shapes
+    ]
+    candidates_gdf = geopandas.GeoDataFrame(
+        shapes, columns=["geometry"], crs=SHARED_CRS
+    )
     candidates_gdf = candidates_gdf.rename_axis(SHAPE_IDX_COLNAME).reset_index()
     return candidates_gdf
 
@@ -268,7 +276,6 @@ def derive_shape_indicators(
     gdf = set_frac_refuted_building_col(
         gdf, min_confidence_refutation=min_confidence_refutation
     )
-
     return gdf
 
 
