@@ -34,6 +34,7 @@ CLOSURE_BUFFER_NEGATIVE = -0.75
 SIMPLIFICATION_TOLERANCE_METERS = 1
 SIMPLIFICATION_PRESERVE_TOPOLOGY = True
 MINIMAL_AREA_FOR_CANDIDATE_BUILDINGS = 3
+MINIMAL_CANDIDATE_BUILDINGS_POINTS_PER_CANDIDATE_BUILDING = 15
 FINAL_BUFFER_FOR_CAPTURE = 0.5
 SHARED_CRS = "EPSG:2154"
 
@@ -138,7 +139,7 @@ def load_geodf_of_candidate_building_points(
 def get_inspection_gdf(
     points_gdf: laspy.LasData,
     min_frac_confirmation: float = 0.05,
-    min_frac_refutation: float = 1.0,
+    min_frac_refutation: float = 0.5,
     min_confidence_confirmation: float = 0.5,
     min_confidence_refutation: float = 0.5,
 ):
@@ -159,14 +160,18 @@ def get_inspection_gdf(
         min_confidence_confirmation=min_confidence_confirmation,
         min_confidence_refutation=min_confidence_refutation,
     )
-
+    log.info("Select only shapes with N>=15 candidate buildings points. ")
+    points_gdf = points_gdf[
+        points_gdf[ShapeFileCols.NUMBER_OF_CANDIDATE_BUILDINGS_POINT.value]
+        >= MINIMAL_CANDIDATE_BUILDINGS_POINTS_PER_CANDIDATE_BUILDING
+    ]
     log.info("Confirm or refute each candidate building if enough confidence.")
     points_gdf = make_decisions(
         points_gdf,
         min_frac_confirmation=min_frac_confirmation,
         min_frac_refutation=min_frac_refutation,
     )
-    df_inspection = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="left")
+    df_inspection = shapes_gdf.join(points_gdf, on=SHAPE_IDX_COLNAME, how="inner")
     log.info("Add an ergonomie buffer to select in-fence points without omission.")
     df_inspection.geometry = df_inspection.buffer(
         FINAL_BUFFER_FOR_CAPTURE, cap_style=CAP_STYLE.flat
@@ -382,7 +387,7 @@ def set_MTS_ground_truth_flag(gdf):
 
 
 def _make_decision(
-    row, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 1.0
+    row, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 0.5
 ):
     """Helper: module decision based on fraction of confirmed/refuted points"""
     yes_frac = ShapeFileCols.IA_CONFIRMED_BUILDINGS_AMONG_MTS_CANDIDATE_FRAC.value
@@ -396,7 +401,7 @@ def _make_decision(
 
 
 def make_decisions(
-    gdf, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 1.0
+    gdf, min_frac_confirmation: float = 0.05, min_frac_refutation: float = 0.5
 ):
     """Confirm or refute candidate building shape based on fraction of confirmed/refuted points."""
     ia_decision = ShapeFileCols.IA_DECISION.value
