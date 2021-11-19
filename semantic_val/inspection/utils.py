@@ -198,15 +198,22 @@ def reset_classification(classification: np.array):
 
 def update_las_with_decisions(las, df_inspection):
     """Update point cloud classification channel, and save to specified path."""
+    # Reset all candidate to default
+    candidate_building_points_mask = (
+        las[CLASSIFICATION_CHANNEL_NAME] == MTS_AUTO_DETECTED_CODE
+    )
+    las[CLASSIFICATION_CHANNEL_NAME][candidate_building_points_mask] = DEFAULT_CODE
+    # Decide for candidate points that form a valid candidate shape
     for _, row in df_inspection.copy().iterrows():
         ia_decision = row[ShapeFileCols.IA_DECISION.value]
         points_idx = np.array(row[POINT_IDX_COLNAME], dtype=int)
         if ia_decision == DecisionLabels.UNSURE.value:
-            continue
+            las[CLASSIFICATION_CHANNEL_NAME][points_idx] = MTS_AUTO_DETECTED_CODE
         elif ia_decision == DecisionLabels.BUILDING.value:
             las[CLASSIFICATION_CHANNEL_NAME][points_idx] = CONFIRMED_BUILDING_CODE
         elif ia_decision == DecisionLabels.NOT_BUILDING.value:
-            las[CLASSIFICATION_CHANNEL_NAME][points_idx] = DEFAULT_CODE
+            # already default
+            continue
         else:
             raise KeyError(f"Unexpected IA decision: {ia_decision}")
     return las

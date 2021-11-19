@@ -7,7 +7,7 @@ from pytorch_lightning import seed_everything
 import glob
 import os.path as osp
 from tqdm import tqdm
-from semantic_val.validation.validation_utils import (
+from semantic_val.inspection.utils import (
     DecisionLabels,
     ShapeFileCols,
     change_filepath_suffix,

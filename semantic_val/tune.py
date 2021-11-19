@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 import pandas as pd
 from pytorch_lightning import seed_everything
 from semantic_val.utils import utils
-from semantic_val.validation.validation_utils import (
+from semantic_val.inspection.utils import (
     MetricsNames,
     change_filepath_suffix,
     derive_shape_ground_truths,
