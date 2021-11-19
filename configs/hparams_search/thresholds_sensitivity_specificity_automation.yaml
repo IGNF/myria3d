@@ -13,9 +13,9 @@ hydra:
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     storage: null
-    study_name: thresholds_sensitivity_specificity
+    study_name: thresholds_sensitivity_specificity_automation
     n_jobs: 5
-    direction: [maximize, maximize]
+    direction: [maximize, maximize, maximize]
 
     # choose Optuna hyperparameter sampler
     # learn more here: https://optuna.readthedocs.io/en/stable/reference/samplers.html

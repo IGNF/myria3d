@@ -53,13 +53,18 @@ def tune(config: DictConfig) -> Tuple[float]:
         min_frac_refutation=config.inspection.min_frac_refutation,
     )
     metrics_dict = evaluate_decisions(points_gdf)
+
+    # print all metrics
+    results = [metrics_dict[metric_enum.value] for metric_enum in MetricsNames]
+    results_logs = "  |  ".join(
+        f"{metric_enum.value}={value:.3}"
+        for metric_enum, value in zip(MetricsNames, results)
+    )
+    log.info(f"--------> {results_logs}")
+
+    # Optimize subset of metrics specified in config.inspection.metrics
     results = [
         metrics_dict[MetricsNames[metric_name].value]
         for metric_name in config.inspection.metrics
     ]
-    results_logs = "  |  ".join(
-        f"{MetricsNames[name].value}={metric:.3}"
-        for metric, name in zip(results, config.inspection.metrics)
-    )
-    log.info(f"--------> {results_logs}")
     return results
