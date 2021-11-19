@@ -27,6 +27,7 @@ MTS_FALSE_NEGATIVE_CODE_LIST = [21]
 
 CONFIRMED_BUILDING_CODE = 19
 DEFAULT_CODE = 1
+LAST_ECHO_CODE = 104
 
 POINT_BUFFER_FOR_UNION = 0.25
 CLOSURE_BUFFER_POSITIVE = 1
@@ -184,6 +185,7 @@ def reset_classification(classification: np.array):
     Set the classification to pre-correction codes. This is not needed for production.
     FP+TP -> set to auto-detected code
     FN -> set to background code
+    LAST_ECHO -> set to background code
     """
     candidate_building_points_mask = np.isin(
         classification, MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
@@ -193,6 +195,8 @@ def reset_classification(classification: np.array):
         classification, MTS_FALSE_NEGATIVE_CODE_LIST
     )
     classification[forgotten_buillding_points_mask] = DEFAULT_CODE
+    last_echo_index = classification == LAST_ECHO_CODE
+    classification[last_echo_index] = DEFAULT_CODE
     return classification
 
 
