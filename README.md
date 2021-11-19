@@ -74,7 +74,7 @@ Then, update variable `INSPECTION_SHAPEFILE_FOR_OPTIMIZATION` in [`.env`](.env) 
 Without changing any parameters, evaluate the decision results with
 
 ```yaml
-python run.py task=tune inspection.metrics=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY,PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY,SENSITIVITY,SPECIFICITY]
+python run.py task=tune
 ```
 
 Run a multi-objectives optimization of decision threshold, focused on single decision. this also to better understand the automation-error balance.
