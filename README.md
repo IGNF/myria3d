@@ -77,17 +77,17 @@ Without changing any parameters, evaluate the decision results with
 python run.py task=tune
 ```
 
-Run a multi-objectives optimization of decision threshold, focused on single decision. this also to better understand the automation-error balance.
+Run a multi-objectives optimization of decision threshold, to maximize sensitivity and specificity directly while also maximizing automation:
+```yaml
+python run.py -m task=tune print_config=false hparams_search=thresholds_sensitivity_specificity +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,SENSITIVITY,SPECIFICITY]
+```
+Alternatively, focus on a single decision at a time, to better understand the automation-error balance.
 ```yaml
 python run.py -m task=tune print_config=false hparams_search=thresholds_2max_confirm +inspection.metrics=[PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY]
 python run.py -m task=tune print_config=false hparams_search=thresholds_2max_refute +inspection.metrics=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
 ```
-Alternatively, maximize sensitivity and specificity directly while also maximizing automation:
-```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_sensitivity_specificity +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,SENSITIVITY,SPECIFICITY]
-```
-The optimization maximizes two metrics: 1) proportion of automated decisions and 2) Decision accuracy, for the chosen decision (confirmation/refutation). 
-You can then check optimization results and choose a set of thresholds among the Pareto solutions, then rerun the production of the inspection shapefile with the parameters.
+
+You can then check optimization results and choose a set of thresholds among the ones of the Pareto-front. See related notebooks for plotting. Then rerun the production of the inspection shapefile with the parameters.
 
 Then use optimized threshold to produce final inspection shapefile and update las with predictions.
 ```yaml
