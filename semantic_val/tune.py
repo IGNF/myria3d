@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 import pandas as pd
 from pytorch_lightning import seed_everything
 from semantic_val.utils import utils
-from semantic_val.validation.validation_utils import (
+from semantic_val.inspection.utils import (
     MetricsNames,
     change_filepath_suffix,
     derive_shape_ground_truths,
@@ -53,14 +53,18 @@ def tune(config: DictConfig) -> Tuple[float]:
         min_frac_refutation=config.inspection.min_frac_refutation,
     )
     metrics_dict = evaluate_decisions(points_gdf)
-    assert len(config.inspection.metric_pair_to_maximize) == 2
-    results = [
-        metrics_dict[MetricsNames[metric_name].value]
-        for metric_name in config.inspection.metric_pair_to_maximize
-    ]
+
+    # print all metrics
+    results = [metrics_dict[metric_enum.value] for metric_enum in MetricsNames]
     results_logs = "  |  ".join(
-        f"{MetricsNames[name].value}={metric:.3}"
-        for metric, name in zip(results, config.inspection.metric_pair_to_maximize)
+        f"{metric_enum.value}={value:.3}"
+        for metric_enum, value in zip(MetricsNames, results)
     )
     log.info(f"--------> {results_logs}")
+
+    # Optimize subset of metrics specified in config.inspection.metrics
+    results = [
+        metrics_dict[MetricsNames[metric_name].value]
+        for metric_name in config.inspection.metrics
+    ]
     return results

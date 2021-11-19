@@ -67,8 +67,8 @@ class DataModule(LightningDataModule):
         Nota: Do not use it to assign state (self.x = y). This method is called only from a single GPU.
         """
 
-        las_filepaths = glob.glob(osp.join(self.lasfiles_dir, "*.las"))
-        assert len(las_filepaths) == 150
+        # las_filepaths = glob.glob(osp.join(self.lasfiles_dir, "*.las"))
+        # assert len(las_filepaths) == 150
 
         if not osp.exists(self.datasplit_csv_filepath):
             if not osp.exists(self.metadata_shapefile_filepath):

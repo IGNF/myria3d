@@ -71,14 +71,23 @@ python run.py task=decide
 ```
 Then, update variable `INSPECTION_SHAPEFILE_FOR_OPTIMIZATION` in [`.env`](.env) with the path to the inspection shapefile.
 
-Run a multi-objectives optimization of decision threshold
-```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_2max_confirm hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 +inspection.metric_pair_to_maximize=[PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY]
-python run.py -m task=tune print_config=false hparams_search=thresholds_2max_refute hydra.sweeper.n_jobs=3 hydra.sweeper.n_trials=100 +inspection.metric_pair_to_maximize=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
+Without changing any parameters, evaluate the decision results with
 
+```yaml
+python run.py task=tune
 ```
-The optimization maximizes two metrics: 1) proportion of automated decisions and 2) Decision accuracy, for the chosen decision (confirmation/refutation). 
-You can then check optimization results and choose a set of thresholds among the Pareto solutions, then rerun the production of the inspection shapefile with the parameters.
+
+Run a multi-objectives optimization of decision threshold, to maximize sensitivity and specificity directly while also maximizing automation:
+```yaml
+python run.py -m task=tune print_config=false hparams_search=thresholds_sensitivity_specificity +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,SENSITIVITY,SPECIFICITY]
+```
+Alternatively, focus on a single decision at a time, to better understand the automation-error balance.
+```yaml
+python run.py -m task=tune print_config=false hparams_search=thresholds_2max_confirm +inspection.metrics=[PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY]
+python run.py -m task=tune print_config=false hparams_search=thresholds_2max_refute +inspection.metrics=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
+```
+
+You can then check optimization results and choose a set of thresholds among the ones of the Pareto-front. See related notebooks for plotting. Then rerun the production of the inspection shapefile with the parameters.
 
 Then use optimized threshold to produce final inspection shapefile and update las with predictions.
 ```yaml
