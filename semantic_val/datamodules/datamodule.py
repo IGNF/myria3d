@@ -1,4 +1,5 @@
 import glob
+import os
 import os.path as osp
 import random
 from typing import Optional, Iterator, Optional
@@ -66,7 +67,10 @@ class DataModule(LightningDataModule):
         Stratify train/val/test data if needed.
         Nota: Do not use it to assign state (self.x = y). This method is called only from a single GPU.
         """
+        if osp.exists(self.datasplit_csv_filepath):
+            os.remove(self.datasplit_csv_filepath)
 
+<<<<<<< ours
         # las_filepaths = glob.glob(osp.join(self.lasfiles_dir, "*.las"))
         # assert len(las_filepaths) == 150
 
@@ -83,7 +87,21 @@ class DataModule(LightningDataModule):
             )
             log.info(
                 f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
+=======
+        if not osp.exists(self.metadata_shapefile_filepath):
+            raise FileNotFoundError(
+                f"Metadata shapefile not found at {self.metadata_shapefile_filepath}"
+>>>>>>> theirs
             )
+        make_datasplit_csv(
+            self.lasfiles_dir,
+            self.metadata_shapefile_filepath,
+            self.datasplit_csv_filepath,
+            train_frac=self.train_frac,
+        )
+        log.info(
+            f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
+        )
 
     def setup(self, stage: Optional[str] = None):
         """
