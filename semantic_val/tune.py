@@ -1,4 +1,5 @@
 from typing import Tuple
+import numpy as np
 from omegaconf import DictConfig
 import pandas as pd
 from pytorch_lightning import seed_everything
@@ -55,10 +56,21 @@ def tune(config: DictConfig) -> Tuple[float]:
     metrics_dict = evaluate_decisions(points_gdf)
 
     # print all metrics
-    results = [metrics_dict[metric_enum.value] for metric_enum in MetricsNames]
     results_logs = "  |  ".join(
-        f"{metric_enum.value}={value:.3}"
-        for metric_enum, value in zip(MetricsNames, results)
+        f"{metric_enum.value}={metrics_dict[metric_enum.value]:{'' if type(metrics_dict[metric_enum.value]) is int else '.3'}}"
+        for metric_enum in MetricsNames
+        if metric_enum
+        not in [
+            MetricsNames.CONFUSION_MATRIX_NORM,
+            MetricsNames.CONFUSION_MATRIX_NO_NORM,
+        ]
+    )
+    results_logs = (
+        results_logs
+        + "\n"
+        + str(metrics_dict[MetricsNames.CONFUSION_MATRIX_NO_NORM.value].round(3))
+        + "\n"
+        + str(metrics_dict[MetricsNames.CONFUSION_MATRIX_NORM.value].round(3))
     )
     log.info(f"--------> {results_logs}")
 
