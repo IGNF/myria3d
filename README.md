@@ -58,9 +58,9 @@ python run.py experiment=PN_debug
 Evaluate the model and get inference results on the validation dataset
 ```yaml
 # to evaluate and infer at the same time
-python run.py experiment=PN_infer_val trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt
+python run.py experiment=PN_validate trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 # to log IoU without saving predictions to new LAS files 
-python run.py experiment=PN_infer_val callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt
+python run.py experiment=PN_validate callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 ```
 Then, update variable `PREDICTED_LAS_DIRPATH` in [`.env`](.env) with the directory containing inference results.
 

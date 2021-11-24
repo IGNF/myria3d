@@ -58,6 +58,9 @@ class DataModule(LightningDataModule):
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 12500)
 
+        # By default, do not use the test set unless explicitely required by user.
+        self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
+
         self.train_data: Optional[Dataset] = None
         self.val_data: Optional[Dataset] = None
         self.test_data: Optional[Dataset] = None
@@ -146,19 +149,25 @@ class DataModule(LightningDataModule):
         )
 
     def _set_test_data(self, df_split):
-        """Get the test dataset"""
-        df_split_test = df_split[df_split.split == "test"]
-        df_split_test = df_split_test.sort_values("nb_bati", ascending=False)
-        test_files = df_split_test.file_path.values.tolist()
+        """Get the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
+        if self.use_val_data_at_test_time:
+            self.test_data = self.val_data
+            log.info(
+                "Using validation data as test data. Use real test data with use_val_data_at_test_time=False at run time."
+            )
+        else:
+            df_split_test = df_split[df_split.split == "test"]
+            df_split_test = df_split_test.sort_values("nb_bati", ascending=False)
+            test_files = df_split_test.file_path.values.tolist()
 
-        self.test_data = LidarValDataset(
-            test_files,
-            loading_function=load_las_data,
-            transform=self._get_test_transforms(),
-            target_transform=MakeBuildingTargets(),
-            subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
-        )
+            self.test_data = LidarValDataset(
+                test_files,
+                loading_function=load_las_data,
+                transform=self._get_test_transforms(),
+                target_transform=MakeBuildingTargets(),
+                subtile_width_meters=self.subtile_width_meters,
+                subtile_overlap=self.subtile_overlap,
+            )
 
     def train_dataloader(self):
         """Get train dataloader."""
