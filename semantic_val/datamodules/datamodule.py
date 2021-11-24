@@ -146,8 +146,19 @@ class DataModule(LightningDataModule):
         )
 
     def _set_test_data(self, df_split):
-        """Get the test dataset - for now this is the validation dataset"""
-        self.test_data = self.val_data
+        """Get the test dataset"""
+        df_split_test = df_split[df_split.split == "test"]
+        df_split_test = df_split_test.sort_values("nb_bati", ascending=False)
+        test_files = df_split_test.file_path.values.tolist()
+
+        self.test_data = LidarValDataset(
+            test_files,
+            loading_function=load_las_data,
+            transform=self._get_test_transforms(),
+            target_transform=MakeBuildingTargets(),
+            subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
+        )
 
     def train_dataloader(self):
         """Get train dataloader."""
