@@ -79,4 +79,8 @@ def tune(config: DictConfig) -> Tuple[float]:
         metrics_dict[MetricsNames[metric_name].value]
         for metric_name in config.inspection.metrics
     ]
+    if any(np.isnan(m) for m in results):
+        # This can occur for trivial solutions with unique decision
+        return [0 for _ in results]
+
     return results
