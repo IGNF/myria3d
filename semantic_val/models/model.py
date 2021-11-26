@@ -13,18 +13,19 @@ from torchmetrics.classification.accuracy import Accuracy
 from torchmetrics.functional.classification.iou import _iou_from_confmat
 
 from semantic_val.models.modules.point_net import PointNet
+from semantic_val.models.modules.randla_net import RandLANet
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = {"point_net": PointNet}
+MODEL_ZOO = {"point_net": PointNet, "randla_net": RandLANet}
 
 EPS = 10 ** -5
 
 
 class Model(LightningModule):
     """
-    A LightningModule organizes your PyTorch code into 5 sections:
+    A LightningModule organizesm your PyTorch code into 5 sections:
         - Computations (init).
         - Train loop (training_step)
         - Validation loop (validation_step)

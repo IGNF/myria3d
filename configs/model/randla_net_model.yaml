@@ -1,0 +1,13 @@
+_target_: semantic_val.models.model.Model
+
+model_architecture: "randla_net"
+loss: "FocalLoss"
+n_classes: 2
+alpha: 0.25
+lr: 0.001
+
+net:
+  d_in: 10  # 3 + F
+  num_classes: 2
+  num_neighbors: 16 
+  decimation: 4  # divide by decimation for each of the 4 local encoder.
