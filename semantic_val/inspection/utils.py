@@ -76,8 +76,8 @@ class MetricsNames(Enum):
 
     # To maximize:
     PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
-    SENSITIVITY = "SENSITIVITY"
-    SPECIFICITY = "SPECIFICITY"
+    RECALL = "RECALL"
+    PRECISION = "PRECISION"
     # Constraints:
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
@@ -457,7 +457,7 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
       Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
       for ambiguous groud truths)
     Quality
-      Specificity and Recall resulting from C/R, assuming perfect posterior decision for unsure predictions.
+      Precision and Recall resulting from C/R, assuming perfect posterior decision for unsure predictions.
       Only candidate shapes with known ground truths are considered.
     """
     metrics_dict = dict()
@@ -533,16 +533,16 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     )
     final_positives = cm[2, 0] + cm[2, 2] + cm[1, 2]  # Yu + Yc + Nc
     final_false_positives = cm[1, 2]  # Yr
-    specificity = final_positives / (final_positives + final_false_positives)
+    precision = final_positives / (final_positives + final_false_positives)
 
     positives = cm[2, :].sum()
     final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
-    sensitivity = final_true_positives / positives
+    recall = final_true_positives / positives
 
     metrics_dict.update(
         {
-            MetricsNames.SPECIFICITY.value: specificity,
-            MetricsNames.SENSITIVITY.value: sensitivity,
+            MetricsNames.PRECISION.value: precision,
+            MetricsNames.RECALL.value: recall,
         }
     )
 

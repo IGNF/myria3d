@@ -13,7 +13,7 @@ hydra:
   sweeper:
     _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     storage: null
-    study_name: thresholds_sensitivity_specificity_automation
+    study_name: thresholds_precision_recall_automation
     n_jobs: 5
     direction: [maximize, maximize, maximize]
 

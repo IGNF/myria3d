@@ -79,9 +79,9 @@ Without changing any parameters, evaluate the decision results with
 python run.py task=tune
 ```
 
-Run a multi-objectives optimization of decision threshold, to maximize sensitivity and specificity directly while also maximizing automation:
+Run a multi-objectives optimization of decision threshold, to maximize recall and precision directly while also maximizing automation:
 ```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_sensitivity_specificity_automation +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,SENSITIVITY,SPECIFICITY]
+python run.py -m task=tune print_config=false hparams_search=thresholds_precision_recall_automation +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,PRECISION,RECALL]
 ```
 Alternatively, focus on a single decision at a time, to better understand the automation-error balance.
 ```yaml
