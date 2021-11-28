@@ -215,11 +215,6 @@ class Model(LightningModule):
             "batch": batch,
         }
 
-    def on_train_end(self):
-        """Call the ReduceLROnPlateau scheduler."""
-        sch = self.lr_schedulers()
-        sch.step()
-
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
         Normally you'd need one. But in the case of GANs or similar you might have multiple.
@@ -242,7 +237,7 @@ class Model(LightningModule):
             cooldown=10,
             min_lr=0,
             eps=1e-08,
-            verbose=True,
+            verbose=False,
         )
         config = {
             "optimizer": optimizer,
