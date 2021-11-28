@@ -5,6 +5,7 @@ import torch
 from torch import Tensor
 from pytorch_lightning import LightningModule
 from torch import nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch_geometric.data import Batch
 from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
@@ -214,6 +215,11 @@ class Model(LightningModule):
             "batch": batch,
         }
 
+    def on_train_end(self):
+        """Call the ReduceLROnPlateau scheduler."""
+        sch = self.lr_schedulers()
+        sch.step()
+
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
         Normally you'd need one. But in the case of GANs or similar you might have multiple.
@@ -221,10 +227,29 @@ class Model(LightningModule):
         See examples here:
             https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
         """
-        return torch.optim.Adam(
+
+        optimizer = torch.optim.Adam(
             params=self.parameters(),
             lr=self.lr,
         )
+        scheduler = ReduceLROnPlateau(
+            optimizer,
+            mode="min",
+            factor=0.5,
+            patience=10,  # scheduler called on training epoch !
+            threshold=0.0001,
+            threshold_mode="rel",
+            cooldown=10,
+            min_lr=0,
+            eps=1e-08,
+            verbose=True,
+        )
+        config = {
+            "optimizer": optimizer,
+            "lr_scheduler": scheduler,
+            "monitor": "val/loss_epoch",
+        }
+        return config
 
 
 class WeightedFocalLoss(nn.Module):
