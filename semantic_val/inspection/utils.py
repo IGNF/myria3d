@@ -14,7 +14,7 @@ from shapely.ops import unary_union
 from sklearn.metrics import confusion_matrix
 
 from semantic_val.utils import utils
-from semantic_val.callbacks.predictions_callbacks import ChannelNames
+from semantic_val.datamodules.processing import ChannelNames
 
 log = utils.get_logger(__name__)
 

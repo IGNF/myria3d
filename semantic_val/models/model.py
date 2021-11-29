@@ -146,7 +146,6 @@ class Model(LightningModule):
         log.info("Validating.")
 
     def validation_step(self, batch: Any, batch_idx: int):
-
         loss, _, proba, preds, targets = self.step(batch)
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 
@@ -205,6 +204,16 @@ class Model(LightningModule):
             prog_bar=False,
         )
 
+        return {
+            "loss": loss,
+            "proba": proba,
+            "preds": preds,
+            "targets": targets,
+            "batch": batch,
+        }
+
+    def predict_step(self, batch: Any, batch_idx: int): #predict#
+        loss, _, proba, preds, targets = self.step(batch)
         return {
             "loss": loss,
             "proba": proba,

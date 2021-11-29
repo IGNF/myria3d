@@ -16,6 +16,7 @@ work_dir: ${hydra:runtime.cwd}
 # path to folder with data
 lasfiles_dir: ${oc.env:LASFILES_DIR}
 metadata_shapefile: ${oc.env:METADATA_SHAPEFILE}
+logfile_dir: ${oc.env:LOGS_DIR}
 
 # use `python run.py debug=true` for easy debugging!
 # this will run 1 train, val and test loop with only 1 batch
@@ -43,6 +44,7 @@ defaults:
   - hydra: default.yaml
 
   - inspection: default.yaml
+  - prediction: default.yaml
 
   # enable color logging
   - override hydra/hydra_logging: colorlog

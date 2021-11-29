@@ -12,7 +12,7 @@ from semantic_val.inspection.utils import (
     evaluate_decisions,
     TRUE_POSITIVES_COLNAME,
 )
-from semantic_val.callbacks.predictions_callbacks import ChannelNames
+from semantic_val.datamodules.processing import ChannelNames
 
 log = utils.get_logger(__name__)
 
