@@ -21,4 +21,4 @@ pip3 install torch==$PYTORCHVERSION torchvision==$TORCHVISIONVERSION -f https://
 mamba install -y pytorch-lightning==1.3 -c conda-forge
 pip install torch-sparse -f https://pytorch-geometric.com/whl/torch-$PYTORCHVERSION+$CUDA.html
 conda install -y pytorch pyg -c pytorch -c pyg -c conda-forge
-
+conda install pygeos --channel conda-forge
