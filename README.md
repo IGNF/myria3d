@@ -15,23 +15,22 @@
 A fast and sensitive semantic segmentation of High Density Lidar data was performed with geometric rule-based algorithm to identify buildings. It yielded a high number of false positive. Around 160km² of Lidar data was thoroughly inspected to identify false positive and false negative. At larger scale, this kind of human inspection would be intractable.
 
 ### Objective
-We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate" buildings points obtained from the rule-based algorithm, while also identifying cases of uncertainty for human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected. Inspection is facilitated through the production of an inspection shapefile in order to efficiently select and validate (or invalidate) candidate building points.
+We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate buildings points" obtained from the rule-based algorithm, while also identifying cases of uncertainty for later human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected.
 
 ### Content
 
-1) Training and evaluating of the model
-2) Inference of a semantic segmentation
-3) validation module decision process:
-    1) Vectorization from candidate buildings points into candidate building shapes
-    2) Decision:
-        1) Confirmation, if the proportion of "confirmed" points within a candidate building shape is sufficient.
-        2) Refutation, if the proportion of "refuted" points within a candidate building shape is sufficient.
-        3) Uncertainty, elsewise: candidate building shapes are still identified for faster human inspection.
-    3) Update of the point cloud based on those decisions
+1) Training and evaluation of the model.
+2) Prediction of point-level probabilities.
+3) Validation module decision process:
+    1) Clustering of candidate buildings points into candidate building groups
+    2) Decision at the group-level:
+        1) Confirmation, if the proportion of "confirmed" points within a candidate building group is sufficient.
+        2) Refutation, if the proportion of "refuted" points within a candidate building group is sufficient.
+        3) Uncertainty: candidate building groups remained to be inspected.
+    3) Update of the point cloud based on those decisions.
 
-4) Multiobjective hyperparameter Optimization of the decision process (point-level and shape-level thresholds) to maximize decision accuracy and automation.
+4) Multiobjective hyperparameter Optimization of the decision process (point-level and group-level thresholds) to maximize automation, precision, and recall.
 
-Current inspection shapefile might look like this:
 
 ## How to run
 Install dependencies
@@ -64,35 +63,13 @@ python run.py experiment=PN_validate callbacks.save_preds.save_predictions=false
 ```
 To evaluate on test data instead of val data, replace `experiment=PN_validate` by `experiment=PN_test`.
 
-Then, update variable `PREDICTED_LAS_DIRPATH` in [`.env`](.env) with the directory containing inference results.
-
-Make decisions and produce an inspection shapefile from predictions
-```yaml
-
-python run.py task=decide
-```
-Then, update variable `INSPECTION_SHAPEFILE_FOR_OPTIMIZATION` in [`.env`](.env) with the path to the inspection shapefile.
-
-Without changing any parameters, evaluate the decision results with
-
-```yaml
-python run.py task=tune
-```
 
 Run a multi-objectives optimization of decision threshold, to maximize recall and precision directly while also maximizing automation:
 ```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_precision_recall_automation +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,PRECISION,RECALL]
-```
-Alternatively, focus on a single decision at a time, to better understand the automation-error balance.
-```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_2max_confirm +inspection.metrics=[PROPORTION_OF_CONFIRMATION,CONFIRMATION_ACCURACY]
-python run.py -m task=tune print_config=false hparams_search=thresholds_2max_refute +inspection.metrics=[PROPORTION_OF_REFUTATION,REFUTATION_ACCURACY]
+python run.py -m task=optimize print_config=false optimize.predicted_las_dirpath="/path/to/las/folder/" optimize.results_output_dir="/path/to/results/"
 ```
 
-You can then check optimization results and choose a set of thresholds among the ones of the Pareto-front. See related notebooks for plotting. Then rerun the production of the inspection shapefile with the parameters.
+Additionally, if you want to update the las classification based on those decisions, add an `optimize.update_las=true` argument.
 
-Then use optimized threshold to produce final inspection shapefile and update las with predictions.
-```yaml
 
-python run.py task=decide inspection.min_confidence_confirmation=X inspection.min_frac_confirmation=X inspection.min_confidence_refutation=X inspection.min_frac_refutation=X inspection.update_las=true
-```
+WIP: inference mode to predict on unseen data with custom classification codes for candidate buildings and defaut class.

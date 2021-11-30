@@ -15,8 +15,7 @@ def main(config: DictConfig):
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
     from semantic_val.utils import utils
     from semantic_val.train import train
-    from semantic_val.decide import decide
-    from semantic_val.tune import tune
+    from semantic_val.optimize import optimize
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -31,11 +30,11 @@ def main(config: DictConfig):
 
     # Train model
     if config.get("task") == "train":
+        """Training, eval, and test of a neural network."""
         return train(config)
-    elif config.get("task") == "decide":
-        return decide(config)
-    elif config.get("task") == "tune":
-        return tune(config)
+    elif config.get("task") == "optimize":
+        """Optimization for the exploitatation of predictions of the NN."""
+        return optimize(config)
 
 
 if __name__ == "__main__":
