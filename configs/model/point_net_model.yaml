@@ -1,11 +1,9 @@
+defaults:
+  - default.yaml
+
 _target_: semantic_val.models.model.Model
 
 model_architecture: "point_net"
-loss: "FocalLoss"
-alpha: 0.25
-lr: 0.001
-n_classes: 2
-
 net:
   MLP1_channels: [10, 64, 64]
   MLP2_channels: [64, 256, 512, 1024]

@@ -24,10 +24,6 @@ test_the_model: false
 
 model:
   model_architecture: "randla_net"
-  loss: "FocalLoss"
-  n_classes: 2
-  alpha: 0.25
-  lr: 0.001
   net:
     d_in: 10  # 3 + F
     num_classes: 2

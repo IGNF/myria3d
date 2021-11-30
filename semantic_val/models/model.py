@@ -227,24 +227,27 @@ class Model(LightningModule):
             params=self.parameters(),
             lr=self.lr,
         )
-        scheduler = ReduceLROnPlateau(
-            optimizer,
-            mode="min",
-            factor=0.5,
-            patience=10,  # scheduler called on training epoch !
-            threshold=0.0001,
-            threshold_mode="rel",
-            cooldown=10,
-            min_lr=0,
-            eps=1e-08,
-            verbose=False,
-        )
-        config = {
-            "optimizer": optimizer,
-            "lr_scheduler": scheduler,
-            "monitor": "val/loss_epoch",
-        }
-        return config
+        if self.hparams.reduce_lr_on_plateau.activate:
+            scheduler = ReduceLROnPlateau(
+                optimizer,
+                mode="min",
+                factor=self.hparams.reduce_lr_on_plateau.factor,
+                patience=self.hparams.reduce_lr_on_plateau.patience,  # scheduler called on training epoch !
+                threshold=0.0001,
+                threshold_mode="rel",
+                cooldown=self.hparams.reduce_lr_on_plateau.cooldown,
+                min_lr=0,
+                eps=1e-08,
+                verbose=False,
+            )
+            log.info("ReduceLROnPlateau: activated")
+            config = {
+                "optimizer": optimizer,
+                "lr_scheduler": scheduler,
+                "monitor": "val/loss_epoch",
+            }
+            return config
+        return optimizer
 
 
 class WeightedFocalLoss(nn.Module):
