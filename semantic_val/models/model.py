@@ -212,7 +212,7 @@ class Model(LightningModule):
             "batch": batch,
         }
 
-    def predict_step(self, batch: Any, batch_idx: int): #predict#
+    def predict_step(self, batch: Any): #predict#
         loss, _, proba, preds, targets = self.step(batch)
         return {
             "loss": loss,

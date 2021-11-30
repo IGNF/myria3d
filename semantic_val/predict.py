@@ -50,33 +50,38 @@ def predict(config: DictConfig) -> Optional[float]:
     """
     assert os.path.exists(config.trainer.resume_from_checkpoint)
 
-    batch_size = config.datamodule.get("batch_size", 32)
+    # batch_size = config.datamodule.get("batch_size", 32)
 
     lasfiles_dir = config.datamodule.get("lasfiles_dir", None)
     src_las = config.datamodule.get("src_las", None)
     subtile_width_meters = config.datamodule.get("subtile_width_meters", 50)
-    subtile_overlap = config.datamodule.get("subtile_overlap", 0)
+    # subtile_overlap = config.datamodule.get("subtile_overlap", 0)
 
     files_to_predict = [os.path.join(lasfiles_dir, src_las)]
 
-    selection = SelectSubTile(subtile_width_meters=subtile_width_meters, method="predefined")
+    # selection = SelectSubTile(subtile_width_meters=subtile_width_meters, method="predefined")
 
-    predict_dataset = LidarValDataset(
-        files_to_predict,
-        loading_function=load_las_data,
-        transform=selection,   
-        target_transform=None,
-        subtile_width_meters=subtile_width_meters,
-        subtile_overlap=subtile_overlap,
-    )
+    datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
 
-    predict_dataloader = DataLoader(
-        dataset=predict_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=1,
-        collate_fn=collate_fn,
-    )
+    # predict_dataset = LidarValDataset(
+    #     files_to_predict,
+    #     loading_function=load_las_data,
+    #     transform=selection,   
+    #     target_transform=None,
+    #     subtile_width_meters=subtile_width_meters,
+    #     subtile_overlap=subtile_overlap,
+    # )
+
+    # predict_dataloader = DataLoader(
+    #     dataset=predict_dataset,
+    #     batch_size=batch_size,
+    #     shuffle=False,
+    #     num_workers=1,
+    #     collate_fn=collate_fn,
+    # )
+    datamodule._set_all_transforms()
+    datamodule._set_predict_data()
+    datamodule.predict_dataloader()
 
     data_handler = DataHandler()
 
@@ -85,8 +90,10 @@ def predict(config: DictConfig) -> Optional[float]:
 
     model: LightningModule = hydra.utils.instantiate(config.model)
 
+    predict_dataloader = datamodule.predict_dataloader()
+
     for batch in predict_dataloader: # ça marche ça? itérateur qui fait bien ce qu'on veut?
-        outputs = model(batch)
+        outputs = model.predict_step(batch)
         data_handler.update_las_with_preds(outputs, "predict")
 
     log_path = os.getcwd()
@@ -129,7 +136,7 @@ def predict(config: DictConfig) -> Optional[float]:
         ]
         if not shp_subset.empty:
             mode = "w" if not os.path.isfile(subset_path) else "a"
-            header = True if mode == "w" else False
+            # header = True if mode == "w" else False
             shp_subset.to_file(subset_path, mode=mode)
 
     if config.inspection.update_las:
