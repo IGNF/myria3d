@@ -54,7 +54,8 @@ def predict(config: DictConfig) -> Optional[float]:
 
     lasfiles_dir = config.datamodule.get("lasfiles_dir", None)
     src_las = config.datamodule.get("src_las", None)
-    subtile_width_meters = config.datamodule.get("subtile_width_meters", 50)
+    output_predict_dir = config.datamodule.get("output_dir", None)
+    # subtile_width_meters = config.datamodule.get("subtile_width_meters", 50)
     # subtile_overlap = config.datamodule.get("subtile_overlap", 0)
 
     files_to_predict = [os.path.join(lasfiles_dir, src_las)]
@@ -62,23 +63,6 @@ def predict(config: DictConfig) -> Optional[float]:
     # selection = SelectSubTile(subtile_width_meters=subtile_width_meters, method="predefined")
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
-
-    # predict_dataset = LidarValDataset(
-    #     files_to_predict,
-    #     loading_function=load_las_data,
-    #     transform=selection,   
-    #     target_transform=None,
-    #     subtile_width_meters=subtile_width_meters,
-    #     subtile_overlap=subtile_overlap,
-    # )
-
-    # predict_dataloader = DataLoader(
-    #     dataset=predict_dataset,
-    #     batch_size=batch_size,
-    #     shuffle=False,
-    #     num_workers=1,
-    #     collate_fn=collate_fn,
-    # )
     datamodule._set_all_transforms()
     datamodule._set_predict_data()
     datamodule.predict_dataloader()
@@ -97,10 +81,10 @@ def predict(config: DictConfig) -> Optional[float]:
         data_handler.update_las_with_preds(outputs, "predict")
 
     log_path = os.getcwd()
-    data_handler.preds_dirpath = os.path.join(log_path, "prediction_preds")
+    # data_handler.preds_dirpath = os.path.join(log_path, "prediction_preds")
+    data_handler.preds_dirpath = os.path.join(log_path, output_predict_dir)
     os.makedirs(data_handler.preds_dirpath, exist_ok=True)
     data_handler.save_las_with_preds_and_close("predict")
-
 
     las = load_geodf_of_candidate_building_points(data_handler.output_path)
     gdf_inspection = get_inspection_gdf(
