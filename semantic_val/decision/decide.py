@@ -161,6 +161,14 @@ def make_decisions(
         return DecisionLabels.UNSURE.value
 
 
+def split_idx_by_dim(dim_array):
+    """Returns a sequence of arrays of indices of elements sharing the same value in dim_array"""
+    idx = np.argsort(dim_array)
+    sorted_cl_ids = dim_array[idx]
+    split_idx = np.array_split(idx, np.where(np.diff(sorted_cl_ids) != 0)[0] + 1)
+    return split_idx
+
+
 def update_las_with_decisions(las, params):
     """
     Update point cloud classification channel.
@@ -174,14 +182,15 @@ def update_las_with_decisions(las, params):
     las[CLASSIFICATION_CHANNEL_NAME][candidate_building_points_mask] = DEFAULT_CODE
 
     # 2) Decide for candidate points that form a valid candidate shape
-    for cl_id in tqdm(range(1, np.max(las.ClusterID) + 1), desc="Updating LAS."):
-        idx = las.ClusterID == cl_id
-        pts = las.points[idx]
+    split_idx = split_idx_by_dim(las.ClusterID)
+    split_idx = split_idx[1:]  # remove large group with ClusterID = 0
+    for pts_idx in tqdm(split_idx, desc="Updating LAS."):
+        pts = las.points[pts_idx]
         ia_decision = make_decisions(pts[ChannelNames.BuildingsProba.value], **params)
         if ia_decision == DecisionLabels.UNSURE.value:
-            las[CLASSIFICATION_CHANNEL_NAME][idx] = MTS_AUTO_DETECTED_CODE
+            las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = MTS_AUTO_DETECTED_CODE
         elif ia_decision == DecisionLabels.BUILDING.value:
-            las[CLASSIFICATION_CHANNEL_NAME][idx] = CONFIRMED_BUILDING_CODE
+            las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = CONFIRMED_BUILDING_CODE
         elif ia_decision == DecisionLabels.NOT_BUILDING.value:
             # already default
             pass
