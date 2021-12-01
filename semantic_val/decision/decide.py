@@ -164,9 +164,9 @@ def make_decisions(
 def split_idx_by_dim(dim_array):
     """Returns a sequence of arrays of indices of elements sharing the same value in dim_array"""
     idx = np.argsort(dim_array)
-    sorted_cl_ids = dim_array[idx]
-    split_idx = np.array_split(idx, np.where(np.diff(sorted_cl_ids) != 0)[0] + 1)
-    return split_idx
+    sorted_dim_array = dim_array[idx]
+    group_idx = np.array_split(idx, np.where(np.diff(sorted_dim_array) != 0)[0] + 1)
+    return group_idx
 
 
 def update_las_with_decisions(las, params):

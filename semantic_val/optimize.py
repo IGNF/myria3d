@@ -24,6 +24,7 @@ from semantic_val.decision.decide import (
     get_results_logs_str,
     make_decisions,
     reset_classification,
+    split_idx_by_dim,
     update_las_with_decisions,
 )
 
@@ -58,17 +59,16 @@ def get_probas_and_target_by_group(
         if len(structured_array) == 0:
             log.info("/!\ Skipping tile: there are no candidate building points.")
             continue
-        nb_clusters = np.max(structured_array["ClusterID"])
-        for cl_id in tqdm(
-            range(1, nb_clusters + 1), desc="Append probas and targets  ->"
-        ):
+        split_idx = split_idx_by_dim(structured_array["ClusterID"])
+        split_idx = split_idx[1:]  # remove large group with ClusterID = 0
+        for pts_idx in tqdm(split_idx, desc="Append probas and targets  ->"):
             # TODO: optimize splitting with https://stackoverflow.com/a/28156406/8086033
-            idx = structured_array["ClusterID"] == cl_id
-            probas = structured_array[ChannelNames.BuildingsProba.value][idx]
+            probas = structured_array[ChannelNames.BuildingsProba.value][pts_idx]
             group_probas.append(probas)
             frac_true_positive = np.mean(
                 np.isin(
-                    structured_array["Classification"][idx], MTS_TRUE_POSITIVE_CODE_LIST
+                    structured_array["Classification"][pts_idx],
+                    MTS_TRUE_POSITIVE_CODE_LIST,
                 )
             )
             mts_gt.append(define_MTS_ground_truth_flag(frac_true_positive))
