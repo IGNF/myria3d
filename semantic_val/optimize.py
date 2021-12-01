@@ -3,6 +3,9 @@ import glob
 import os
 import os.path as osp
 from typing import List, Tuple
+import hydra
+from omegaconf.base import SCMode
+from omegaconf.omegaconf import OmegaConf
 from tqdm import tqdm
 from omegaconf import DictConfig
 from pytorch_lightning import seed_everything
@@ -14,6 +17,7 @@ from semantic_val.utils import utils
 from semantic_val.decision.decide import (
     MTS_TRUE_POSITIVE_CODE_LIST,
     DecisionLabels,
+    MetricsNames,
     get_post_ia_las_filepath,
     cluster,
     evaluate_decisions,
@@ -42,11 +46,10 @@ def get_probas_and_target_by_group(
     las_filepaths: List[str],
 ) -> Tuple[List[np.array], List[str]]:
     """
-    From a folder of las, cluster the clouds and append both list of predicted probas and MTS ground truth to lists.
+    From a folder of las with probabilities, cluster the clouds and append both list of predicted probas and MTS ground truth to lists.
     group_probas: the probas of each group of points
     mts_gt: the group label based on ground truths
     """
-    # TODO: optimize splitting with https://stackoverflow.com/a/28156406/8086033
     group_probas = []
     mts_gt = []
     for las_filepath in tqdm(las_filepaths, desc="Clustering  ->"):
@@ -59,6 +62,7 @@ def get_probas_and_target_by_group(
         for cl_id in tqdm(
             range(1, nb_clusters + 1), desc="Append probas and targets  ->"
         ):
+            # TODO: optimize splitting with https://stackoverflow.com/a/28156406/8086033
             idx = structured_array["ClusterID"] == cl_id
             probas = structured_array[ChannelNames.BuildingsProba.value][idx]
             group_probas.append(probas)
@@ -72,6 +76,7 @@ def get_probas_and_target_by_group(
     return group_probas, mts_gt
 
 
+# TODO: extract constraints as global constant
 def compute_OPTIMIZATION_penalty(auto, precision, recall):
     """
     Positive float indicative of how much a solution violates the constraint of minimal auto/precision/metrics
@@ -125,6 +130,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
     for las in las_list:
         cluster with pdal, save to output_las_file
         add the X and target informations in a list
+        pickle the list
 
     Run an hyperoptimisation
     Find the best solution
@@ -148,8 +154,14 @@ def optimize(config: DictConfig) -> Tuple[float]:
         "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
     ]
     print(las_filepaths)
-
-    group_probas, mts_gt = get_probas_and_target_by_group(las_filepaths)
+    probas_target_groups_filepath = osp.join(os.getcwd(), "probas_target_groups.pkl")
+    if config.optimize.resume_from_pickled_groups:
+        with open(probas_target_groups_filepath, "rb") as f:
+            group_probas, mts_gt = pickle.load(f)
+    else:
+        group_probas, mts_gt = get_probas_and_target_by_group(las_filepaths)
+        with open(probas_target_groups_filepath, "wb") as f:
+            pickle.dump((group_probas, mts_gt), f)
 
     ### OPTIMIZE WITH OPTUNA
     log.info(f"Optimizing on N={len(mts_gt)} groups of points.")
@@ -175,10 +187,11 @@ def optimize(config: DictConfig) -> Tuple[float]:
             for probas in group_probas
         ]
         metrics_dict = evaluate_decisions(mts_gt, np.array(ia_decision))
+
         values = (
-            metrics_dict["P_AUTO"],
-            metrics_dict["PRECISION"],
-            metrics_dict["RECALL"],
+            metrics_dict[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value],
+            metrics_dict[MetricsNames.PRECISION.value],
+            metrics_dict[MetricsNames.RECALL.value],
         )
         auto, precision, recall = (
             value if not np.isnan(value) else 0 for value in values
@@ -188,21 +201,17 @@ def optimize(config: DictConfig) -> Tuple[float]:
         )
         return auto, precision, recall
 
-    # TODO: Use a config for the study
-    sampler = optuna.samplers.NSGAIISampler(
-        population_size=30,
-        mutation_prob=0.25,
-        crossover_prob=0.8,
-        swapping_prob=0.5,
-        seed=12345,
-        constraints_func=constraints_func,
+    sampler_kwargs = OmegaConf.to_container(
+        config.optimize.sampler_kwargs, structured_config_mode=SCMode.DICT_CONFIG
     )
+    sampler_kwargs.update({"constraints_func": constraints_func})
+    sampler = eval(config.optimize.sampler_class)(**sampler_kwargs)
     study = optuna.create_study(
         sampler=sampler,
-        directions=["maximize", "maximize", "maximize"],
-        study_name="auto_precision_recall",
+        directions=config.optimize.study.directions,
+        study_name=config.optimize.study.study_name,
     )
-    study.optimize(objective, n_trials=60, timeout=300)
+    study.optimize(objective, n_trials=config.optimize.study.n_trials)
 
     best_trial = select_best_trial(study)
     log.info("Best_trial: \n")

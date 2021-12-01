@@ -2,3 +2,18 @@
 predicted_las_dirpath:  "/path/to/folder/"  # contains .las files
 update_las: false  # memory intensive -set to true to propagate decisions to las files when optimizing. 
 results_output_dir: "/path/to/folder/"  # will contain best optimization trial and (optionnaly) updated las
+
+resume_from_pickled_groups: false
+study:
+  n_trials: 60
+  study_name: "auto_precision_recall"
+  directions: ["maximize","maximize","maximize"]
+
+sampler_class: optuna.samplers.NSGAIISampler
+sampler_kwargs:
+  population_size: 30
+  mutation_prob: 0.25
+  crossover_prob: 0.8
+  swapping_prob: 0.5
+  seed: 12345
+  constraints_func: none  # Created dynamically
