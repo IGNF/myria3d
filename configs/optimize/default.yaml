@@ -5,7 +5,7 @@ results_output_dir: "/path/to/folder/"  # will contain best optimization trial a
 
 resume_from_pickled_groups: false
 study:
-  n_trials: 60
+  n_trials: 300
   study_name: "auto_precision_recall"
   directions: ["maximize","maximize","maximize"]
 
