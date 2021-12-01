@@ -74,12 +74,18 @@ def predict(config: DictConfig) -> Optional[float]:
 
     predict_dataloader = datamodule.predict_dataloader()
     # utils.update_config_with_hyperparams(config)
-    model = model.load_from_checkpoint(trainer.resume_from_checkpoint) 
+    # model = model.load_from_checkpoint(trainer.resume_from_checkpoint) 
+
+    trainer: Trainer = hydra.utils.instantiate(
+        config.trainer, callbacks=None, logger=None, _convert_="partial"
+    )
+    model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
+
 
     for index, batch in enumerate(predict_dataloader):
         outputs = model.predict_step(batch)
         data_handler.update_las_with_preds(outputs, "predict")
-        if index > 2: break ###### à supprimer ###################
+        # if index > 2: break ###### à supprimer ###################
 
     log_path = os.getcwd()
     data_handler.preds_dirpath = os.path.join(log_path, output_predict_dir)
