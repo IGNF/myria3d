@@ -238,7 +238,8 @@ def optimize(config: DictConfig) -> Tuple[float]:
             # we reuse post_ia path that already contains clustered las.
             out_path = get_post_ia_las_filepath(las_filepath)
             las = laspy.read(out_path)
+
             las.classification = reset_classification(las.classification)
-            # TODO: deal with leftovers fields : PredsConfusion etc. -> they should take update into account ?
+            # TODO: delete leftovers fields : "BuildingsPreds", BuildingsConfusion, BuildingsHasPredictions = "BuildingsHasPredictions"
             las = update_las_with_decisions(las, best_trial.params)
             las.write(out_path)
