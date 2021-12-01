@@ -31,11 +31,11 @@ from semantic_val.inspection.utils import (
 log = utils.get_logger(__name__)
 
 
-def get_val_transforms(subtile_width_meters) -> CustomCompose:
-    """Create a transform composition for val phase."""
-    selection = SelectSubTile(
-        subtile_width_meters=subtile_width_meters, method="predefined"
-    )
+# def get_val_transforms(subtile_width_meters) -> CustomCompose:
+#     """Create a transform composition for val phase."""
+#     selection = SelectSubTile(
+#         subtile_width_meters=subtile_width_meters, method="predefined"
+#     )
 
 
 def predict(config: DictConfig) -> Optional[float]:
@@ -60,8 +60,6 @@ def predict(config: DictConfig) -> Optional[float]:
 
     files_to_predict = [os.path.join(lasfiles_dir, src_las)]
 
-    # selection = SelectSubTile(subtile_width_meters=subtile_width_meters, method="predefined")
-
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_all_transforms()
     datamodule._set_predict_data()
@@ -75,16 +73,19 @@ def predict(config: DictConfig) -> Optional[float]:
     model: LightningModule = hydra.utils.instantiate(config.model)
 
     predict_dataloader = datamodule.predict_dataloader()
+    # utils.update_config_with_hyperparams(config)
+    model = model.load_from_checkpoint(trainer.resume_from_checkpoint) 
 
-    for batch in predict_dataloader: # ça marche ça? itérateur qui fait bien ce qu'on veut?
+    for index, batch in enumerate(predict_dataloader):
         outputs = model.predict_step(batch)
         data_handler.update_las_with_preds(outputs, "predict")
+        if index > 2: break ###### à supprimer ###################
 
     log_path = os.getcwd()
-    # data_handler.preds_dirpath = os.path.join(log_path, "prediction_preds")
     data_handler.preds_dirpath = os.path.join(log_path, output_predict_dir)
     os.makedirs(data_handler.preds_dirpath, exist_ok=True)
     data_handler.save_las_with_preds_and_close("predict")
+
 
     las = load_geodf_of_candidate_building_points(data_handler.output_path)
     gdf_inspection = get_inspection_gdf(
