@@ -150,9 +150,11 @@ def optimize(config: DictConfig) -> Tuple[float]:
 
     las_filepaths = glob.glob(osp.join(config.optimize.predicted_las_dirpath, "*.las"))
     # DEBUG
-    las_filepaths = [
-        "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
-    ]
+
+    # las_filepaths = [
+    #     "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
+    # ]
+
     print(las_filepaths)
     probas_target_groups_filepath = osp.join(os.getcwd(), "probas_target_groups.pkl")
     if config.optimize.resume_from_pickled_groups:
