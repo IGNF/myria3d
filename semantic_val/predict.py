@@ -1,6 +1,8 @@
 import os
+import time
 import hydra
 import laspy
+import torch
 from omegaconf import DictConfig
 from typing import List, Optional
 from pytorch_lightning import (
@@ -48,15 +50,12 @@ def predict(config: DictConfig) -> Optional[float]:
     Returns:
         Optional[float]: Metric score for hyperparameter optimization.
     """
+    start_time = time.process_time()
     assert os.path.exists(config.trainer.resume_from_checkpoint)
 
-    # batch_size = config.datamodule.get("batch_size", 32)
-
-    lasfiles_dir = config.datamodule.get("lasfiles_dir", None)
-    src_las = config.datamodule.get("src_las", None)
-    output_predict_dir = config.datamodule.get("output_dir", None)
-    # subtile_width_meters = config.datamodule.get("subtile_width_meters", 50)
-    # subtile_overlap = config.datamodule.get("subtile_overlap", 0)
+    lasfiles_dir = config.datamodule["lasfiles_dir"]
+    src_las = config.datamodule["src_las"]
+    output_predict_dir = config.datamodule["output_dir"]
 
     files_to_predict = [os.path.join(lasfiles_dir, src_las)]
 
@@ -70,28 +69,24 @@ def predict(config: DictConfig) -> Optional[float]:
     for file_to_predict in files_to_predict:
         data_handler.load_new_las_for_preds(file_to_predict)
 
-    model: LightningModule = hydra.utils.instantiate(config.model)
+    with torch.no_grad():
+        model: LightningModule = hydra.utils.instantiate(config.model)
 
-    predict_dataloader = datamodule.predict_dataloader()
-    # utils.update_config_with_hyperparams(config)
-    # model = model.load_from_checkpoint(trainer.resume_from_checkpoint) 
+        predict_dataloader = datamodule.predict_dataloader()
+        trainer: Trainer = hydra.utils.instantiate(
+            config.trainer, callbacks=None, logger=None, _convert_="partial"
+        )
+        model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
 
-    trainer: Trainer = hydra.utils.instantiate(
-        config.trainer, callbacks=None, logger=None, _convert_="partial"
-    )
-    model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
-
-
-    for index, batch in enumerate(predict_dataloader):
-        outputs = model.predict_step(batch)
-        data_handler.update_las_with_preds(outputs, "predict")
-        # if index > 2: break ###### à supprimer ###################
+        for index, batch in enumerate(predict_dataloader):
+            outputs = model.predict_step(batch)
+            data_handler.update_las_with_preds(outputs, "predict")
+            # if index > 2: break ###### à supprimer ###################
 
     log_path = os.getcwd()
     data_handler.preds_dirpath = os.path.join(log_path, output_predict_dir)
     os.makedirs(data_handler.preds_dirpath, exist_ok=True)
     data_handler.save_las_with_preds_and_close("predict")
-
 
     las = load_geodf_of_candidate_building_points(data_handler.output_path)
     gdf_inspection = get_inspection_gdf(
@@ -102,7 +97,7 @@ def predict(config: DictConfig) -> Optional[float]:
             min_confidence_refutation=config.inspection.min_confidence_refutation,
         )
 
-    shp_path = os.path.join(os.getcwd(), "inspection_shapefiles/")
+    shp_path = os.path.join(output_predict_dir, "inspection_shapefiles/")
     os.makedirs(shp_path, exist_ok=True)
     shp_all_path = os.path.join(
         shp_path, config.inspection.inspection_shapefile_name.format(subset="all")
@@ -143,6 +138,8 @@ def predict(config: DictConfig) -> Optional[float]:
         las.write(out_path)
         log.info(f"Saved updated LAS to {out_path}")
 
+    end_time = time.process_time() - start_time 
+    log.info(f"Time to process: {end_time}")
     return 
 
 
