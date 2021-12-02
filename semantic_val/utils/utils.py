@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 import warnings
 from typing import List, Sequence
 
@@ -199,3 +200,16 @@ def finish(
             import wandb
 
             wandb.finish()
+
+def eval_time(method):
+    """decorator to log the duration of the decorated method"""
+    def timed(*args, **kwargs):
+        log = get_logger()
+        time_start = time.process_time()
+        result = method(*args, ** kwargs)
+        time_elapsed = round(time.process_time() - time_start,2)
+
+        log.info(f"Processing time of {method.__name__}: {time_elapsed}s")
+        return result
+    return timed
+
