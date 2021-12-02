@@ -130,8 +130,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
     ### UPDATING LAS
     if "update" in config.optimize.todo:
         log.info(f"Validated las will be saved in {os.getcwd()}")
-        log.info("The following params are used :")
-        log.info(best_trial.params)
         for las_filepath in tqdm(las_filepaths, desc="Update Las"):
             # we reuse post_ia path that already contains clustered las.
             basename = osp.basename(las_filepath)
@@ -140,6 +138,11 @@ def optimize(config: DictConfig) -> Tuple[float]:
 
             las.classification = reset_classification(las.classification)
             # TODO: delete leftovers fields : "BuildingsPreds", BuildingsConfusion, BuildingsHasPredictions = "BuildingsHasPredictions"
+            with open(config.optimize.best_trial_pickle_path, "rb") as f:
+                best_trial = pickle.load(f)
+                log.info(
+                    f"Using best trial from: {config.optimize.best_trial_pickle_path}"
+                )
             las = update_las_with_decisions(las, best_trial.params)
             out_path = osp.join(output_dir, "POST_IA_" + basename)
             las.write(out_path)

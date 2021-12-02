@@ -7,4 +7,4 @@ reduce_lr_on_plateau:
   activate: false
   factor: 0.5  # halving
   patience: 5
-  cooldown: 5
+  cooldown: 2
