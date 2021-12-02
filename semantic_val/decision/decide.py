@@ -67,17 +67,6 @@ class DecisionLabels(Enum):
 DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
 
 
-# Functions
-def get_post_ia_las_filepath(las_filepath):
-    """
-    input/folder/name.las --> current/dir/POST_IA_name.las
-    Current directory is overwritten by user.
-    """
-    basename = osp.basename(las_filepath)
-    out_path = osp.join(os.getcwd(), "POST_IA_" + basename)
-    return out_path
-
-
 def cluster(
     input_filepath: str,
     output_filepath: str,

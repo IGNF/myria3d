@@ -1,6 +1,6 @@
 # OPTIMIZATION PARAMETERS
 predicted_las_dirpath:  "/path/to/folder/"  # contains .las files
-update_las: false  # memory intensive -set to true to propagate decisions to las files when optimizing. 
+todo: "cluster+optimize+update"  # Only some actions can be included, resuming from previous tasks. update is memory intensive 
 results_output_dir: "/path/to/folder/"  # will contain best optimization trial and (optionnaly) updated las
 
 resume_from_pickled_groups: false
