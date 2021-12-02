@@ -39,7 +39,7 @@ log = utils.get_logger(__name__)
 #         subtile_width_meters=subtile_width_meters, method="predefined"
 #     )
 
-
+@utils.eval_time
 def predict(config: DictConfig) -> Optional[float]:
     """Contains training pipeline.
     Instantiates all PyTorch Lightning objects from config.
@@ -50,7 +50,6 @@ def predict(config: DictConfig) -> Optional[float]:
     Returns:
         Optional[float]: Metric score for hyperparameter optimization.
     """
-    start_time = time.process_time()
     assert os.path.exists(config.trainer.resume_from_checkpoint)
 
     lasfiles_dir = config.datamodule["lasfiles_dir"]
@@ -77,6 +76,7 @@ def predict(config: DictConfig) -> Optional[float]:
             config.trainer, callbacks=None, logger=None, _convert_="partial"
         )
         model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
+        model.eval()
 
         for index, batch in enumerate(predict_dataloader):
             outputs = model.predict_step(batch)
@@ -137,9 +137,6 @@ def predict(config: DictConfig) -> Optional[float]:
         out_path = os.path.join(out_dir, out_name)
         las.write(out_path)
         log.info(f"Saved updated LAS to {out_path}")
-
-    end_time = time.process_time() - start_time 
-    log.info(f"Time to process: {end_time}")
     return 
 
 
