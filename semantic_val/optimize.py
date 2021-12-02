@@ -18,7 +18,6 @@ from semantic_val.decision.decide import (
     MTS_TRUE_POSITIVE_CODE_LIST,
     DecisionLabels,
     MetricsNames,
-    get_post_ia_las_filepath,
     cluster,
     evaluate_decisions,
     get_results_logs_str,
@@ -63,7 +62,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
     output_dir = config.optimize.results_output_dir
     input_dir = config.optimize.predicted_las_dirpath
 
-    os.chdir(output_dir)  # TODO: Necesary ? PRefer using the config.
     os.makedirs(output_dir, exist_ok=True)
     log.info(f"Best trial and outputs will be saved in {os.getcwd()}")
     las_filepaths = glob.glob(osp.join(input_dir, "*.las"))
@@ -74,18 +72,18 @@ def optimize(config: DictConfig) -> Tuple[float]:
     ]
     print(las_filepaths)
 
-    probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
     ### CLUSTER AND GET PROBAS AND TARGETS FOR LATER OPTIMIZATION
     if "cluster" in config.optimize.todo:
         group_probas, mts_gt = get_probas_and_target_by_group(las_filepaths, output_dir)
+        probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "wb") as f:
             pickle.dump((group_probas, mts_gt), f)
 
     ### OPTIMIZE THRESHOLDS WITH OPTUNA
     if "optimize" in config.optimize.todo:
-        if config.optimize.resume_from_pickled_groups:
-            with open(probas_target_groups_filepath, "rb") as f:
-                group_probas, mts_gt = pickle.load(f)
+        probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
+        with open(probas_target_groups_filepath, "rb") as f:
+            group_probas, mts_gt = pickle.load(f)
         log.info(f"Optimizing on N={len(mts_gt)} groups of points.")
 
         sampler_kwargs = OmegaConf.to_container(
@@ -108,12 +106,19 @@ def optimize(config: DictConfig) -> Tuple[float]:
         best_trial = select_best_trial(study)
         log.info("Best_trial: \n")
         log.info(best_trial)
-        best_trial_path = osp.join(os.getcwd(), "best_trial.pkl")
-        with open(best_trial_path, "wb") as f:
+        with open(config.optimize.best_trial_pickle_path, "wb") as f:
             pickle.dump(best_trial, f)
-            log.info(f"Best trial stored in: {best_trial_path}")
+            log.info(f"Best trial stored in: {config.optimize.best_trial_pickle_path}")
 
-        ### EVALUATE WITH BEST PARAMS
+    ### EVALUATE WITH BEST PARAMS
+    if "evaluate" in config.optimize.todo:
+        with open(config.optimize.best_trial_pickle_path, "rb") as f:
+            best_trial = pickle.load(f)
+            log.info(f"Using best trial from: {config.optimize.best_trial_pickle_path}")
+        probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
+        with open(probas_target_groups_filepath, "rb") as f:
+            group_probas, mts_gt = pickle.load(f)
+        log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
         ia_decision = np.array(
             [make_decisions(probas, **best_trial.params) for probas in group_probas]
         )
@@ -123,7 +128,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
         )
 
     ### UPDATING LAS
-    if "decide" in config.optimize.todo:
+    if "update" in config.optimize.todo:
         log.info(f"Validated las will be saved in {os.getcwd()}")
         log.info("The following params are used :")
         log.info(best_trial.params)

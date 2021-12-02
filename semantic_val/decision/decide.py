@@ -6,6 +6,7 @@ import os
 from typing import List
 import os.path as osp
 import json
+
 import pdal
 
 import numpy as np
@@ -48,8 +49,8 @@ class MetricsNames(Enum):
 
     # To maximize:
     PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
-    RECALL = "RECALL"
     PRECISION = "PRECISION"
+    RECALL = "RECALL"
     # Constraints:
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"

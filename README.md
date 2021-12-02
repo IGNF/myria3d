@@ -64,9 +64,16 @@ python run.py experiment=PN_validate callbacks.save_preds.save_predictions=false
 To evaluate on test data instead of val data, replace `experiment=PN_validate` by `experiment=PN_test`.
 
 
-Run a multi-objectives optimization of decision threshold, to maximize recall and precision directly while also maximizing automation:
+Run a multi-objectives hyperparameters optimization of the decision thresholds, to maximize recall and precision directly while also maximizing automation.
+
 ```yaml
-python run.py -m task=optimize print_config=false optimize.predicted_las_dirpath="/path/to/las/folder/" optimize.results_output_dir="/path/to/results/"
+python run.py -m task=optimize optimize.todo='cluster+optimize+evaluate+update' optimize.predicted_las_dirpath="/path/to/val/las/folder/" optimize.results_output_dir="/path/to/save/updated/val/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
+```
+
+To evaluate best solution on test set, simplyt change the input las folder and the results output folder, and remove the optimization from the todo. The path to the best trial stays the same.
+
+```yaml
+python run.py -m task=optimize optimize.todo='cluster+evaluate+update' print_config=false optimize.predicted_las_dirpath="/path/to/test/las/folder/" optimize.results_output_dir="/path/to/save/updated/test/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
 ```
 
 Additionally, if you want to update the las classification based on those decisions, add an `optimize.update_las=true` argument.

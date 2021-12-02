@@ -1,9 +1,9 @@
 # OPTIMIZATION PARAMETERS
 predicted_las_dirpath:  "/path/to/folder/"  # contains .las files
-todo: "cluster+optimize+update"  # Only some actions can be included, resuming from previous tasks. update is memory intensive 
+todo: "cluster+optimize+evaluate+update"  # for test data use cluster+evaluate+update
 results_output_dir: "/path/to/folder/"  # will contain best optimization trial and (optionnaly) updated las
+best_trial_pickle_path: "/path/to/best_trial.pkl"
 
-resume_from_pickled_groups: false
 study:
   n_trials: 300
   study_name: "auto_precision_recall"
