@@ -71,7 +71,6 @@ def predict(config: DictConfig) -> Optional[float]:
     log.info("Updating classification...")
     las = laspy.read(updated_las_path)
     las.classification = reset_classification(las.classification)
-    # TODO: delete leftovers fields : "BuildingsPreds", BuildingsConfusion, BuildingsHasPredictions = "BuildingsHasPredictions"
     with open(config.prediction.best_trial_pickle_path, "rb") as f:
         log.info(f"Using best trial from: {config.prediction.best_trial_pickle_path}")
         best_trial = pickle.load(f)

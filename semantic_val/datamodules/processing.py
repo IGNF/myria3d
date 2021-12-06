@@ -406,11 +406,6 @@ class DataHandler:
         self.current_las.add_extra_dim(param)
         self.current_las[coln][:] = 0.0
 
-        # coln = ChannelNames.BuildingsConfusion.value
-        # param = laspy.ExtraBytesParams(name=coln, type=int)
-        # self.current_las.add_extra_dim(param)
-        # self.current_las[coln][:] = 0
-
         self.current_las_pos = np.asarray(
             [
                 self.current_las.x,
@@ -468,13 +463,6 @@ class DataHandler:
 
         self.current_las[ChannelNames.BuildingsPreds.value][assign_idx] = preds
         self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = proba
-
-    def get_confusion(self, preds, targets):
-        """Get a confusion vector: TN=0, Tp=1, FN=2, FP=3 - Nodata or Nan is 4."""
-        A = preds * (preds == targets)
-        B = (2 + preds) * (preds != targets)
-        elem_preds_confusion = A + B
-        return elem_preds_confusion
 
     def save_las_with_preds_and_close(self, phase):
         """After inference of classification in self.las_with_predictions, save updated LAS.

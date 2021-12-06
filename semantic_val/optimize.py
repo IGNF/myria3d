@@ -136,7 +136,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
             cluster_path = osp.join(output_dir, "CLUSTER_" + basename)
             las = laspy.read(cluster_path)
             las.classification = reset_classification(las.classification)
-            # TODO: delete leftovers fields : "BuildingsPreds", BuildingsConfusion, BuildingsHasPredictions = "BuildingsHasPredictions"
             with open(config.optimize.best_trial_pickle_path, "rb") as f:
                 best_trial = pickle.load(f)
                 log.info(

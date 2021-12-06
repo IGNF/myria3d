@@ -23,7 +23,7 @@ class SavePreds(Callback):
     """
     A Callback to save predictions back to original LAS file.
     Keep a full LAS tile in memory until it changes and thus must be saved.
-    Added channels: BuildingPreds, BuildingProba, BuildingConfusion
+    Added channels: BuildingProba, BuildingPreds
     """
 
     def __init__(
