@@ -17,18 +17,21 @@ from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
+# INITIAL TERRA-SOLID CLASSIFICATION CODES
 MTS_AUTO_DETECTED_CODE = 6
-# which was splitted into...
 MTS_TRUE_POSITIVE_CODE_LIST = [19]
 MTS_FALSE_POSITIVE_CODE_LIST = [20, 110, 112, 114, 115]
 MTS_FALSE_NEGATIVE_CODE_LIST = [21]
-CONFIRMED_BUILDING_CODE = 19
-DEFAULT_CODE = 1
 LAST_ECHO_CODE = 104
+
+# FINAL CLASSIFICATION CODES
+DEFAULT_CODE = 1
+CONFIRMED_BUILDING_CODE = 19
+REFUTED_BUILDING_CODE = 20
 
 CLUSTER_TOLERANCE = 0.5  # meters
 CLUSTER_MIN_POINTS = 10
-SHARED_CRS = "EPSG:2154"  # TODO: use this
+SHARED_CRS = "EPSG:2154"
 
 CLASSIFICATION_CHANNEL_NAME = "classification"
 
@@ -182,8 +185,7 @@ def update_las_with_decisions(las, params):
         elif ia_decision == DecisionLabels.BUILDING.value:
             las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = CONFIRMED_BUILDING_CODE
         elif ia_decision == DecisionLabels.NOT_BUILDING.value:
-            # already default
-            pass
+            las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = REFUTED_BUILDING_CODE
         else:
             raise KeyError(f"Unexpected IA decision: {ia_decision}")
     return las
