@@ -81,7 +81,7 @@ def predict(config: DictConfig) -> Optional[float]:
         for index, batch in enumerate(predict_dataloader):
             outputs = model.predict_step(batch)
             data_handler.update_las_with_preds(outputs, "predict")
-            # if index > 2: break ###### à supprimer ###################
+            if index > 2: break ###### à supprimer ###################
 
     log_path = os.getcwd()
     data_handler.preds_dirpath = os.path.join(log_path, output_predict_dir)

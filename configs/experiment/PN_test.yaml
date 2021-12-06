@@ -17,9 +17,9 @@ defaults:
 
 seed: 12345
 
-# These needs to be override nt 
-fit_the_model: false
-test_the_model: true
+# ATTENTION : you need to override these manually in CLI 
+# fit_the_model: false
+# test_the_model: true
 
 hydra:
   verbose: false
@@ -37,6 +37,15 @@ callbacks:
   save_preds:
     save_predictions: true
 
+datamodule:
+  use_val_data_at_test_time: False # We use val the real test data and not val data
+  batch_size: 32
+  subtile_width_meters: 50
+  subsample_size: 12500  # Aim for at least 10pts/m²
+  subtile_overlap: 0
+  num_workers: 1
+  shuffle_train: false
+
 model:
   loss: "FocalLoss"
   n_classes: 2
@@ -46,11 +55,3 @@ model:
     MLP3_channels: [1088, 512, 256, 64, 4]
     batch_norm: true
     pi_init: 0.05
-
-datamodule:
-  batch_size: 32
-  subtile_width_meters: 50
-  subsample_size: 12500  # Aim for at least 10pts/m²
-  subtile_overlap: 0
-  num_workers: 1
-  shuffle_train: false

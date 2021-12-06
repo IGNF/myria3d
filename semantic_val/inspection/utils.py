@@ -61,21 +61,29 @@ class ShapeFileCols(Enum):
 
 
 class MetricsNames(Enum):
+    # Shapes info
+    MTS_SHP_NUMBER = "NUM_SHAPES"
+    MTS_SHP_BUILDINGS = "P_MTS_BUILDINGS"
+    MTS_SHP_NO_BUILDINGS = "P_MTS_NO_BUILDINGS"
+    MTS_SHP_UNSURE = "P_MTS_UNSURE"
+
     # Amount of each deicison
     PROPORTION_OF_UNCERTAINTY = "P_UNSURE"
     PROPORTION_OF_CONFIRMATION = "P_CONFIRM"
     PROPORTION_OF_REFUTATION = "P_REFUTE"
+    CONFUSION_MATRIX_NORM = "CONFUSION_MATRIX_NORM"
+    CONFUSION_MATRIX_NO_NORM = "CONFUSION_MATRIX_NO_NORM"
 
     # To maximize:
     PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
+    RECALL = "RECALL"
+    PRECISION = "PRECISION"
     # Constraints:
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
     # Metainfo to evaluate absolute gain and what is still to inspect
     NET_GAIN_CONFIRMATION = "NG_CONFIRM"
     NET_GAIN_REFUTATION = "NG_REFUTE"
-    SENSITIVITY = "SENSITIVITY"
-    SPECIFICITY = "SPECIFICITY"
 
 
 class DecisionLabels(Enum):
@@ -449,19 +457,45 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
       Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
       for ambiguous groud truths)
     Quality
-      Specificity and Recall resulting from C/R, assuming perfect posterior decision for unsure predictions.
+      Precision and Recall resulting from C/R, assuming perfect posterior decision for unsure predictions.
       Only candidate shapes with known ground truths are considered.
     """
+    metrics_dict = dict()
+
     mts_gt = gdf[ShapeFileCols.MTS_GROUND_TRUTH.value].copy()
     ia_decision = gdf[ShapeFileCols.IA_DECISION.value].copy()
+
+    # VECTORS INFOS
+    num_shapes = len(ia_decision)
+    metrics_dict.update({MetricsNames.MTS_SHP_NUMBER.value: num_shapes})
+
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize=None
+    )
+    metrics_dict.update({MetricsNames.CONFUSION_MATRIX_NO_NORM.value: cm.copy()})
 
     # CRITERIA
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="all"
     )
-    PU, PR, PC = cm.sum(axis=0)
-    # Proportion of decisions made among total (= 1 - PU)
-    PAD = PC + PR
+    P_MTS_U, P_MTS_N, P_MTS_C = cm.sum(axis=1)
+    metrics_dict.update(
+        {
+            MetricsNames.MTS_SHP_UNSURE.value: P_MTS_U,
+            MetricsNames.MTS_SHP_NO_BUILDINGS.value: P_MTS_N,
+            MetricsNames.MTS_SHP_BUILDINGS.value: P_MTS_C,
+        }
+    )
+    P_IA_u, P_IA_r, P_IA_c = cm.sum(axis=0)
+    PAD = P_IA_c + P_IA_r
+    metrics_dict.update(
+        {
+            MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value: PAD,
+            MetricsNames.PROPORTION_OF_UNCERTAINTY.value: P_IA_u,
+            MetricsNames.PROPORTION_OF_REFUTATION.value: P_IA_r,
+            MetricsNames.PROPORTION_OF_CONFIRMATION.value: P_IA_c,
+        }
+    )
 
     # CONSTRAINTS
     cm = confusion_matrix(
@@ -469,13 +503,26 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     )
     RA = cm[1, 1]
     CA = cm[2, 2]
+    metrics_dict.update(
+        {
+            MetricsNames.REFUTATION_ACCURACY.value: RA,
+            MetricsNames.CONFIRMATION_ACCURACY.value: CA,
+        }
+    )
 
     # NET GAIN
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="true"
     )
+    metrics_dict.update({MetricsNames.CONFUSION_MATRIX_NORM.value: cm.copy()})
     NGR = cm[1, 1]
     NGC = cm[2, 2]
+    metrics_dict.update(
+        {
+            MetricsNames.NET_GAIN_REFUTATION.value: NGR,
+            MetricsNames.NET_GAIN_CONFIRMATION.value: NGC,
+        }
+    )
 
     # QUALITY
     non_ambiguous_idx = mts_gt != DecisionLabels.UNSURE.value
@@ -486,24 +533,18 @@ def evaluate_decisions(gdf: geopandas.GeoDataFrame):
     )
     final_positives = cm[2, 0] + cm[2, 2] + cm[1, 2]  # Yu + Yc + Nc
     final_false_positives = cm[1, 2]  # Yr
-    specificity = final_positives / (final_positives + final_false_positives)
+    precision = final_positives / (final_positives + final_false_positives)
 
     positives = cm[2, :].sum()
     final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
-    sensitivity = final_true_positives / positives
+    recall = final_true_positives / positives
 
-    metrics_dict = {
-        MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value: PAD,
-        MetricsNames.CONFIRMATION_ACCURACY.value: CA,
-        MetricsNames.REFUTATION_ACCURACY.value: RA,
-        MetricsNames.PROPORTION_OF_UNCERTAINTY.value: PU,
-        MetricsNames.PROPORTION_OF_CONFIRMATION.value: PC,
-        MetricsNames.PROPORTION_OF_REFUTATION.value: PR,
-        MetricsNames.NET_GAIN_REFUTATION.value: NGR,
-        MetricsNames.NET_GAIN_CONFIRMATION.value: NGC,
-        MetricsNames.SENSITIVITY.value: sensitivity,
-        MetricsNames.SPECIFICITY.value: specificity,
-    }
+    metrics_dict.update(
+        {
+            MetricsNames.PRECISION.value: precision,
+            MetricsNames.RECALL.value: recall,
+        }
+    )
 
     return metrics_dict
 

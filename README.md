@@ -58,10 +58,12 @@ python run.py experiment=PN_debug
 Evaluate the model and get inference results on the validation dataset
 ```yaml
 # to evaluate and infer at the same time
-python run.py experiment=PN_infer_val trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt
+python run.py experiment=PN_validate trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 # to log IoU without saving predictions to new LAS files 
-python run.py experiment=PN_infer_val callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt
+python run.py experiment=PN_validate callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 ```
+To evaluate on test data instead of val data, replace `experiment=PN_validate` by `experiment=PN_test`.
+
 Then, update variable `PREDICTED_LAS_DIRPATH` in [`.env`](.env) with the directory containing inference results.
 
 Make decisions and produce an inspection shapefile from predictions
@@ -77,9 +79,9 @@ Without changing any parameters, evaluate the decision results with
 python run.py task=tune
 ```
 
-Run a multi-objectives optimization of decision threshold, to maximize sensitivity and specificity directly while also maximizing automation:
+Run a multi-objectives optimization of decision threshold, to maximize recall and precision directly while also maximizing automation:
 ```yaml
-python run.py -m task=tune print_config=false hparams_search=thresholds_sensitivity_specificity +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,SENSITIVITY,SPECIFICITY]
+python run.py -m task=tune print_config=false hparams_search=thresholds_precision_recall_automation +inspection.metrics=[PROPORTION_OF_AUTOMATED_DECISIONS,PRECISION,RECALL]
 ```
 Alternatively, focus on a single decision at a time, to better understand the automation-error balance.
 ```yaml

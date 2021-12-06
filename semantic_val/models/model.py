@@ -5,6 +5,7 @@ import torch
 from torch import Tensor
 from pytorch_lightning import LightningModule
 from torch import nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch_geometric.data import Batch
 from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
@@ -13,18 +14,19 @@ from torchmetrics.classification.accuracy import Accuracy
 from torchmetrics.functional.classification.iou import _iou_from_confmat
 
 from semantic_val.models.modules.point_net import PointNet
+from semantic_val.models.modules.randla_net import RandLANet
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = {"point_net": PointNet}
+MODEL_ZOO = {"point_net": PointNet, "randla_net": RandLANet}
 
 EPS = 10 ** -5
 
 
 class Model(LightningModule):
     """
-    A LightningModule organizes your PyTorch code into 5 sections:
+    A LightningModule organizesm your PyTorch code into 5 sections:
         - Computations (init).
         - Train loop (training_step)
         - Validation loop (validation_step)
@@ -229,10 +231,32 @@ class Model(LightningModule):
         See examples here:
             https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
         """
-        return torch.optim.Adam(
+
+        optimizer = torch.optim.Adam(
             params=self.parameters(),
             lr=self.lr,
         )
+        if self.hparams.reduce_lr_on_plateau.activate:
+            scheduler = ReduceLROnPlateau(
+                optimizer,
+                mode="min",
+                factor=self.hparams.reduce_lr_on_plateau.factor,
+                patience=self.hparams.reduce_lr_on_plateau.patience,  # scheduler called on training epoch !
+                threshold=0.0001,
+                threshold_mode="rel",
+                cooldown=self.hparams.reduce_lr_on_plateau.cooldown,
+                min_lr=0,
+                eps=1e-08,
+                verbose=False,
+            )
+            log.info("ReduceLROnPlateau: activated")
+            config = {
+                "optimizer": optimizer,
+                "lr_scheduler": scheduler,
+                "monitor": "val/loss_epoch",
+            }
+            return config
+        return optimizer
 
 
 class WeightedFocalLoss(nn.Module):

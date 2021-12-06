@@ -1,0 +1,57 @@
+# @package _global_
+
+# Use a specified model to infer on the full validation set (i.e. Test dataloader)
+
+# to execute this experiment run:
+# python run.py experiment=example_simple.yaml
+
+defaults:
+  - override /trainer: default.yaml
+  - override /model: point_net_model.yaml
+  - override /datamodule: datamodule.yaml
+  - override /callbacks: callbacks.yaml
+  - override /logger: comet
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+seed: 12345
+
+# ATTENTION : you need to override these manually in CLI 
+# fit_the_model: false
+# test_the_model: true
+
+hydra:
+  verbose: false
+
+trainer:
+  resume_from_checkpoint: "path/to/checkpoint"  # override
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 1
+  max_epochs: 100000
+  check_val_every_n_epoch: 1
+  # limit_test_batches: 1  # Disable to predict on all data
+
+callbacks:
+  save_preds:
+    save_predictions: true
+
+datamodule:
+  use_val_data_at_test_time: True # Here we use val data instead of test data
+  batch_size: 32
+  subtile_width_meters: 50
+  subsample_size: 12500  # Aim for at least 10pts/m²
+  subtile_overlap: 0
+  num_workers: 1
+  shuffle_train: false
+
+model:
+  loss: "FocalLoss"
+  n_classes: 2
+  net:
+    MLP1_channels: [9, 64, 64]
+    MLP2_channels: [64, 256, 512, 1024]
+    MLP3_channels: [1088, 512, 256, 64, 4]
+    batch_norm: true
+    pi_init: 0.05

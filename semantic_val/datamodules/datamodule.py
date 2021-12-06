@@ -59,6 +59,8 @@ class DataModule(LightningDataModule):
         self.subsample_size = kwargs.get("subsample_size", 12500)
 
         self.src_las = kwargs.get("src_las", None) #predict#
+        # By default, do not use the test set unless explicitely required by user.
+        self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
 
         self.train_data: Optional[Dataset] = None
         self.val_data: Optional[Dataset] = None
@@ -88,15 +90,25 @@ class DataModule(LightningDataModule):
         log.info(
             f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
             )
+
+        if osp.exists(self.datasplit_csv_filepath):
+            os.remove(self.datasplit_csv_filepath)
+
         make_datasplit_csv(
             self.lasfiles_dir,
             self.metadata_shapefile_filepath,
             self.datasplit_csv_filepath,
             train_frac=self.train_frac,
         )
-        log.info(
-            f"Stratified split of dataset saved to {self.datasplit_csv_filepath}"
+
+        log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
+        make_datasplit_csv(
+            self.lasfiles_dir,
+            self.metadata_shapefile_filepath,
+            self.datasplit_csv_filepath,
+            train_frac=self.train_frac,
         )
+        log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -153,8 +165,25 @@ class DataModule(LightningDataModule):
         )
 
     def _set_test_data(self, df_split):
-        """Get the test dataset - for now this is the validation dataset"""
-        self.test_data = self.val_data
+        """Get the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
+        if self.use_val_data_at_test_time:
+            self.test_data = self.val_data
+            log.info(
+                "Using validation data as test data. Use real test data with use_val_data_at_test_time=False at run time."
+            )
+        else:
+            df_split_test = df_split[df_split.split == "test"]
+            df_split_test = df_split_test.sort_values("nb_bati", ascending=False)
+            test_files = df_split_test.file_path.values.tolist()
+
+            self.test_data = LidarValDataset(
+                test_files,
+                loading_function=load_las_data,
+                transform=self._get_test_transforms(),
+                target_transform=MakeBuildingTargets(),
+                subtile_width_meters=self.subtile_width_meters,
+                subtile_overlap=self.subtile_overlap,
+            )
 
     def _set_predict_data(self):    #predict#
         files_to_infer_on = [os.path.join(self.lasfiles_dir, self.src_las)]

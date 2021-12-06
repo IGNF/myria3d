@@ -92,7 +92,7 @@ def decide(config: DictConfig) -> Optional[float]:
             las = laspy.read(las_filepath)
             las.classification = reset_classification(las.classification)
             las = update_las_with_decisions(las, gdf_inspection)
-            out_dir = osp.dirname(shp_all_path)
+            out_dir = osp.dirname(osp.dirname(shp_all_path))
             out_dir = osp.join(out_dir, "las")
             os.makedirs(out_dir, exist_ok=True)
             out_name = osp.basename(las_filepath)

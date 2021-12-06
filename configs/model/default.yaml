@@ -1,0 +1,10 @@
+loss: "CrossEntropyLoss"
+# loss: "FocalLoss"
+alpha: 0.25
+lr: 0.001
+n_classes: 2
+reduce_lr_on_plateau:
+  activate: false
+  factor: 0.5  # halving
+  patience: 5
+  cooldown: 5
