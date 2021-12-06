@@ -12,7 +12,7 @@ import pdal
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from tqdm import tqdm
-from semantic_val.callbacks.predictions_callbacks import ChannelNames
+from semantic_val.datamodules.processing import ChannelNames
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)

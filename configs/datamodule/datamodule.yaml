@@ -3,6 +3,7 @@ _target_: semantic_val.datamodules.datamodule.DataModule
 # those two paths are specified in configs/config.yaml
 lasfiles_dir: ${lasfiles_dir}
 metadata_shapefile: ${metadata_shapefile}
+logfile_dir: ${logfile_dir}
 
 train_subtiles_by_tile: 12
 batch_size: 32

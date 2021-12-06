@@ -1,11 +1,14 @@
 # pylint: disable
+import os
 import math
+from enum import Enum
 from pathlib import Path
 from typing import Callable, List
 
 import laspy
 import numpy as np
 import torch
+from torch_geometric.nn.pool import knn
 from torch_geometric.data import Batch, Data
 from torch_geometric.transforms import BaseTransform
 
@@ -378,3 +381,113 @@ def collate_fn(data_list: List[Data]) -> Batch:
     )
     batch.batch_size = len(data_list)
     return batch
+
+
+class ChannelNames(Enum):
+    BuildingsPreds = "BuildingsPreds"
+    BuildingsProba = "BuildingsProba"
+    BuildingsConfusion = "BuildingsConfusion"
+
+
+class DataHandler:
+    def load_new_las_for_preds(self, filepath):
+        """Load a LAS and add necessary extradims."""
+
+        self.current_las = laspy.read(filepath)
+        self.in_memory_tile_filepath = filepath
+
+        coln = ChannelNames.BuildingsPreds.value
+        param = laspy.ExtraBytesParams(name=coln, type=int)
+        self.current_las.add_extra_dim(param)
+        self.current_las[coln][:] = 0
+
+        coln = ChannelNames.BuildingsProba.value
+        param = laspy.ExtraBytesParams(name=coln, type=float)
+        self.current_las.add_extra_dim(param)
+        self.current_las[coln][:] = 0.0
+
+        # coln = ChannelNames.BuildingsConfusion.value
+        # param = laspy.ExtraBytesParams(name=coln, type=int)
+        # self.current_las.add_extra_dim(param)
+        # self.current_las[coln][:] = 0
+
+        self.current_las_pos = np.asarray(
+            [
+                self.current_las.x,
+                self.current_las.y,
+                self.current_las.z,
+            ],
+            dtype=np.float32,
+        ).transpose()
+        self.current_las_pos = torch.from_numpy(
+            self.current_las_pos,
+        )
+
+    def update_las_with_preds(self, outputs: dict, phase: str):
+        """
+        Save the predicted classes in las format with position. Load the las if necessary.
+
+        :param outputs: outputs of a step.
+        :param phase: train, val or test phase (str).
+        """
+        proba = outputs["proba"].detach()
+        preds = outputs["preds"].detach()
+        batch = outputs["batch"].detach()
+
+        # Group idx and their associated filepath if they belong to same tile
+        filepath_idx_lists = {}
+        for elem_idx in range(batch.batch_size):
+            filepath = batch.filepath[elem_idx]
+            if filepath not in filepath_idx_lists:
+                filepath_idx_lists[filepath] = [elem_idx]
+            else:
+                filepath_idx_lists[filepath].append(elem_idx)
+        # assign by group of elements of the same tile.
+        for filepath, idx_list in filepath_idx_lists.items():
+            is_a_new_tile = self.in_memory_tile_filepath != filepath
+            if is_a_new_tile:
+                close_previous_las_first = self.in_memory_tile_filepath != ""
+                if close_previous_las_first:
+                    self.save_las_with_preds_and_close(phase)
+                self.load_new_las_for_preds(filepath)
+            with torch.no_grad():
+                self.assign_outputs_to_tile(batch, idx_list, preds, proba)
+
+    def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba):
+        """Set the predicted elements in the current tile."""
+
+        points_idx = (
+            batch.batch_y[..., None]
+            == torch.Tensor(elem_idx_list).type_as(batch.batch_y)
+        ).any(-1)
+        pos = batch.pos_copy[points_idx].cpu()
+        preds = preds[points_idx].cpu()
+        proba = proba[points_idx][:, 1].cpu()
+
+        assign_idx = knn(self.current_las_pos, pos, k=1, num_workers=1)[1]
+
+        self.current_las[ChannelNames.BuildingsPreds.value][assign_idx] = preds
+        self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = proba
+
+    def get_confusion(self, preds, targets):
+        """Get a confusion vector: TN=0, Tp=1, FN=2, FP=3 - Nodata or Nan is 4."""
+        A = preds * (preds == targets)
+        B = (2 + preds) * (preds != targets)
+        elem_preds_confusion = A + B
+        return elem_preds_confusion
+
+    def save_las_with_preds_and_close(self, phase):
+        """After inference of classification in self.las_with_predictions, save updated LAS.
+        Returns the output path of the output las file.
+        """
+        os.makedirs(self.preds_dirpath, exist_ok=True)
+        tile_id = Path(self.in_memory_tile_filepath).stem
+        filename = f"{phase}_{tile_id}.las"
+        self.output_path = os.path.join(self.preds_dirpath, filename)
+        self.current_las.write(self.output_path)
+        log.info(f"Predictions saved to : {self.output_path}")
+        # Closing:
+        self.in_memory_tile_filepath = ""
+        del self.current_las
+        del self.current_las_pos
+        return self.output_path

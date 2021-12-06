@@ -58,23 +58,38 @@ class DataModule(LightningDataModule):
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 12500)
 
+        self.src_las = kwargs.get("src_las", None)  # predict#
         # By default, do not use the test set unless explicitely required by user.
         self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
 
         self.train_data: Optional[Dataset] = None
         self.val_data: Optional[Dataset] = None
         self.test_data: Optional[Dataset] = None
+        self.predict_data: Optional[Dataset] = None  # predict#
 
     def prepare_data(self):
         """
         Stratify train/val/test data if needed.
         Nota: Do not use it to assign state (self.x = y). This method is called only from a single GPU.
         """
+        if (
+            self.trainer.state.stage == "predict"
+        ):  # no creation of CSV file if it's an inference
+            return
 
         if not osp.exists(self.metadata_shapefile_filepath):
             raise FileNotFoundError(
                 f"Metadata shapefile not found at {self.metadata_shapefile_filepath}"
             )
+        if osp.exists(self.datasplit_csv_filepath):
+            os.remove(self.datasplit_csv_filepath)
+        make_datasplit_csv(
+            self.lasfiles_dir,
+            self.metadata_shapefile_filepath,
+            self.datasplit_csv_filepath,
+            train_frac=self.train_frac,
+        )
+        log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
 
         if osp.exists(self.datasplit_csv_filepath):
             os.remove(self.datasplit_csv_filepath)
@@ -101,14 +116,14 @@ class DataModule(LightningDataModule):
         test_data = val data, because we only use all validation data after training.
         Test data can be used but only after final model is chosen.
         """
-
         self._set_all_transforms()
 
-        df_split = pd.read_csv(self.datasplit_csv_filepath)
-
-        self._set_train_data(df_split)
-        self._set_val_data(df_split)
-        self._set_test_data(df_split)
+        # TODO: add some if/else
+        if stage != "predict":
+            df_split = pd.read_csv(self.datasplit_csv_filepath)
+            self._set_train_data(df_split)
+            self._set_val_data(df_split)
+            self._set_test_data(df_split)
 
     def _set_train_data(self, df_split):
         """Get the train dataset"""
@@ -169,6 +184,16 @@ class DataModule(LightningDataModule):
                 subtile_overlap=self.subtile_overlap,
             )
 
+    def _set_predict_data(self, files_to_infer_on):
+        self.predict_data = LidarValDataset(
+            files_to_infer_on,
+            loading_function=load_las_data,
+            transform=self._get_predict_transforms(),
+            target_transform=None,
+            subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
+        )
+
     def train_dataloader(self):
         """Get train dataloader."""
         sampler = TrainSampler(
@@ -199,6 +224,15 @@ class DataModule(LightningDataModule):
     def test_dataloader(self):
         return DataLoader(
             dataset=self.test_data,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=1,
+            collate_fn=collate_fn,
+        )
+
+    def predict_dataloader(self):  # predict#
+        return DataLoader(
+            dataset=self.predict_data,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=1,
@@ -259,6 +293,9 @@ class DataModule(LightningDataModule):
         return CustomCompose([selection] + self.preparation + self.normalization)
 
     def _get_test_transforms(self) -> CustomCompose:
+        return self._get_val_transforms()
+
+    def _get_predict_transforms(self) -> CustomCompose:  # predict#
         return self._get_val_transforms()
 
 

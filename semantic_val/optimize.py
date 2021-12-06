@@ -12,7 +12,7 @@ from pytorch_lightning import seed_everything
 import numpy as np
 import optuna
 import laspy
-from semantic_val.callbacks.predictions_callbacks import ChannelNames
+from semantic_val.datamodules.processing import ChannelNames
 from semantic_val.utils import utils
 from semantic_val.decision.decide import (
     MTS_TRUE_POSITIVE_CODE_LIST,
@@ -135,7 +135,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
             basename = osp.basename(las_filepath)
             cluster_path = osp.join(output_dir, "CLUSTER_" + basename)
             las = laspy.read(cluster_path)
-
             las.classification = reset_classification(las.classification)
             # TODO: delete leftovers fields : "BuildingsPreds", BuildingsConfusion, BuildingsHasPredictions = "BuildingsHasPredictions"
             with open(config.optimize.best_trial_pickle_path, "rb") as f:

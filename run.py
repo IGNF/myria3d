@@ -16,6 +16,7 @@ def main(config: DictConfig):
     from semantic_val.utils import utils
     from semantic_val.train import train
     from semantic_val.optimize import optimize
+    from semantic_val.predict import predict
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -33,8 +34,11 @@ def main(config: DictConfig):
         """Training, eval, and test of a neural network."""
         return train(config)
     elif config.get("task") == "optimize":
-        """Optimization for the exploitatation of predictions of the NN."""
+        """Optimization of decision threshold applied to predictions of the NN."""
         return optimize(config)
+    elif config.get("task") == "predict":
+        """Infer probabilities and automate semantic segmentation decisions on unseen data."""
+        return predict(config)
 
 
 if __name__ == "__main__":

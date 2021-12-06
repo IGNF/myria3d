@@ -148,7 +148,6 @@ class Model(LightningModule):
         log.info("Validating.")
 
     def validation_step(self, batch: Any, batch_idx: int):
-
         loss, _, proba, preds, targets = self.step(batch)
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 
@@ -213,6 +212,17 @@ class Model(LightningModule):
             "preds": preds,
             "targets": targets,
             "batch": batch,
+        }
+
+    @torch.no_grad()
+    def predict_step(self, batch: Any):
+        logits = self.forward(batch)
+        proba = self.softmax(logits)
+        preds = torch.argmax(logits, dim=1)
+        return {
+            "batch": batch,
+            "proba": proba,
+            "preds": preds,
         }
 
     def configure_optimizers(self):

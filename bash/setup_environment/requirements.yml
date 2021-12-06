@@ -1,4 +1,4 @@
-name: validation_module_gpu
+name: validation_module
 channels:
   - conda-forge
   - anaconda
@@ -29,4 +29,5 @@ dependencies:
   - pudb # debugger
   # --------- torch --------- #
   - pip:
-      - -r ./bash/setup_environment/requirements.txt
+      #- -r ./bash/setup_environment/requirements.txt
+      - -r requirements.txt

@@ -70,13 +70,17 @@ Run a multi-objectives hyperparameters optimization of the decision thresholds, 
 python run.py -m task=optimize optimize.todo='cluster+optimize+evaluate+update' optimize.predicted_las_dirpath="/path/to/val/las/folder/" optimize.results_output_dir="/path/to/save/updated/val/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
 ```
 
-To evaluate best solution on test set, simplyt change the input las folder and the results output folder, and remove the optimization from the todo. The path to the best trial stays the same.
+To evaluate best solution on test set, simply change the input las folder and the results output folder, and remove the optimization from the todo. The path to the best trial stays the same.
 
 ```yaml
-python run.py -m task=optimize optimize.todo='cluster+evaluate+update' print_config=false optimize.predicted_las_dirpath="/path/to/test/las/folder/" optimize.results_output_dir="/path/to/save/updated/test/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
+python run.py task=optimize optimize.todo='cluster+evaluate+update' print_config=false optimize.predicted_las_dirpath="/path/to/test/las/folder/" optimize.results_output_dir="/path/to/save/updated/test/las/" optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
 ```
 
 Additionally, if you want to update the las classification based on those decisions, add an `optimize.update_las=true` argument.
 
 
-WIP: inference mode to predict on unseen data with custom classification codes for candidate buildings and defaut class.
+Finally, to apply the module on unseen data, you will need 1. a checkpointed Model, 2. a pickled Optuna "Best trial" with decision thresholds, and 3. a source LAS file. Then, run :
+
+```yaml
+python run.py--config-path /path/to/.hydra --config-name config.yaml task=predict +prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt +prediction.src_las=/path/to/input.las +prediction.best_trial_pickle_path=/path/to/best_trial.pkl prediction.output_dir=/path/to/save/updated/test/las/ datamodule.batch_size=16
+```
