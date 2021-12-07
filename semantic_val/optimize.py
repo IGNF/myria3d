@@ -271,7 +271,7 @@ def _objective(trial, group_probas, group_overlay_bools, mts_gt):
 def select_best_trial(study):
     """Find the trial that meets constraints and that optimizes the product of the three maximized metrics."""
     TRIALS_BELOW_ZERO_ARE_VALID = 0
-    sorted_trials = sorted(study.best_trials, key=lambda x: np.product(x), reverse=True)
+    sorted_trials = sorted(study.best_trials, key=lambda x: x[0], reverse=True)
     good_enough_trials = [
         s
         for s in sorted_trials
