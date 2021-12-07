@@ -62,7 +62,8 @@ def optimize(config: DictConfig) -> Tuple[float]:
     output_dir = config.optimize.results_output_dir
 
     os.makedirs(output_dir, exist_ok=True)
-    log.info(f"Best trial and outputs will be saved in {os.getcwd()}")
+    log.info(f"Best trial and outputs will be saved in {output_dir}")
+    log.info(f"Logs will be saved in {os.getcwd()}")
     las_filepaths = glob.glob(osp.join(input_dir, "*.las"))
     # DEBUG
     # las_filepaths = [
@@ -271,7 +272,9 @@ def _objective(trial, group_probas, group_overlay_bools, mts_gt):
 def select_best_trial(study):
     """Find the trial that meets constraints and that optimizes the product of the three maximized metrics."""
     TRIALS_BELOW_ZERO_ARE_VALID = 0
-    sorted_trials = sorted(study.best_trials, key=lambda x: x[0], reverse=True)
+    sorted_trials = sorted(
+        study.best_trials, key=lambda x: np.product(x.values), reverse=True
+    )
     good_enough_trials = [
         s
         for s in sorted_trials
