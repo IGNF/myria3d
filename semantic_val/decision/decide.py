@@ -2,9 +2,7 @@
 
 from enum import Enum
 import json
-import os
 from typing import List
-import os.path as osp
 import json
 
 import pdal

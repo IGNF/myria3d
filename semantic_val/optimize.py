@@ -3,7 +3,6 @@ import glob
 import os
 import os.path as osp
 from typing import List, Tuple
-import hydra
 from omegaconf.base import SCMode
 from omegaconf.omegaconf import OmegaConf
 from tqdm import tqdm
