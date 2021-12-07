@@ -240,7 +240,7 @@ def _objective(trial, group_probas, group_overlay_bools, mts_gt):
     )
     min_frac_refutation = trial.suggest_float("min_frac_refutation", 0.0, 1.0)
     min_overlay_confirmation = trial.suggest_float(
-        "min_overlay_confirmation", 0.90, 1.0
+        "min_overlay_confirmation", 0.50, 1.0
     )
     decision = [
         make_group_decision(
