@@ -3,7 +3,6 @@ import glob
 import os
 import os.path as osp
 from typing import List, Tuple
-import hydra
 from omegaconf.base import SCMode
 from omegaconf.omegaconf import OmegaConf
 from tqdm import tqdm
@@ -15,13 +14,14 @@ import laspy
 from semantic_val.datamodules.processing import ChannelNames
 from semantic_val.utils import utils
 from semantic_val.decision.decide import (
+    CODE_TO_LABEL_MAPPER,
     MTS_TRUE_POSITIVE_CODE_LIST,
     DecisionLabels,
     MetricsNames,
-    cluster,
+    prepare_las_for_decision,
     evaluate_decisions,
     get_results_logs_str,
-    make_decisions,
+    make_group_decision,
     reset_classification,
     split_idx_by_dim,
     update_las_with_decisions,
@@ -54,36 +54,38 @@ def optimize(config: DictConfig) -> Tuple[float]:
         reset_classif
         update with thresholds of solution
         save to output_las_file_BIS
-
-    TODO: have two diff filename for each las output
     """
     if "seed" in config:
         seed_everything(config.seed, workers=True)
-    output_dir = config.optimize.results_output_dir
     input_dir = config.optimize.predicted_las_dirpath
+    input_bd_topo_shp = config.optimize.input_bd_topo_shp
+    output_dir = config.optimize.results_output_dir
 
     os.makedirs(output_dir, exist_ok=True)
-    log.info(f"Best trial and outputs will be saved in {os.getcwd()}")
+    log.info(f"Best trial and outputs will be saved in {output_dir}")
+    log.info(f"Logs will be saved in {os.getcwd()}")
     las_filepaths = glob.glob(osp.join(input_dir, "*.las"))
     # DEBUG
     # las_filepaths = [
-    #     "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_870000_6649000.las",
-    #     # "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
+    #     # "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_870000_6649000.las",
+    #     "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
     # ]
     # print(las_filepaths)
 
     ### CLUSTER AND GET PROBAS AND TARGETS FOR LATER OPTIMIZATION
-    if "cluster" in config.optimize.todo:
-        group_probas, mts_gt = get_probas_and_target_by_group(las_filepaths, output_dir)
+    if "prepare" in config.optimize.todo:
+        group_probas, group_overlay_bools, mts_gt = get_group_info_and_label(
+            las_filepaths, input_bd_topo_shp, output_dir
+        )
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "wb") as f:
-            pickle.dump((group_probas, mts_gt), f)
+            pickle.dump((group_probas, group_overlay_bools, mts_gt), f)
 
     ### OPTIMIZE THRESHOLDS WITH OPTUNA
     if "optimize" in config.optimize.todo:
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "rb") as f:
-            group_probas, mts_gt = pickle.load(f)
+            group_probas, group_overlay_bools, mts_gt = pickle.load(f)
         log.info(f"Optimizing on N={len(mts_gt)} groups of points.")
 
         sampler_kwargs = OmegaConf.to_container(
@@ -99,7 +101,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
 
         def objective(trial):
             """Objective function. Sets the group data for quick optimization."""
-            return _objective(trial, group_probas, mts_gt)
+            return _objective(trial, group_probas, group_overlay_bools, mts_gt)
 
         study.optimize(objective, n_trials=config.optimize.study.n_trials)
 
@@ -117,23 +119,30 @@ def optimize(config: DictConfig) -> Tuple[float]:
             log.info(f"Using best trial from: {config.optimize.best_trial_pickle_path}")
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "rb") as f:
-            group_probas, mts_gt = pickle.load(f)
+            group_probas, group_overlay_bools, mts_gt = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
-        ia_decision = np.array(
-            [make_decisions(probas, **best_trial.params) for probas in group_probas]
+        ia_decision_codes = [
+            make_group_decision(probas, overlay_bools, **best_trial.params)
+            for probas, overlay_bools in zip(group_probas, group_overlay_bools)
+        ]
+        ia_decision_labels = np.array(
+            [
+                CODE_TO_LABEL_MAPPER[ia_decision_code]
+                for ia_decision_code in ia_decision_codes
+            ]
         )
-        metrics_dict = evaluate_decisions(mts_gt, ia_decision)
+        metrics_dict = evaluate_decisions(mts_gt, ia_decision_labels)
         log.info(
             f"\n Metrics and Confusion Matrices: {get_results_logs_str(metrics_dict)}"
         )
 
     ### UPDATING LAS
     if "update" in config.optimize.todo:
-        log.info(f"Validated las will be saved in {os.getcwd()}")
+        log.info(f"Validated las will be saved in {output_dir}")
         for las_filepath in tqdm(las_filepaths, desc="Update Las"):
             # we reuse post_ia path that already contains clustered las.
             basename = osp.basename(las_filepath)
-            cluster_path = osp.join(output_dir, "CLUSTER_" + basename)
+            cluster_path = osp.join(output_dir, "PREPARED_" + basename)
             las = laspy.read(cluster_path)
             las.classification = reset_classification(las.classification)
             with open(config.optimize.best_trial_pickle_path, "rb") as f:
@@ -144,6 +153,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
             las = update_las_with_decisions(las, best_trial.params)
             out_path = osp.join(output_dir, "POST_IA_" + basename)
             las.write(out_path)
+            log.info(f"Saved update las to {out_path}")
 
 
 # Functions
@@ -161,8 +171,9 @@ def define_MTS_ground_truth_flag(frac_true_positive):
         return DecisionLabels.UNSURE.value
 
 
-def get_probas_and_target_by_group(
+def get_group_info_and_label(
     las_filepaths: List[str],
+    input_bd_topo_shp: str,
     output_dir: str,
 ) -> Tuple[List[np.array], List[str]]:
     """
@@ -171,30 +182,37 @@ def get_probas_and_target_by_group(
     mts_gt: the group label based on ground truths
     """
     group_probas = []
+    group_overlay_bools = []
     mts_gt = []
     for las_filepath in tqdm(las_filepaths, desc="Clustering  ->"):
         log.info(f"Clustering tile: {las_filepath}...")
         basename = osp.basename(las_filepath)
-        out_path = osp.join(output_dir, "CLUSTER_" + basename)
-        structured_array = cluster(las_filepath, out_path)
+        out_path = osp.join(output_dir, "PREPARED_" + basename)
+        structured_array = prepare_las_for_decision(
+            las_filepath, input_bd_topo_shp, out_path
+        )
         if len(structured_array) == 0:
             log.info("/!\ Skipping tile: there are no candidate building points.")
             continue
-        split_idx = split_idx_by_dim(structured_array["ClusterID"])
-        split_idx = split_idx[1:]  # remove large group with ClusterID = 0
+        split_idx = split_idx_by_dim(structured_array[ChannelNames.ClusterID.value])
+        split_idx = split_idx[1:]  # remove default group with ClusterID = 0
         for pts_idx in tqdm(split_idx, desc="Append probas and targets  ->"):
-            # TODO: optimize splitting with https://stackoverflow.com/a/28156406/8086033
             probas = structured_array[ChannelNames.BuildingsProba.value][pts_idx]
-            group_probas.append(probas)
+            overlay_bools = 1 * (
+                structured_array[ChannelNames.BDTopoOverlay.value][pts_idx] > 0
+            )
+            # ChannelNames.Classification.value is "classification" not "Classification"
             frac_true_positive = np.mean(
                 np.isin(
                     structured_array["Classification"][pts_idx],
                     MTS_TRUE_POSITIVE_CODE_LIST,
                 )
             )
+            group_probas.append(probas)
+            group_overlay_bools.append(overlay_bools)
             mts_gt.append(define_MTS_ground_truth_flag(frac_true_positive))
     mts_gt = np.array(mts_gt)
-    return group_probas, mts_gt
+    return group_probas, group_overlay_bools, mts_gt
 
 
 # TODO: extract constraints as global constant
@@ -216,7 +234,7 @@ def constraints_func(trial):
     return trial.user_attrs["constraint"]
 
 
-def _objective(trial, group_probas, mts_gt):
+def _objective(trial, group_probas, group_overlay_bools, mts_gt):
     """Objective function for optuna optimization. Inner definition to access list of array of probas and list of targets."""
     min_confidence_confirmation = trial.suggest_float(
         "min_confidence_confirmation", 0.0, 1.0
@@ -226,17 +244,22 @@ def _objective(trial, group_probas, mts_gt):
         "min_confidence_refutation", 0.0, 1.0
     )
     min_frac_refutation = trial.suggest_float("min_frac_refutation", 0.0, 1.0)
-    ia_decision = [
-        make_decisions(
+    min_overlay_confirmation = trial.suggest_float(
+        "min_overlay_confirmation", 0.50, 1.0
+    )
+    decision = [
+        make_group_decision(
             probas,
+            overlay_bools,
             min_confidence_confirmation=min_confidence_confirmation,
             min_frac_confirmation=min_frac_confirmation,
             min_confidence_refutation=min_confidence_refutation,
             min_frac_refutation=min_frac_refutation,
+            min_overlay_confirmation=min_overlay_confirmation,
         )
-        for probas in group_probas
+        for probas, overlay_bools in zip(group_probas, group_overlay_bools)
     ]
-    metrics_dict = evaluate_decisions(mts_gt, np.array(ia_decision))
+    metrics_dict = evaluate_decisions(mts_gt, np.array(decision))
 
     values = (
         metrics_dict[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value],
@@ -253,7 +276,9 @@ def _objective(trial, group_probas, mts_gt):
 def select_best_trial(study):
     """Find the trial that meets constraints and that optimizes the product of the three maximized metrics."""
     TRIALS_BELOW_ZERO_ARE_VALID = 0
-    sorted_trials = sorted(study.best_trials, key=lambda x: np.product(x), reverse=True)
+    sorted_trials = sorted(
+        study.best_trials, key=lambda x: np.product(x.values), reverse=True
+    )
     good_enough_trials = [
         s
         for s in sorted_trials

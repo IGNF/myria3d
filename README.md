@@ -23,13 +23,15 @@ We train a semantic segmentation neural network to confirm or refute automatical
 2) Prediction of point-level probabilities.
 3) Validation module decision process:
     1) Clustering of candidate buildings points into candidate building groups
-    2) Decision at the group-level:
-        1) Confirmation, if the proportion of "confirmed" points within a candidate building group is sufficient.
-        2) Refutation, if the proportion of "refuted" points within a candidate building group is sufficient.
-        3) Uncertainty: candidate building groups remained to be inspected.
-    3) Update of the point cloud based on those decisions.
+    2) Superposition of external vector database of Buildings.
+    3) Decisions at the point-level based on probabilities : _confirmed_ or _refuted_ (as a building).
+    3) Decision at the group-level:
+        1) Confirmation: if proportion of _confirmed_ >= threshold OR if proportion of _overlayed_ >= threshold.
+        2) Refutation: if proportion of _refuted_  >= threshold AND proportion of _overlayed_ < threshold
+        3) Uncertainty: elsewise.
+    4) Update of the point cloud based on those decisions.
 
-4) Multiobjective hyperparameter Optimization of the decision process (point-level and group-level thresholds) to maximize automation, precision, and recall.
+4) Multiobjective hyperparameter optimization of the decision process (point-level and group-level thresholds) to maximize automation, precision, and recall.
 
 
 ## How to run
@@ -67,13 +69,13 @@ To evaluate on test data instead of val data, replace `experiment=PN_validate` b
 Run a multi-objectives hyperparameters optimization of the decision thresholds, to maximize recall and precision directly while also maximizing automation.
 
 ```yaml
-python run.py -m task=optimize optimize.todo='cluster+optimize+evaluate+update' optimize.predicted_las_dirpath="/path/to/val/las/folder/" optimize.results_output_dir="/path/to/save/updated/val/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
+python run.py -m task=optimize optimize.todo='prepare+optimize+evaluate+update' optimize.predicted_las_dirpath="/path/to/val/las/folder/" optimize.results_output_dir="/path/to/save/updated/val/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
 ```
 
 To evaluate best solution on test set, simply change the input las folder and the results output folder, and remove the optimization from the todo. The path to the best trial stays the same.
 
 ```yaml
-python run.py task=optimize optimize.todo='cluster+evaluate+update' print_config=false optimize.predicted_las_dirpath="/path/to/test/las/folder/" optimize.results_output_dir="/path/to/save/updated/test/las/" optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
+python run.py task=optimize optimize.todo='prepare+evaluate+update' print_config=false optimize.predicted_las_dirpath="/path/to/test/las/folder/" optimize.results_output_dir="/path/to/save/updated/test/las/" optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
 ```
 
 Additionally, if you want to update the las classification based on those decisions, add an `optimize.update_las=true` argument.

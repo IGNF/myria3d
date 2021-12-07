@@ -34,7 +34,18 @@ RETURN_NUM_MAX = 7
 HALF_UNIT = 0.5
 UNIT = 1
 
-# DATA LOADING
+
+class ChannelNames(Enum):
+    """Names of custom and standard LAS channel"""
+
+    # Standard
+    Classification = "classification"
+    ClusterID = "ClusterID"
+
+    # Custom
+    BDTopoOverlay = "BDTopoOverlay"
+    BuildingsPreds = "BuildingsPreds"
+    BuildingsProba = "BuildingsProba"
 
 
 def load_las_data(filepath):
@@ -383,28 +394,24 @@ def collate_fn(data_list: List[Data]) -> Batch:
     return batch
 
 
-class ChannelNames(Enum):
-    BuildingsPreds = "BuildingsPreds"
-    BuildingsProba = "BuildingsProba"
-    BuildingsConfusion = "BuildingsConfusion"
-
-
 class DataHandler:
+    """A class to load, update with proba/preds, and save a LAS."""
+
     def load_new_las_for_preds(self, filepath):
         """Load a LAS and add necessary extradims."""
 
         self.current_las = laspy.read(filepath)
         self.in_memory_tile_filepath = filepath
 
-        coln = ChannelNames.BuildingsPreds.value
-        param = laspy.ExtraBytesParams(name=coln, type=int)
-        self.current_las.add_extra_dim(param)
-        self.current_las[coln][:] = 0
-
         coln = ChannelNames.BuildingsProba.value
         param = laspy.ExtraBytesParams(name=coln, type=float)
         self.current_las.add_extra_dim(param)
         self.current_las[coln][:] = 0.0
+
+        coln = ChannelNames.BuildingsPreds.value
+        param = laspy.ExtraBytesParams(name=coln, type=int)
+        self.current_las.add_extra_dim(param)
+        self.current_las[coln][:] = 0
 
         self.current_las_pos = np.asarray(
             [

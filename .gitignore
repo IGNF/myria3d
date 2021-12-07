@@ -1,6 +1,6 @@
 # Usr defined
 nohup.out
-
+outputs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

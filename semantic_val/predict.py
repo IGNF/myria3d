@@ -15,7 +15,7 @@ from semantic_val.utils import utils
 from semantic_val.datamodules.processing import DataHandler
 
 from semantic_val.decision.decide import (
-    cluster,
+    prepare_las_for_decision,
     reset_classification,
     update_las_with_decisions,
 )
@@ -36,10 +36,12 @@ def predict(config: DictConfig) -> Optional[float]:
         Optional[float]: Metric score for hyperparameter optimization.
     """
 
-    # Those are the 3 needed inputs
+    # Those are the 4 needed inputs
     assert os.path.exists(config.prediction.resume_from_checkpoint)
     assert os.path.exists(config.prediction.src_las)
     assert os.path.exists(config.prediction.best_trial_pickle_path)
+    # Use of a pre-downloaded shapfile here is temporary/
+    assert os.path.exists(config.optimize.input_bd_topo_shp)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_all_transforms()
@@ -60,13 +62,15 @@ def predict(config: DictConfig) -> Optional[float]:
         ):
             outputs = model.predict_step(batch)
             data_handler.update_las_with_preds(outputs, "predict")
-            if index > 10:
+            if index > 2:
                 break  ###### à supprimer ###################
 
     updated_las_path = data_handler.save_las_with_preds_and_close("predict")
 
-    log.info("Clustering candidate points...")
-    cluster(updated_las_path, updated_las_path)
+    log.info("Prepare LAS...")
+    prepare_las_for_decision(
+        updated_las_path, config.optimize.input_bd_topo_shp, updated_las_path
+    )
 
     log.info("Updating classification...")
     las = laspy.read(updated_las_path)

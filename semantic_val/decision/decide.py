@@ -2,9 +2,7 @@
 
 from enum import Enum
 import json
-import os
 from typing import List
-import os.path as osp
 import json
 
 import pdal
@@ -18,22 +16,49 @@ from semantic_val.utils import utils
 log = utils.get_logger(__name__)
 
 # INITIAL TERRA-SOLID CLASSIFICATION CODES
+DEFAULT_CODE = 1
 MTS_AUTO_DETECTED_CODE = 6
 MTS_TRUE_POSITIVE_CODE_LIST = [19]
 MTS_FALSE_POSITIVE_CODE_LIST = [20, 110, 112, 114, 115]
 MTS_FALSE_NEGATIVE_CODE_LIST = [21]
 LAST_ECHO_CODE = 104
 
-# FINAL CLASSIFICATION CODES
-DEFAULT_CODE = 1
-CONFIRMED_BUILDING_CODE = 19
-REFUTED_BUILDING_CODE = 20
-
 CLUSTER_TOLERANCE = 0.5  # meters
 CLUSTER_MIN_POINTS = 10
 SHARED_CRS = "EPSG:2154"
 
-CLASSIFICATION_CHANNEL_NAME = "classification"
+# FINAL CLASSIFICATION CODES
+class FinalClassificationCode(Enum):
+    """Points code after decision for further analysis."""
+
+    IA_REFUTED = 33  # refuted
+
+    IA_REFUTED_AND_DB_OVERLAYED = 34  # unsure
+    BOTH_UNSURE = 35  # unsure
+
+    IA_CONFIRMED_ONLY = 36  # confirmed
+    DB_OVERLAYED_ONLY = 37  # confirmed
+    BOTH_CONFIRMED = 38  # confirmed
+
+
+class DecisionLabels(Enum):
+    """String label used for making confusion matrices during optimization/evaluation"""
+
+    UNSURE = "unsure"  # 0
+    NOT_BUILDING = "not-building"  # 1
+    BUILDING = "building"  # 2
+
+
+DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
+
+CODE_TO_LABEL_MAPPER = {
+    FinalClassificationCode.IA_REFUTED.value: DecisionLabels.NOT_BUILDING.value,
+    FinalClassificationCode.IA_REFUTED_AND_DB_OVERLAYED.value: DecisionLabels.UNSURE.value,
+    FinalClassificationCode.BOTH_UNSURE.value: DecisionLabels.UNSURE.value,
+    FinalClassificationCode.IA_CONFIRMED_ONLY.value: DecisionLabels.BUILDING.value,
+    FinalClassificationCode.DB_OVERLAYED_ONLY.value: DecisionLabels.BUILDING.value,
+    FinalClassificationCode.BOTH_CONFIRMED.value: DecisionLabels.BUILDING.value,
+}
 
 
 class MetricsNames(Enum):
@@ -62,24 +87,19 @@ class MetricsNames(Enum):
     NET_GAIN_REFUTATION = "NG_REFUTE"
 
 
-class DecisionLabels(Enum):
-    UNSURE = "unsure"  # 0
-    NOT_BUILDING = "not-building"  # 1
-    BUILDING = "building"  # 2
-
-
-DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
-
-
-def cluster(
+def prepare_las_for_decision(
     input_filepath: str,
+    input_bd_topo_shp: str,
     output_filepath: str,
     candidate_building_points_classification_codes: List[int] = [MTS_AUTO_DETECTED_CODE]
     + MTS_TRUE_POSITIVE_CODE_LIST
     + MTS_FALSE_POSITIVE_CODE_LIST,
 ):
-    """Will cluster points, thus creating a ClusterId channel (default cluster: 0)."""
-    where = (
+    """Will:
+    - Cluster candidates points, thus creating a ClusterId channel (default cluster: 0).
+    - Identify points overlayed by a BDTopo shape, thus creating a BDTopoOverlay channel (no overlap: 0).
+    """
+    candidates_where = (
         "("
         + " || ".join(
             f"Classification == {int(candidat_code)}"
@@ -99,7 +119,21 @@ def cluster(
                 "type": "filters.cluster",
                 "min_points": CLUSTER_MIN_POINTS,
                 "tolerance": CLUSTER_TOLERANCE,  # meters
-                "where": where,
+                "where": candidates_where,
+            },
+            {
+                "type": "filters.ferry",
+                "dimensions": f"=>{ChannelNames.BDTopoOverlay.value}",
+            },
+            {
+                "column": "PREC_PLANI",
+                "datasource": input_bd_topo_shp,
+                "dimension": f"{ChannelNames.BDTopoOverlay.value}",
+                "type": "filters.overlay",
+            },
+            {
+                "type": "filters.assign",
+                "value": f"{ChannelNames.BDTopoOverlay.value} = 1 WHERE {ChannelNames.BDTopoOverlay.value} > 0",
             },
             {
                 "type": "writers.las",
@@ -136,22 +170,38 @@ def reset_classification(classification: np.array):
     return classification
 
 
-def make_decisions(
+def make_group_decision(
     probas,
+    overlay_bools,
     min_confidence_confirmation: float = 0.6,
     min_frac_confirmation: float = 0.5,
     min_confidence_refutation: float = 0.6,
     min_frac_refutation: float = 0.8,
+    min_overlay_confirmation: float = 0.95,
 ):
-    """Confirm or refute candidate building shape based on fraction of confirmed/refuted points."""
-    confirmed = np.mean(probas >= min_confidence_confirmation)
-    refuted = np.mean((1 - probas) >= min_confidence_refutation)
-    if confirmed >= min_frac_confirmation:
-        return DecisionLabels.BUILDING.value
-    elif refuted >= min_frac_refutation:
-        return DecisionLabels.NOT_BUILDING.value
-    else:
-        return DecisionLabels.UNSURE.value
+    """
+    Confirm or refute candidate building shape based on fraction of confirmed/refuted points and
+    on fraction of points overlayed by a building shape in a database.
+    """
+    ia_confirmed = (
+        np.mean(probas >= min_confidence_confirmation) >= min_frac_confirmation
+    )
+    ia_refuted = (
+        np.mean((1 - probas) >= min_confidence_refutation) >= min_frac_refutation
+    )
+    overlayed_by_bd = np.mean(overlay_bools) >= min_overlay_confirmation
+
+    if ia_refuted:
+        if overlayed_by_bd:
+            return FinalClassificationCode.IA_REFUTED_AND_DB_OVERLAYED.value
+        return FinalClassificationCode.IA_REFUTED.value
+    if ia_confirmed:
+        if overlayed_by_bd:
+            return FinalClassificationCode.BOTH_CONFIRMED.value
+        return FinalClassificationCode.IA_CONFIRMED_ONLY.value
+    if overlayed_by_bd:
+        return FinalClassificationCode.DB_OVERLAYED_ONLY.value
+    return FinalClassificationCode.BOTH_UNSURE.value
 
 
 def split_idx_by_dim(dim_array):
@@ -170,24 +220,23 @@ def update_las_with_decisions(las, params):
 
     # 1) Set to default all candidats points not belonging to a group
     candidate_building_points_mask = (
-        las[CLASSIFICATION_CHANNEL_NAME] == MTS_AUTO_DETECTED_CODE
+        las[ChannelNames.Classification.value] == MTS_AUTO_DETECTED_CODE
     )
-    las[CLASSIFICATION_CHANNEL_NAME][candidate_building_points_mask] = DEFAULT_CODE
+    las[ChannelNames.Classification.value][
+        candidate_building_points_mask
+    ] = DEFAULT_CODE
 
-    # 2) Decide for candidate points that form a valid candidate shape
-    split_idx = split_idx_by_dim(las.ClusterID)
+    # 2) Decide at the group-level
+    split_idx = split_idx_by_dim(las[ChannelNames.ClusterID.value])
     split_idx = split_idx[1:]  # remove large group with ClusterID = 0
     for pts_idx in tqdm(split_idx, desc="Updating LAS."):
         pts = las.points[pts_idx]
-        ia_decision = make_decisions(pts[ChannelNames.BuildingsProba.value], **params)
-        if ia_decision == DecisionLabels.UNSURE.value:
-            las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = MTS_AUTO_DETECTED_CODE
-        elif ia_decision == DecisionLabels.BUILDING.value:
-            las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = CONFIRMED_BUILDING_CODE
-        elif ia_decision == DecisionLabels.NOT_BUILDING.value:
-            las[CLASSIFICATION_CHANNEL_NAME][pts_idx] = REFUTED_BUILDING_CODE
-        else:
-            raise KeyError(f"Unexpected IA decision: {ia_decision}")
+        decision_code = make_group_decision(
+            pts[ChannelNames.BuildingsProba.value],
+            pts[ChannelNames.BDTopoOverlay.value],
+            **params,
+        )
+        las[ChannelNames.Classification.value][pts_idx] = decision_code
     return las
 
 
