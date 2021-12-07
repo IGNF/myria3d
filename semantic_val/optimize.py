@@ -14,6 +14,7 @@ import laspy
 from semantic_val.datamodules.processing import ChannelNames
 from semantic_val.utils import utils
 from semantic_val.decision.decide import (
+    CODE_TO_LABEL_MAPPER,
     MTS_TRUE_POSITIVE_CODE_LIST,
     DecisionLabels,
     MetricsNames,
@@ -120,13 +121,17 @@ def optimize(config: DictConfig) -> Tuple[float]:
         with open(probas_target_groups_filepath, "rb") as f:
             group_probas, group_overlay_bools, mts_gt = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
-        ia_decision = np.array(
+        ia_decision_codes = [
+            make_group_decision(probas, overlay_bools, **best_trial.params)
+            for probas, overlay_bools in zip(group_probas, group_overlay_bools)
+        ]
+        ia_decision_labels = np.array(
             [
-                make_group_decision(probas, overlay_bools, **best_trial.params)
-                for probas, overlay_bools in zip(group_probas, group_overlay_bools)
+                CODE_TO_LABEL_MAPPER[ia_decision_code]
+                for ia_decision_code in ia_decision_codes
             ]
         )
-        metrics_dict = evaluate_decisions(mts_gt, ia_decision)
+        metrics_dict = evaluate_decisions(mts_gt, ia_decision_labels)
         log.info(
             f"\n Metrics and Confusion Matrices: {get_results_logs_str(metrics_dict)}"
         )

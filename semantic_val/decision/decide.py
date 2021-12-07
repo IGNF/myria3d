@@ -16,20 +16,49 @@ from semantic_val.utils import utils
 log = utils.get_logger(__name__)
 
 # INITIAL TERRA-SOLID CLASSIFICATION CODES
+DEFAULT_CODE = 1
 MTS_AUTO_DETECTED_CODE = 6
 MTS_TRUE_POSITIVE_CODE_LIST = [19]
 MTS_FALSE_POSITIVE_CODE_LIST = [20, 110, 112, 114, 115]
 MTS_FALSE_NEGATIVE_CODE_LIST = [21]
 LAST_ECHO_CODE = 104
 
-# FINAL CLASSIFICATION CODES
-DEFAULT_CODE = 1
-CONFIRMED_BUILDING_CODE = 19
-REFUTED_BUILDING_CODE = 20
-
 CLUSTER_TOLERANCE = 0.5  # meters
 CLUSTER_MIN_POINTS = 10
 SHARED_CRS = "EPSG:2154"
+
+# FINAL CLASSIFICATION CODES
+class FinalClassificationCode(Enum):
+    """Points code after decision for further analysis."""
+
+    IA_REFUTED = 33  # refuted
+
+    IA_REFUTED_AND_DB_OVERLAYED = 34  # unsure
+    BOTH_UNSURE = 35  # unsure
+
+    IA_CONFIRMED_ONLY = 36  # confirmed
+    DB_OVERLAYED_ONLY = 37  # confirmed
+    BOTH_CONFIRMED = 38  # confirmed
+
+
+class DecisionLabels(Enum):
+    """String label used for making confusion matrices during optimization/evaluation"""
+
+    UNSURE = "unsure"  # 0
+    NOT_BUILDING = "not-building"  # 1
+    BUILDING = "building"  # 2
+
+
+DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
+
+CODE_TO_LABEL_MAPPER = {
+    FinalClassificationCode.IA_REFUTED.value: DecisionLabels.NOT_BUILDING.value,
+    FinalClassificationCode.IA_REFUTED_AND_DB_OVERLAYED.value: DecisionLabels.UNSURE.value,
+    FinalClassificationCode.BOTH_UNSURE.value: DecisionLabels.UNSURE.value,
+    FinalClassificationCode.IA_CONFIRMED_ONLY.value: DecisionLabels.BUILDING.value,
+    FinalClassificationCode.DB_OVERLAYED_ONLY.value: DecisionLabels.BUILDING.value,
+    FinalClassificationCode.BOTH_CONFIRMED.value: DecisionLabels.BUILDING.value,
+}
 
 
 class MetricsNames(Enum):
@@ -56,15 +85,6 @@ class MetricsNames(Enum):
     # Metainfo to evaluate absolute gain and what is still to inspect
     NET_GAIN_CONFIRMATION = "NG_CONFIRM"
     NET_GAIN_REFUTATION = "NG_REFUTE"
-
-
-class DecisionLabels(Enum):
-    UNSURE = "unsure"  # 0
-    NOT_BUILDING = "not-building"  # 1
-    BUILDING = "building"  # 2
-
-
-DECISION_LABELS_LIST = [l.value for l in DecisionLabels]
 
 
 def prepare_las_for_decision(
@@ -159,22 +179,29 @@ def make_group_decision(
     min_frac_refutation: float = 0.8,
     min_overlay_confirmation: float = 0.95,
 ):
-    """Confirm or refute candidate building shape based on fraction of confirmed/refuted points and
-    on fraction of points overlayed by a building shape in a database."""
-    confirmed = np.mean(probas >= min_confidence_confirmation) >= min_frac_confirmation
-    if confirmed:
-        return DecisionLabels.BUILDING.value
-    refuted = np.mean((1 - probas) >= min_confidence_refutation) >= min_frac_refutation
-    overlayed = np.mean(overlay_bools) >= min_overlay_confirmation
-    if refuted:
-        if overlayed:
-            return DecisionLabels.UNSURE.value
-        else:
-            return DecisionLabels.NOT_BUILDING.value
-    if overlayed:
-        return DecisionLabels.BUILDING.value
+    """
+    Confirm or refute candidate building shape based on fraction of confirmed/refuted points and
+    on fraction of points overlayed by a building shape in a database.
+    """
+    ia_confirmed = (
+        np.mean(probas >= min_confidence_confirmation) >= min_frac_confirmation
+    )
+    ia_refuted = (
+        np.mean((1 - probas) >= min_confidence_refutation) >= min_frac_refutation
+    )
+    overlayed_by_bd = np.mean(overlay_bools) >= min_overlay_confirmation
 
-    return DecisionLabels.UNSURE.value
+    if ia_refuted:
+        if overlayed_by_bd:
+            return FinalClassificationCode.IA_REFUTED_AND_DB_OVERLAYED.value
+        return FinalClassificationCode.IA_REFUTED.value
+    if ia_confirmed:
+        if overlayed_by_bd:
+            return FinalClassificationCode.BOTH_CONFIRMED.value
+        return FinalClassificationCode.IA_CONFIRMED_ONLY.value
+    if overlayed_by_bd:
+        return FinalClassificationCode.DB_OVERLAYED_ONLY.value
+    return FinalClassificationCode.BOTH_UNSURE.value
 
 
 def split_idx_by_dim(dim_array):
@@ -204,19 +231,12 @@ def update_las_with_decisions(las, params):
     split_idx = split_idx[1:]  # remove large group with ClusterID = 0
     for pts_idx in tqdm(split_idx, desc="Updating LAS."):
         pts = las.points[pts_idx]
-        decision = make_group_decision(
+        decision_code = make_group_decision(
             pts[ChannelNames.BuildingsProba.value],
             pts[ChannelNames.BDTopoOverlay.value],
             **params,
         )
-        if decision == DecisionLabels.UNSURE.value:
-            las[ChannelNames.Classification.value][pts_idx] = MTS_AUTO_DETECTED_CODE
-        elif decision == DecisionLabels.BUILDING.value:
-            las[ChannelNames.Classification.value][pts_idx] = CONFIRMED_BUILDING_CODE
-        elif decision == DecisionLabels.NOT_BUILDING.value:
-            las[ChannelNames.Classification.value][pts_idx] = REFUTED_BUILDING_CODE
-        else:
-            raise KeyError(f"Unexpected IA decision: {decision}")
+        las[ChannelNames.Classification.value][pts_idx] = decision_code
     return las
 
 
