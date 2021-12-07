@@ -62,7 +62,7 @@ def predict(config: DictConfig) -> Optional[float]:
         ):
             outputs = model.predict_step(batch)
             data_handler.update_las_with_preds(outputs, "predict")
-            if index > 3:
+            if index > 2:
                 break  ###### à supprimer ###################
 
     updated_las_path = data_handler.save_las_with_preds_and_close("predict")

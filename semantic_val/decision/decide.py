@@ -165,7 +165,7 @@ def make_group_decision(
     if confirmed:
         return DecisionLabels.BUILDING.value
     refuted = np.mean((1 - probas) >= min_confidence_refutation) >= min_frac_refutation
-    overlayed = np.mean(overlay_bools >= min_overlay_confirmation)
+    overlayed = np.mean(overlay_bools) >= min_overlay_confirmation
     if refuted:
         if overlayed:
             return DecisionLabels.UNSURE.value
