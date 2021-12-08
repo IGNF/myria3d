@@ -56,7 +56,6 @@ class PointNet(nn.Module):
         input_size = features.shape[0]
         subsampling_size = (batch.batch_x == 0).sum()
 
-        # Pass through network layers
         f1 = self.mlp1(features)
         f2 = self.mlp2(f1)
         context_vector = global_max_pool(f2, batch.batch_x)
@@ -70,24 +69,3 @@ class PointNet(nn.Module):
         logits = self.lin(f3)
 
         return logits
-
-    # TODO: define weights
-    # def init_all_weights(self):
-    #     for p in self.parameters():
-    #         self.init_weights(p)
-    #     self.lin.bias = torch.nn.Parameter(
-    #         torch.Tensor(
-    #             [
-    #                 1 - self.percentage_buildings_train_val,
-    #                 self.percentage_buildings_train_val,
-    #             ]
-    #         )
-    #     )
-    #     nn.init.xavier_normal_(self.lin.weight)
-
-    # def init_weights(self, p):
-    #     """Initialize weights of the Parameter p"""
-    #     classname = p.__class__.__name__
-    #     if classname.find("Linear") == 0 and hasattr(p, "weight"):
-    #         gain = nn.init.calculate_gain("relu")
-    #         nn.init.xavier_normal_(p, gain=gain)

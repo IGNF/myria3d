@@ -1,5 +1,3 @@
-# TODO: rename validation_utils into "decision"
-
 from enum import Enum
 import json
 from typing import List
@@ -82,6 +80,8 @@ class MetricsNames(Enum):
     # Constraints:
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
+
+    # TODO: get rid of Net Gain metrics
     # Metainfo to evaluate absolute gain and what is still to inspect
     NET_GAIN_CONFIRMATION = "NG_CONFIRM"
     NET_GAIN_REFUTATION = "NG_REFUTE"

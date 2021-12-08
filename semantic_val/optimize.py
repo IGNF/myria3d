@@ -277,7 +277,6 @@ def get_group_info_and_label(
     )
 
 
-# TODO: extract constraints as global constant
 def compute_OPTIMIZATION_penalty(auto, precision, recall):
     """
     Positive float indicative of how much a solution violates the constraint of minimal auto/precision/metrics

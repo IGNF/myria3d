@@ -118,7 +118,6 @@ class DataModule(LightningDataModule):
         """
         self._set_all_transforms()
 
-        # TODO: add some if/else
         if stage != "predict":
             df_split = pd.read_csv(self.datasplit_csv_filepath)
             self._set_train_data(df_split)

@@ -38,7 +38,6 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Init lightning model
     log.info(f"Instantiating model <{config.model._target_}>")
-    # TODO: recursive programming
     if config.trainer.resume_from_checkpoint:
         utils.update_config_with_hyperparams(config)
 

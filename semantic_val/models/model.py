@@ -61,7 +61,6 @@ class Model(LightningModule):
         if loss == "CrossEntropyLoss":
             self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
         elif loss == "FocalLoss":
-            # TODO: gamma should be a parameter ?
             self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
 
         self.train_iou = BuildingsIoU()
