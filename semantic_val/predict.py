@@ -69,7 +69,10 @@ def predict(config: DictConfig) -> Optional[float]:
 
     log.info("Prepare LAS...")
     prepare_las_for_decision(
-        updated_las_path, config.optimize.input_bd_topo_shp, updated_las_path
+        updated_las_path,
+        config.optimize.input_bd_topo_shp,
+        config.optimize.input_bd_parcellaire_shp,
+        updated_las_path,
     )
 
     log.info("Updating classification...")
