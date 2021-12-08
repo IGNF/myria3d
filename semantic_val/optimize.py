@@ -29,6 +29,12 @@ from semantic_val.decision.decide import (
 
 log = utils.get_logger(__name__)
 
+# Optimization is performed under those constrains:
+MIN_PRECISION_CONSTRAINT = 0.98
+MIN_RECALL_CONSTRAINT = 0.98
+MIN_AUTOMATION_CONSTRAINT = 0.35
+# Solution that meets them and maximizes automation is selected.
+
 
 def optimize(config: DictConfig) -> Tuple[float]:
     """
@@ -277,12 +283,12 @@ def compute_OPTIMIZATION_penalty(auto, precision, recall):
     Positive float indicative of how much a solution violates the constraint of minimal auto/precision/metrics
     """
     penalty = 0
-    if precision < 0.98:
-        penalty += 0.98 - precision
-    if recall < 0.98:
-        penalty += 0.98 - recall
-    if auto < 0.35:
-        penalty += 0.35 - auto
+    if precision < MIN_PRECISION_CONSTRAINT:
+        penalty += MIN_PRECISION_CONSTRAINT - precision
+    if recall < MIN_RECALL_CONSTRAINT:
+        penalty += MIN_RECALL_CONSTRAINT - recall
+    if auto < MIN_AUTOMATION_CONSTRAINT:
+        penalty += MIN_AUTOMATION_CONSTRAINT - auto
     return [penalty]
 
 
