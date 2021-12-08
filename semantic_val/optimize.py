@@ -29,6 +29,12 @@ from semantic_val.decision.decide import (
 
 log = utils.get_logger(__name__)
 
+# Optimization is performed under those constrains:
+MIN_PRECISION_CONSTRAINT = 0.98
+MIN_RECALL_CONSTRAINT = 0.98
+MIN_AUTOMATION_CONSTRAINT = 0.35
+# Solution that meets them and maximizes the product of metrics is selected.
+
 
 def optimize(config: DictConfig) -> Tuple[float]:
     """
@@ -39,7 +45,8 @@ def optimize(config: DictConfig) -> Tuple[float]:
     Pseudocode (temporary):
 
     for las in las_list:
-        cluster with pdal, save to output_las_file
+        prepare with pdal (cluster + overlay)
+        save to PREPARED_las_file
         add the X and target informations to lists
     pickle.dump the lists
 
@@ -47,18 +54,22 @@ def optimize(config: DictConfig) -> Tuple[float]:
     Run an hyperoptimisation
     Find the best solution
     Pickle.dump best solution it where las are saved.
-    evaluate_decision with this set of solution.
+
+    pickle.load the lists
+    pickle.load the best solution
+    evaluate_decision
 
     load best solution
-    for las in las_list:
+    for PREPARED_las_file in las_list, using prepared las:
         reset_classif
         update with thresholds of solution
-        save to output_las_file_BIS
+        save to POST_IA_las_file
     """
     if "seed" in config:
         seed_everything(config.seed, workers=True)
     input_dir = config.optimize.predicted_las_dirpath
     input_bd_topo_shp = config.optimize.input_bd_topo_shp
+    input_bd_parcellaire_shp = config.optimize.input_bd_parcellaire_shp
     output_dir = config.optimize.results_output_dir
 
     os.makedirs(output_dir, exist_ok=True)
@@ -74,18 +85,36 @@ def optimize(config: DictConfig) -> Tuple[float]:
 
     ### CLUSTER AND GET PROBAS AND TARGETS FOR LATER OPTIMIZATION
     if "prepare" in config.optimize.todo:
-        group_probas, group_overlay_bools, mts_gt = get_group_info_and_label(
-            las_filepaths, input_bd_topo_shp, output_dir
+        (
+            group_probas,
+            group_topo_overlay_bools,
+            group_parcellaire_overlay_bools,
+            mts_gt,
+        ) = get_group_info_and_label(
+            las_filepaths, input_bd_topo_shp, input_bd_parcellaire_shp, output_dir
         )
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "wb") as f:
-            pickle.dump((group_probas, group_overlay_bools, mts_gt), f)
+            pickle.dump(
+                (
+                    group_probas,
+                    group_topo_overlay_bools,
+                    group_parcellaire_overlay_bools,
+                    mts_gt,
+                ),
+                f,
+            )
 
     ### OPTIMIZE THRESHOLDS WITH OPTUNA
     if "optimize" in config.optimize.todo:
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "rb") as f:
-            group_probas, group_overlay_bools, mts_gt = pickle.load(f)
+            (
+                group_probas,
+                group_topo_overlay_bools,
+                group_parcellaire_overlay_bools,
+                mts_gt,
+            ) = pickle.load(f)
         log.info(f"Optimizing on N={len(mts_gt)} groups of points.")
 
         sampler_kwargs = OmegaConf.to_container(
@@ -101,7 +130,13 @@ def optimize(config: DictConfig) -> Tuple[float]:
 
         def objective(trial):
             """Objective function. Sets the group data for quick optimization."""
-            return _objective(trial, group_probas, group_overlay_bools, mts_gt)
+            return _objective(
+                trial,
+                group_probas,
+                group_topo_overlay_bools,
+                group_parcellaire_overlay_bools,
+                mts_gt,
+            )
 
         study.optimize(objective, n_trials=config.optimize.study.n_trials)
 
@@ -119,11 +154,23 @@ def optimize(config: DictConfig) -> Tuple[float]:
             log.info(f"Using best trial from: {config.optimize.best_trial_pickle_path}")
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "rb") as f:
-            group_probas, group_overlay_bools, mts_gt = pickle.load(f)
+            (
+                group_probas,
+                group_topo_overlay_bools,
+                group_parcellaire_overlay_bools,
+                mts_gt,
+            ) = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
         decision_codes = [
-            make_group_decision(probas, overlay_bools, **best_trial.params)
-            for probas, overlay_bools in zip(group_probas, group_overlay_bools)
+            make_group_decision(
+                probas,
+                topo_overlay_bools,
+                parcellaire_overlay_bools,
+                **best_trial.params,
+            )
+            for probas, topo_overlay_bools, parcellaire_overlay_bools in zip(
+                group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
+            )
         ]
         decision_labels = [
             CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes
@@ -171,6 +218,7 @@ def define_MTS_ground_truth_flag(frac_true_positive):
 def get_group_info_and_label(
     las_filepaths: List[str],
     input_bd_topo_shp: str,
+    input_bd_parcellaire_shp: str,
     output_dir: str,
 ) -> Tuple[List[np.array], List[str]]:
     """
@@ -179,14 +227,15 @@ def get_group_info_and_label(
     mts_gt: the group label based on ground truths
     """
     group_probas = []
-    group_overlay_bools = []
+    group_topo_overlay_bools = []
+    group_parcellaire_overlay_bools = []
     mts_gt = []
     for las_filepath in tqdm(las_filepaths, desc="Preparing  ->"):
         log.info(f"Preparing tile: {las_filepath}...")
         basename = osp.basename(las_filepath)
         out_path = osp.join(output_dir, "PREPARED_" + basename)
         structured_array = prepare_las_for_decision(
-            las_filepath, input_bd_topo_shp, out_path
+            las_filepath, input_bd_topo_shp, input_bd_parcellaire_shp, out_path
         )
         if len(structured_array) == 0:
             log.info("/!\ Skipping tile: there are no candidate building points.")
@@ -194,9 +243,14 @@ def get_group_info_and_label(
         split_idx = split_idx_by_dim(structured_array[ChannelNames.ClusterID.value])
         split_idx = split_idx[1:]  # remove default group with ClusterID = 0
         for pts_idx in tqdm(split_idx, desc="Append probas and targets  ->"):
-            probas = structured_array[ChannelNames.BuildingsProba.value][pts_idx]
-            overlay_bools = 1 * (
-                structured_array[ChannelNames.BDTopoOverlay.value][pts_idx] > 0
+            group_probas.append(
+                structured_array[ChannelNames.BuildingsProba.value][pts_idx]
+            )
+            group_topo_overlay_bools.append(
+                structured_array[ChannelNames.BDTopoOverlay.value][pts_idx]
+            )
+            group_parcellaire_overlay_bools.append(
+                structured_array[ChannelNames.BDParcellaireOverlay.value][pts_idx]
             )
             # ChannelNames.Classification.value is "classification" not "Classification"
             frac_true_positive = np.mean(
@@ -205,25 +259,26 @@ def get_group_info_and_label(
                     MTS_TRUE_POSITIVE_CODE_LIST,
                 )
             )
-            group_probas.append(probas)
-            group_overlay_bools.append(overlay_bools)
             mts_gt.append(define_MTS_ground_truth_flag(frac_true_positive))
-    mts_gt = np.array(mts_gt)
-    return group_probas, group_overlay_bools, mts_gt
+    return (
+        group_probas,
+        group_topo_overlay_bools,
+        group_parcellaire_overlay_bools,
+        np.array(mts_gt),
+    )
 
 
-# TODO: extract constraints as global constant
 def compute_OPTIMIZATION_penalty(auto, precision, recall):
     """
     Positive float indicative of how much a solution violates the constraint of minimal auto/precision/metrics
     """
     penalty = 0
-    if precision < 0.98:
-        penalty += 0.98 - precision
-    if recall < 0.98:
-        penalty += 0.98 - recall
-    if auto < 0.35:
-        penalty += 0.35 - auto
+    if precision < MIN_PRECISION_CONSTRAINT:
+        penalty += MIN_PRECISION_CONSTRAINT - precision
+    if recall < MIN_RECALL_CONSTRAINT:
+        penalty += MIN_RECALL_CONSTRAINT - recall
+    if auto < MIN_AUTOMATION_CONSTRAINT:
+        penalty += MIN_AUTOMATION_CONSTRAINT - auto
     return [penalty]
 
 
@@ -231,30 +286,37 @@ def constraints_func(trial):
     return trial.user_attrs["constraint"]
 
 
-def _objective(trial, group_probas, group_overlay_bools, mts_gt):
+def _objective(
+    trial,
+    group_probas,
+    group_topo_overlay_bools,
+    group_parcellaire_overlay_bools,
+    mts_gt,
+):
     """Objective function for optuna optimization. Inner definition to access list of array of probas and list of targets."""
-    min_confidence_confirmation = trial.suggest_float(
-        "min_confidence_confirmation", 0.0, 1.0
-    )
-    min_frac_confirmation = trial.suggest_float("min_frac_confirmation", 0.0, 1.0)
-    min_confidence_refutation = trial.suggest_float(
-        "min_confidence_refutation", 0.0, 1.0
-    )
-    min_frac_refutation = trial.suggest_float("min_frac_refutation", 0.0, 1.0)
-    min_overlay_confirmation = trial.suggest_float(
-        "min_overlay_confirmation", 0.50, 1.0
-    )
+    params = {
+        "min_confidence_confirmation": trial.suggest_float(
+            "min_confidence_confirmation", 0.0, 1.0
+        ),
+        "min_frac_confirmation": trial.suggest_float("min_frac_confirmation", 0.0, 1.0),
+        "min_confidence_refutation": trial.suggest_float(
+            "min_confidence_refutation", 0.0, 1.0
+        ),
+        "min_frac_refutation": trial.suggest_float("min_frac_refutation", 0.0, 1.0),
+        "min_topo_overlay_confirmation": trial.suggest_float(
+            "min_topo_overlay_confirmation", 0.50, 1.0
+        ),
+        "min_parcellaire_overlay_confirmation": trial.suggest_float(
+            "min_parcellaire_overlay_confirmation", 0.50, 1.0
+        ),
+    }
     decision_codes = [
         make_group_decision(
-            probas,
-            overlay_bools,
-            min_confidence_confirmation=min_confidence_confirmation,
-            min_frac_confirmation=min_frac_confirmation,
-            min_confidence_refutation=min_confidence_refutation,
-            min_frac_refutation=min_frac_refutation,
-            min_overlay_confirmation=min_overlay_confirmation,
+            probas, topo_overlay_bools, parcellaire_overlay_bools, **params
         )
-        for probas, overlay_bools in zip(group_probas, group_overlay_bools)
+        for probas, topo_overlay_bools, parcellaire_overlay_bools in zip(
+            group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
+        )
     ]
     decision_labels = [
         CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes

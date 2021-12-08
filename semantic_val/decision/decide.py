@@ -1,5 +1,3 @@
-# TODO: rename validation_utils into "decision"
-
 from enum import Enum
 import json
 from typing import List
@@ -82,14 +80,12 @@ class MetricsNames(Enum):
     # Constraints:
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
-    # Metainfo to evaluate absolute gain and what is still to inspect
-    NET_GAIN_CONFIRMATION = "NG_CONFIRM"
-    NET_GAIN_REFUTATION = "NG_REFUTE"
 
 
 def prepare_las_for_decision(
     input_filepath: str,
     input_bd_topo_shp: str,
+    input_bd_parcellaire_shp: str,
     output_filepath: str,
     candidate_building_points_classification_codes: List[int] = [MTS_AUTO_DETECTED_CODE]
     + MTS_TRUE_POSITIVE_CODE_LIST
@@ -98,6 +94,7 @@ def prepare_las_for_decision(
     """Will:
     - Cluster candidates points, thus creating a ClusterId channel (default cluster: 0).
     - Identify points overlayed by a BDTopo shape, thus creating a BDTopoOverlay channel (no overlap: 0).
+    - Identify points overlayed by a BDParcellaire shape, thus creating a BDParcellaireOverlay channel (no overlap: 0).
     """
     candidates_where = (
         "("
@@ -107,41 +104,56 @@ def prepare_las_for_decision(
         )
         + ")"
     )
+    _reader = [
+        {
+            "type": "readers.las",
+            "filename": input_filepath,
+            "override_srs": SHARED_CRS,
+            "nosrs": True,
+        }
+    ]
+    _cluster = [
+        {
+            "type": "filters.cluster",
+            "min_points": CLUSTER_MIN_POINTS,
+            "tolerance": CLUSTER_TOLERANCE,  # meters
+            "where": candidates_where,
+        }
+    ]
+    _topo_overlay = [
+        {
+            "type": "filters.ferry",
+            "dimensions": f"=>{ChannelNames.BDTopoOverlay.value}",
+        },
+        {
+            "column": "presence",
+            "datasource": input_bd_topo_shp,
+            "dimension": f"{ChannelNames.BDTopoOverlay.value}",
+            "type": "filters.overlay",
+        },
+    ]
+    _parcellaire_overlay = [
+        {
+            "type": "filters.ferry",
+            "dimensions": f"=>{ChannelNames.BDParcellaireOverlay.value}",
+        },
+        {
+            "column": "presence",
+            "datasource": input_bd_parcellaire_shp,
+            "dimension": f"{ChannelNames.BDParcellaireOverlay.value}",
+            "type": "filters.overlay",
+        },
+    ]
+    _writer = [
+        {
+            "type": "writers.las",
+            "filename": output_filepath,
+            "forward": "all",  # keep all dimensions based on input format
+            "extra_dims": "all",  # keep all extra dims as well
+        }
+    ]
     pipeline = {
-        "pipeline": [
-            {
-                "type": "readers.las",
-                "filename": input_filepath,
-                "override_srs": SHARED_CRS,
-                "nosrs": True,
-            },
-            {
-                "type": "filters.cluster",
-                "min_points": CLUSTER_MIN_POINTS,
-                "tolerance": CLUSTER_TOLERANCE,  # meters
-                "where": candidates_where,
-            },
-            {
-                "type": "filters.ferry",
-                "dimensions": f"=>{ChannelNames.BDTopoOverlay.value}",
-            },
-            {
-                "column": "PREC_PLANI",
-                "datasource": input_bd_topo_shp,
-                "dimension": f"{ChannelNames.BDTopoOverlay.value}",
-                "type": "filters.overlay",
-            },
-            {
-                "type": "filters.assign",
-                "value": f"{ChannelNames.BDTopoOverlay.value} = 1 WHERE {ChannelNames.BDTopoOverlay.value} > 0",
-            },
-            {
-                "type": "writers.las",
-                "filename": output_filepath,
-                "forward": "all",  # keep all dimensions based on input format
-                "extra_dims": "all",  # keep all extra dims as well
-            },
-        ]
+        "pipeline": _reader + _cluster + _topo_overlay + _parcellaire_overlay + _writer
     }
     pipeline = json.dumps(pipeline)
     pipeline = pdal.Pipeline(pipeline)
@@ -172,12 +184,14 @@ def reset_classification(classification: np.array):
 
 def make_group_decision(
     probas,
-    overlay_bools,
+    topo_overlay_bools,
+    parcellaire_overlay_bools,
     min_confidence_confirmation: float = 0.6,
     min_frac_confirmation: float = 0.5,
     min_confidence_refutation: float = 0.6,
     min_frac_refutation: float = 0.8,
-    min_overlay_confirmation: float = 0.95,
+    min_topo_overlay_confirmation: float = 0.95,
+    min_parcellaire_overlay_confirmation: float = 0.95,
 ):
     """
     Confirm or refute candidate building shape based on fraction of confirmed/refuted points and
@@ -189,17 +203,21 @@ def make_group_decision(
     ia_refuted = (
         np.mean((1 - probas) >= min_confidence_refutation) >= min_frac_refutation
     )
-    overlayed_by_bd = np.mean(overlay_bools) >= min_overlay_confirmation
+    topo_overlayed = np.mean(topo_overlay_bools) >= min_topo_overlay_confirmation
+    parcellaire_overlayed = (
+        np.mean(parcellaire_overlay_bools) >= min_parcellaire_overlay_confirmation
+    )
+    bd_overlayed = topo_overlayed or parcellaire_overlayed
 
     if ia_refuted:
-        if overlayed_by_bd:
+        if bd_overlayed:
             return FinalClassificationCode.IA_REFUTED_AND_DB_OVERLAYED.value
         return FinalClassificationCode.IA_REFUTED.value
     if ia_confirmed:
-        if overlayed_by_bd:
+        if bd_overlayed:
             return FinalClassificationCode.BOTH_CONFIRMED.value
         return FinalClassificationCode.IA_CONFIRMED_ONLY.value
-    if overlayed_by_bd:
+    if bd_overlayed:
         return FinalClassificationCode.DB_OVERLAYED_ONLY.value
     return FinalClassificationCode.BOTH_UNSURE.value
 
@@ -236,6 +254,7 @@ def update_las_with_decisions(
         decision_code = make_group_decision(
             pts[ChannelNames.BuildingsProba.value],
             pts[ChannelNames.BDTopoOverlay.value],
+            pts[ChannelNames.BDParcellaireOverlay.value],
             **params,
         )
         las[ChannelNames.Classification.value][pts_idx] = decision_code
@@ -299,7 +318,7 @@ def evaluate_decisions(mts_gt, ia_decision):
         }
     )
 
-    # CONSTRAINTS
+    # ACCURACIES
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="pred"
     )
@@ -312,19 +331,11 @@ def evaluate_decisions(mts_gt, ia_decision):
         }
     )
 
-    # NET GAIN
+    # NORMALIZED CM
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="true"
     )
     metrics_dict.update({MetricsNames.CONFUSION_MATRIX_NORM.value: cm.copy()})
-    NGR = cm[1, 1]
-    NGC = cm[2, 2]
-    metrics_dict.update(
-        {
-            MetricsNames.NET_GAIN_REFUTATION.value: NGR,
-            MetricsNames.NET_GAIN_CONFIRMATION.value: NGC,
-        }
-    )
 
     # QUALITY
     non_ambiguous_idx = mts_gt != DecisionLabels.UNSURE.value
