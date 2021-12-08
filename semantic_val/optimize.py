@@ -33,7 +33,7 @@ log = utils.get_logger(__name__)
 MIN_PRECISION_CONSTRAINT = 0.98
 MIN_RECALL_CONSTRAINT = 0.98
 MIN_AUTOMATION_CONSTRAINT = 0.35
-# Solution that meets them and maximizes automation is selected.
+# Solution that meets them and maximizes the product of metrics is selected.
 
 
 def optimize(config: DictConfig) -> Tuple[float]:
