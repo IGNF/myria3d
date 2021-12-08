@@ -212,15 +212,17 @@ def split_idx_by_dim(dim_array):
     return group_idx
 
 
-def update_las_with_decisions(las, params):
+def update_las_with_decisions(
+    las, params, mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE
+):
     """
     Update point cloud classification channel.
     Params is a dict-like object with optimized decision thresholds.
     """
 
-    # 1) Set to default all candidats points not belonging to a group
+    # 1) Set to default all candidats points
     candidate_building_points_mask = (
-        las[ChannelNames.Classification.value] == MTS_AUTO_DETECTED_CODE
+        las[ChannelNames.Classification.value] == mts_auto_detected_code
     )
     las[ChannelNames.Classification.value][
         candidate_building_points_mask
@@ -228,7 +230,7 @@ def update_las_with_decisions(las, params):
 
     # 2) Decide at the group-level
     split_idx = split_idx_by_dim(las[ChannelNames.ClusterID.value])
-    split_idx = split_idx[1:]  # remove large group with ClusterID = 0
+    split_idx = split_idx[1:]  # remove unclustered group with ClusterID = 0
     for pts_idx in tqdm(split_idx, desc="Updating LAS."):
         pts = las.points[pts_idx]
         decision_code = make_group_decision(
@@ -252,18 +254,16 @@ def evaluate_decisions(mts_gt, ia_decision):
             [Yu Yr Yc]
 
     Maximization criteria:
-      Proportion of each decision among total of candidates.
-      We want to maximize it. The max is not 1 since there are "ambiguous ground truth" cases.
-    Constraints:
+      Proportion of each decision among total of candidate groups.
+      We want to maximize it.
+    Accuracies:
       Confirmation/Refutation Accuracy.
-      Equals 1 if no confirmation or refutation was a mistake (-> being unsure should not decrease accuracy)
-    Net gain:
-      Proportions of accurate C/R.
-      Equals 1 if we either confirmed or refuted every candidate that could be, being unsure only
-      for ambiguous groud truths)
+      Accurate decision if either "unsure" or the same as the label.
     Quality
-      Precision and Recall resulting from C/R, assuming perfect posterior decision for unsure predictions.
-      Only candidate shapes with known ground truths are considered.
+      Precision and Recall, assuming perfect posterior decision for unsure predictions.
+      Only candidate shapes with known ground truths are considered (ambiguous labels are ignored).
+      Precision :
+      Recall : (Yu + Yc) / (Yu + Yn + Yc)
     """
     metrics_dict = dict()
 
@@ -333,13 +333,14 @@ def evaluate_decisions(mts_gt, ia_decision):
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="all"
     )
-    final_positives = cm[2, 0] + cm[2, 2] + cm[1, 2]  # Yu + Yc + Nc
-    final_false_positives = cm[1, 2]  # Yr
-    precision = final_positives / (final_positives + final_false_positives)
+    final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
+    final_false_positives = cm[1, 2]  # Nc
+    precision = final_true_positives / (
+        final_true_positives + final_false_positives
+    )  #  (Yu + Yc) / (Yu + Yc + Nc)
 
     positives = cm[2, :].sum()
-    final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
-    recall = final_true_positives / positives
+    recall = final_true_positives / positives  # (Yu + Yc) / (Yu + Yn + Yc)
 
     metrics_dict.update(
         {
