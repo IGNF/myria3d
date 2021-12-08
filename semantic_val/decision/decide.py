@@ -81,11 +81,6 @@ class MetricsNames(Enum):
     CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
 
-    # TODO: get rid of Net Gain metrics
-    # Metainfo to evaluate absolute gain and what is still to inspect
-    NET_GAIN_CONFIRMATION = "NG_CONFIRM"
-    NET_GAIN_REFUTATION = "NG_REFUTE"
-
 
 def prepare_las_for_decision(
     input_filepath: str,
@@ -322,7 +317,7 @@ def evaluate_decisions(mts_gt, ia_decision):
         }
     )
 
-    # CONSTRAINTS
+    # ACCURACIES
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="pred"
     )
@@ -335,19 +330,11 @@ def evaluate_decisions(mts_gt, ia_decision):
         }
     )
 
-    # NET GAIN
+    # NORMALIZED CM
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_LABELS_LIST, normalize="true"
     )
     metrics_dict.update({MetricsNames.CONFUSION_MATRIX_NORM.value: cm.copy()})
-    NGR = cm[1, 1]
-    NGC = cm[2, 2]
-    metrics_dict.update(
-        {
-            MetricsNames.NET_GAIN_REFUTATION.value: NGR,
-            MetricsNames.NET_GAIN_CONFIRMATION.value: NGC,
-        }
-    )
 
     # QUALITY
     non_ambiguous_idx = mts_gt != DecisionLabels.UNSURE.value
