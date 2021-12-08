@@ -162,10 +162,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
             ) = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
         decision_codes = [
-<<<<<<< HEAD
-            make_group_decision(probas, overlay_bools, **best_trial.params)
-            for probas, overlay_bools in zip(group_probas, group_overlay_bools)
-=======
             make_group_decision(
                 probas,
                 topo_overlay_bools,
@@ -175,15 +171,10 @@ def optimize(config: DictConfig) -> Tuple[float]:
             for probas, topo_overlay_bools, parcellaire_overlay_bools in zip(
                 group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
             )
->>>>>>> 0c0a676... Integrate BDParcellaire as additional source of proof
         ]
         decision_labels = [
             CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes
         ]
-<<<<<<< HEAD
-=======
-
->>>>>>> 0c0a676... Integrate BDParcellaire as additional source of proof
         metrics_dict = evaluate_decisions(mts_gt, np.array(decision_labels))
         log.info(
             f"\n Metrics and Confusion Matrices: {get_results_logs_str(metrics_dict)}"
