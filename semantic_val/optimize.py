@@ -121,17 +121,14 @@ def optimize(config: DictConfig) -> Tuple[float]:
         with open(probas_target_groups_filepath, "rb") as f:
             group_probas, group_overlay_bools, mts_gt = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
-        ia_decision_codes = [
+        decision_codes = [
             make_group_decision(probas, overlay_bools, **best_trial.params)
             for probas, overlay_bools in zip(group_probas, group_overlay_bools)
         ]
-        ia_decision_labels = np.array(
-            [
-                CODE_TO_LABEL_MAPPER[ia_decision_code]
-                for ia_decision_code in ia_decision_codes
-            ]
-        )
-        metrics_dict = evaluate_decisions(mts_gt, ia_decision_labels)
+        decision_labels = [
+            CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes
+        ]
+        metrics_dict = evaluate_decisions(mts_gt, np.array(decision_labels))
         log.info(
             f"\n Metrics and Confusion Matrices: {get_results_logs_str(metrics_dict)}"
         )
@@ -247,7 +244,7 @@ def _objective(trial, group_probas, group_overlay_bools, mts_gt):
     min_overlay_confirmation = trial.suggest_float(
         "min_overlay_confirmation", 0.50, 1.0
     )
-    decision = [
+    decision_codes = [
         make_group_decision(
             probas,
             overlay_bools,
@@ -259,7 +256,10 @@ def _objective(trial, group_probas, group_overlay_bools, mts_gt):
         )
         for probas, overlay_bools in zip(group_probas, group_overlay_bools)
     ]
-    metrics_dict = evaluate_decisions(mts_gt, np.array(decision))
+    decision_labels = [
+        CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes
+    ]
+    metrics_dict = evaluate_decisions(mts_gt, np.array(decision_labels))
 
     values = (
         metrics_dict[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value],
