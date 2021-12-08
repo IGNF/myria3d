@@ -94,6 +94,7 @@ def prepare_las_for_decision(
     """Will:
     - Cluster candidates points, thus creating a ClusterId channel (default cluster: 0).
     - Identify points overlayed by a BDTopo shape, thus creating a BDTopoOverlay channel (no overlap: 0).
+    - Identify points overlayed by a BDParcellaire shape, thus creating a BDParcellaireOverlay channel (no overlap: 0).
     """
     candidates_where = (
         "("
