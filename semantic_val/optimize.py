@@ -184,8 +184,8 @@ def get_group_info_and_label(
     group_probas = []
     group_overlay_bools = []
     mts_gt = []
-    for las_filepath in tqdm(las_filepaths, desc="Clustering  ->"):
-        log.info(f"Clustering tile: {las_filepath}...")
+    for las_filepath in tqdm(las_filepaths, desc="Preparing  ->"):
+        log.info(f"Preparing tile: {las_filepath}...")
         basename = osp.basename(las_filepath)
         out_path = osp.join(output_dir, "PREPARED_" + basename)
         structured_array = prepare_las_for_decision(
