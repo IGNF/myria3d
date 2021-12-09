@@ -75,12 +75,12 @@ def predict(config: DictConfig) -> Optional[float]:
         updated_las_path,
     )
 
-    log.info("Updating classification...")
+    log.info("Update classification...")
     las = laspy.read(updated_las_path)
-    las.classification = reset_classification(las.classification)
     with open(config.prediction.best_trial_pickle_path, "rb") as f:
         log.info(f"Using best trial from: {config.prediction.best_trial_pickle_path}")
         best_trial = pickle.load(f)
+    # TODO: add a mts_auto_detected_code = XXX parameter in update_las_with_decision, if risk of change.
     las = update_las_with_decisions(las, best_trial.params)
     las.write(updated_las_path)
     log.info(f"Updated LAS saved to : {updated_las_path}")
