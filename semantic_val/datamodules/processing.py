@@ -395,6 +395,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
     return batch
 
 
+# TODO: rename this to LASUpdater
 class DataHandler:
     """A class to load, update with proba/preds, and save a LAS."""
 

@@ -1,3 +1,4 @@
+from enum import Enum
 import pickle
 import glob
 import os
@@ -11,17 +12,17 @@ from pytorch_lightning import seed_everything
 import numpy as np
 import optuna
 import laspy
+from sklearn.metrics import confusion_matrix
 from semantic_val.datamodules.processing import ChannelNames
+from semantic_val.decision.codes import FinalClassificationCodes
 from semantic_val.utils import utils
 from semantic_val.decision.decide import (
-    CODE_TO_LABEL_MAPPER,
+    DECISION_CODES_LIST_FOR_CONFUSION,
+    DETAILED_CODE_TO_FINAL_CODE,
     MTS_TRUE_POSITIVE_CODE_LIST,
-    DecisionLabels,
-    MetricsNames,
-    prepare_las_for_decision,
-    evaluate_decisions,
-    get_results_logs_str,
     make_group_decision,
+    prepare_las_for_decision,
+    make_detailed_group_decision,
     reset_classification,
     split_idx_by_dim,
     update_las_with_decisions,
@@ -77,11 +78,11 @@ def optimize(config: DictConfig) -> Tuple[float]:
     log.info(f"Logs will be saved in {os.getcwd()}")
     las_filepaths = glob.glob(osp.join(input_dir, "*.las"))
     # DEBUG
-    # las_filepaths = [
-    #     # "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_870000_6649000.las",
-    #     "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
-    # ]
-    # print(las_filepaths)
+    las_filepaths = [
+        "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_870000_6649000.las",
+        # "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
+    ]
+    print(las_filepaths)
 
     ### CLUSTER AND GET PROBAS AND TARGETS FOR LATER OPTIMIZATION
     if "prepare" in config.optimize.todo:
@@ -161,7 +162,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
                 mts_gt,
             ) = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
-        decision_codes = [
+        decisions = [
             make_group_decision(
                 probas,
                 topo_overlay_bools,
@@ -172,10 +173,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
                 group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
             )
         ]
-        decision_labels = [
-            CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes
-        ]
-        metrics_dict = evaluate_decisions(mts_gt, np.array(decision_labels))
+        metrics_dict = evaluate_decisions(mts_gt, np.array(decisions))
         log.info(
             f"\n Metrics and Confusion Matrices: {get_results_logs_str(metrics_dict)}"
         )
@@ -194,7 +192,9 @@ def optimize(config: DictConfig) -> Tuple[float]:
                 log.info(
                     f"Using best trial from: {config.optimize.best_trial_pickle_path}"
                 )
-            las = update_las_with_decisions(las, best_trial.params)
+            las = update_las_with_decisions(
+                las, best_trial.params, use_final_classification_codes=False
+            )
             out_path = osp.join(output_dir, "POST_IA_" + basename)
             las.write(out_path)
             log.info(f"Saved update las to {out_path}")
@@ -208,11 +208,11 @@ def define_MTS_ground_truth_flag(frac_true_positive):
     FP_FRAC = 0.05
     TP_FRAC = 0.95
     if frac_true_positive >= TP_FRAC:
-        return DecisionLabels.BUILDING.value
+        return FinalClassificationCodes.BUILDING.value
     elif frac_true_positive < FP_FRAC:
-        return DecisionLabels.NOT_BUILDING.value
+        return FinalClassificationCodes.NOT_BUILDING.value
     else:
-        return DecisionLabels.UNSURE.value
+        return FinalClassificationCodes.UNSURE.value
 
 
 def get_group_info_and_label(
@@ -268,6 +268,152 @@ def get_group_info_and_label(
     )
 
 
+class MetricsNames(Enum):
+    # Shapes info
+    MTS_SHP_NUMBER = "NUM_SHAPES"
+    MTS_SHP_BUILDINGS = "P_MTS_BUILDINGS"
+    MTS_SHP_NO_BUILDINGS = "P_MTS_NO_BUILDINGS"
+    MTS_SHP_UNSURE = "P_MTS_UNSURE"
+
+    # Amount of each deicison
+    PROPORTION_OF_UNCERTAINTY = "P_UNSURE"
+    PROPORTION_OF_CONFIRMATION = "P_CONFIRM"
+    PROPORTION_OF_REFUTATION = "P_REFUTE"
+    CONFUSION_MATRIX_NORM = "CONFUSION_MATRIX_NORM"
+    CONFUSION_MATRIX_NO_NORM = "CONFUSION_MATRIX_NO_NORM"
+
+    # To maximize:
+    PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
+    PRECISION = "PRECISION"
+    RECALL = "RECALL"
+    # Constraints:
+    CONFIRMATION_ACCURACY = "A_CONFIRM"
+    REFUTATION_ACCURACY = "A_REFUTE"
+
+
+def evaluate_decisions(mts_gt, ia_decision):
+    """
+    Get dict of metrics to evaluate how good module decisions were in reference to ground truths.
+    Targets: U=Unsure, N=No (not a building), Y=Yes (building)
+    PRedictions : U=Unsure, C=Confirmation, R=Refutation
+    Confusion Matrix :
+            predictions
+            [Uu Ur Uc]
+    target  [Nu Nr Nc]
+            [Yu Yr Yc]
+
+    Maximization criteria:
+      Proportion of each decision among total of candidate groups.
+      We want to maximize it.
+    Accuracies:
+      Confirmation/Refutation Accuracy.
+      Accurate decision if either "unsure" or the same as the label.
+    Quality
+      Precision and Recall, assuming perfect posterior decision for unsure predictions.
+      Only candidate shapes with known ground truths are considered (ambiguous labels are ignored).
+      Precision :
+      Recall : (Yu + Yc) / (Yu + Yn + Yc)
+    """
+    metrics_dict = dict()
+
+    # VECTORS INFOS
+    num_shapes = len(ia_decision)
+    metrics_dict.update({MetricsNames.MTS_SHP_NUMBER.value: num_shapes})
+
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_CODES_LIST_FOR_CONFUSION, normalize=None
+    )
+    metrics_dict.update({MetricsNames.CONFUSION_MATRIX_NO_NORM.value: cm.copy()})
+
+    # CRITERIA
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_CODES_LIST_FOR_CONFUSION, normalize="all"
+    )
+    P_MTS_U, P_MTS_N, P_MTS_C = cm.sum(axis=1)
+    metrics_dict.update(
+        {
+            MetricsNames.MTS_SHP_UNSURE.value: P_MTS_U,
+            MetricsNames.MTS_SHP_NO_BUILDINGS.value: P_MTS_N,
+            MetricsNames.MTS_SHP_BUILDINGS.value: P_MTS_C,
+        }
+    )
+    P_IA_u, P_IA_r, P_IA_c = cm.sum(axis=0)
+    PAD = P_IA_c + P_IA_r
+    metrics_dict.update(
+        {
+            MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value: PAD,
+            MetricsNames.PROPORTION_OF_UNCERTAINTY.value: P_IA_u,
+            MetricsNames.PROPORTION_OF_REFUTATION.value: P_IA_r,
+            MetricsNames.PROPORTION_OF_CONFIRMATION.value: P_IA_c,
+        }
+    )
+
+    # ACCURACIES
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_CODES_LIST_FOR_CONFUSION, normalize="pred"
+    )
+    RA = cm[1, 1]
+    CA = cm[2, 2]
+    metrics_dict.update(
+        {
+            MetricsNames.REFUTATION_ACCURACY.value: RA,
+            MetricsNames.CONFIRMATION_ACCURACY.value: CA,
+        }
+    )
+
+    # NORMALIZED CM
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_CODES_LIST_FOR_CONFUSION, normalize="true"
+    )
+    metrics_dict.update({MetricsNames.CONFUSION_MATRIX_NORM.value: cm.copy()})
+
+    # QUALITY
+    non_ambiguous_idx = mts_gt != FinalClassificationCodes.UNSURE.value
+    ia_decision = ia_decision[non_ambiguous_idx]
+    mts_gt = mts_gt[non_ambiguous_idx]
+    cm = confusion_matrix(
+        mts_gt, ia_decision, labels=DECISION_CODES_LIST_FOR_CONFUSION, normalize="all"
+    )
+    final_true_positives = cm[2, 0] + cm[2, 2]  # Yu + Yc
+    final_false_positives = cm[1, 2]  # Nc
+    precision = final_true_positives / (
+        final_true_positives + final_false_positives
+    )  #  (Yu + Yc) / (Yu + Yc + Nc)
+
+    positives = cm[2, :].sum()
+    recall = final_true_positives / positives  # (Yu + Yc) / (Yu + Yn + Yc)
+
+    metrics_dict.update(
+        {
+            MetricsNames.PRECISION.value: precision,
+            MetricsNames.RECALL.value: recall,
+        }
+    )
+
+    return metrics_dict
+
+
+def get_results_logs_str(metrics_dict: dict):
+    """Format all metrics as a str for logging."""
+    results_logs = "  |  ".join(
+        f"{metric_enum.value}={metrics_dict[metric_enum.value]:{'' if type(metrics_dict[metric_enum.value]) is int else '.3'}}"
+        for metric_enum in MetricsNames
+        if metric_enum
+        not in [
+            MetricsNames.CONFUSION_MATRIX_NORM,
+            MetricsNames.CONFUSION_MATRIX_NO_NORM,
+        ]
+    )
+    results_logs = (
+        results_logs
+        + "\n"
+        + str(metrics_dict[MetricsNames.CONFUSION_MATRIX_NO_NORM.value].round(3))
+        + "\n"
+        + str(metrics_dict[MetricsNames.CONFUSION_MATRIX_NORM.value].round(3))
+    )
+    return results_logs
+
+
 def compute_OPTIMIZATION_penalty(auto, precision, recall):
     """
     Positive float indicative of how much a solution violates the constraint of minimal auto/precision/metrics
@@ -310,7 +456,7 @@ def _objective(
             "min_parcellaire_overlay_confirmation", 0.50, 1.0
         ),
     }
-    decision_codes = [
+    decisions = [
         make_group_decision(
             probas, topo_overlay_bools, parcellaire_overlay_bools, **params
         )
@@ -318,10 +464,7 @@ def _objective(
             group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
         )
     ]
-    decision_labels = [
-        CODE_TO_LABEL_MAPPER[decision_code] for decision_code in decision_codes
-    ]
-    metrics_dict = evaluate_decisions(mts_gt, np.array(decision_labels))
+    metrics_dict = evaluate_decisions(mts_gt, np.array(decisions))
 
     values = (
         metrics_dict[MetricsNames.PROPORTION_OF_AUTOMATED_DECISIONS.value],
