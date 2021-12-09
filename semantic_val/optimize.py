@@ -14,16 +14,15 @@ import optuna
 import laspy
 from sklearn.metrics import confusion_matrix
 from semantic_val.datamodules.processing import ChannelNames
-from semantic_val.decision.codes import FinalClassificationCodes
+from semantic_val.decision.codes import FinalClassificationCodes, reset_classification
 from semantic_val.utils import utils
-from semantic_val.decision.decide import (
+from semantic_val.decision.codes import (
     DECISION_CODES_LIST_FOR_CONFUSION,
-    DETAILED_CODE_TO_FINAL_CODE,
     MTS_TRUE_POSITIVE_CODE_LIST,
+)
+from semantic_val.decision.decide import (
     make_group_decision,
     prepare_las_for_decision,
-    make_detailed_group_decision,
-    reset_classification,
     split_idx_by_dim,
     update_las_with_decisions,
 )
@@ -70,7 +69,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
         seed_everything(config.seed, workers=True)
     input_dir = config.optimize.predicted_las_dirpath
     input_bd_topo_shp = config.optimize.input_bd_topo_shp
-    input_bd_parcellaire_shp = config.optimize.input_bd_parcellaire_shp
     output_dir = config.optimize.results_output_dir
 
     os.makedirs(output_dir, exist_ok=True)
@@ -89,18 +87,14 @@ def optimize(config: DictConfig) -> Tuple[float]:
         (
             group_probas,
             group_topo_overlay_bools,
-            group_parcellaire_overlay_bools,
             mts_gt,
-        ) = get_group_info_and_label(
-            las_filepaths, input_bd_topo_shp, input_bd_parcellaire_shp, output_dir
-        )
+        ) = get_group_info_and_label(las_filepaths, input_bd_topo_shp, output_dir)
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "wb") as f:
             pickle.dump(
                 (
                     group_probas,
                     group_topo_overlay_bools,
-                    group_parcellaire_overlay_bools,
                     mts_gt,
                 ),
                 f,
@@ -113,7 +107,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
             (
                 group_probas,
                 group_topo_overlay_bools,
-                group_parcellaire_overlay_bools,
                 mts_gt,
             ) = pickle.load(f)
         log.info(f"Optimizing on N={len(mts_gt)} groups of points.")
@@ -135,7 +128,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
                 trial,
                 group_probas,
                 group_topo_overlay_bools,
-                group_parcellaire_overlay_bools,
                 mts_gt,
             )
 
@@ -158,7 +150,6 @@ def optimize(config: DictConfig) -> Tuple[float]:
             (
                 group_probas,
                 group_topo_overlay_bools,
-                group_parcellaire_overlay_bools,
                 mts_gt,
             ) = pickle.load(f)
         log.info(f"Evaluating best trial on N={len(mts_gt)} groups of points.")
@@ -166,11 +157,10 @@ def optimize(config: DictConfig) -> Tuple[float]:
             make_group_decision(
                 probas,
                 topo_overlay_bools,
-                parcellaire_overlay_bools,
                 **best_trial.params,
             )
-            for probas, topo_overlay_bools, parcellaire_overlay_bools in zip(
-                group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
+            for probas, topo_overlay_bools in zip(
+                group_probas, group_topo_overlay_bools
             )
         ]
         metrics_dict = evaluate_decisions(mts_gt, np.array(decisions))
@@ -186,12 +176,12 @@ def optimize(config: DictConfig) -> Tuple[float]:
             basename = osp.basename(las_filepath)
             cluster_path = osp.join(output_dir, "PREPARED_" + basename)
             las = laspy.read(cluster_path)
-            las.classification = reset_classification(las.classification)
             with open(config.optimize.best_trial_pickle_path, "rb") as f:
                 best_trial = pickle.load(f)
                 log.info(
                     f"Using best trial from: {config.optimize.best_trial_pickle_path}"
                 )
+            las.classification = reset_classification(las.classification)
             las = update_las_with_decisions(
                 las, best_trial.params, use_final_classification_codes=False
             )
@@ -218,7 +208,6 @@ def define_MTS_ground_truth_flag(frac_true_positive):
 def get_group_info_and_label(
     las_filepaths: List[str],
     input_bd_topo_shp: str,
-    input_bd_parcellaire_shp: str,
     output_dir: str,
 ) -> Tuple[List[np.array], List[str]]:
     """
@@ -228,14 +217,13 @@ def get_group_info_and_label(
     """
     group_probas = []
     group_topo_overlay_bools = []
-    group_parcellaire_overlay_bools = []
     mts_gt = []
     for las_filepath in tqdm(las_filepaths, desc="Preparing  ->"):
         log.info(f"Preparing tile: {las_filepath}...")
         basename = osp.basename(las_filepath)
         out_path = osp.join(output_dir, "PREPARED_" + basename)
         structured_array = prepare_las_for_decision(
-            las_filepath, input_bd_topo_shp, input_bd_parcellaire_shp, out_path
+            las_filepath, input_bd_topo_shp, out_path
         )
         if len(structured_array) == 0:
             log.info("/!\ Skipping tile: there are no candidate building points.")
@@ -249,9 +237,6 @@ def get_group_info_and_label(
             group_topo_overlay_bools.append(
                 structured_array[ChannelNames.BDTopoOverlay.value][pts_idx]
             )
-            group_parcellaire_overlay_bools.append(
-                structured_array[ChannelNames.BDParcellaireOverlay.value][pts_idx]
-            )
             # ChannelNames.Classification.value is "classification" not "Classification"
             frac_true_positive = np.mean(
                 np.isin(
@@ -263,32 +248,32 @@ def get_group_info_and_label(
     return (
         group_probas,
         group_topo_overlay_bools,
-        group_parcellaire_overlay_bools,
         np.array(mts_gt),
     )
 
 
 class MetricsNames(Enum):
     # Shapes info
-    MTS_SHP_NUMBER = "NUM_SHAPES"
-    MTS_SHP_BUILDINGS = "P_MTS_BUILDINGS"
-    MTS_SHP_NO_BUILDINGS = "P_MTS_NO_BUILDINGS"
-    MTS_SHP_UNSURE = "P_MTS_UNSURE"
+    MTS_GROUPS_COUNT = "P_MTS_GROUPS_COUNT"
+    MTS_GROUP_BUILDING_LABEL = "P_MTS_BUILDINGS"
+    MTS_GROUP_NO_BUILDINGS_LABEL = "P_MTS_NO_BUILDINGS"
+    MTS_GROUP_UNSURE_LABEL = "P_MTS_UNSURE"
 
     # Amount of each deicison
     PROPORTION_OF_UNCERTAINTY = "P_UNSURE"
-    PROPORTION_OF_CONFIRMATION = "P_CONFIRM"
     PROPORTION_OF_REFUTATION = "P_REFUTE"
+    PROPORTION_OF_CONFIRMATION = "P_CONFIRM"
     CONFUSION_MATRIX_NORM = "CONFUSION_MATRIX_NORM"
     CONFUSION_MATRIX_NO_NORM = "CONFUSION_MATRIX_NO_NORM"
 
     # To maximize:
-    PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
     PRECISION = "PRECISION"
     RECALL = "RECALL"
+    PROPORTION_OF_AUTOMATED_DECISIONS = "P_AUTO"
+
     # Constraints:
-    CONFIRMATION_ACCURACY = "A_CONFIRM"
     REFUTATION_ACCURACY = "A_REFUTE"
+    CONFIRMATION_ACCURACY = "A_CONFIRM"
 
 
 def evaluate_decisions(mts_gt, ia_decision):
@@ -318,7 +303,7 @@ def evaluate_decisions(mts_gt, ia_decision):
 
     # VECTORS INFOS
     num_shapes = len(ia_decision)
-    metrics_dict.update({MetricsNames.MTS_SHP_NUMBER.value: num_shapes})
+    metrics_dict.update({MetricsNames.MTS_GROUPS_COUNT.value: num_shapes})
 
     cm = confusion_matrix(
         mts_gt, ia_decision, labels=DECISION_CODES_LIST_FOR_CONFUSION, normalize=None
@@ -332,9 +317,9 @@ def evaluate_decisions(mts_gt, ia_decision):
     P_MTS_U, P_MTS_N, P_MTS_C = cm.sum(axis=1)
     metrics_dict.update(
         {
-            MetricsNames.MTS_SHP_UNSURE.value: P_MTS_U,
-            MetricsNames.MTS_SHP_NO_BUILDINGS.value: P_MTS_N,
-            MetricsNames.MTS_SHP_BUILDINGS.value: P_MTS_C,
+            MetricsNames.MTS_GROUP_UNSURE_LABEL.value: P_MTS_U,
+            MetricsNames.MTS_GROUP_NO_BUILDINGS_LABEL.value: P_MTS_N,
+            MetricsNames.MTS_GROUP_BUILDING_LABEL.value: P_MTS_C,
         }
     )
     P_IA_u, P_IA_r, P_IA_c = cm.sum(axis=0)
@@ -436,7 +421,6 @@ def _objective(
     trial,
     group_probas,
     group_topo_overlay_bools,
-    group_parcellaire_overlay_bools,
     mts_gt,
 ):
     """Objective function for optuna optimization. Inner definition to access list of array of probas and list of targets."""
@@ -449,20 +433,13 @@ def _objective(
             "min_confidence_refutation", 0.0, 1.0
         ),
         "min_frac_refutation": trial.suggest_float("min_frac_refutation", 0.0, 1.0),
-        "min_topo_overlay_confirmation": trial.suggest_float(
-            "min_topo_overlay_confirmation", 0.50, 1.0
-        ),
-        "min_parcellaire_overlay_confirmation": trial.suggest_float(
-            "min_parcellaire_overlay_confirmation", 0.50, 1.0
+        "min_overlay_confirmation": trial.suggest_float(
+            "min_overlay_confirmation", 0.50, 1.0
         ),
     }
     decisions = [
-        make_group_decision(
-            probas, topo_overlay_bools, parcellaire_overlay_bools, **params
-        )
-        for probas, topo_overlay_bools, parcellaire_overlay_bools in zip(
-            group_probas, group_topo_overlay_bools, group_parcellaire_overlay_bools
-        )
+        make_group_decision(probas, topo_overlay_bools, **params)
+        for probas, topo_overlay_bools in zip(group_probas, group_topo_overlay_bools)
     ]
     metrics_dict = evaluate_decisions(mts_gt, np.array(decisions))
 

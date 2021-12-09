@@ -44,7 +44,6 @@ class ChannelNames(Enum):
 
     # Custom
     BDTopoOverlay = "BDTopoOverlay"
-    BDParcellaireOverlay = "BDParcellaireOverlay"
     BuildingsPreds = "BuildingsPreds"
     BuildingsProba = "BuildingsProba"
 

@@ -1,5 +1,7 @@
 from enum import Enum
 
+import numpy as np
+
 
 # INITIAL TERRA-SOLID CLASSIFICATION CODES
 DEFAULT_CODE = 1
@@ -46,3 +48,23 @@ DETAILED_CODE_TO_FINAL_CODE = {
     DetailedClassificationCodes.DB_OVERLAYED_ONLY.value: FinalClassificationCodes.BUILDING.value,
     DetailedClassificationCodes.BOTH_CONFIRMED.value: FinalClassificationCodes.BUILDING.value,
 }
+
+
+def reset_classification(classification: np.array):
+    """
+    Set the classification to pre-correction codes. This is not needed for production.
+    FP+TP -> set to auto-detected code
+    FN -> set to background code
+    LAST_ECHO -> set to background code
+    """
+    candidate_building_points_mask = np.isin(
+        classification, MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
+    )
+    classification[candidate_building_points_mask] = MTS_AUTO_DETECTED_CODE
+    forgotten_buillding_points_mask = np.isin(
+        classification, MTS_FALSE_NEGATIVE_CODE_LIST
+    )
+    classification[forgotten_buillding_points_mask] = DEFAULT_CODE
+    last_echo_index = classification == LAST_ECHO_CODE
+    classification[last_echo_index] = DEFAULT_CODE
+    return classification

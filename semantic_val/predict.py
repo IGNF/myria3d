@@ -16,7 +16,6 @@ from semantic_val.datamodules.processing import DataHandler
 
 from semantic_val.decision.decide import (
     prepare_las_for_decision,
-    reset_classification,
     update_las_with_decisions,
 )
 
@@ -71,7 +70,6 @@ def predict(config: DictConfig) -> Optional[float]:
     prepare_las_for_decision(
         updated_las_path,
         config.optimize.input_bd_topo_shp,
-        config.optimize.input_bd_parcellaire_shp,
         updated_las_path,
     )
 
