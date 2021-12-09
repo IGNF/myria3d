@@ -21,7 +21,6 @@ SHARED_CRS = "EPSG:2154"
 def prepare_las_for_decision(
     input_filepath: str,
     input_bd_topo_shp: str,
-    input_bd_parcellaire_shp: str,
     output_filepath: str,
     candidate_building_points_classification_codes: List[int] = [MTS_AUTO_DETECTED_CODE]
     + MTS_TRUE_POSITIVE_CODE_LIST
@@ -30,7 +29,6 @@ def prepare_las_for_decision(
     """Will:
     - Cluster candidates points, thus creating a ClusterId channel (default cluster: 0).
     - Identify points overlayed by a BDTopo shape, thus creating a BDTopoOverlay channel (no overlap: 0).
-    - Identify points overlayed by a BDParcellaire shape, thus creating a BDParcellaireOverlay channel (no overlap: 0).
     """
     candidates_where = (
         "("
@@ -68,18 +66,6 @@ def prepare_las_for_decision(
             "type": "filters.overlay",
         },
     ]
-    _parcellaire_overlay = [
-        {
-            "type": "filters.ferry",
-            "dimensions": f"=>{ChannelNames.BDParcellaireOverlay.value}",
-        },
-        {
-            "column": "presence",
-            "datasource": input_bd_parcellaire_shp,
-            "dimension": f"{ChannelNames.BDParcellaireOverlay.value}",
-            "type": "filters.overlay",
-        },
-    ]
     _writer = [
         {
             "type": "writers.las",
@@ -88,34 +74,12 @@ def prepare_las_for_decision(
             "extra_dims": "all",  # keep all extra dims as well
         }
     ]
-    pipeline = {
-        "pipeline": _reader + _cluster + _topo_overlay + _parcellaire_overlay + _writer
-    }
+    pipeline = {"pipeline": _reader + _cluster + _topo_overlay + _writer}
     pipeline = json.dumps(pipeline)
     pipeline = pdal.Pipeline(pipeline)
     pipeline.execute()
     structured_array = pipeline.arrays[0]
     return structured_array
-
-
-def reset_classification(classification: np.array):
-    """
-    Set the classification to pre-correction codes. This is not needed for production.
-    FP+TP -> set to auto-detected code
-    FN -> set to background code
-    LAST_ECHO -> set to background code
-    """
-    candidate_building_points_mask = np.isin(
-        classification, MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
-    )
-    classification[candidate_building_points_mask] = MTS_AUTO_DETECTED_CODE
-    forgotten_buillding_points_mask = np.isin(
-        classification, MTS_FALSE_NEGATIVE_CODE_LIST
-    )
-    classification[forgotten_buillding_points_mask] = DEFAULT_CODE
-    last_echo_index = classification == LAST_ECHO_CODE
-    classification[last_echo_index] = DEFAULT_CODE
-    return classification
 
 
 def make_group_decision(*args, **kwargs):
@@ -126,13 +90,11 @@ def make_group_decision(*args, **kwargs):
 def make_detailed_group_decision(
     probas,
     topo_overlay_bools,
-    parcellaire_overlay_bools,
     min_confidence_confirmation: float = 0.6,
     min_frac_confirmation: float = 0.5,
     min_confidence_refutation: float = 0.6,
     min_frac_refutation: float = 0.8,
-    min_topo_overlay_confirmation: float = 0.95,
-    min_parcellaire_overlay_confirmation: float = 0.95,
+    min_overlay_confirmation: float = 0.95,
 ):
     """
     Confirm or refute candidate building shape based on fraction of confirmed/refuted points and
@@ -144,21 +106,17 @@ def make_detailed_group_decision(
     ia_refuted = (
         np.mean((1 - probas) >= min_confidence_refutation) >= min_frac_refutation
     )
-    topo_overlayed = np.mean(topo_overlay_bools) >= min_topo_overlay_confirmation
-    parcellaire_overlayed = (
-        np.mean(parcellaire_overlay_bools) >= min_parcellaire_overlay_confirmation
-    )
-    bd_overlayed = topo_overlayed or parcellaire_overlayed
+    topo_overlayed = np.mean(topo_overlay_bools) >= min_overlay_confirmation
 
     if ia_refuted:
-        if bd_overlayed:
+        if topo_overlayed:
             return DetailedClassificationCodes.IA_REFUTED_AND_DB_OVERLAYED.value
         return DetailedClassificationCodes.IA_REFUTED.value
     if ia_confirmed:
-        if bd_overlayed:
+        if topo_overlayed:
             return DetailedClassificationCodes.BOTH_CONFIRMED.value
         return DetailedClassificationCodes.IA_CONFIRMED_ONLY.value
-    if bd_overlayed:
+    if topo_overlayed:
         return DetailedClassificationCodes.DB_OVERLAYED_ONLY.value
     return DetailedClassificationCodes.BOTH_UNSURE.value
 
@@ -190,7 +148,6 @@ def update_las_with_decisions(
         detailed_code = make_detailed_group_decision(
             pts[ChannelNames.BuildingsProba.value],
             pts[ChannelNames.BDTopoOverlay.value],
-            pts[ChannelNames.BDParcellaireOverlay.value],
             **params,
         )
         if use_final_classification_codes:
