@@ -27,8 +27,8 @@ The validation process is as follow
 1) Prediction of point-level probabilities for a 1km*1km point cloud.
 2) Clustering of candidate buildings points into connected components of _candidate buildings points_.
 3) Point-level decision
-  a) Decision at the point-level based on probabilities : `confirmed` if p>=`C1` /  `refuted` if (1-p)>=`R1`
-  b) Identification of points that are `overlayed` by a building vector from the database.
+    1) Decision at the point-level based on probabilities : `confirmed` if p>=`C1` /  `refuted` if (1-p)>=`R1`
+    2) Identification of points that are `overlayed` by a building vector from the database.
 3) Group-level decision :
     1) Confirmation: if proportion of `confirmed` points >= `C2` OR if proportion of `overlayed` points >= `O1`
     2) Refutation: if proportion of `refuted` points >= `R2` AND proportion of `overlayed` points < `O1`
