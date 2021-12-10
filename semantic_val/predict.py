@@ -11,6 +11,7 @@ from pytorch_lightning import (
 )
 from tqdm import tqdm
 
+from semantic_val.decision.codes import reset_classification 
 from semantic_val.utils import utils
 from semantic_val.datamodules.processing import DataHandler
 
@@ -65,8 +66,8 @@ def predict(config: DictConfig) -> Optional[float]:
                 batch.cuda()
             outputs = model.predict_step(batch)
             data_handler.update_las_with_preds(outputs, "predict")
-            #if index > 2:
-            #    break  ###### à supprimer ###################
+            # if index > 2:
+            #     break  ###### à supprimer ###################
 
     updated_las_path = data_handler.save_las_with_preds_and_close("predict")
 
@@ -83,6 +84,8 @@ def predict(config: DictConfig) -> Optional[float]:
         log.info(f"Using best trial from: {config.prediction.best_trial_pickle_path}")
         best_trial = pickle.load(f)
     # TODO: add a mts_auto_detected_code = XXX parameter in update_las_with_decision, if risk of change.
+
+    las.classification = reset_classification(las.classification)
     las = update_las_with_decisions(las, best_trial.params)
     las.write(updated_las_path)
     log.info(f"Updated LAS saved to : {updated_las_path}")

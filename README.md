@@ -41,11 +41,18 @@ Install dependencies
 git clone https://github.com/CharlesGaydon/Segmentation-Validation-Model
 cd Segmentation-Validation-Model
 
-# [OPTIONAL] create conda environment (you may need to run lines manually as conda may not activate properly from bash script)
+# [OPTIONAL] If you want to use a gpu make sure cuda toolkit is installed
+sudo apt install nvidia-cuda-toolkit
+
+# install conda
+https://www.anaconda.com/products/individual
+
+
+# create conda environment (you may need to run lines manually as conda may not activate properly from bash script)
 bash bash/setup_environment/setup_env.sh
 
 # activate using
-conda activate validation_module_gpu
+conda activate validation_module
 ```
 
 Rename `.env_example` to `.env` and fill out `LOG PATH`, `DATAMODULE`, and `LOGGER` sections.
@@ -81,8 +88,16 @@ python run.py task=optimize optimize.todo='prepare+evaluate+update' print_config
 Additionally, if you want to update the las classification based on those decisions, add an `optimize.update_las=true` argument.
 
 
-Finally, to apply the module on unseen data, you will need 1. a checkpointed Model, 2. a pickled Optuna "Best trial" with decision thresholds, and 3. a source LAS file. Then, run :
+Finally, to apply the module on unseen data, you will need 1. a checkpointed Model, 2. An hydra directory with the configurations used to establish the checkpointed Model, 3. a pickled Optuna "Best trial" with decision thresholds, and 4. a source LAS file. Then, run :
 
 ```yaml
-python run.py--config-path /path/to/.hydra --config-name config.yaml task=predict +prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt +prediction.src_las=/path/to/input.las +prediction.best_trial_pickle_path=/path/to/best_trial.pkl prediction.output_dir=/path/to/save/updated/test/las/ datamodule.batch_size=16
+python run.py --config-path /path/to/.hydra --config-name config.yaml task=predict hydra.run.dir=path/to/Segmentation-Validation-Model +prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt +prediction.src_las=/path/to/input.las +prediction.best_trial_pickle_path=/path/to/best_trial.pkl prediction.output_dir=/path/to/save/updated/test/las/ datamodule.batch_size=16
 ```
+
+Please note that "hydra.run.dir" is the directory of the project, it's not a mistake (loading a different config from .hydra with "--config-path" may change that path, we currently need that step to put everything back).
+
+### If you're only interested in doing inference on a pre-existing model
+If you're only interested in doing inference on a pre-existing model, you just need to:
+  install the dependencies
+  fill out "LOGS_DIR", "DATASET_DIR" and "INPUT_BD_TOPO_SHP_PATH" from the .env file.
+  Prepare and run the command line for unseen data.
