@@ -54,15 +54,19 @@ def predict(config: DictConfig) -> Optional[float]:
     with torch.no_grad():
         model: LightningModule = hydra.utils.instantiate(config.model)
         model = model.load_from_checkpoint(config.prediction.resume_from_checkpoint)
+        if "gpus" in config.trainer and config.trainer.gpus == 1:
+            model.cuda()        
         model.eval()
 
         for index, batch in tqdm(
             enumerate(datamodule.predict_dataloader()), desc="Batch inference..."
         ):
+            if "gpus" in config.trainer and config.trainer.gpus == 1:
+                batch.cuda()
             outputs = model.predict_step(batch)
             data_handler.update_las_with_preds(outputs, "predict")
-            if index > 2:
-                break  ###### à supprimer ###################
+            #if index > 2:
+            #    break  ###### à supprimer ###################
 
     updated_las_path = data_handler.save_las_with_preds_and_close("predict")
 
