@@ -12,27 +12,35 @@
 
 ## Description
 ### Context
-A fast and sensitive semantic segmentation of High Density Lidar data was performed with geometric rule-based algorithm to identify buildings. It yielded a high number of false positive. Around 160km² of Lidar data was thoroughly inspected to identify false positive and false negative. At larger scale, this kind of human inspection would be intractable.
+The goal of the Lidar HD project is to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a first base semantic segmentation.
 
-### Objective
-We train a semantic segmentation neural network to confirm or refute automatically the majority of "candidate buildings points" obtained from the rule-based algorithm, while also identifying cases of uncertainty for later human inspection. This results in an output point cloud in which only a fraction of the candidate building points remain to be inspected.
+As a first step, a fast and sensitive semantic segmentation of High Density Lidar data was performed with geometric rule-based algorithms to identify buildings. Its first version yielded a high number of false positive. Around 160km² of Lidar data was then thoroughly inspected to identify false positive and false negative of the algorithm. At larger scale, this kind of human inspection would be intractable, and more powerful methods are needed to validate the quality of the segmentation before its diffusion.
 
 ### Content
+We train a semantic segmentation neural network, and use its predicted probabilites to confirm or refute groups of _candidate buildings points_ obtained from the rule-based algorithm. In addition, a national building vector database is used to further improve the probability-based decision process. This results in an output point cloud in which only a fraction of the groups of candidate building points remain to be inspected.
 
-1) Training and evaluation of the model.
-2) Prediction of point-level probabilities.
-3) Validation module decision process:
-    1) Clustering of candidate buildings points into candidate building groups
-    2) Superposition of external vector database of Buildings.
-    3) Decisions at the point-level based on probabilities : _confirmed_ or _refuted_ (as a building).
-    3) Decision at the group-level:
-        1) Confirmation: if proportion of _confirmed_ >= threshold OR if proportion of _overlayed_ >= threshold.
-        2) Refutation: if proportion of _refuted_  >= threshold AND proportion of _overlayed_ < threshold
+The validation process is as follow
+    
+    1) Prediction of point-level probabilities for a 1km*1km point cloud.
+    2) Clustering of candidate buildings points into connected components of _candidate buildings points_. 
+    3) Point-level decision
+        a) Decision at the point-level based on probabilities : 
+          `confirmed` if p>=`C1`
+          `refuted` if (1-p)>=`R1`
+        b) Identification of points that are `overlayed` by a building vector from the database.
+    3) Group-level decision :
+        1) Confirmation: if proportion of `confirmed` points >= `C2` OR if proportion of `overlayed` points >= `O1`
+        2) Refutation: if proportion of `refuted` points >= `R2` AND proportion of `overlayed` points < `O1`
         3) Uncertainty: elsewise.
-    4) Update of the point cloud based on those decisions.
+    4) Update of the point cloud classification channel
 
-4) Multiobjective hyperparameter optimization of the decision process (point-level and group-level thresholds) to maximize automation, precision, and recall.
+Decision thresholds `C1`, `C2`, `R1`, `R2`, `O1` are chosen via a multi-objective hyperparameter optimization that aims to maximize automation, precision, and recall of the decisions.
 
+In this repository you will find three main components:
+
+- `train.py`: Training and evaluation of the semantic segmentation neural network.
+- `optimize.py`: Multi-objective hyperparameter optimization of the decision thresholds.
+- `predict.py`: Applying the decision process on new point clouds.
 
 ## How to run
 Install dependencies
