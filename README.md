@@ -14,28 +14,26 @@
 ### Context
 The Lidar HD project ambitions to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
 
-A simple geometric rule-based semantic segmentation algorithm was applied on 160km² of Lidar data in three areas, to identify its buildings. An audit of the resulting classification showed a large number of false positive. A torought inspection and labelling was performed to evaluate the quality of this classification, with an identification of its false positive and false negative. At larger scale, this kind of human inspection would be intractable, and more powerful methods are needed to validate the quality of the segmentation before its diffusion.
+A simple geometric rule-based semantic segmentation algorithm was applied on 160km² of Lidar data in three areas, to identify its buildings. An audit of the resulting classification showed a large number of false positive. A thorought inspection and labelling was performed to evaluate the quality of this classification, with an identification of its false positive and false negative. At larger scale, this kind of human inspection would be intractable, and more powerful methods are needed to validate the quality of the segmentation before its diffusion.
 
 ### Content
 We develop a validation module based on a deep learning neural network and on a building vector database.
 
-- **Inputs**: a point cloud that went through a first geometric algorithm that identified `candidates building points` based on geometric rules (e.g. plane surfaces, above 1.5m of the ground, etc.)
-- **Output**: a point cloud for which the majority of groups of `candidates building points` has been either `confirmed` or `refuted`, while minority is labeled as `unsure` for further human.
+- **Input**: point cloud that went through a first geometric algorithm that identified `candidates building points` based on geometric rules (e.g. plane surfaces, above 1.5m of the ground, etc.)
+- **Output**: the same point cloud for which the majority of groups of `candidates building points` has been either `confirmed` or `refuted`, while minority is labeled as `unsure` for further human.
 
 The validation process is as follow
     
 1) Prediction of point-level probabilities for a 1km*1km point cloud.
-2) Clustering of candidate buildings points into connected components of _candidate buildings points_. 
+2) Clustering of candidate buildings points into connected components of _candidate buildings points_.
 3) Point-level decision
-    a) Decision at the point-level based on probabilities : 
-        `confirmed` if p>=`C1`
-        `refuted` if (1-p)>=`R1`
-    b) Identification of points that are `overlayed` by a building vector from the database.
+  a) Decision at the point-level based on probabilities : `confirmed` if p>=`C1` /  `refuted` if (1-p)>=`R1`
+  b) Identification of points that are `overlayed` by a building vector from the database.
 3) Group-level decision :
     1) Confirmation: if proportion of `confirmed` points >= `C2` OR if proportion of `overlayed` points >= `O1`
     2) Refutation: if proportion of `refuted` points >= `R2` AND proportion of `overlayed` points < `O1`
     3) Uncertainty: elsewise.
-4) Update of the point cloud classification channel
+4) Update of the point cloud classification
 
 Decision thresholds `C1`, `C2`, `R1`, `R2`, `O1` are chosen via a multi-objective hyperparameter optimization that aims to maximize automation, precision, and recall of the decisions.
 
