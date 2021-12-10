@@ -20,15 +20,15 @@ A simple geometric rule-based semantic segmentation algorithm was applied on 160
 We develop a validation module based on a deep learning neural network and on a building vector database.
 
 - **Input**: point cloud that went through a first geometric algorithm that identified `candidates building points` based on geometric rules (e.g. plane surfaces, above 1.5m of the ground, etc.)
-- **Output**: the same point cloud for which the majority of groups of `candidates building points` has been either `confirmed` or `refuted`, while minority is labeled as `unsure` for further human.
+- **Output**: the same point cloud with a majority of groups of `candidates building points` either `confirmed` or `refuted`. The remaining groups are are labeled `unsure` for further human inspection.
 
 The validation process is as follow
     
 1) Prediction of point-level probabilities for a 1km*1km point cloud.
 2) Clustering of candidate buildings points into connected components of _candidate buildings points_.
 3) Point-level decision
-  a) Decision at the point-level based on probabilities : `confirmed` if p>=`C1` /  `refuted` if (1-p)>=`R1`
-  b) Identification of points that are `overlayed` by a building vector from the database.
+    1) Decision at the point-level based on probabilities : `confirmed` if p>=`C1` /  `refuted` if (1-p)>=`R1`
+    2) Identification of points that are `overlayed` by a building vector from the database.
 3) Group-level decision :
     1) Confirmation: if proportion of `confirmed` points >= `C2` OR if proportion of `overlayed` points >= `O1`
     2) Refutation: if proportion of `refuted` points >= `R2` AND proportion of `overlayed` points < `O1`
