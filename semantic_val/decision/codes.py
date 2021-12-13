@@ -31,8 +31,8 @@ class DetailedClassificationCodes(Enum):
 class FinalClassificationCodes(Enum):
     """Points code for use in production."""
 
-    UNSURE = 33  # unsure
-    NOT_BUILDING = 35  # refuted
+    NOT_BUILDING = 33  # refuted
+    UNSURE = 35  # unsure
     BUILDING = 38  # confirmed
 
 
