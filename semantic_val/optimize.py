@@ -14,7 +14,12 @@ import optuna
 import laspy
 from sklearn.metrics import confusion_matrix
 from semantic_val.datamodules.processing import ChannelNames
-from semantic_val.decision.codes import FinalClassificationCodes, reset_classification
+from semantic_val.decision.codes import (
+    MTS_AUTO_DETECTED_CODE,
+    MTS_FALSE_POSITIVE_CODE_LIST,
+    FinalClassificationCodes,
+    reset_classification,
+)
 from semantic_val.utils import utils
 from semantic_val.decision.codes import (
     DECISION_CODES_LIST_FOR_CONFUSION,
@@ -223,7 +228,12 @@ def get_group_info_and_label(
         basename = osp.basename(las_filepath)
         out_path = osp.join(output_dir, "PREPARED_" + basename)
         structured_array = prepare_las_for_decision(
-            las_filepath, input_bd_topo_shp, out_path
+            las_filepath,
+            input_bd_topo_shp,
+            out_path,
+            candidate_building_points_classification_code=[MTS_AUTO_DETECTED_CODE]
+            + MTS_TRUE_POSITIVE_CODE_LIST
+            + MTS_FALSE_POSITIVE_CODE_LIST,
         )
         if len(structured_array) == 0:
             log.info("/!\ Skipping tile: there are no candidate building points.")

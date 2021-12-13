@@ -11,6 +11,7 @@ import torch
 from torch_geometric.nn.pool import knn
 from torch_geometric.data import Batch, Data
 from torch_geometric.transforms import BaseTransform
+from semantic_val.decision.codes import MTS_AUTO_DETECTED_CODE
 
 from semantic_val.utils import utils
 
@@ -104,59 +105,11 @@ class CustomCompose(BaseTransform):
         return data
 
 
-class SelectSubTile(BaseTransform):
-    r"""Select a square subtile from original tile"""
+class SelectSubtile:
+    """Abstract class for Subtile selection."""
 
-    def __init__(
-        self,
-        subtile_width_meters: float = 100.0,
-        method=["deterministic", "predefined", "random"],
-    ):
+    def __init__(self, subtile_width_meters: float = 50.0):
         self.subtile_width_meters = subtile_width_meters
-        self.method = method
-
-    def __call__(self, data: Data):
-
-        for try_i in range(1, MAX_TRY_IN_TRAIN_MODE + 1):
-            if self.method == "random":
-                center = self.get_random_subtile_center(data)
-            elif self.method == "predefined":
-                center = data.current_subtile_center
-            else:
-                raise f"Undefined method argument: {self.method}"
-
-            subtile_data = self.get_subtile_data(data, center)
-            if len(subtile_data.pos) > 0:
-                return subtile_data
-            else:
-                log.debug(f"No points in {data.filepath} around xy = {str(center)}")
-                if self.method == "random":
-                    if try_i < MAX_TRY_IN_TRAIN_MODE:
-                        log.debug(
-                            f"Trying another center... [{try_i+1}/{MAX_TRY_IN_TRAIN_MODE}]"
-                        )
-                        continue
-                    else:
-                        log.debug(
-                            f"Skipping extraction after {MAX_TRY_IN_TRAIN_MODE} independant try."
-                        )
-                        return None
-                else:
-                    log.debug("Ignoring this subtile.")
-                    return None
-
-    def get_random_subtile_center(self, data: Data):
-        """
-        Randomly select x/y pair (in meters) as potential center of a square subtile of original tile
-        (whose x and y coordinates are in meters and in 0m-1000m range).
-        """
-        half_subtile_width_meters = self.subtile_width_meters / 2
-        low = data.pos[:, :2].min(0) + half_subtile_width_meters
-        high = data.pos[:, :2].max(0) - half_subtile_width_meters
-
-        subtile_center_xy = np.random.uniform(low, high)
-
-        return subtile_center_xy
 
     def get_subtile_data(self, data: Data, subtile_center_xy):
         """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
@@ -172,6 +125,68 @@ class SelectSubTile(BaseTransform):
         subtile_data.y = subtile_data.y[mask]
 
         return subtile_data
+
+
+class SelectTrainSubTile(SelectSubtile):
+    r"""Select a randomly selected square subtile from original tile"""
+
+    def __call__(self, data: Data):
+        for _ in range(MAX_TRY_IN_TRAIN_MODE):
+            center = self.get_random_subtile_center(data)
+            subtile_data = self.get_subtile_data(data, center)
+            if len(subtile_data.pos) > 0:
+                return subtile_data
+        return None
+
+    def get_random_subtile_center(self, data: Data):
+        """
+        Randomly select x/y pair (in meters) as potential center of a square subtile of original tile
+        (whose x and y coordinates are in meters and in 0m-1000m range).
+        """
+        half_subtile_width_meters = self.subtile_width_meters / 2
+        low = data.pos[:, :2].min(0) + half_subtile_width_meters
+        high = data.pos[:, :2].max(0) - half_subtile_width_meters
+
+        subtile_center_xy = np.random.uniform(low, high)
+
+        return subtile_center_xy
+
+
+class SelectValSubTile(SelectSubtile):
+    r"""Select a specified square subtile from original validation/test tile"""
+
+    def __call__(self, data: Data):
+
+        subtile_data = self.get_subtile_data(data, data.current_subtile_center)
+        if len(subtile_data.pos) > 0:
+            return subtile_data
+        return None
+
+
+class SelectPredictSubTile(SelectSubtile):
+    r"""
+    Select a specified square subtile from a tile to infer on.
+    Returns None if there are no candidate building points.
+    """
+
+    def __init__(
+        self,
+        subtile_width_meters: float = 50.0,
+        mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE,
+    ):
+        self.subtile_width_meters = subtile_width_meters
+        self.mts_auto_detected_code = mts_auto_detected_code
+
+    def __call__(self, data: Data):
+
+        subtile_data = self.get_subtile_data(data, data.current_subtile_center)
+        if len(subtile_data.pos) > 0:
+            num_candidate_building_points = np.sum(
+                subtile_data.y == self.mts_auto_detected_code
+            )
+            if num_candidate_building_points > 0:
+                return subtile_data
+        return None
 
 
 class ToTensor(BaseTransform):

@@ -10,6 +10,9 @@ MTS_TRUE_POSITIVE_CODE_LIST = [19]
 MTS_FALSE_POSITIVE_CODE_LIST = [20, 110, 112, 114, 115]
 MTS_FALSE_NEGATIVE_CODE_LIST = [21]
 LAST_ECHO_CODE = 104
+MTS_CANDIDATE_BUILDING_CODE_LIST = (
+    MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
+)
 
 
 # FINAL CLASSIFICATION CODES - DETAIL BY SOURCE OF DECISION
@@ -58,13 +61,13 @@ def reset_classification(classification: np.array):
     LAST_ECHO -> set to background code
     """
     candidate_building_points_mask = np.isin(
-        classification, MTS_TRUE_POSITIVE_CODE_LIST + MTS_FALSE_POSITIVE_CODE_LIST
+        classification, MTS_CANDIDATE_BUILDING_CODE_LIST
     )
     classification[candidate_building_points_mask] = MTS_AUTO_DETECTED_CODE
-    forgotten_buillding_points_mask = np.isin(
+    forgotten_building_points_mask = np.isin(
         classification, MTS_FALSE_NEGATIVE_CODE_LIST
     )
-    classification[forgotten_buillding_points_mask] = DEFAULT_CODE
+    classification[forgotten_building_points_mask] = DEFAULT_CODE
     last_echo_index = classification == LAST_ECHO_CODE
     classification[last_echo_index] = DEFAULT_CODE
     return classification
