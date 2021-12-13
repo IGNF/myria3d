@@ -1,6 +1,5 @@
 import json
-from enum import Enum
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import pdal
@@ -22,19 +21,27 @@ def prepare_las_for_decision(
     input_filepath: str,
     input_bd_topo_shp: str,
     output_filepath: str,
-    candidate_building_points_classification_codes: List[int] = [MTS_AUTO_DETECTED_CODE]
+    candidate_building_points_classification_code: Union[int, List[int]] = [
+        MTS_AUTO_DETECTED_CODE
+    ]
     + MTS_TRUE_POSITIVE_CODE_LIST
     + MTS_FALSE_POSITIVE_CODE_LIST,
 ):
-    """Will:
+    """
+    Prepare las for later decision process.
+    Will:
     - Cluster candidates points, thus creating a ClusterId channel (default cluster: 0).
     - Identify points overlayed by a BDTopo shape, thus creating a BDTopoOverlay channel (no overlap: 0).
     """
+    if isinstance(candidate_building_points_classification_code, int):
+        candidate_building_points_classification_code = [
+            candidate_building_points_classification_code
+        ]
     candidates_where = (
         "("
         + " || ".join(
             f"Classification == {int(candidat_code)}"
-            for candidat_code in candidate_building_points_classification_codes
+            for candidat_code in candidate_building_points_classification_code
         )
         + ")"
     )

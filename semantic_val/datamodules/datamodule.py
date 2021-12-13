@@ -23,6 +23,7 @@ from semantic_val.datamodules.datasets.SemValBuildings202110 import (
     make_datasplit_csv,
 )
 from semantic_val.datamodules.processing import *
+from semantic_val.decision.codes import MTS_AUTO_DETECTED_CODE
 from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
@@ -183,11 +184,13 @@ class DataModule(LightningDataModule):
                 subtile_overlap=self.subtile_overlap,
             )
 
-    def _set_predict_data(self, files_to_infer_on):
+    def _set_predict_data(
+        self, files_to_infer_on, mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE
+    ):
         self.predict_data = LidarValDataset(
             files_to_infer_on,
             loading_function=load_las_data,
-            transform=self._get_predict_transforms(),
+            transform=self._get_predict_transforms(mts_auto_detected_code),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
@@ -274,28 +277,28 @@ class DataModule(LightningDataModule):
 
     def _get_train_transforms(self) -> CustomCompose:
         """Create a transform composition for train phase."""
-        selection = SelectSubTile(
-            subtile_width_meters=self.subtile_width_meters,
-            method="random",
-        )
-
+        selection = SelectTrainSubTile(subtile_width_meters=self.subtile_width_meters)
         return CustomCompose(
             [selection] + self.preparation + self.augmentation + self.normalization
         )
 
     def _get_val_transforms(self) -> CustomCompose:
         """Create a transform composition for val phase."""
-        selection = SelectSubTile(
-            subtile_width_meters=self.subtile_width_meters, method="predefined"
-        )
-
+        selection = SelectValSubTile(subtile_width_meters=self.subtile_width_meters)
         return CustomCompose([selection] + self.preparation + self.normalization)
 
     def _get_test_transforms(self) -> CustomCompose:
         return self._get_val_transforms()
 
-    def _get_predict_transforms(self) -> CustomCompose:  # predict#
-        return self._get_val_transforms()
+    def _get_predict_transforms(
+        self, mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE
+    ) -> CustomCompose:
+        """Create a transform composition for val phase."""
+        selection = SelectPredictSubTile(
+            subtile_width_meters=self.subtile_width_meters,
+            mts_auto_detected_code=mts_auto_detected_code,
+        )
+        return CustomCompose([selection] + self.preparation + self.normalization)
 
 
 class TrainSampler(Sampler[int]):

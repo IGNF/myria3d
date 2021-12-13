@@ -64,7 +64,30 @@ bash bash/setup_environment/setup_env.sh
 conda activate validation_module
 ```
 
-Rename `.env_example` to `.env` and fill out `LOG PATH`, `DATAMODULE`, and `LOGGER` sections.
+Rename `.env_example` to `.env` and fill out `LOG PATH`. 
+
+Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
+
+
+### To run the module on unseen data with a trained model 
+
+To run the module on unseen data that went through rule-based semantic segmentation, you will need:
+
+1. A checkpointed trained building segmentation Model
+2. A `.hydra` directory with the configurations used to establish the checkpointed Model (including receptive field size, subsampling parameters, etc.)
+3. A pickled Optuna "Best trial" which contains optimized decision thresholds
+4. An input HD Lidar point cloud in LAS 1.4+ format (`EPSG:2154`) with a classification channel where a `CODE` value is indicative of candidate building points.
+
+Then run:
+
+```yaml
+python run.py --config-path /path/to/.hydra --config-name config.yaml task=predict hydra.run.dir=path/to/Segmentation-Validation-Model +prediction.src_las=/path/to/input.las +prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt +prediction.best_trial_pickle_path=/path/to/best_trial.pkl +prediction.output_dir=/path/to/save/updated/las/ +prediction.mts_auto_detected_code=CODE datamodule.batch_size=50
+```
+
+Please note that "hydra.run.dir" is the directory of the project, it's not a mistake (loading a different config from .hydra with "--config-path" may change that path, we currently need that step to put everything back).
+
+### To run training, evaluation, and decision thresholds optimization on labeled data
+
 
 Train model with a specific experiment from [configs/experiment/](configs/experiment/)
 ```yaml
@@ -95,18 +118,3 @@ python run.py task=optimize optimize.todo='prepare+evaluate+update' print_config
 ```
 
 Additionally, if you want to update the las classification based on those decisions, add an `optimize.update_las=true` argument.
-
-
-Finally, to apply the module on unseen data, you will need 1. a checkpointed Model, 2. An hydra directory with the configurations used to establish the checkpointed Model, 3. a pickled Optuna "Best trial" with decision thresholds, and 4. a source LAS file. Then, run :
-
-```yaml
-python run.py --config-path /path/to/.hydra --config-name config.yaml task=predict hydra.run.dir=path/to/Segmentation-Validation-Model +prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt +prediction.src_las=/path/to/input.las +prediction.best_trial_pickle_path=/path/to/best_trial.pkl prediction.output_dir=/path/to/save/updated/test/las/ datamodule.batch_size=16
-```
-
-Please note that "hydra.run.dir" is the directory of the project, it's not a mistake (loading a different config from .hydra with "--config-path" may change that path, we currently need that step to put everything back).
-
-### If you're only interested in doing inference on a pre-existing model
-If you're only interested in doing inference on a pre-existing model, you just need to:
-  install the dependencies
-  fill out "LOGS_DIR", "DATASET_DIR" and "INPUT_BD_TOPO_SHP_PATH" from the .env file.
-  Prepare and run the command line for unseen data.

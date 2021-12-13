@@ -40,12 +40,14 @@ def predict(config: DictConfig) -> Optional[float]:
     assert os.path.exists(config.prediction.resume_from_checkpoint)
     assert os.path.exists(config.prediction.src_las)
     assert os.path.exists(config.prediction.best_trial_pickle_path)
-    # Use of a pre-downloaded shapfile here is temporary/
+    # Use of a pre-downloaded shapfile here is temporary
     assert os.path.exists(config.optimize.input_bd_topo_shp)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_all_transforms()
-    datamodule._set_predict_data([config.prediction.src_las])
+    datamodule._set_predict_data(
+        [config.prediction.src_las], config.prediction.mts_auto_detected_code
+    )
 
     data_handler = DataHandler(preds_dirpath=config.prediction.output_dir)
     data_handler.load_las_for_proba_update(config.prediction.src_las)
@@ -74,6 +76,9 @@ def predict(config: DictConfig) -> Optional[float]:
         updated_las_path,
         config.optimize.input_bd_topo_shp,
         updated_las_path,
+        candidate_building_points_classification_code=[
+            config.prediction.mts_auto_detected_code
+        ],
     )
 
     log.info("Update classification...")
@@ -81,9 +86,9 @@ def predict(config: DictConfig) -> Optional[float]:
     with open(config.prediction.best_trial_pickle_path, "rb") as f:
         log.info(f"Using best trial from: {config.prediction.best_trial_pickle_path}")
         best_trial = pickle.load(f)
-    # TODO: add a mts_auto_detected_code = XXX parameter in update_las_with_decision, if risk of change.
 
-    las.classification = reset_classification(las.classification)
-    las = update_las_with_decisions(las, best_trial.params)
+    las = update_las_with_decisions(
+        las, best_trial.params, config.prediction.mts_auto_detected_code
+    )
     las.write(updated_las_path)
     log.info(f"Updated LAS saved to : {updated_las_path}")
