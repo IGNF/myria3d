@@ -32,19 +32,19 @@ class SavePreds(Callback):
         self.in_memory_tile_filepath = ""
         self.save_predictions = save_predictions
 
-        self.data_handler = DataHandler()
+        if self.save_predictions:
+            log_path = os.getcwd()
+            preds_dirpath = osp.join(log_path, "validation_preds")
+            self.data_handler = DataHandler(preds_dirpath=preds_dirpath)
 
     def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""
-
+        # TODO: log the dirpath elsewhere in code (train.py before fit is called?),
+        # TODO: create dirpath elswhere
         self.experiment = trainer.logger.experiment[0]
         log_path = os.getcwd()
         log.info(f"Saving results and logs to {log_path}")
         self.experiment.log_parameter("experiment_logs_dirpath", log_path)
-
-        if self.save_predictions:
-            self.data_handler.preds_dirpath = osp.join(log_path, "validation_preds")
-            os.makedirs(self.data_handler.preds_dirpath, exist_ok=True)
 
     def on_validation_batch_end(
         self,
@@ -56,7 +56,7 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if self.save_predictions and outputs is not None:
-            self.data_handler.update_las_with_proba(outputs, "val")
+            self.data_handler.append_pos_and_proba_to_list(outputs, "val")
 
     def on_test_batch_end(
         self,
@@ -68,14 +68,14 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if self.save_predictions:
-            self.data_handler.update_las_with_proba(outputs, "test")
+            self.data_handler.append_pos_and_proba_to_list(outputs, "test")
 
     def on_validation_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         if self.save_predictions:
-            self.data_handler.save_las_with_proba_and_close("val")
+            self.data_handler.interpolate_probas_and_save("val")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         if self.save_predictions:
-            self.data_handler.save_las_with_proba_and_close("test")
+            self.data_handler.interpolate_probas_and_save("test")

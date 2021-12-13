@@ -396,84 +396,84 @@ def collate_fn(data_list: List[Data]) -> Batch:
 class DataHandler:
     """A class to load, update with proba/preds, and save a LAS."""
 
+    def __init__(self, preds_dirpath: str = ""):
+
+        os.makedirs(preds_dirpath, exist_ok=True)
+        self.preds_dirpath = preds_dirpath
+        self.current_filepath = ""
+
     def load_las_for_proba_update(self, filepath):
         """Load a LAS and add necessary extradims."""
 
-        self.current_las = laspy.read(filepath)
-        self.in_memory_tile_filepath = filepath
+        self.las = laspy.read(filepath)
+        self.current_filepath = filepath
 
         coln = ChannelNames.BuildingsProba.value
         param = laspy.ExtraBytesParams(name=coln, type=float)
-        self.current_las.add_extra_dim(param)
-        self.current_las[coln][:] = 0.0
+        self.las.add_extra_dim(param)
+        self.las[coln][:] = 0.0
 
-        self.current_las_pos = np.asarray(
-            [
-                self.current_las.x,
-                self.current_las.y,
-                self.current_las.z,
-            ],
-            dtype=np.float32,
-        ).transpose()
-        self.current_las_pos = torch.from_numpy(
-            self.current_las_pos,
+        self.las_pos = torch.from_numpy(
+            np.asarray(
+                [
+                    self.las.x,
+                    self.las.y,
+                    self.las.z,
+                ],
+                dtype=np.float32,
+            ).transpose()
         )
+        # "Never incrementally cat results; append to a list instead"
+        self.proba_updates = []
+        self.pos_updates = []
 
-    def update_las_with_proba(self, outputs: dict, phase: str):
+    @torch.no_grad()
+    def append_pos_and_proba_to_list(self, outputs: dict, phase: str = ""):
         """
         Save the predicted classes in las format with position. Load the las if necessary.
 
         :param outputs: outputs of a step.
         :param phase: train, val or test phase (str).
         """
-        proba = outputs["proba"].detach()
         batch = outputs["batch"].detach()
+        batch_proba = outputs["proba"].detach()
 
-        # Group idx and their associated filepath if they belong to same tile
-        filepath_idx_lists = {}
-        for elem_idx in range(batch.batch_size):
-            filepath = batch.filepath[elem_idx]
-            if filepath not in filepath_idx_lists:
-                filepath_idx_lists[filepath] = [elem_idx]
-            else:
-                filepath_idx_lists[filepath].append(elem_idx)
-        # assign by group of elements of the same tile.
-        for filepath, idx_list in filepath_idx_lists.items():
-            is_a_new_tile = self.in_memory_tile_filepath != filepath
+        for batch_idx, filepath in enumerate(batch.filepath):
+            is_a_new_tile = self.current_filepath != filepath
             if is_a_new_tile:
-                close_previous_las_first = self.in_memory_tile_filepath != ""
+                close_previous_las_first = self.current_filepath != ""
                 if close_previous_las_first:
-                    self.save_las_with_proba_and_close(phase)
+                    self.interpolate_probas_and_save(phase)
                 self.load_las_for_proba_update(filepath)
-            with torch.no_grad():
-                self.assign_outputs_to_tile(batch, idx_list, proba)
 
-    def assign_outputs_to_tile(self, batch, elem_idx_list, proba):
-        """Set the predicted elements in the current tile."""
-        # Select idx for elements of batch from same current las
-        points_idx = (
-            batch.batch_y[..., None]
-            == torch.Tensor(elem_idx_list).type_as(batch.batch_y)
-        ).any(-1)
-        pos = batch.pos_copy[points_idx].cpu()
-        proba = proba[points_idx][:, 1].cpu()
+            idx = batch.batch_y == batch_idx
+            self.proba_updates.append(batch_proba[idx, 1].cpu())
+            self.pos_updates.append(batch.pos_copy[idx].cpu())
 
-        assign_idx = knn(self.current_las_pos, pos, k=1, num_workers=1)[1]
-
-        self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = proba
-
-    def save_las_with_proba_and_close(self, phase):
-        """After inference of classification in self.las_with_predictions, save updated LAS.
-        Returns the output path of the output las file.
+    def interpolate_probas_and_save(self, phase):
         """
+        Interpolate all predicted probabilites to their original points in LAS file, and save.
+        Returns the path of the updated LAS file.
+        """
+
+        tile_basename = os.path.basename(self.current_filepath)
+        filename = f"{phase}_{tile_basename}"
         os.makedirs(self.preds_dirpath, exist_ok=True)
-        tile_id = Path(self.in_memory_tile_filepath).stem
-        filename = f"{phase}_{tile_id}.las"
         self.output_path = os.path.join(self.preds_dirpath, filename)
-        self.current_las.write(self.output_path)
-        log.info(f"Predictions saved to : {self.output_path}")
-        # Closing:
-        self.in_memory_tile_filepath = ""
-        del self.current_las
-        del self.current_las_pos
+
+        self.pos_updates = torch.cat(self.pos_updates).cpu()
+        self.proba_updates = torch.cat(self.proba_updates).cpu()
+        assign_idx = knn(self.las_pos, self.pos_updates, k=1, num_workers=1)[1]
+        self.las[ChannelNames.BuildingsProba.value][assign_idx] = self.proba_updates
+
+        log.info(f"Saving LAS updated with predicted probas to {self.output_path}")
+        self.las.write(self.output_path)
+
+        # Closing - get rid of current data to go easy on memory
+        self.current_filepath = ""
+        del self.las
+        del self.las_pos
+        del self.proba_updates
+        del self.pos_updates
+
         return self.output_path
