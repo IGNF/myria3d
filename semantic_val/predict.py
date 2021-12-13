@@ -50,13 +50,13 @@ def predict(config: DictConfig) -> Optional[float]:
     data_handler = DataHandler()
     data_handler.preds_dirpath = config.prediction.output_dir
 
-    data_handler.load_new_las_for_preds(config.prediction.src_las)
+    data_handler.load_las_for_proba_update(config.prediction.src_las)
 
     with torch.no_grad():
         model: LightningModule = hydra.utils.instantiate(config.model)
         model = model.load_from_checkpoint(config.prediction.resume_from_checkpoint)
         if "gpus" in config.trainer and config.trainer.gpus == 1:
-            model.cuda()        
+            model.cuda()
         model.eval()
 
         for index, batch in tqdm(
@@ -65,11 +65,11 @@ def predict(config: DictConfig) -> Optional[float]:
             if "gpus" in config.trainer and config.trainer.gpus == 1:
                 batch.cuda()
             outputs = model.predict_step(batch)
-            data_handler.update_las_with_preds(outputs, "predict")
+            data_handler.update_las_with_proba(outputs, "predict")
             # if index > 2:
-            #     break  ###### à supprimer ###################
+            #    break  ###### à supprimer ###################
 
-    updated_las_path = data_handler.save_las_with_preds_and_close("predict")
+    updated_las_path = data_handler.save_las_with_proba_and_close("predict")
 
     log.info("Prepare LAS...")
     prepare_las_for_decision(

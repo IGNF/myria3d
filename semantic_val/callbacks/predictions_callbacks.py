@@ -63,11 +63,11 @@ class SavePreds(Callback):
                 trainer.global_step % self.save_train_predictions_every_n_step == 0
             )
             if reached_train_saving_step:
-                self.data_handler.update_las_with_preds(outputs, "train")
+                self.data_handler.update_las_with_proba(outputs, "train")
                 log.debug(
                     f"Saving train preds to disk for batch number {trainer.global_step}"
                 )
-                self.data_handler.save_las_with_preds_and_close("train")
+                self.data_handler.save_las_with_proba_and_close("train")
 
     def on_validation_batch_end(
         self,
@@ -80,7 +80,7 @@ class SavePreds(Callback):
     ) -> None:
         if self.save_predictions:
             if outputs is not None:
-                self.data_handler.update_las_with_preds(outputs, "val")
+                self.data_handler.update_las_with_proba(outputs, "val")
 
     def on_validation_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
@@ -89,7 +89,7 @@ class SavePreds(Callback):
             log.debug(
                 f"Saving validation preds to disk after train step {trainer.global_step}.\n"
             )
-            self.data_handler.save_las_with_preds_and_close("val")
+            self.data_handler.save_las_with_proba_and_close("val")
 
     def on_test_batch_end(
         self,
@@ -104,18 +104,19 @@ class SavePreds(Callback):
             log.debug(
                 f"Saving test preds to disk after train step {trainer.global_step}"
             )
-            self.data_handler.update_las_with_preds(outputs, "test")
+            self.data_handler.update_las_with_proba(outputs, "test")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         if self.save_predictions:
-            self.data_handler.save_las_with_preds_and_close("test")
+            self.data_handler.save_las_with_proba_and_close("test")
 
-    def on_predict_batch_end(self,      #predict#
-        trainer: pl.Trainer, 
+    def on_predict_batch_end(
+        self,  # predict#
+        trainer: pl.Trainer,
         pl_module: pl.LightningModule,
-        outputs: Optional[STEP_OUTPUT], 
-        batch, 
-        batch_idx, 
-        dataloader_idx)  -> None:   
-        self.data_handler.update_las_with_preds(outputs, "predict")
-
+        outputs: Optional[STEP_OUTPUT],
+        batch,
+        batch_idx,
+        dataloader_idx,
+    ) -> None:
+        self.data_handler.update_las_with_proba(outputs, "predict")

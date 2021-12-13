@@ -217,11 +217,9 @@ class Model(LightningModule):
     def predict_step(self, batch: Any):
         logits = self.forward(batch)
         proba = self.softmax(logits)
-        preds = torch.argmax(logits, dim=1)
         return {
             "batch": batch,
             "proba": proba,
-            "preds": preds,
         }
 
     def configure_optimizers(self):

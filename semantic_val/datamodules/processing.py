@@ -44,7 +44,6 @@ class ChannelNames(Enum):
 
     # Custom
     BDTopoOverlay = "BDTopoOverlay"
-    BuildingsPreds = "BuildingsPreds"
     BuildingsProba = "BuildingsProba"
 
 
@@ -394,11 +393,10 @@ def collate_fn(data_list: List[Data]) -> Batch:
     return batch
 
 
-# TODO: rename this to LASUpdater
 class DataHandler:
     """A class to load, update with proba/preds, and save a LAS."""
 
-    def load_new_las_for_preds(self, filepath):
+    def load_las_for_proba_update(self, filepath):
         """Load a LAS and add necessary extradims."""
 
         self.current_las = laspy.read(filepath)
@@ -408,11 +406,6 @@ class DataHandler:
         param = laspy.ExtraBytesParams(name=coln, type=float)
         self.current_las.add_extra_dim(param)
         self.current_las[coln][:] = 0.0
-
-        coln = ChannelNames.BuildingsPreds.value
-        param = laspy.ExtraBytesParams(name=coln, type=int)
-        self.current_las.add_extra_dim(param)
-        self.current_las[coln][:] = 0
 
         self.current_las_pos = np.asarray(
             [
@@ -426,7 +419,7 @@ class DataHandler:
             self.current_las_pos,
         )
 
-    def update_las_with_preds(self, outputs: dict, phase: str):
+    def update_las_with_proba(self, outputs: dict, phase: str):
         """
         Save the predicted classes in las format with position. Load the las if necessary.
 
@@ -434,7 +427,6 @@ class DataHandler:
         :param phase: train, val or test phase (str).
         """
         proba = outputs["proba"].detach()
-        preds = outputs["preds"].detach()
         batch = outputs["batch"].detach()
 
         # Group idx and their associated filepath if they belong to same tile
@@ -451,28 +443,26 @@ class DataHandler:
             if is_a_new_tile:
                 close_previous_las_first = self.in_memory_tile_filepath != ""
                 if close_previous_las_first:
-                    self.save_las_with_preds_and_close(phase)
-                self.load_new_las_for_preds(filepath)
+                    self.save_las_with_proba_and_close(phase)
+                self.load_las_for_proba_update(filepath)
             with torch.no_grad():
-                self.assign_outputs_to_tile(batch, idx_list, preds, proba)
+                self.assign_outputs_to_tile(batch, idx_list, proba)
 
-    def assign_outputs_to_tile(self, batch, elem_idx_list, preds, proba):
+    def assign_outputs_to_tile(self, batch, elem_idx_list, proba):
         """Set the predicted elements in the current tile."""
-
+        # Select idx for elements of batch from same current las
         points_idx = (
             batch.batch_y[..., None]
             == torch.Tensor(elem_idx_list).type_as(batch.batch_y)
         ).any(-1)
         pos = batch.pos_copy[points_idx].cpu()
-        preds = preds[points_idx].cpu()
         proba = proba[points_idx][:, 1].cpu()
 
         assign_idx = knn(self.current_las_pos, pos, k=1, num_workers=1)[1]
 
-        self.current_las[ChannelNames.BuildingsPreds.value][assign_idx] = preds
         self.current_las[ChannelNames.BuildingsProba.value][assign_idx] = proba
 
-    def save_las_with_preds_and_close(self, phase):
+    def save_las_with_proba_and_close(self, phase):
         """After inference of classification in self.las_with_predictions, save updated LAS.
         Returns the output path of the output las file.
         """
