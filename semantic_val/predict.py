@@ -11,7 +11,7 @@ from pytorch_lightning import (
 )
 from tqdm import tqdm
 
-from semantic_val.decision.codes import reset_classification 
+from semantic_val.decision.codes import reset_classification
 from semantic_val.utils import utils
 from semantic_val.datamodules.processing import DataHandler
 
@@ -47,9 +47,7 @@ def predict(config: DictConfig) -> Optional[float]:
     datamodule._set_all_transforms()
     datamodule._set_predict_data([config.prediction.src_las])
 
-    data_handler = DataHandler()
-    data_handler.preds_dirpath = config.prediction.output_dir
-
+    data_handler = DataHandler(preds_dirpath=config.prediction.output_dir)
     data_handler.load_las_for_proba_update(config.prediction.src_las)
 
     with torch.no_grad():
@@ -65,11 +63,11 @@ def predict(config: DictConfig) -> Optional[float]:
             if "gpus" in config.trainer and config.trainer.gpus == 1:
                 batch.cuda()
             outputs = model.predict_step(batch)
-            data_handler.update_las_with_proba(outputs, "predict")
+            data_handler.append_pos_and_proba_to_list(outputs)
             # if index > 2:
             #    break  ###### à supprimer ###################
 
-    updated_las_path = data_handler.save_las_with_proba_and_close("predict")
+    updated_las_path = data_handler.interpolate_probas_and_save("predict")
 
     log.info("Prepare LAS...")
     prepare_las_for_decision(
