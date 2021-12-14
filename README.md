@@ -24,7 +24,15 @@ We develop a validation module based on a deep learning neural network and on a 
 
 ![](img/LidarBati-IlluMotteBDProbaV2.1-ENGLISH.png)
 
-The validation process is as follow
+In this repository you will find three main components:
+
+- `train.py`: Training and evaluation of the semantic segmentation neural network.
+- `optimize.py`: Multi-objective hyperparameter optimization of the decision thresholds.
+- `predict.py`: Applying the decision process on new point clouds.
+
+### Process
+
+The validation process of the module is as follow
     
 1) Prediction of point-level probabilities for a 1km*1km point cloud.
 2) Clustering of candidate buildings points into connected components of _candidate buildings points_.
@@ -38,12 +46,6 @@ The validation process is as follow
 4) Update of the point cloud classification
 
 Decision thresholds `C1`, `C2`, `R1`, `R2`, `O1` are chosen via a multi-objective hyperparameter optimization that aims to maximize automation, precision, and recall of the decisions.
-
-In this repository you will find three main components:
-
-- `train.py`: Training and evaluation of the semantic segmentation neural network.
-- `optimize.py`: Multi-objective hyperparameter optimization of the decision thresholds.
-- `predict.py`: Applying the decision process on new point clouds.
 
 ## How to run
 Install dependencies
