@@ -48,7 +48,9 @@ The validation process of the module is as follow
 Decision thresholds `C1`, `C2`, `R1`, `R2`, `O1` are chosen via a multi-objective hyperparameter optimization that aims to maximize automation, precision, and recall of the decisions.
 
 ## How to run
-Install dependencies
+
+### Install dependencies
+
 ```yaml
 # clone project
 git clone https://github.com/CharlesGaydon/Segmentation-Validation-Model
@@ -73,7 +75,7 @@ Rename `.env_example` to `.env` and fill out `LOG PATH`.
 Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
 
 
-### To run the module on unseen data with a trained model 
+### Run the module on unseen data with a trained model 
 
 To run the module on unseen data that went through rule-based semantic segmentation, you will need:
 
@@ -90,7 +92,7 @@ python run.py --config-path /path/to/.hydra --config-name config.yaml task=predi
 
 Please note that "hydra.run.dir" is the directory of the project, it's not a mistake (loading a different config from .hydra with "--config-path" may change that path, we currently need that step to put everything back).
 
-### To run training, evaluation, and decision thresholds optimization on labeled data
+### Run training, evaluation, and decision thresholds optimization on labeled data
 
 
 Train model with a specific experiment from [configs/experiment/](configs/experiment/)
