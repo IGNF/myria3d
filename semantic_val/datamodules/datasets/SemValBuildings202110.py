@@ -20,7 +20,7 @@ log = utils.get_logger(__name__)
 SPLIT_LAS_DIR_COLN = "split_las_path"
 
 
-class LidarListDataset(Dataset):
+class LidarMapDataset(Dataset):
     def __init__(
         self,
         files: List[str],
