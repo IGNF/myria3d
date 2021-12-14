@@ -22,6 +22,8 @@ We develop a validation module based on a deep learning neural network and on a 
 - **Input**: point cloud that went through a first geometric algorithm that identified `candidates building points` based on geometric rules (e.g. plane surfaces, above 1.5m of the ground, etc.)
 - **Output**: the same point cloud with a majority of groups of `candidates building points` either `confirmed` or `refuted`. The remaining groups are are labeled `unsure` for further human inspection.
 
+![](img/LidarBati-IlluMotteBDProbaV2.1-ENGLISH.png)
+
 The validation process is as follow
     
 1) Prediction of point-level probabilities for a 1km*1km point cloud.
