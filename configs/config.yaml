@@ -33,7 +33,7 @@ ignore_warnings: True
 # specify here default training configuration
 defaults:
   - trainer: default.yaml
-  - model: point_net_model.yaml
+  - model: randla_net_model.yaml
   - datamodule: datamodule.yaml
   - callbacks: callbacks.yaml # set this to null if you don't want to use callbacks
   

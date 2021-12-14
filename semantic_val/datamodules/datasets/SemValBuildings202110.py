@@ -58,14 +58,12 @@ class LidarIterableDataset(IterableDataset):
         loading_function=None,
         transform=None,
         target_transform=None,
-        subtile_overlap: float = 0,
         subtile_width_meters: float = 100,
     ):
         self.files = files
         self.loading_function = loading_function
         self.transform = transform
         self.target_transform = target_transform
-        self.subtile_overlap = subtile_overlap
         self.subtile_width_meters = subtile_width_meters
 
     def process_data(self):
@@ -98,14 +96,10 @@ class LidarIterableDataset(IterableDataset):
         centers = [
             (x, y)
             for x in np.arange(
-                start=low[0],
-                stop=high[0],
-                step=self.subtile_width_meters - self.subtile_overlap,
+                start=low[0], stop=high[0], step=self.subtile_width_meters
             )
             for y in np.arange(
-                start=low[1],
-                stop=high[1],
-                step=self.subtile_width_meters - self.subtile_overlap,
+                start=low[1], stop=high[1], step=self.subtile_width_meters
             )
         ]
         random.shuffle(centers)

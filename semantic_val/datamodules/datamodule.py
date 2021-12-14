@@ -50,7 +50,6 @@ class DataModule(LightningDataModule):
         )
 
         self.train_frac = kwargs.get("train_frac", 0.8)
-        self.shuffle_train = kwargs.get("shuffle_train", "true")
         self.limit_top_k_tiles_train = kwargs.get("limit_top_k_tiles_train", 1000000)
         self.limit_top_k_tiles_val = kwargs.get("limit_top_k_tiles_val", 1000000)
         self.train_subtiles_by_tile = kwargs.get("train_subtiles_by_tile", 12)
@@ -59,7 +58,6 @@ class DataModule(LightningDataModule):
 
         # TODO: remove if we also preprocess in predict mode.
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
-        self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 12500)
 
         self.src_las = kwargs.get("src_las", None)  # predict#
@@ -174,7 +172,6 @@ class DataModule(LightningDataModule):
             transform=self._get_predict_transforms(mts_auto_detected_code),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
         )
 
     def train_dataloader(self):
