@@ -1,6 +1,5 @@
 from typing import Any, Optional
 
-from pytorch_lightning.utilities.types import STEP_OUTPUT
 import torch
 from torch import Tensor
 from pytorch_lightning import LightningModule
@@ -79,6 +78,8 @@ class Model(LightningModule):
             self.test_accuracy,
         ]
 
+    # TODO: to avoid costly KNN, return logits directly.
+    # TODO: use a separate logic for prediction
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
         logits = knn_interpolate(
@@ -91,6 +92,8 @@ class Model(LightningModule):
         )
         return logits
 
+    # TODO: to avoid costly KNN, compare with batch.y directly (subsampled already)
+    # Deal with interpolation in DataHandler : use a K=3, be sure that every point gets a proba.
     def step(self, batch: Any):
         targets = batch.y_copy
 
@@ -108,6 +111,7 @@ class Model(LightningModule):
             metric = metric.to(self.device)
         assert all(metric.device == self.device for metric in self.metrics)
 
+    # TODO: decide if returning preds is needed
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
@@ -138,14 +142,11 @@ class Model(LightningModule):
         return {
             "loss": loss,
             "proba": proba,
-            "preds": preds,
             "targets": targets,
             "batch": batch,
         }
 
-    def on_validation_start(self) -> None:
-        log.info("Validating.")
-
+    # TODO: decide if returning preds is needed
     def validation_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
@@ -175,11 +176,11 @@ class Model(LightningModule):
         return {
             "loss": loss,
             "proba": proba,
-            "preds": preds,
             "targets": targets,
             "batch": batch,
         }
 
+    # TODO: decide if returning preds is needed
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
@@ -208,13 +209,13 @@ class Model(LightningModule):
         return {
             "loss": loss,
             "proba": proba,
-            "preds": preds,
             "targets": targets,
             "batch": batch,
         }
 
     @torch.no_grad()
     def predict_step(self, batch: Any):
+        # TODO: may ned to use other than forward.
         logits = self.forward(batch)
         proba = self.softmax(logits)
         return {

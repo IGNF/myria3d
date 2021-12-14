@@ -70,7 +70,7 @@ bash bash/setup_environment/setup_env.sh
 conda activate validation_module
 ```
 
-Rename `.env_example` to `.env` and fill out `LOG PATH`. 
+Rename `.env_example` to `.env` and fill out `LOG PATH`, where hydra logs and config are saved.
 
 Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
 
@@ -104,11 +104,11 @@ python run.py experiment=PN_debug
 Evaluate the model and get inference results on the validation dataset
 ```yaml
 # to evaluate and infer at the same time
-python run.py experiment=PN_validate trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
+python run.py experiment=evaluate_val_data trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 # to log IoU without saving predictions to new LAS files 
-python run.py experiment=PN_validate callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
+python run.py experiment=evaluate_val_data callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 ```
-To evaluate on test data instead of val data, replace `experiment=PN_validate` by `experiment=PN_test`.
+To evaluate on test data instead of val data, replace `experiment=evaluate_val_data` by `experiment=evaluate_test_data`.
 
 
 Run a multi-objectives hyperparameters optimization of the decision thresholds, to maximize recall and precision directly while also maximizing automation.

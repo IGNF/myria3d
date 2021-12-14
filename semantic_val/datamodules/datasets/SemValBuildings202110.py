@@ -5,6 +5,7 @@
 
 import random
 import os.path as osp
+from glob import glob
 import time
 from typing import List
 import numpy as np
@@ -16,36 +17,29 @@ from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
+SPLIT_LAS_DIR_COLN = "split_las_path"
 
-class LidarTrainDataset(Dataset):
+
+class LidarListDataset(Dataset):
     def __init__(
         self,
         files: List[str],
         loading_function=None,
         transform=None,
         target_transform=None,
-        subtile_width_meters: float = 100,
-        train_subtiles_by_tile: int = None,
     ):
         self.files = files
+        self.num_files = len(self.files)
+
         self.loading_function = loading_function
         self.transform = transform
         self.target_transform = target_transform
 
-        self.subtile_width_meters: float = subtile_width_meters
-        self.in_memory_filepath: str = None
-
-        self.nb_files = len(self.files)
-        self.train_subtiles_by_tile = train_subtiles_by_tile
-
-    def __len__(self):
-        return self.nb_files * self.train_subtiles_by_tile
-
     def __getitem__(self, idx):
-        """Get a subtitle from indexed las file, and apply the transforms specified in datamodule."""
+        """Load a subtile and apply the transforms specified in datamodule."""
         filepath = self.files[idx]
-        data = self.access_or_load_cloud_data(filepath)
 
+        data = self.loading_function(filepath)
         if self.transform:
             data = self.transform(data)
         if self.target_transform:
@@ -53,19 +47,11 @@ class LidarTrainDataset(Dataset):
 
         return data
 
-    def access_or_load_cloud_data(self, filepath):
-        """Get already in-memory cloud data or load it from disk."""
-        if self.in_memory_filepath == filepath:
-            data = self.data
-        else:
-            log.debug(f"Loading train file: {filepath}")
-            data = self.loading_function(filepath)
-            self.in_memory_filepath = filepath
-            self.data = data
-        return data
+    def __len__(self):
+        return self.num_files
 
 
-class LidarValDataset(IterableDataset):
+class LidarIterableDataset(IterableDataset):
     def __init__(
         self,
         files,
@@ -135,19 +121,11 @@ def make_datasplit_csv(
     """Turn the shapefile of tiles metadata into a csv with stratified train-val-test split."""
     df = get_metadata_df_from_shapefile(shapefile_filepath)
     df_split = get_splitted_SemValBuildings202110(df, train_frac=train_frac)
-    df_split = create_full_filepath_column(df_split, lasfiles_dir)
-    file_not_found_index_list = []
-    for filepath in df_split.file_path:
-        if not osp.exists(filepath):
-            log.warning(
-                "file specified but not found, removing {0} from the list (index {1})".format(
-                    filepath, df_split.index[df_split["file_path"] == filepath].tolist()
-                )
-            )
-            file_not_found_index_list += df_split.index[
-                df_split["file_path"] == filepath
-            ].tolist()
-    df_split.drop(labels=file_not_found_index_list, inplace=True)
+    df_split = add_column_with_all_subtiles(df_split, lasfiles_dir)
+    for file, filepath in zip(df_split["file"], df_split[SPLIT_LAS_DIR_COLN]):
+        if not filepath:
+            log.warning(f"No subtile found for tile {file}")
+    df_split = df_split[df_split[SPLIT_LAS_DIR_COLN].apply(lambda x: len(x) > 0)]
     df_split.to_csv(datasplit_csv_filepath, index=False)
 
 
@@ -235,7 +213,23 @@ def get_splitted_SemValBuildings202110(df, train_frac=0.8):
     return df_split
 
 
-def create_full_filepath_column(df, dirpath):
+def glob_from_basename(basename, dirpath):
+    """
+    Basename has extension las and we need its stem. Structure in dirpath :
+    - tile_id_X.las
+    - split/
+      - tile_id_X/
+        - tile_id_X_1.las
+        - tile_id_X_2.las
+        ...
+    """
+    stem, _ = osp.splitext(basename)  # X_Y.las -> X_Y
+    return glob(osp.join(dirpath, "split", stem, "*.las"))
+
+
+def add_column_with_all_subtiles(df, dirpath):
     """Append dirpath as a suffix to file column"""
-    df["file_path"] = df["file"].apply(lambda stem: osp.join(dirpath, stem))
+    df[SPLIT_LAS_DIR_COLN] = df["file"].apply(
+        lambda basename: glob_from_basename(basename, dirpath)
+    )
     return df
