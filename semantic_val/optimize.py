@@ -480,5 +480,8 @@ def select_best_trial(study):
         log.warning(
             "No trial meeting constraint - returning best metrics-products instead."
         )
+        sorted_trials = sorted(
+            study.best_trials, key=lambda x: np.product(x.values), reverse=True
+        )
         best_trial = sorted_trials[0]
     return best_trial
