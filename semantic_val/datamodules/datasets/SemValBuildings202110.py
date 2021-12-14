@@ -139,9 +139,14 @@ def make_datasplit_csv(
     file_not_found_index_list = []
     for filepath in df_split.file_path:
         if not osp.exists(filepath):
-            log.warning("file specified but not found, removing {0} from the list (index {1})"\
-                .format(filepath, df_split.index[df_split["file_path"]==filepath].tolist()))
-            file_not_found_index_list += df_split.index[df_split["file_path"]==filepath].tolist()
+            log.warning(
+                "file specified but not found, removing {0} from the list (index {1})".format(
+                    filepath, df_split.index[df_split["file_path"] == filepath].tolist()
+                )
+            )
+            file_not_found_index_list += df_split.index[
+                df_split["file_path"] == filepath
+            ].tolist()
     df_split.drop(labels=file_not_found_index_list, inplace=True)
     df_split.to_csv(datasplit_csv_filepath, index=False)
 
