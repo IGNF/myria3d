@@ -27,6 +27,9 @@ trainer:
   val_check_interval: 200 # batches/steps 200 batches -> ~4 ancient epochs
   gpus: 0
 
+datamodule:
+  num_workers: 2
+
 model:
   model_architecture: "randla_net"
   loss: "CrossEntropyLoss"
