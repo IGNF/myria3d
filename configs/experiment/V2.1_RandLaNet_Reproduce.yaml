@@ -23,7 +23,8 @@ trainer:
   log_every_n_steps: 1
   min_epochs: 200
   max_epochs: 1000
-  check_val_every_n_epoch: 2
+  # check_val_every_n_epoch: 2
+  val_check_interval: 0.25 # batches/steps
   gpus: 0
 
 model:
@@ -47,7 +48,7 @@ early_stopping:
   _target_: pytorch_lightning.callbacks.EarlyStopping
   monitor: "val/loss_epoch" # name of the logged metric which determines when model is improving
   mode: "min" # can be "max" or "min"
-  patience: 30 # how many validation epochs of not improving until training stops
+  patience: 10 # how many **validation** epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
 
 datamodule:
