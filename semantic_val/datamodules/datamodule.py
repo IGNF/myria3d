@@ -20,7 +20,7 @@ from torch_geometric.transforms.center import Center
 
 from semantic_val.datamodules.datasets.SemValBuildings202110 import (
     SPLIT_LAS_DIR_COLN,
-    LidarListDataset,
+    LidarMapDataset,
     LidarIterableDataset,
     make_datasplit_csv,
 )
@@ -119,7 +119,7 @@ class DataModule(LightningDataModule):
             f_lists = f_lists[: self.limit_top_k_tiles_train]
             log.info(f"Training on {self.limit_top_k_tiles_train}) tiles.")
         files = [f for l in f_lists for f in l]
-        self.train_data = LidarListDataset(
+        self.train_data = LidarMapDataset(
             files,
             loading_function=load_las_data,
             transform=self._get_train_transforms(),
@@ -136,7 +136,7 @@ class DataModule(LightningDataModule):
             f_lists = f_lists[: self.limit_top_k_tiles_train]
             log.info(f"Validation on {self.limit_top_k_tiles_train}) tiles.")
         files = [f for l in f_lists for f in l]
-        self.val_data = LidarListDataset(
+        self.val_data = LidarMapDataset(
             files,
             loading_function=load_las_data,
             transform=self._get_val_transforms(),
@@ -156,7 +156,7 @@ class DataModule(LightningDataModule):
         df = df.sort_values("nb_bati", ascending=False)
         files_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
         files = [file for l in files_lists for file in l]
-        self.test_data = LidarListDataset(
+        self.test_data = LidarMapDataset(
             files,
             loading_function=load_las_data,
             transform=self._get_test_transforms(),
