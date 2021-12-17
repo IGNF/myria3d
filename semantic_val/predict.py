@@ -55,15 +55,15 @@ def predict(config: DictConfig) -> Optional[float]:
     with torch.no_grad():
         model: LightningModule = hydra.utils.instantiate(config.model)
         model = model.load_from_checkpoint(config.prediction.resume_from_checkpoint)
-        if "gpus" in config.trainer and config.trainer.gpus == 1:
-            model.cuda()
-        model.eval()
+        # if "gpus" in config.trainer and config.trainer.gpus == 1:
+        #     model.cuda()
+        # model.eval()
 
         for index, batch in tqdm(
             enumerate(datamodule.predict_dataloader()), desc="Batch inference..."
         ):
-            if "gpus" in config.trainer and config.trainer.gpus == 1:
-                batch.cuda()
+            # if "gpus" in config.trainer and config.trainer.gpus == 1:
+            #     batch.cuda()
             outputs = model.predict_step(batch)
             data_handler.append_pos_and_proba_to_list(outputs)
             # if index > 2:
@@ -87,8 +87,9 @@ def predict(config: DictConfig) -> Optional[float]:
         log.info(f"Using best trial from: {config.prediction.best_trial_pickle_path}")
         best_trial = pickle.load(f)
 
+    # correction, à voir avec Charles
     las = update_las_with_decisions(
-        las, best_trial.params, config.prediction.mts_auto_detected_code
+        las, best_trial.params, False, config.prediction.mts_auto_detected_code
     )
     las.write(updated_las_path)
     log.info(f"Updated LAS saved to : {updated_las_path}")
