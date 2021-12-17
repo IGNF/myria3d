@@ -40,6 +40,8 @@ class LidarMapDataset(Dataset):
         data = self.loading_function(filepath)
         if self.transform:
             data = self.transform(data)
+        if data is None:
+            return None
         if self.target_transform:
             data = self.target_transform(data)
 
