@@ -17,8 +17,6 @@ from semantic_val.utils import utils
 
 log = utils.get_logger(__name__)
 
-SPLIT_LAS_DIR_COLN = "split_las_path"
-
 
 class LidarMapDataset(Dataset):
     def __init__(
@@ -107,6 +105,8 @@ class LidarIterableDataset(IterableDataset):
 
 
 # PREPARE DATASET
+
+SPLIT_LAS_DIR_COLN = "split_las_path"
 
 
 def make_datasplit_csv(

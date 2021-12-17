@@ -91,7 +91,6 @@ def load_las_data(data_filepath):
     ).transpose()
     y = las.classification.astype(np.int)
 
-    # TODO: change here to reflect initial path of data, so that DataHandler loads the full las
     full_cloud_filepath = get_full_las_filepath(data_filepath)
 
     return Data(
@@ -170,6 +169,15 @@ class SelectPredictSubTile:
         subtile_data.y = subtile_data.y[mask]
 
         return subtile_data
+
+
+class EmptySubtileFilter(BaseTransform):
+    r"""Make a copy of the full cloud's positions and labels, for inference interpolation."""
+
+    def __call__(self, data: Data, min_num_points_subtile: int = 50):
+        if len(data["x"]) < min_num_points_subtile:
+            return None
+        return data
 
 
 class ToTensor(BaseTransform):
