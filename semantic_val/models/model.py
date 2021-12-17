@@ -147,7 +147,7 @@ class Model(LightningModule):
         }
 
     # TODO: decide if returning preds is needed
-    def validation_step(self, batch: Any, batch_idx: int):
+    def validation_step(self, batch: Any, batch_idx: int, dataset_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("val/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 
@@ -180,8 +180,7 @@ class Model(LightningModule):
             "batch": batch,
         }
 
-    # TODO: decide if returning preds is needed
-    def test_step(self, batch: Any, batch_idx: int):
+    def test_step(self, batch: Any, batch_idx: int, dataset_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 

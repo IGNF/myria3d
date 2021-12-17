@@ -133,7 +133,7 @@ class DataModule(LightningDataModule):
         files_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
         if self.limit_top_k_tiles_val:
             files_lists = files_lists[: self.limit_top_k_tiles_train]
-            log.info(f"Validation on {self.limit_top_k_tiles_train}) tiles.")
+        log.info(f"Validation on {len(files_lists)}) tiles.")
         self.val_data = [
             LidarMapDataset(
                 files,
