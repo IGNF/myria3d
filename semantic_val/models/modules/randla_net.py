@@ -77,14 +77,15 @@ class LocalSpatialEncoding(nn.Module):
         """
         # finding neighboring points
         idx, dist = knn_output
+        idx = idx.to(coords.device)
+        dist = dist.to(coords.device)
         B, N, K = idx.size()
         # idx(B, N, K), coords(B, N, 3)
         # neighbors[b, i, n, k] = coords[b, idx[b, n, k], i] = extended_coords[b, i, extended_idx[b, i, n, k], k]
         extended_idx = idx.unsqueeze(1).expand(B, 3, N, K)
         extended_coords = coords.transpose(-2, -1).unsqueeze(-1).expand(B, 3, N, K)
         neighbors = torch.gather(extended_coords, 2, extended_idx)  # shape (B, 3, N, K)
-        # if USE_CUDA:
-        #     neighbors = neighbors.cuda()
+        neighbors = neighbors.to(coords.device)
 
         # relative point position encoding
         concat = torch.cat(
@@ -96,6 +97,7 @@ class LocalSpatialEncoding(nn.Module):
             ),
             dim=-3,
         )
+        concat = concat.to(coords.device)
         return torch.cat((self.mlp(concat), features.expand(B, -1, N, K)), dim=-3)
 
 
@@ -160,10 +162,10 @@ class LocalFeatureAggregation(nn.Module):
         -------
         torch.Tensor, shape (B, 2*d_out, N, 1)
         """
+        # torch_geometric KNN supports CUDA but would need a batch_x and batch_y index tensor.
         knn_output = knn(
             coords.cpu().contiguous(), coords.cpu().contiguous(), self.num_neighbors
         )
-
         x = self.mlp1(features)
 
         x = self.lse1(coords, x, knn_output)
@@ -240,7 +242,7 @@ class RandLANet(nn.Module):
         N = input.size(1)
         d = self.decimation
 
-        coords = input[..., :3].clone().cpu()
+        coords = input[..., :3].clone()  # .cpu()
         x = self.fc_start(input).transpose(-2, -1).unsqueeze(-1)
         x = self.bn_start(x)  # shape (B, d, N, 1)
 
@@ -273,7 +275,7 @@ class RandLANet(nn.Module):
                 .contiguous(),  # upsampled set
                 1,
             )  # shape (B, N, 1)
-
+            neighbors = neighbors.to(x.device)
             extended_neighbors = neighbors.unsqueeze(1).expand(-1, x.size(1), -1, 1)
 
             x_neighbors = torch.gather(x, -2, extended_neighbors)
