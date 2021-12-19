@@ -16,7 +16,7 @@ test_the_model: false
 
 logger:
   comet:
-    experiment_name: "V2.1 - Reproduce Faster"
+    experiment_name: "V2.1 - Reproduce Faster + Augment"
 
 trainer:
   num_sanity_val_steps: 0
