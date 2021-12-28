@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from torch_geometric.nn.pool import knn
 from torch_geometric.data import Batch, Data
+from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.transforms import BaseTransform
 from semantic_val.decision.codes import MTS_AUTO_DETECTED_CODE
 
@@ -457,10 +458,11 @@ class DataHandler:
                     self.interpolate_probas_and_save(phase)
                 self.load_las_for_proba_update(full_cloud_filepath)
 
-            idx = batch.batch_y == batch_idx
-            self.proba_updates.append(batch_proba[idx, 1].cpu())
-            self.pos_updates.append(batch.pos_copy[idx].cpu())
+            idx = batch.batch_x == batch_idx
+            self.proba_updates.append(batch_proba[idx, 1])
+            self.pos_updates.append(batch.pos[idx])
 
+    @torch.no_grad()
     def interpolate_probas_and_save(self, phase):
         """
         Interpolate all predicted probabilites to their original points in LAS file, and save.
@@ -472,11 +474,28 @@ class DataHandler:
         os.makedirs(self.preds_dirpath, exist_ok=True)
         self.output_path = os.path.join(self.preds_dirpath, filename)
 
-        self.pos_updates = torch.cat(self.pos_updates).cpu()
-        self.proba_updates = torch.cat(self.proba_updates).cpu()
-        # TODO: use k=3 if we decide to not interpolate at step time
-        assign_idx = knn(self.las_pos, self.pos_updates, k=1, num_workers=1)[1]
-        self.las[ChannelNames.BuildingsProba.value][assign_idx] = self.proba_updates
+        # TODO: remain on gpu until assignment.
+        self.pos_updates = torch.cat(self.pos_updates)
+        self.proba_updates = torch.cat(self.proba_updates)
+        self.las_pos = self.las_pos.to(self.pos_updates.device)
+        # TODO: single pass
+        # assign_idx = knn(
+        #     self.pos_updates,
+        #     self.las_pos,
+        #     k=1,
+        #     num_workers=3,
+        # )[1]
+        # self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates[
+        #     assign_idx
+        # ].cpu()
+
+        self.proba_updates = knn_interpolate(
+            self.proba_updates,
+            self.pos_updates,
+            self.las_pos,
+            k=3,
+        )
+        self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates.cpu()
 
         log.info(f"Saving LAS updated with predicted probas to {self.output_path}")
         self.las.write(self.output_path)

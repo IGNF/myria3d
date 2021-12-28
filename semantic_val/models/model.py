@@ -78,31 +78,17 @@ class Model(LightningModule):
             self.test_accuracy,
         ]
 
-    # TODO: to avoid costly KNN, return logits directly.
-    # TODO: use a separate logic for prediction
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
-        logits = knn_interpolate(
-            logits,
-            batch.pos_copy_subsampled,
-            batch.pos_copy,
-            batch_x=batch.batch_x,
-            batch_y=batch.batch_y,
-            k=3,
-        )
         return logits
 
-    # TODO: to avoid costly KNN, compare with batch.y directly (subsampled already)
-    # Deal with interpolation in DataHandler : use a K=3, be sure that every point gets a proba.
     def step(self, batch: Any):
-        targets = batch.y_copy
-
+        targets = batch.y
         logits = self.forward(batch)
         loss = self.criterion(logits, targets)
-
-        preds = torch.argmax(logits, dim=1)
         with torch.no_grad():
             proba = self.softmax(logits)
+            preds = torch.argmax(logits, dim=1)
         return loss, logits, proba, preds, targets
 
     def on_fit_start(self) -> None:
@@ -111,7 +97,6 @@ class Model(LightningModule):
             metric = metric.to(self.device)
         assert all(metric.device == self.device for metric in self.metrics)
 
-    # TODO: decide if returning preds is needed
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
@@ -264,7 +249,6 @@ class Model(LightningModule):
 
     @torch.no_grad()
     def predict_step(self, batch: Any):
-        # TODO: may ned to use other than forward.
         logits = self.forward(batch)
         proba = self.softmax(logits)
         return {
