@@ -21,7 +21,7 @@ logger:
 trainer:
   num_sanity_val_steps: 0
   log_every_n_steps: 1
-  min_epochs: 14
+  min_epochs: 20
   max_epochs: 1000
   check_val_every_n_epoch: 1
   val_check_interval: 0.20 # batches/steps 200 batches -> ~4 ancient epochs
@@ -36,7 +36,7 @@ model:
   reduce_lr_on_plateau:
     activate: true
     factor: 0.5  # halving
-    patience: 1  # low as we count in large training epochs
+    patience: 0  # low as we count in large training epochs
     cooldown: 0
   net:
     d_in: 10  # 3 + F
@@ -49,7 +49,7 @@ callbacks:
     _target_: pytorch_lightning.callbacks.EarlyStopping
     monitor: "val/loss_epoch" # name of the logged metric which determines when model is improving
     mode: "min" # can be "max" or "min"
-    patience: 2 # how many **validation** epochs of not improving until training stops
+    patience: 5 # how many **validation** epochs of not improving until training stops
     min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
 
 datamodule:
