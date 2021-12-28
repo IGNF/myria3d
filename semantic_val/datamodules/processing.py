@@ -359,7 +359,7 @@ class MakeBuildingTargets(BaseTransform):
         return data
 
     def make_building_targets(self, y):
-        buildings_idx = (y == 19) | (y == 21) | (y == 6)
+        buildings_idx = (y == 19) | (y == 21)
         y[buildings_idx] = 1
         y[~buildings_idx] = 0
         return y
