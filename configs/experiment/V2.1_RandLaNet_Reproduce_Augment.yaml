@@ -53,13 +53,9 @@ callbacks:
     min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
 
 datamodule:
-  limit_top_k_tiles_train: 10000000
-  limit_top_k_tiles_val: 100000000
 
-  # train_subtiles_by_tile: 12 # Large to have single tile chosen.
   batch_size: 32 # Larger possible for faster training.
-  augment: true
-  
+  augment: true  
   subsample_size: 12500  # Aim for at least 10pts/m²
   num_workers: 2
 

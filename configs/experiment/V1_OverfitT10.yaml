@@ -41,7 +41,6 @@ model:
 
 datamodule:
 
-  train_subtiles_by_tile: 6 # Large to have single tile chosen.
   batch_size: 12 # Large possible for faster training.
   
   subsample_size: 25000  # Aim for at least 10pts/m²

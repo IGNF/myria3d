@@ -51,9 +51,6 @@ class DataModule(LightningDataModule):
         )
 
         self.train_frac = kwargs.get("train_frac", 0.8)
-        self.limit_top_k_tiles_train = kwargs.get("limit_top_k_tiles_train", 1000000)
-        self.limit_top_k_tiles_val = kwargs.get("limit_top_k_tiles_val", 1000000)
-        self.train_subtiles_by_tile = kwargs.get("train_subtiles_by_tile", 12)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", True)
 
@@ -116,9 +113,6 @@ class DataModule(LightningDataModule):
         df = df_split[df_split.split == "train"]
         df = df.sort_values("nb_bati", ascending=False)
         f_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
-        if self.limit_top_k_tiles_train < len(f_lists):
-            f_lists = f_lists[: self.limit_top_k_tiles_train]
-            log.info(f"Training on {self.limit_top_k_tiles_train}) tiles.")
         files = [f for l in f_lists for f in l]
         self.train_data = LidarMapDataset(
             files,
@@ -132,8 +126,7 @@ class DataModule(LightningDataModule):
         df = df_split[df_split.split == "val"]
         df = df.sort_values("nb_bati", ascending=False)
         files_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
-        if self.limit_top_k_tiles_val:
-            files_lists = files_lists[: self.limit_top_k_tiles_train]
+
         log.info(f"Validation on {len(files_lists)} tiles.")
         files = functools.reduce(lambda x, y: x + y, files_lists)  # order is preserved
         self.val_data = LidarMapDataset(

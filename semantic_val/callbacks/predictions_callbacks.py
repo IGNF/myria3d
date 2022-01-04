@@ -51,6 +51,7 @@ class SavePreds(Callback):
         outputs: Optional[STEP_OUTPUT],
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int,
     ) -> None:
         if self.save_predictions and outputs is not None:
             self.data_handler.append_pos_and_proba_to_list(outputs, "val")
