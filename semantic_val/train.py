@@ -40,7 +40,6 @@ def train(config: DictConfig) -> Optional[float]:
     log.info(f"Instantiating model <{config.model._target_}>")
     if config.trainer.resume_from_checkpoint:
         utils.update_config_with_hyperparams(config)
-
     model: LightningModule = hydra.utils.instantiate(config.model)
 
     # Init lightning callbacks

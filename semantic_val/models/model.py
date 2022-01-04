@@ -60,7 +60,7 @@ class Model(LightningModule):
         if loss == "CrossEntropyLoss":
             self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
         elif loss == "FocalLoss":
-            self.criterion = WeightedFocalLoss(weights=weights, gamma=2.0)
+            self.criterion = NormalizedFocalLoss(weight=weights, gamma=2.0)
 
         self.train_iou = BuildingsIoU()
         self.val_iou = BuildingsIoU()
@@ -281,34 +281,36 @@ class Model(LightningModule):
         return optimizer
 
 
-class WeightedFocalLoss(nn.Module):
+class NormalizedFocalLoss(nn.Module):
     """
-    Weighted version of Focal Loss.
-    We normalize in part the loss by the nb of samples with rare class, inspired by original Focal Loss paper.
+    Weighted, normalized version of Focal Loss.
+    We normalize in part the sum of probabilities for the true class, following Sofiiuk 2019 https://arxiv.org/pdf/1909.07829.pdf,.
     This is important so that the loss is properly scaled.
     """
 
-    def __init__(self, weights: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
-        super(WeightedFocalLoss, self).__init__()
-        self.alpha = weights
+    def __init__(self, weight: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
+        super(NormalizedFocalLoss, self).__init__()
+        self.alpha = weight
         self.gamma = gamma
         self.softmax = nn.Softmax(dim=1)
         self.eps = EPS
-        self.n_classes = len(weights)
+        self.n_classes = len(weight)
         self.rare_class_dim = 1
 
     def forward(self, logits, targets):
         assert logits.size(1) == self.n_classes
         proba = self.softmax(logits)
         loss = torch.zeros_like(targets).type(torch.float)
+        proba_true_class = torch.zeros_like(targets).type(torch.float)
         for i in range(self.n_classes):
             ti = targets == i
             pi = proba[:, i] * ti
+            proba_true_class += pi
             ai = self.alpha[i]
             loss += -(ti * ai) * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
-        n_points = logits.size(0)
-        n_points_rare_class = (targets == self.rare_class_dim).sum()
-        normalization_factor = (n_points_rare_class + n_points / 100) / 2
+        normalization_factor = (
+            (1 - proba_true_class.detach()) ** self.gamma
+        ).sum() + self.eps
         loss = loss.sum() / normalization_factor
         return loss
 
