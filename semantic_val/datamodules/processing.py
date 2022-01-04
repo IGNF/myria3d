@@ -460,7 +460,7 @@ class DataHandler:
 
             idx = batch.batch_x == batch_idx
             self.proba_updates.append(batch_proba[idx, 1])
-            self.pos_updates.append(batch.pos[idx])
+            self.pos_updates.append(batch.pos_copy_subsampled[idx])
 
     @torch.no_grad()
     def interpolate_probas_and_save(self, phase):
@@ -478,26 +478,18 @@ class DataHandler:
         self.pos_updates = torch.cat(self.pos_updates)
         self.proba_updates = torch.cat(self.proba_updates)
         self.las_pos = self.las_pos.to(self.pos_updates.device)
-        # TODO: single pass
-        # assign_idx = knn(
-        #     self.pos_updates,
-        #     self.las_pos,
-        #     k=1,
-        #     num_workers=3,
-        # )[1]
-        # self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates[
-        #     assign_idx
-        # ].cpu()
-        log.info("A")
-        self.proba_updates = knn_interpolate(
-            self.proba_updates,
+
+        # TODO: KNN interpolate has high memory cost.
+        # An alternative would be knn with k=3 and taking the average of the pk nearest proba
+        assign_idx = knn(
             self.pos_updates,
             self.las_pos,
             k=1,
-        )
-        log.info("B")
-        self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates.cpu()
-
+            num_workers=1,
+        )[1]
+        self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates[
+            assign_idx
+        ].cpu()
         log.info(f"Saving LAS updated with predicted probas to {self.output_path}")
         self.las.write(self.output_path)
 
