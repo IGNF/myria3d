@@ -74,6 +74,7 @@ Rename `.env_example` to `.env` and fill out `LOG PATH`, where hydra logs and co
 
 Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
 
+For training and evaluation on val/test datasets, the clouds needs to be splitted before being fed to the model. All LAS files must be kept in a single folder, and they will be splitted in 50m*50m clouds, in folders bearing their name, according to the logic in 'bash/data_preparation/split_clouds.sh'. This is not neede for inference on unseen data.
 
 ### Run the module on unseen data with a trained model 
 
@@ -95,10 +96,10 @@ Please note that "hydra.run.dir" is the directory of the project, it's not a mis
 ### Run training, evaluation, and decision thresholds optimization on labeled data
 
 
-Train model with a specific experiment from [configs/experiment/](configs/experiment/)
+Train model with a specific experiment from [configs/experiment/](configs/experiment/). For instance, to overfit a simple PointNet model on a batch for a few epochs, run:
 ```yaml
 # default
-python run.py experiment=PN_debug
+python run.py experiment=PN_debug hydra.verbose=false
 ```
 
 Evaluate the model and get inference results on the validation dataset
@@ -108,16 +109,16 @@ python run.py experiment=evaluate_val_data trainer.resume_from_checkpoint=/path/
 # to log IoU without saving predictions to new LAS files 
 python run.py experiment=evaluate_val_data callbacks.save_preds.save_predictions=false trainer.resume_from_checkpoint=/path/to/checkpoints.ckpt fit_the_model=false test_the_model=true
 ```
-To evaluate on test data instead of val data, replace `experiment=evaluate_val_data` by `experiment=evaluate_test_data`.
+To evaluate on test data instead of val data, replace `experiment=evaluate_val_data` by `experiment=evaluate_test_data`. Without a GPU, inference takes ~240s/km². 
 
 
-Run a multi-objectives hyperparameters optimization of the decision thresholds, to maximize recall and precision directly while also maximizing automation.
+Run a multi-objectives hyperparameters optimization of the decision thresholds, to maximize recall and precision directly while also maximizing automation. For that you will need inference results on the validation dataset.
 
 ```yaml
 python run.py -m task=optimize optimize.todo='prepare+optimize+evaluate+update' optimize.predicted_las_dirpath="/path/to/val/las/folder/" optimize.results_output_dir="/path/to/save/updated/val/las/"  optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
 ```
 
-To evaluate best solution on test set, simply change the input las folder and the results output folder, and remove the optimization from the todo. The path to the best trial stays the same.
+To evaluate the optimized module on the test set, simply change the input las folder and the results output folder, and remove the optimization from the `todo` argument. The path to the best trial stays the same: it contains the optimized decision thresholds.
 
 ```yaml
 python run.py task=optimize optimize.todo='prepare+evaluate+update' print_config=false optimize.predicted_las_dirpath="/path/to/test/las/folder/" optimize.results_output_dir="/path/to/save/updated/test/las/" optimize.best_trial_pickle_path="/path/to/best_trial.pkl"
