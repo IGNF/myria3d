@@ -3,3 +3,8 @@ output_dir: "/path/to/output_dir/"
 best_trial_pickle_path: "/path/to/best_trial.pkl"
 resume_from_checkpoint: "/path/to/lightning_model.ckpt"
 mts_auto_detected_code: 6  # classification code for buildings identified in TerraSolid
+
+host: "serveurbdudiff.ign.fr"
+user: "invite"
+pwd: "28de#"
+bd_name: "bduni_france_consultation"

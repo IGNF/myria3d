@@ -1,3 +1,10 @@
+from semantic_val.decision.decide import (
+    make_group_decision,
+    prepare_las_for_decision,
+    split_idx_by_dim,
+    update_las_with_decisions,
+)
+
 from enum import Enum
 import pickle
 import glob
@@ -13,6 +20,7 @@ import numpy as np
 import optuna
 import laspy
 from sklearn.metrics import confusion_matrix
+from semantic_val.utils.db_communication import ConnectionData
 from semantic_val.datamodules.processing import ChannelNames
 from semantic_val.decision.codes import (
     MTS_AUTO_DETECTED_CODE,
@@ -24,12 +32,6 @@ from semantic_val.utils import utils
 from semantic_val.decision.codes import (
     DECISION_CODES_LIST_FOR_CONFUSION,
     MTS_TRUE_POSITIVE_CODE_LIST,
-)
-from semantic_val.decision.decide import (
-    make_group_decision,
-    prepare_las_for_decision,
-    split_idx_by_dim,
-    update_las_with_decisions,
 )
 
 log = utils.get_logger(__name__)
@@ -73,8 +75,8 @@ def optimize(config: DictConfig) -> Tuple[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
     input_dir = config.optimize.predicted_las_dirpath
-    input_bd_topo_shp = config.optimize.input_bd_topo_shp
     output_dir = config.optimize.results_output_dir
+    data_connexion_db = ConnectionData(config.prediction.host, config.prediction.user, config.prediction.pwd, config.prediction.bd_name)
 
     os.makedirs(output_dir, exist_ok=True)
     log.info(f"Best trial and outputs will be saved in {output_dir}")
@@ -93,7 +95,7 @@ def optimize(config: DictConfig) -> Tuple[float]:
             group_probas,
             group_topo_overlay_bools,
             mts_gt,
-        ) = get_group_info_and_label(las_filepaths, input_bd_topo_shp, output_dir)
+        ) = get_group_info_and_label(las_filepaths, data_connexion_db, output_dir)
         probas_target_groups_filepath = osp.join(output_dir, "probas_target_groups.pkl")
         with open(probas_target_groups_filepath, "wb") as f:
             pickle.dump(
@@ -212,7 +214,7 @@ def define_MTS_ground_truth_flag(frac_true_positive):
 
 def get_group_info_and_label(
     las_filepaths: List[str],
-    input_bd_topo_shp: str,
+    data_connexion_db: ConnectionData,
     output_dir: str,
 ) -> Tuple[List[np.array], List[str]]:
     """
@@ -229,7 +231,7 @@ def get_group_info_and_label(
         out_path = osp.join(output_dir, "PREPARED_" + basename)
         structured_array = prepare_las_for_decision(
             las_filepath,
-            input_bd_topo_shp,
+            data_connexion_db,
             out_path,
             candidate_building_points_classification_code=[MTS_AUTO_DETECTED_CODE]
             + MTS_TRUE_POSITIVE_CODE_LIST

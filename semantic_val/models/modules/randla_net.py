@@ -96,6 +96,8 @@ class LocalSpatialEncoding(nn.Module):
             ),
             dim=-3,
         )
+        if features.is_cuda:
+            concat = concat.to("cuda")
         return torch.cat((self.mlp(concat), features.expand(B, -1, N, K)), dim=-3)
 
 
@@ -273,7 +275,8 @@ class RandLANet(nn.Module):
                 .contiguous(),  # upsampled set
                 1,
             )  # shape (B, N, 1)
-
+            if x.is_cuda:
+                neighbors = neighbors.cuda()
             extended_neighbors = neighbors.unsqueeze(1).expand(-1, x.size(1), -1, 1)
 
             x_neighbors = torch.gather(x, -2, extended_neighbors)
