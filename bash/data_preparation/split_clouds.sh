@@ -1,5 +1,4 @@
-PIPELINE="/home/cgaydon/Segmentation-Validation-Model/bash/data_preparation/pipeline.json"
-LASFILES_DIR="/var/data/cgaydon/data/202110_building_val/trainvaltest/"
+source .env
 mkdir ${LASFILES_DIR}split/
 for f in $(ls ${LASFILES_DIR}*.las);
 do

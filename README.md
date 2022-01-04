@@ -74,7 +74,7 @@ Rename `.env_example` to `.env` and fill out `LOG PATH`, where hydra logs and co
 
 Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
 
-For training and evaluation on val/test datasets, the clouds needs to be splitted before being fed to the model. All LAS files must be kept in a single folder, and they will be splitted in 50m*50m clouds, in folders bearing their name, according to the logic in 'bash/data_preparation/split_clouds.sh'. This is not neede for inference on unseen data.
+For training and evaluation on val/test datasets, the clouds needs to be splitted before being fed to the model. All LAS files must be kept in a single folder, and they will be splitted in 50m*50m clouds, in folders bearing their name. This is performed via 'bash/data_preparation/split_clouds.sh', sourced from the repository root. Splitting is not needed for inference on unseen data.
 
 ### Run the module on unseen data with a trained model 
 
