@@ -132,7 +132,7 @@ class Model(LightningModule):
         }
 
     # TODO: decide if returning preds is needed
-    def validation_step(self, batch: Any, batch_idx: int, dataset_idx: int):
+    def validation_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log(
             "val/loss",
@@ -140,7 +140,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=False,
-            add_dataloader_idx=False,
         )
 
         self.val_accuracy(preds, targets)
@@ -150,7 +149,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=True,
-            add_dataloader_idx=False,
         )
 
         self.val_iou(preds, targets)
@@ -160,7 +158,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=True,
-            add_dataloader_idx=False,
         )
 
         preds_avg = (preds * 1.0).mean().item()
@@ -172,7 +169,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=False,
-            add_dataloader_idx=False,
         )
         self.log(
             "val/targets_avg",
@@ -180,7 +176,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=False,
-            add_dataloader_idx=False,
         )
 
         return {
@@ -190,7 +185,7 @@ class Model(LightningModule):
             "batch": batch,
         }
 
-    def test_step(self, batch: Any, batch_idx: int, dataset_idx: int):
+    def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log(
             "test/loss",
@@ -198,7 +193,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=False,
-            add_dataloader_idx=False,
         )
 
         self.test_accuracy(preds, targets)
@@ -208,7 +202,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=True,
-            add_dataloader_idx=False,
         )
 
         self.test_iou(preds, targets)
@@ -218,7 +211,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=True,
-            add_dataloader_idx=False,
         )
 
         preds_avg = (preds * 1.0).mean().item()
@@ -229,7 +221,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=False,
-            add_dataloader_idx=False,
         )
         self.log(
             "test/targets_avg",
@@ -237,7 +228,6 @@ class Model(LightningModule):
             on_step=True,
             on_epoch=True,
             prog_bar=False,
-            add_dataloader_idx=False,
         )
 
         return {

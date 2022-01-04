@@ -1,4 +1,5 @@
 import ast
+import functools
 import glob
 import os
 import os.path as osp
@@ -134,15 +135,13 @@ class DataModule(LightningDataModule):
         if self.limit_top_k_tiles_val:
             files_lists = files_lists[: self.limit_top_k_tiles_train]
         log.info(f"Validation on {len(files_lists)} tiles.")
-        self.val_data = [
-            LidarMapDataset(
-                files,
-                loading_function=load_las_data,
-                transform=self._get_val_transforms(),
-                target_transform=MakeBuildingTargets(),
-            )
-            for files in files_lists
-        ]
+        files = functools.reduce(lambda x, y: x + y, files_lists)  # order is preserved
+        self.val_data = LidarMapDataset(
+            files,
+            loading_function=load_las_data,
+            transform=self._get_val_transforms(),
+            target_transform=MakeBuildingTargets(),
+        )
 
     def _set_test_data(self, df_split):
         """Get the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
@@ -156,16 +155,14 @@ class DataModule(LightningDataModule):
         df = df_split[df_split.split == "test"]
         df = df.sort_values("nb_bati", ascending=False)
         files_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
+        files = functools.reduce(lambda x, y: x + y, files_lists)  # order is preserved
         # One dataset per cloud
-        self.test_data = [
-            LidarMapDataset(
-                files,
-                loading_function=load_las_data,
-                transform=self._get_test_transforms(),
-                target_transform=MakeBuildingTargets(),
-            )
-            for files in files_lists
-        ]
+        self.test_data = LidarMapDataset(
+            files,
+            loading_function=load_las_data,
+            transform=self._get_test_transforms(),
+            target_transform=MakeBuildingTargets(),
+        )
 
     def _set_predict_data(
         self, files_to_infer_on, mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE
@@ -192,35 +189,29 @@ class DataModule(LightningDataModule):
         """
         Get val dataloader. num_workers is only one because load must be split for IterableDataset.
         """
-        return [
-            DataLoader(
-                dataset=tile_dataset,
-                batch_size=self.batch_size,
-                shuffle=True,
-                num_workers=self.num_workers,
-                collate_fn=collate_fn,
-            )
-            for tile_dataset in self.val_data
-        ]
+        return DataLoader(
+            dataset=self.val_data,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            collate_fn=collate_fn,
+        )
 
     def test_dataloader(self):
-        return [
-            DataLoader(
-                dataset=tile_dataset,
-                batch_size=self.batch_size,
-                shuffle=True,
-                num_workers=self.num_workers,
-                collate_fn=collate_fn,
-            )
-            for tile_dataset in self.test_data
-        ]
+        return DataLoader(
+            dataset=self.test_data,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            collate_fn=collate_fn,
+        )
 
     def predict_dataloader(self):
         return DataLoader(
             dataset=self.predict_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=1,
+            num_workers=1,  # b/c terable dataloader
             collate_fn=collate_fn,
         )
 

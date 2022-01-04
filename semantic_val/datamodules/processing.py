@@ -366,7 +366,7 @@ class MakeBuildingTargets(BaseTransform):
         return y
 
 
-# TODO: update this.
+# TODO: we may not need all attributes. To be updated.
 def collate_fn(data_list: List[Data]) -> Batch:
     """
     Batch Data objects from a list, to be used in DataLoader. Modified from:
