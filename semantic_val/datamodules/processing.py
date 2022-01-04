@@ -488,13 +488,14 @@ class DataHandler:
         # self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates[
         #     assign_idx
         # ].cpu()
-
+        log.info("A")
         self.proba_updates = knn_interpolate(
             self.proba_updates,
             self.pos_updates,
             self.las_pos,
-            k=3,
+            k=1,
         )
+        log.info("B")
         self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates.cpu()
 
         log.info(f"Saving LAS updated with predicted probas to {self.output_path}")
