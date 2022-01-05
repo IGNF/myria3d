@@ -12,6 +12,7 @@ dependencies:
   - python-pdal
   - pyshp
   - geopandas
+  - pygeos
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #

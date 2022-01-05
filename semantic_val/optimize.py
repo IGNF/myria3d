@@ -88,11 +88,11 @@ def optimize(config: DictConfig) -> Tuple[float]:
     log.info(f"Logs will be saved in {os.getcwd()}")
     las_filepaths = glob.glob(osp.join(input_dir, "*.las"))
     # DEBUG
-    # las_filepaths = [
-    #     "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_870000_6649000.las",
-    #     # "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
-    # ]
-    # print(las_filepaths)
+    las_filepaths = [
+        "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_870000_6649000.las",
+        # "/var/data/cgaydon/data/202110_building_val/logs/good_checkpoints/V2.0/validation_preds/test_792000_6272000.las"
+    ]
+    print(las_filepaths)
 
     ### CLUSTER AND GET PROBAS AND TARGETS FOR LATER OPTIMIZATION
     if "prepare" in config.optimize.todo:
@@ -223,7 +223,8 @@ def get_group_info_and_label(
     output_dir: str,
 ) -> Tuple[List[np.array], List[str]]:
     """
-    From a folder of las with probabilities, cluster the clouds and append both list of predicted probas and MTS ground truth to lists.
+    From a folder of las with probabilities, cluster the clouds and append both list of predicted probas
+    and MTS ground truth to lists.
     group_probas: the probas of each group of points
     mts_gt: the group label based on ground truths
     """

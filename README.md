@@ -72,7 +72,7 @@ conda activate validation_module
 
 Rename `.env_example` to `.env` and fill out `LOG PATH`. 
 
-Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
+Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation.
 
 
 ### Run the module on unseen data with a trained model 
