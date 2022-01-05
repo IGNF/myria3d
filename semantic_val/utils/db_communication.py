@@ -43,10 +43,12 @@ def db_communication(
         sql_request,
     ]
     # This call may yield
-    subprocess.call(cmd)
-    # In empty zones, pgsql2shp does not create a shapefile
-    if not os.path.exists(shapefile_path):
-        return False
+    try:
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        # In empty zones, pgsql2shp does not create a shapefile
+        if e.output == b'Initializing... \nERROR: Could not determine table metadata (empty table)\n':
+            return False
 
     # read & write to avoid unnacepted 3D shapefile format.
     gdf = geopandas.read_file(shapefile_path)
