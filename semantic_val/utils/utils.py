@@ -217,3 +217,16 @@ def eval_time(method):
         return result
 
     return timed
+
+
+def define_device_from_config_param(gpus_param):
+    """
+    Param can be an in specifying a number of GPU to use (0 or 1) or an int in
+    a list specifying which GPU to use (cuda:0, cuda:1, etc.)
+    """
+    device = (
+        torch.device("cpu")
+        if gpus_param == 0
+        else (torch.device("cuda") if gpus_param == 1 else f"cuda:{int(gpus_param[0])}")
+    )
+    return device

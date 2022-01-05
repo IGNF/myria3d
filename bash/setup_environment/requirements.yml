@@ -33,5 +33,4 @@ dependencies:
   - pudb # debugger
   # --------- torch --------- #
   - pip:
-      #- -r ./bash/setup_environment/requirements.txt
       - -r requirements.txt
