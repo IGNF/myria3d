@@ -76,7 +76,12 @@ def optimize(config: DictConfig) -> Tuple[float]:
         seed_everything(config.seed, workers=True)
     input_dir = config.optimize.predicted_las_dirpath
     output_dir = config.optimize.results_output_dir
-    data_connexion_db = ConnectionData(config.prediction.host, config.prediction.user, config.prediction.pwd, config.prediction.bd_name)
+    data_connexion_db = ConnectionData(
+        config.prediction.host,
+        config.prediction.user,
+        config.prediction.pwd,
+        config.prediction.bd_name,
+    )
 
     os.makedirs(output_dir, exist_ok=True)
     log.info(f"Best trial and outputs will be saved in {output_dir}")

@@ -42,7 +42,6 @@ def predict(config: DictConfig) -> Optional[float]:
     assert os.path.exists(config.prediction.src_las)
     assert os.path.exists(config.prediction.best_trial_pickle_path)
 
-
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_all_transforms()
     datamodule._set_predict_data(
@@ -53,9 +52,13 @@ def predict(config: DictConfig) -> Optional[float]:
     data_handler.load_las_for_proba_update(config.prediction.src_las)
 
     with torch.no_grad():
-        device =  torch.device('cuda') if "gpus" in config.trainer and config.trainer.gpus == 1 else torch.device('cpu')
+        device = (
+            torch.device("cuda")
+            if "gpus" in config.trainer and config.trainer.gpus == 1
+            else torch.device("cpu")
+        )
 
-        model: LightningModule = hydra.utils.instantiate(config.model) 
+        model: LightningModule = hydra.utils.instantiate(config.model)
         model = model.load_from_checkpoint(config.prediction.resume_from_checkpoint)
         model.to(device)
         model.eval()
@@ -71,7 +74,12 @@ def predict(config: DictConfig) -> Optional[float]:
 
     updated_las_path = data_handler.interpolate_probas_and_save("predict")
 
-    data_connexion_db = ConnectionData(config.prediction.host, config.prediction.user, config.prediction.pwd, config.prediction.bd_name)
+    data_connexion_db = ConnectionData(
+        config.prediction.host,
+        config.prediction.user,
+        config.prediction.pwd,
+        config.prediction.bd_name,
+    )
 
     log.info("Prepare LAS...")
     prepare_las_for_decision(
@@ -89,14 +97,18 @@ def predict(config: DictConfig) -> Optional[float]:
         log.info(f"Using best trial from: {config.prediction.best_trial_pickle_path}")
         best_trial = pickle.load(f)
 
-    use_final_classification_codes = True if "use_final_classification_codes" in\
-         config.prediction and config.prediction.use_final_classification_codes == True else False
+    use_final_classification_codes = (
+        True
+        if "use_final_classification_codes" in config.prediction
+        and config.prediction.use_final_classification_codes == True
+        else False
+    )
 
     las = update_las_with_decisions(
-        las, 
-        best_trial.params, 
-        use_final_classification_codes, 
-        config.prediction.mts_auto_detected_code
+        las,
+        best_trial.params,
+        use_final_classification_codes,
+        config.prediction.mts_auto_detected_code,
     )
     las.write(updated_las_path)
     log.info(f"Updated LAS saved to : {updated_las_path}")
