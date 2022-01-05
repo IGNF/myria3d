@@ -13,9 +13,9 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
+    from semantic_val.optimize import optimize
     from semantic_val.utils import utils
     from semantic_val.train import train
-    from semantic_val.optimize import optimize
     from semantic_val.predict import predict
 
     # A couple of optional utilities:

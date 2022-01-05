@@ -1,4 +1,8 @@
+import geopandas
+
+import os
 import json
+import re
 from typing import List, Union
 
 import numpy as np
@@ -8,18 +12,24 @@ from tqdm import tqdm
 from semantic_val.decision.codes import *
 from semantic_val.datamodules.processing import ChannelNames
 from semantic_val.utils import utils
+from semantic_val.utils.db_communication import ConnectionData, db_communication
 
 log = utils.get_logger(__name__)
 
 # GLOBAL PARAMETERS
+SHP_BUFFER = 50
+TILE_SIZE_METERS = 1000
 CLUSTER_TOLERANCE = 0.5  # meters
 CLUSTER_MIN_POINTS = 10
-SHARED_CRS = "EPSG:2154"
+SHARED_CRS_PREFIX = "EPSG:"
+SHARED_CRS = 2154
+SHAPEFILE_SUBDIR = "shp"
+SHAPEFILE_NAME = "temp_shapefile.shp"
 
 
 def prepare_las_for_decision(
     input_filepath: str,
-    input_bd_topo_shp: str,
+    data_connexion_db: ConnectionData,
     output_filepath: str,
     candidate_building_points_classification_code: Union[int, List[int]] = [
         MTS_AUTO_DETECTED_CODE
@@ -33,6 +43,37 @@ def prepare_las_for_decision(
     - Cluster candidates points, thus creating a ClusterId channel (default cluster: 0).
     - Identify points overlayed by a BDTopo shape, thus creating a BDTopoOverlay channel (no overlap: 0).
     """
+
+    bd_topo_shp_dir_path = os.path.join(
+        os.path.dirname(output_filepath), SHAPEFILE_SUBDIR
+    )
+    if os.path.exists(bd_topo_shp_dir_path):
+        # remove any existing file in the directory
+        for root, _, files in os.walk(bd_topo_shp_dir_path):
+            for f in files:
+                os.remove(os.path.join(root, f))
+    else:
+        os.mkdir(bd_topo_shp_dir_path)
+
+    shapefile_path = os.path.join(bd_topo_shp_dir_path, SHAPEFILE_NAME)
+
+    db_communication(
+        data_connexion_db,
+        *extract_coor(
+            os.path.basename(input_filepath),
+            TILE_SIZE_METERS,
+            TILE_SIZE_METERS,
+            SHP_BUFFER,
+        ),
+        SHARED_CRS,
+        shapefile_path,
+    )
+
+    # a column with only "1"
+    # gdf = geopandas.read_file(shapefile_path)
+    # gdf["presence"] = 1
+    # gdf[["presence","geometry"]].to_file(shapefile_path)
+
     if isinstance(candidate_building_points_classification_code, int):
         candidate_building_points_classification_code = [
             candidate_building_points_classification_code
@@ -49,7 +90,7 @@ def prepare_las_for_decision(
         {
             "type": "readers.las",
             "filename": input_filepath,
-            "override_srs": SHARED_CRS,
+            "override_srs": SHARED_CRS_PREFIX + str(SHARED_CRS),
             "nosrs": True,
         }
     ]
@@ -67,8 +108,8 @@ def prepare_las_for_decision(
             "dimensions": f"=>{ChannelNames.BDTopoOverlay.value}",
         },
         {
-            "column": "presence",
-            "datasource": input_bd_topo_shp,
+            "column": "PRESENCE",
+            "datasource": shapefile_path,
             "dimension": f"{ChannelNames.BDTopoOverlay.value}",
             "type": "filters.overlay",
         },
@@ -87,6 +128,20 @@ def prepare_las_for_decision(
     pipeline.execute()
     structured_array = pipeline.arrays[0]
     return structured_array
+
+
+def extract_coor(las_name: str, x_span: float, y_span: float, buffer: float):
+    """Extract the dimensions from the LAS name, the spans desired and a buffer"""
+    x_min, y_min = re.findall(
+        r"[0-9]{4,10}", las_name
+    )  # get the values with [4,10] digits in the file name
+    x_min, y_min = int(x_min), int(y_min)
+    return (
+        x_min - buffer,
+        y_min - buffer,
+        x_min + x_span + buffer,
+        y_min + y_span + buffer,
+    )
 
 
 def make_group_decision(*args, **kwargs):

@@ -7,10 +7,14 @@ channels:
 dependencies:
   - python==3.9
   - pip
+  # --------- numpy --------- #
+  - numpy==1.20
   # --------- geo --------- #
   - laspy
   - python-pdal
   - pyshp
+  - geopandas
+  - pygeos
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #

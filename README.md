@@ -66,13 +66,16 @@ https://www.anaconda.com/products/individual
 # create conda environment (you may need to run lines manually as conda may not activate properly from bash script)
 bash bash/setup_environment/setup_env.sh
 
+# install postgis, for database querying - this is currently installed outside of the conda env
+sudo apt-get install postgis
+
 # activate using
 conda activate validation_module
 ```
 
 Rename `.env_example` to `.env` and fill out `LOG PATH`, where hydra logs and config are saved.
 
-Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation. `INPUT_BD_TOPO_SHP_PATH` is currently needed for optimization and inference.
+Sections `DATAMODULE`, and `LOGGER` are needed for training and evaluation.
 
 For training and evaluation on val/test datasets, the clouds needs to be splitted before being fed to the model. All LAS files must be kept in a single folder, and they will be splitted in 50m*50m clouds, in folders bearing their name. This is performed via 'bash/data_preparation/split_clouds.sh', sourced from the repository root. Splitting is not needed for inference on unseen data.
 
@@ -88,7 +91,7 @@ To run the module on unseen data that went through rule-based semantic segmentat
 Then run:
 
 ```yaml
-python run.py --config-path /path/to/.hydra --config-name config.yaml task=predict hydra.run.dir=path/to/Segmentation-Validation-Model +prediction.src_las=/path/to/input.las +prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt +prediction.best_trial_pickle_path=/path/to/best_trial.pkl +prediction.output_dir=/path/to/save/updated/las/ +prediction.mts_auto_detected_code=CODE datamodule.batch_size=50
+python run.py --config-path /path/to/.hydra --config-name config.yaml task=predict hydra.run.dir=path/to/Segmentation-Validation-Model prediction.src_las=/path/to/input.las prediction.resume_from_checkpoint=/path/to/checkpoints.ckpt prediction.best_trial_pickle_path=/path/to/best_trial.pkl prediction.output_dir=/path/to/save/updated/las/ prediction.mts_auto_detected_code=CODE datamodule.batch_size=50
 ```
 
 Please note that "hydra.run.dir" is the directory of the project, it's not a mistake (loading a different config from .hydra with "--config-path" may change that path, we currently need that step to put everything back).
