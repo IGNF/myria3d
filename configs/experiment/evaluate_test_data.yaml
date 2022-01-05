@@ -1,0 +1,33 @@
+# @package _global_
+
+# Use a specified model to infer on the full validation set (i.e. test dataloader)
+
+# all parameters below will be merged with parameters from default configurations
+
+seed: 12345
+
+# TODO: separate train and test logic for simplicity
+# ATTENTION : you need to override these manually in CLI 
+# fit_the_model: false
+# test_the_model: true
+
+hydra:
+  verbose: false
+
+datamodule:
+  use_val_data_at_test_time: False # We use val the real test data and not val data
+  batch_size: 50
+  num_workers: 1
+
+trainer:
+  resume_from_checkpoint: "path/to/checkpoint"  # override
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 1
+  max_epochs: 100000
+  check_val_every_n_epoch: 1
+
+callbacks:
+  save_preds:
+    save_predictions: true
+

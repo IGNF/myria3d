@@ -40,10 +40,9 @@ model:
     pi_init: 0.05
 
 datamodule:
-  shuffle_train: false  # false to focus on the first tile only.
-  train_subtiles_by_tile: 6 # Large to have single tile chosen.
+
   batch_size: 12 # Large possible for faster training.
-  subtile_width_meters: 50
+  
   subsample_size: 25000  # Aim for at least 10pts/m²
-  subtile_overlap: 0
+
   num_workers: 4

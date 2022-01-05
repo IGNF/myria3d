@@ -1,5 +1,6 @@
 # pylint: disable
 import os
+import os.path as osp
 import math
 from enum import Enum
 from pathlib import Path
@@ -10,6 +11,7 @@ import numpy as np
 import torch
 from torch_geometric.nn.pool import knn
 from torch_geometric.data import Batch, Data
+from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.transforms import BaseTransform
 from semantic_val.decision.codes import MTS_AUTO_DETECTED_CODE
 
@@ -19,7 +21,7 @@ log = utils.get_logger(__name__)
 
 # CONSTANTS
 
-# Warning: be sure that this oder matches the one in load_las_data.
+# Warning: be sure that this order matches the one in load_las_data.
 COLORS_NAMES = ["red", "green", "blue", "nir"]
 X_FEATURES_NAMES = [
     "intensity",
@@ -48,11 +50,34 @@ class ChannelNames(Enum):
     BuildingsProba = "BuildingsProba"
 
 
-def load_las_data(filepath):
-    """Load a cloud of points and its labels. base shape: [n_points, n_features].
+def get_full_las_filepath(data_filepath):
+    """
+    Return the reference to the full LAS file from which data_flepath depends.
+    Predict mode: return data_filepath
+    Train/val/test mode: lasfile_dir/split/tile_id/tile_id_SUB1234.las -> /lasfile_dir/tile_id.las
+    """
+    # Predict mode: we use the full tile path as id directly without processing
+    if "/split/" not in data_filepath:
+        return data_filepath
+
+    # Else, we need the path of the full las to save predictions in test/eval.
+    basename = osp.basename(data_filepath)
+    stem = basename.split("_SUB")[0]
+    # /
+
+    lasfile_dir = osp.dirname(osp.dirname(osp.dirname(data_filepath)))
+    return osp.join(lasfile_dir, stem + ".las")
+
+
+def load_las_data(data_filepath):
+    """
+    Load a cloud of points and its labels.
+    Shape: [n_points, n_features].
     Warning: las.x is in meters, las.X is in centimeters.
     """
-    las = laspy.read(filepath)
+    log.debug(f"Loading {data_filepath}")
+    las = laspy.read(data_filepath)
+
     pos = np.asarray(
         [
             las.x,
@@ -66,14 +91,15 @@ def load_las_data(filepath):
         dtype=np.float32,
     ).transpose()
     y = las.classification.astype(np.int)
-    tile_id = Path(filepath).stem
+
+    full_cloud_filepath = get_full_las_filepath(data_filepath)
 
     return Data(
         pos=pos,
         x=x,
         y=y,
-        filepath=filepath,
-        tile_id=tile_id,
+        data_filepath=data_filepath,
+        full_cloud_filepath=full_cloud_filepath,
         x_features_names=X_FEATURES_NAMES,
     )
 
@@ -105,65 +131,7 @@ class CustomCompose(BaseTransform):
         return data
 
 
-class SelectSubtile:
-    """Abstract class for Subtile selection."""
-
-    def __init__(self, subtile_width_meters: float = 50.0):
-        self.subtile_width_meters = subtile_width_meters
-
-    def get_subtile_data(self, data: Data, subtile_center_xy):
-        """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
-        subtile_data = data.clone()
-
-        chebyshev_distance = np.max(
-            np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1
-        )
-        mask = chebyshev_distance <= (self.subtile_width_meters / 2)
-
-        subtile_data.pos = subtile_data.pos[mask]
-        subtile_data.x = subtile_data.x[mask]
-        subtile_data.y = subtile_data.y[mask]
-
-        return subtile_data
-
-
-class SelectTrainSubTile(SelectSubtile):
-    r"""Select a randomly selected square subtile from original tile"""
-
-    def __call__(self, data: Data):
-        for _ in range(MAX_TRY_IN_TRAIN_MODE):
-            center = self.get_random_subtile_center(data)
-            subtile_data = self.get_subtile_data(data, center)
-            if len(subtile_data.pos) > 0:
-                return subtile_data
-        return None
-
-    def get_random_subtile_center(self, data: Data):
-        """
-        Randomly select x/y pair (in meters) as potential center of a square subtile of original tile
-        (whose x and y coordinates are in meters and in 0m-1000m range).
-        """
-        half_subtile_width_meters = self.subtile_width_meters / 2
-        low = data.pos[:, :2].min(0) + half_subtile_width_meters
-        high = data.pos[:, :2].max(0) - half_subtile_width_meters
-
-        subtile_center_xy = np.random.uniform(low, high)
-
-        return subtile_center_xy
-
-
-class SelectValSubTile(SelectSubtile):
-    r"""Select a specified square subtile from original validation/test tile"""
-
-    def __call__(self, data: Data):
-
-        subtile_data = self.get_subtile_data(data, data.current_subtile_center)
-        if len(subtile_data.pos) > 0:
-            return subtile_data
-        return None
-
-
-class SelectPredictSubTile(SelectSubtile):
+class SelectPredictSubTile:
     r"""
     Select a specified square subtile from a tile to infer on.
     Returns None if there are no candidate building points.
@@ -188,6 +156,30 @@ class SelectPredictSubTile(SelectSubtile):
                 return subtile_data
         return None
 
+    def get_subtile_data(self, data: Data, subtile_center_xy):
+        """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
+        subtile_data = data.clone()
+
+        chebyshev_distance = np.max(
+            np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1
+        )
+        mask = chebyshev_distance <= (self.subtile_width_meters / 2)
+
+        subtile_data.pos = subtile_data.pos[mask]
+        subtile_data.x = subtile_data.x[mask]
+        subtile_data.y = subtile_data.y[mask]
+
+        return subtile_data
+
+
+class EmptySubtileFilter(BaseTransform):
+    r"""Make a copy of the full cloud's positions and labels, for inference interpolation."""
+
+    def __call__(self, data: Data, min_num_points_subtile: int = 50):
+        if len(data["x"]) < min_num_points_subtile:
+            return None
+        return data
+
 
 class ToTensor(BaseTransform):
     r"""Turn np.arrays specified by their keys into Tensor."""
@@ -202,6 +194,8 @@ class ToTensor(BaseTransform):
         return data
 
 
+# TODO: OK - Until we change and do not need to keep them for train ; will still be necessary for test
+# if we use the full las.
 class MakeCopyOfPosAndY(BaseTransform):
     r"""Make a copy of the full cloud's positions and labels, for inference interpolation."""
 
@@ -211,6 +205,7 @@ class MakeCopyOfPosAndY(BaseTransform):
         return data
 
 
+# TODO: OK
 class FixedPointsPosXY(BaseTransform):
     r"""
     Samples a fixed number of points from a point cloud.
@@ -251,6 +246,7 @@ class FixedPointsPosXY(BaseTransform):
         )
 
 
+# TODO: OK
 class MakeCopyOfSampledPos(BaseTransform):
     """Make a copy of the unormalized positions of subsampled points."""
 
@@ -364,12 +360,13 @@ class MakeBuildingTargets(BaseTransform):
         return data
 
     def make_building_targets(self, y):
-        buildings_idx = (y == 19) | (y == 21) | (y == 6)
+        buildings_idx = (y == 19) | (y == 21)
         y[buildings_idx] = 1
         y[~buildings_idx] = 0
         return y
 
 
+# TODO: we may not need all attributes. To be updated.
 def collate_fn(data_list: List[Data]) -> Batch:
     """
     Batch Data objects from a list, to be used in DataLoader. Modified from:
@@ -409,19 +406,19 @@ def collate_fn(data_list: List[Data]) -> Batch:
 
 
 class DataHandler:
-    """A class to load, update with proba/preds, and save a LAS."""
+    """A class to load, update with proba, and save a LAS."""
 
     def __init__(self, preds_dirpath: str = ""):
 
         os.makedirs(preds_dirpath, exist_ok=True)
         self.preds_dirpath = preds_dirpath
-        self.current_filepath = ""
+        self.current_full_cloud_filepath = ""
 
     def load_las_for_proba_update(self, filepath):
         """Load a LAS and add necessary extradims."""
 
         self.las = laspy.read(filepath)
-        self.current_filepath = filepath
+        self.current_full_cloud_filepath = filepath
 
         coln = ChannelNames.BuildingsProba.value
         param = laspy.ExtraBytesParams(name=coln, type=float)
@@ -453,39 +450,51 @@ class DataHandler:
         batch = outputs["batch"].detach()
         batch_proba = outputs["proba"].detach()
 
-        for batch_idx, filepath in enumerate(batch.filepath):
-            is_a_new_tile = self.current_filepath != filepath
+        for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
+            is_a_new_tile = self.current_full_cloud_filepath != full_cloud_filepath
             if is_a_new_tile:
-                close_previous_las_first = self.current_filepath != ""
+                close_previous_las_first = self.current_full_cloud_filepath != ""
                 if close_previous_las_first:
                     self.interpolate_probas_and_save(phase)
-                self.load_las_for_proba_update(filepath)
+                self.load_las_for_proba_update(full_cloud_filepath)
 
-            idx = batch.batch_y == batch_idx
-            self.proba_updates.append(batch_proba[idx, 1].cpu())
-            self.pos_updates.append(batch.pos_copy[idx].cpu())
+            idx = batch.batch_x == batch_idx
+            self.proba_updates.append(batch_proba[idx, 1])
+            self.pos_updates.append(batch.pos_copy_subsampled[idx])
 
+    @torch.no_grad()
     def interpolate_probas_and_save(self, phase):
         """
         Interpolate all predicted probabilites to their original points in LAS file, and save.
         Returns the path of the updated LAS file.
         """
 
-        tile_basename = os.path.basename(self.current_filepath)
+        tile_basename = os.path.basename(self.current_full_cloud_filepath)
         filename = f"{phase}_{tile_basename}"
         os.makedirs(self.preds_dirpath, exist_ok=True)
         self.output_path = os.path.join(self.preds_dirpath, filename)
 
-        self.pos_updates = torch.cat(self.pos_updates).cpu()
-        self.proba_updates = torch.cat(self.proba_updates).cpu()
-        assign_idx = knn(self.las_pos, self.pos_updates, k=1, num_workers=1)[1]
-        self.las[ChannelNames.BuildingsProba.value][assign_idx] = self.proba_updates
+        # TODO: remain on gpu until assignment.
+        self.pos_updates = torch.cat(self.pos_updates)
+        self.proba_updates = torch.cat(self.proba_updates)
+        self.las_pos = self.las_pos.to(self.pos_updates.device)
 
+        # TODO: KNN interpolate has high memory cost.
+        # An alternative would be knn with k=3 and taking the average of the pk nearest proba
+        assign_idx = knn(
+            self.pos_updates,
+            self.las_pos,
+            k=1,
+            num_workers=1,
+        )[1]
+        self.las[ChannelNames.BuildingsProba.value][:] = self.proba_updates[
+            assign_idx
+        ].cpu()
         log.info(f"Saving LAS updated with predicted probas to {self.output_path}")
         self.las.write(self.output_path)
 
         # Closing - get rid of current data to go easy on memory
-        self.current_filepath = ""
+        self.current_full_cloud_filepath = ""
         del self.las
         del self.las_pos
         del self.proba_updates

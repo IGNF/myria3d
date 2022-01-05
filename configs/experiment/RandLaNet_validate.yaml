@@ -40,11 +40,11 @@ callbacks:
 datamodule:
   use_val_data_at_test_time: True # Here we use val data instead of test data
   batch_size: 32
-  subtile_width_meters: 50
+  
   subsample_size: 12500  # Aim for at least 10pts/m²
-  subtile_overlap: 0
+
   num_workers: 1
-  shuffle_train: false
+  
 
 model:
   model_architecture: "randla_net"

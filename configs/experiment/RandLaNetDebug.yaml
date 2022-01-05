@@ -43,11 +43,7 @@ trainer:
   # gpus: "1"
 
 datamodule:
-  train_subtiles_by_tile: 6000 # Large to have single tile chosen.
-  limit_top_k_tiles_train: 3
   batch_size: 4 # Large possible for faster training.
-  subtile_width_meters: 50
   subsample_size: 2500  # Aim for at least 10pts/m²
-  subtile_overlap: 0
   num_workers: 1
-  shuffle_train: false  # false to focus on the first tile only.
+

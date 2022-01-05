@@ -4,13 +4,6 @@ _target_: semantic_val.datamodules.datamodule.DataModule
 lasfiles_dir: ${lasfiles_dir}
 metadata_shapefile: ${metadata_shapefile}
 
-train_subtiles_by_tile: 2
-batch_size: 2 # set equal to train_subtiles_by_tile when overfitting.
-subtile_width_meters: 100
+batch_size: 2
 subsample_size: 12500
-subtile_overlap: 0
-num_workers: 0
-shuffle_train: false
-
-limit_top_k_tiles_train: 10000  # Select all by default
-limit_top_k_tiles_val: 10000  # Select all by default
+num_workers: 1

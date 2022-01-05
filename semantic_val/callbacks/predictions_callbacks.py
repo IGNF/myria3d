@@ -29,7 +29,6 @@ class SavePreds(Callback):
         self,
         save_predictions: bool = False,
     ):
-        self.in_memory_tile_filepath = ""
         self.save_predictions = save_predictions
 
         if self.save_predictions:
@@ -40,7 +39,6 @@ class SavePreds(Callback):
     def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""
         # TODO: log the dirpath elsewhere in code (train.py before fit is called?),
-        # TODO: create dirpath elswhere
         self.experiment = trainer.logger.experiment[0]
         log_path = os.getcwd()
         log.info(f"Saving results and logs to {log_path}")

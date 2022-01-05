@@ -1,5 +1,4 @@
 import geopandas
-
 import os
 import json
 import re
@@ -69,11 +68,6 @@ def prepare_las_for_decision(
         shapefile_path,
     )
 
-    # a column with only "1"
-    # gdf = geopandas.read_file(shapefile_path)
-    # gdf["presence"] = 1
-    # gdf[["presence","geometry"]].to_file(shapefile_path)
-
     if isinstance(candidate_building_points_classification_code, int):
         candidate_building_points_classification_code = [
             candidate_building_points_classification_code
@@ -131,7 +125,7 @@ def prepare_las_for_decision(
 
 
 def extract_coor(las_name: str, x_span: float, y_span: float, buffer: float):
-    """Extract the dimensions from the LAS name, the spans desired and a buffer"""
+    """Extract the dimensions from the LAS name, the spans desired and a buffer."""
     x_min, y_min = re.findall(
         r"[0-9]{4,10}", las_name
     )  # get the values with [4,10] digits in the file name

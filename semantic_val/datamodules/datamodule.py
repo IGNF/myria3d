@@ -1,3 +1,5 @@
+import ast
+import functools
 import glob
 import os
 import os.path as osp
@@ -18,8 +20,9 @@ from torch_geometric.transforms import (
 from torch_geometric.transforms.center import Center
 
 from semantic_val.datamodules.datasets.SemValBuildings202110 import (
-    LidarTrainDataset,
-    LidarValDataset,
+    SPLIT_LAS_DIR_COLN,
+    LidarMapDataset,
+    LidarIterableDataset,
     make_datasplit_csv,
 )
 from semantic_val.datamodules.processing import *
@@ -48,15 +51,11 @@ class DataModule(LightningDataModule):
         )
 
         self.train_frac = kwargs.get("train_frac", 0.8)
-        self.shuffle_train = kwargs.get("shuffle_train", "true")
-        self.limit_top_k_tiles_train = kwargs.get("limit_top_k_tiles_train", 1000000)
-        self.limit_top_k_tiles_val = kwargs.get("limit_top_k_tiles_val", 1000000)
-        self.train_subtiles_by_tile = kwargs.get("train_subtiles_by_tile", 12)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", True)
 
+        # TODO: remove if we also preprocess in predict mode.
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
-        self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 12500)
 
         self.src_las = kwargs.get("src_las", None)  # predict#
@@ -92,25 +91,6 @@ class DataModule(LightningDataModule):
         )
         log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
 
-        if osp.exists(self.datasplit_csv_filepath):
-            os.remove(self.datasplit_csv_filepath)
-
-        make_datasplit_csv(
-            self.lasfiles_dir,
-            self.metadata_shapefile_filepath,
-            self.datasplit_csv_filepath,
-            train_frac=self.train_frac,
-        )
-
-        log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
-        make_datasplit_csv(
-            self.lasfiles_dir,
-            self.metadata_shapefile_filepath,
-            self.datasplit_csv_filepath,
-            train_frac=self.train_frac,
-        )
-        log.info(f"Stratified split of dataset saved to {self.datasplit_csv_filepath}")
-
     def setup(self, stage: Optional[str] = None):
         """
         Load data. Set variables: self.data_train, self.data_val, self.data_test.
@@ -120,47 +100,40 @@ class DataModule(LightningDataModule):
         self._set_all_transforms()
 
         if stage != "predict":
-            df_split = pd.read_csv(self.datasplit_csv_filepath)
+            df_split = pd.read_csv(
+                self.datasplit_csv_filepath,
+                converters={SPLIT_LAS_DIR_COLN: ast.literal_eval},
+            )
             self._set_train_data(df_split)
             self._set_val_data(df_split)
             self._set_test_data(df_split)
 
     def _set_train_data(self, df_split):
         """Get the train dataset"""
-        df_split_train = df_split[df_split.split == "train"]
-        df_split_train = df_split_train.sort_values("nb_bati", ascending=False)
-        train_files = df_split_train.file_path.values.tolist()
-        if self.limit_top_k_tiles_train:
-            train_files = train_files[: self.limit_top_k_tiles_train]
-            log.info(
-                "\n Training on: \n " + str([osp.basename(f) for f in train_files])
-            )
-        self.train_data = LidarTrainDataset(
-            train_files,
+        df = df_split[df_split.split == "train"]
+        df = df.sort_values("nb_bati", ascending=False)
+        f_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
+        files = [f for l in f_lists for f in l]
+        self.train_data = LidarMapDataset(
+            files,
             loading_function=load_las_data,
             transform=self._get_train_transforms(),
             target_transform=MakeBuildingTargets(),
-            subtile_width_meters=self.subtile_width_meters,
-            train_subtiles_by_tile=self.train_subtiles_by_tile,
         )
 
     def _set_val_data(self, df_split):
         """Get the validation dataset"""
-        df_split_val = df_split[df_split.split == "val"]
-        df_split_val = df_split_val.sort_values("nb_bati", ascending=False)
-        val_files = df_split_val.file_path.values.tolist()
-        if self.limit_top_k_tiles_val:
-            val_files = val_files[: self.limit_top_k_tiles_val]
-            log.info(
-                "\n Validating on: \n " + str([osp.basename(f) for f in val_files])
-            )
-        self.val_data = LidarValDataset(
-            val_files,
+        df = df_split[df_split.split == "val"]
+        df = df.sort_values("nb_bati", ascending=False)
+        files_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
+
+        log.info(f"Validation on {len(files_lists)} tiles.")
+        files = functools.reduce(lambda x, y: x + y, files_lists)  # order is preserved
+        self.val_data = LidarMapDataset(
+            files,
             loading_function=load_las_data,
             transform=self._get_val_transforms(),
             target_transform=MakeBuildingTargets(),
-            subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
         )
 
     def _set_test_data(self, df_split):
@@ -170,43 +143,37 @@ class DataModule(LightningDataModule):
             log.info(
                 "Using validation data as test data. Use real test data with use_val_data_at_test_time=False at run time."
             )
-        else:
-            df_split_test = df_split[df_split.split == "test"]
-            df_split_test = df_split_test.sort_values("nb_bati", ascending=False)
-            test_files = df_split_test.file_path.values.tolist()
+            return
 
-            self.test_data = LidarValDataset(
-                test_files,
-                loading_function=load_las_data,
-                transform=self._get_test_transforms(),
-                target_transform=MakeBuildingTargets(),
-                subtile_width_meters=self.subtile_width_meters,
-                subtile_overlap=self.subtile_overlap,
-            )
+        df = df_split[df_split.split == "test"]
+        df = df.sort_values("nb_bati", ascending=False)
+        files_lists = df[SPLIT_LAS_DIR_COLN].values.tolist()
+        files = functools.reduce(lambda x, y: x + y, files_lists)  # order is preserved
+        # One dataset per cloud
+        self.test_data = LidarMapDataset(
+            files,
+            loading_function=load_las_data,
+            transform=self._get_test_transforms(),
+            target_transform=MakeBuildingTargets(),
+        )
 
     def _set_predict_data(
         self, files_to_infer_on, mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE
     ):
-        self.predict_data = LidarValDataset(
+        self.predict_data = LidarIterableDataset(
             files_to_infer_on,
             loading_function=load_las_data,
             transform=self._get_predict_transforms(mts_auto_detected_code),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
         )
 
     def train_dataloader(self):
         """Get train dataloader."""
-        sampler = TrainSampler(
-            self.train_data.nb_files,
-            self.train_subtiles_by_tile,
-            shuffle_train=self.shuffle_train,
-        )
         return DataLoader(
             dataset=self.train_data,
             batch_size=self.batch_size,
-            sampler=sampler,
+            shuffle=True,
             num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
@@ -219,7 +186,7 @@ class DataModule(LightningDataModule):
             dataset=self.val_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=1,
+            num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
 
@@ -228,16 +195,16 @@ class DataModule(LightningDataModule):
             dataset=self.test_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=1,
+            num_workers=self.num_workers,
             collate_fn=collate_fn,
         )
 
-    def predict_dataloader(self):  # predict#
+    def predict_dataloader(self):
         return DataLoader(
             dataset=self.predict_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=1,
+            num_workers=1,  # b/c terable dataloader
             collate_fn=collate_fn,
         )
 
@@ -253,6 +220,7 @@ class DataModule(LightningDataModule):
         POS_TRANSLATIONS_METERS = (0.25, 0.25, 0.25)
 
         self.preparation = [
+            EmptySubtileFilter(),
             ToTensor(),
             MakeCopyOfPosAndY(),
             FixedPointsPosXY(self.subsample_size, replace=False, allow_duplicates=True),
@@ -277,15 +245,11 @@ class DataModule(LightningDataModule):
 
     def _get_train_transforms(self) -> CustomCompose:
         """Create a transform composition for train phase."""
-        selection = SelectTrainSubTile(subtile_width_meters=self.subtile_width_meters)
-        return CustomCompose(
-            [selection] + self.preparation + self.augmentation + self.normalization
-        )
+        return CustomCompose(self.preparation + self.augmentation + self.normalization)
 
     def _get_val_transforms(self) -> CustomCompose:
         """Create a transform composition for val phase."""
-        selection = SelectValSubTile(subtile_width_meters=self.subtile_width_meters)
-        return CustomCompose([selection] + self.preparation + self.normalization)
+        return CustomCompose(self.preparation + self.normalization)
 
     def _get_test_transforms(self) -> CustomCompose:
         return self._get_val_transforms()
@@ -293,35 +257,9 @@ class DataModule(LightningDataModule):
     def _get_predict_transforms(
         self, mts_auto_detected_code: int = MTS_AUTO_DETECTED_CODE
     ) -> CustomCompose:
-        """Create a transform composition for val phase."""
+        """Create a transform composition for predict phase."""
         selection = SelectPredictSubTile(
             subtile_width_meters=self.subtile_width_meters,
             mts_auto_detected_code=mts_auto_detected_code,
         )
         return CustomCompose([selection] + self.preparation + self.normalization)
-
-
-class TrainSampler(Sampler[int]):
-    """Custom sampler to draw multiple subtiles from a file in the same batch."""
-
-    def __init__(
-        self, nb_files: int, train_subtiles_by_tile: int, shuffle_train: bool = False
-    ) -> None:
-        """:param data_source_size: Number of training LAS files."""
-        self.nb_files = nb_files
-        self.data_source_range = list(range(self.nb_files))
-        self.train_subtiles_by_tile = train_subtiles_by_tile
-        self.shuffle_train = shuffle_train
-
-    def __iter__(self) -> Iterator[int]:
-        """Shuffle the files query indexes, and n-plicate them while keeping their new order."""
-        if self.shuffle_train:
-            random.shuffle(self.data_source_range)
-        extended_range = [
-            ([file_idx] * self.train_subtiles_by_tile)
-            for file_idx in self.data_source_range
-        ]
-        return itertools.chain.from_iterable(extended_range)
-
-    def __len__(self) -> int:
-        return self.nb_files * self.train_subtiles_by_tile
