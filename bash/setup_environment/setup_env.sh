@@ -20,4 +20,3 @@ mamba install -y pytorch-lightning==1.3 -c conda-forge  # TODO: check if version
 pip install torch-sparse -f https://pytorch-geometric.com/whl/torch-$PYTORCHVERSION+$CUDA.html
 conda install -y pytorch pyg -c pytorch -c pyg -c conda-forge  # TODO: check if pytorch here is needed
 FORCE_CUDA=1 pip install torch-points-kernels --no-cache    # needs nvidia-cuda-toolkit
-apt-get install postgis

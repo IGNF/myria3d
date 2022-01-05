@@ -69,8 +69,8 @@ def predict(config: DictConfig) -> Optional[float]:
             batch.to(device)
             outputs = model.predict_step(batch)
             data_handler.append_pos_and_proba_to_list(outputs)
-            # if index > 2:
-            #    break  ###### à supprimer ###################
+            # if index >= 1:
+            #     break  ###### TODO - this is for debugging purposes ###################
 
     updated_las_path = data_handler.interpolate_probas_and_save("predict")
 
@@ -100,15 +100,15 @@ def predict(config: DictConfig) -> Optional[float]:
     use_final_classification_codes = (
         True
         if "use_final_classification_codes" in config.prediction
-        and config.prediction.use_final_classification_codes == True
+        and config.prediction.use_final_classification_codes
         else False
     )
 
     las = update_las_with_decisions(
         las,
         best_trial.params,
-        use_final_classification_codes,
-        config.prediction.mts_auto_detected_code,
+        use_final_classification_codes=use_final_classification_codes,
+        mts_auto_detected_code=config.prediction.mts_auto_detected_code,
     )
     las.write(updated_las_path)
     log.info(f"Updated LAS saved to : {updated_las_path}")
