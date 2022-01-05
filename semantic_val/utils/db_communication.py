@@ -1,3 +1,4 @@
+import os
 import subprocess
 from typing import NamedTuple
 import geopandas
@@ -41,9 +42,14 @@ def db_communication(
         db_cd.bd_name,
         sql_request,
     ]
+    # This call may yield
     subprocess.call(cmd)
+    # In empty zones, pgsql2shp does not create a shapefile
+    if not os.path.exists(shapefile_path):
+        return False
 
-    # subprocess.Popen(cmd)
     # read & write to avoid unnacepted 3D shapefile format.
     gdf = geopandas.read_file(shapefile_path)
     gdf[["PRESENCE", "geometry"]].to_file(shapefile_path)
+
+    return True

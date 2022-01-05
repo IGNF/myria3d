@@ -56,7 +56,7 @@ def prepare_las_for_decision(
 
     shapefile_path = os.path.join(bd_topo_shp_dir_path, SHAPEFILE_NAME)
 
-    db_communication(
+    buildings_in_bd_topo = db_communication(
         data_connexion_db,
         *extract_coor(
             os.path.basename(input_filepath),
@@ -72,14 +72,6 @@ def prepare_las_for_decision(
         candidate_building_points_classification_code = [
             candidate_building_points_classification_code
         ]
-    candidates_where = (
-        "("
-        + " || ".join(
-            f"Classification == {int(candidat_code)}"
-            for candidat_code in candidate_building_points_classification_code
-        )
-        + ")"
-    )
     _reader = [
         {
             "type": "readers.las",
@@ -88,6 +80,14 @@ def prepare_las_for_decision(
             "nosrs": True,
         }
     ]
+    candidates_where = (
+        "("
+        + " || ".join(
+            f"Classification == {int(candidat_code)}"
+            for candidat_code in candidate_building_points_classification_code
+        )
+        + ")"
+    )
     _cluster = [
         {
             "type": "filters.cluster",
@@ -100,14 +100,17 @@ def prepare_las_for_decision(
         {
             "type": "filters.ferry",
             "dimensions": f"=>{ChannelNames.BDTopoOverlay.value}",
-        },
-        {
-            "column": "PRESENCE",
-            "datasource": shapefile_path,
-            "dimension": f"{ChannelNames.BDTopoOverlay.value}",
-            "type": "filters.overlay",
-        },
+        }
     ]
+    if buildings_in_bd_topo:
+        _topo_overlay.append(
+            {
+                "column": "PRESENCE",
+                "datasource": shapefile_path,
+                "dimension": f"{ChannelNames.BDTopoOverlay.value}",
+                "type": "filters.overlay",
+            },
+        )
     _writer = [
         {
             "type": "writers.las",
