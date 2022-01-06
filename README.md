@@ -96,6 +96,8 @@ python run.py --config-path /path/to/.hydra --config-name config.yaml task=predi
 
 Please note that "hydra.run.dir" is the directory of the project, it's not a mistake (loading a different config from .hydra with "--config-path" may change that path, we currently need that step to put everything back).
 
+Note: if hydra complains about a missing argument, you can add it directly to the config.yaml file if accessible, or append `+` to the argument (e.g. `+prediction.src_las=...` instead of `prediction.src_las=...`). This may be needed if the model was trained with older code base.
+
 ### Run training, evaluation, and decision thresholds optimization on labeled data
 
 
