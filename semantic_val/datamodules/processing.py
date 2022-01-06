@@ -13,7 +13,7 @@ from torch_geometric.nn.pool import knn
 from torch_geometric.data import Batch, Data
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.transforms import BaseTransform
-from semantic_val.decision.codes import MTS_AUTO_DETECTED_CODE
+from semantic_val.decision.codes import MTS_AUTO_DETECTED_CODE, reset_classification
 
 from semantic_val.utils import utils
 
@@ -419,6 +419,7 @@ class DataHandler:
 
         self.las = laspy.read(filepath)
         self.current_full_cloud_filepath = filepath
+        self.las.classification = reset_classification(self.las.classification)
 
         coln = ChannelNames.BuildingsProba.value
         param = laspy.ExtraBytesParams(name=coln, type=float)
