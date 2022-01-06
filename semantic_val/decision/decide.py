@@ -129,15 +129,15 @@ def prepare_las_for_decision(
 
 def extract_coor(las_name: str, x_span: float, y_span: float, buffer: float):
     """Extract the dimensions from the LAS name, the spans desired and a buffer."""
-    x_min, y_min = re.findall(
+    x_min, y_max = re.findall(
         r"[0-9]{4,10}", las_name
     )  # get the values with [4,10] digits in the file name
-    x_min, y_min = int(x_min), int(y_min)
+    x_min, y_max = int(x_min), int(y_max)
     return (
         x_min - buffer,
-        y_min - buffer,
+        y_max - y_span - buffer,
         x_min + x_span + buffer,
-        y_min + y_span + buffer,
+        y_max + buffer,
     )
 
 

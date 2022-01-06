@@ -26,8 +26,6 @@ def db_communication(
     Create a shapefile with non destructed building on
     the area and saves it. Also add a column "presence" with only 1 in it
     """
-    # sql_request = f"SELECT st_setsrid(batiment.geometrie,{srid}) AS geometry, nature FROM batiment WHERE batiment.geometrie && ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {srid}) and not gcms_detruit"
-    # sql_request = f"SELECT st_setsrid(batiment.geometrie,{srid}) AS geometry, 1 as presence, nature FROM batiment WHERE batiment.geometrie && ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {srid}) and not gcms_detruit"
     sql_request = f"SELECT st_setsrid(batiment.geometrie,{srid}) AS geometry, 1 as presence  FROM batiment WHERE batiment.geometrie && ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {srid}) and not gcms_detruit"
     cmd = [
         "pgsql2shp",
