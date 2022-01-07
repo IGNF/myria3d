@@ -16,7 +16,8 @@ mamba env create -f bash/setup_environment/requirements.yml
 conda activate validation_module
 
 pip install torch==$PYTORCHVERSION torchvision==$TORCHVISIONVERSION -f https://download.pytorch.org/whl/torch_stable.html
-mamba install -y pytorch-lightning==1.3 -c conda-forge  # TODO: check if version could be upgraded to latest.
+mamba install -y pytorch-lightning -c conda-forge
 pip install torch-sparse -f https://pytorch-geometric.com/whl/torch-$PYTORCHVERSION+$CUDA.html
-conda install -y pytorch pyg -c pytorch -c pyg -c conda-forge  # TODO: check if pytorch here is needed
+conda install -y pytorch pyg -c pytorch -c pyg -c conda-forge  
 FORCE_CUDA=1 pip install torch-points-kernels --no-cache    # needs nvidia-cuda-toolkit
+conda install -c conda-forge python-pdal
