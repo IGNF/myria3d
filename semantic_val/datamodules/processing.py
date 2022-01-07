@@ -77,7 +77,7 @@ def load_las_data(data_filepath):
     las = laspy.read(data_filepath)
 
     # ANALYSIS: UNCOMMENT TO PREDICT ON FILE THAT WENT THROUGH INSPECTION
-    las.classification = reset_classification(las.classification)
+    # las.classification = reset_classification(las.classification)
 
     pos = np.asarray(
         [
@@ -421,7 +421,7 @@ class DataHandler:
         self.las = laspy.read(filepath)
         self.current_full_cloud_filepath = filepath
         # ANALYSIS: UNCOMMENT TO PREDICT ON FILE THAT WENT THROUGH INSPECTION
-        self.las.classification = reset_classification(self.las.classification)
+        # self.las.classification = reset_classification(self.las.classification)
 
         coln = ChannelNames.BuildingsProba.value
         param = laspy.ExtraBytesParams(name=coln, type=float)
