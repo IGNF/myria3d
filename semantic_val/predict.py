@@ -12,7 +12,6 @@ from pytorch_lightning import (
 from tqdm import tqdm
 
 from semantic_val.utils.db_communication import ConnectionData
-from semantic_val.decision.codes import reset_classification
 from semantic_val.utils import utils
 from semantic_val.datamodules.processing import DataHandler
 
