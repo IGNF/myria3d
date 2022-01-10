@@ -1,0 +1,4 @@
+# Task at hand. Can be train or predict
+task_name: train
+fit_the_model: true
+test_the_model: false

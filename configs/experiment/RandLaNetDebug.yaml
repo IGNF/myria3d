@@ -5,8 +5,8 @@
 
 defaults:
   - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
-  - override /model: point_net_model.yaml
-  - override /datamodule: datamodule_overfit.yaml # HERE we use toy one with smaller subtiling, etc.
+  - override /model: randla_net_model.yaml
+  - override /datamodule: datamodule.yaml # HERE we use toy one with smaller subtiling, etc.
   - override /callbacks: callbacks.yaml
   - override /logger: comet
 
@@ -15,24 +15,16 @@ defaults:
 
 seed: 12345
 
-# hydra:
-#   verbose: true
-
-fit_the_model: true
-test_the_model: false
-
+# # hydra:
+# #   verbose: true
 
 model:
   model_architecture: "randla_net"
   net:
-    d_in: 10  # 3 + F
+    d_in: 6  # 3 + F
     num_classes: 2
     num_neighbors: 16 
     decimation: 4  # divide by decimation for each of the 4 local encoder.
-
-callbacks:
-  save_preds:
-    save_predictions: false
 
 trainer:
   log_every_n_steps: 1
@@ -43,7 +35,7 @@ trainer:
   # gpus: "1"
 
 datamodule:
-  batch_size: 4 # Large possible for faster training.
-  subsample_size: 2500  # Aim for at least 10pts/m²
+  batch_size: 16 # Large possible for faster training.
+  subsample_size: 12500  # Aim for at least 10pts/m²
   num_workers: 1
 

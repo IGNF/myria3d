@@ -1,16 +1,12 @@
-from typing import Any, Optional
+from typing import Any
 
 import torch
-from torch import Tensor
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch_geometric.data import Batch
-from torch_geometric.nn.unpool.knn_interpolate import knn_interpolate
 
 from torchmetrics import IoU
-from torchmetrics.classification.accuracy import Accuracy
-from torchmetrics.functional.classification.iou import _iou_from_confmat
 
 from semantic_val.models.modules.point_net import PointNet
 from semantic_val.models.modules.randla_net import RandLANet
@@ -38,9 +34,7 @@ class Model(LightningModule):
 
     def __init__(
         self,
-        model_architecture: str = "point_net",
-        n_classes: int = 2,
-        loss: str = "CrossEntropyLoss",
+        num_classes: int = 2,  # TODO: update for multiclass
         alpha: float = 0.25,
         lr: float = 0.001,
         **kwargs,
@@ -52,39 +46,28 @@ class Model(LightningModule):
         self.lr = lr
         self.save_hyperparameters()
 
-        model_class = MODEL_ZOO[model_architecture]
+        # TODO: use hydra instantiate here instead
+        self.model_architecture = kwargs.get("model_architecture", "randla_net")
+        model_class = MODEL_ZOO[self.model_architecture]
         self.model = model_class(hparams=self.hparams)
         self.softmax = nn.Softmax(dim=1)
 
-        weights = torch.FloatTensor([alpha, 1 - alpha])
-        if loss == "CrossEntropyLoss":
-            self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
-        elif loss == "FocalLoss":
-            self.criterion = NormalizedFocalLoss(weight=weights, gamma=2.0)
+        self.criterion = torch.nn.CrossEntropyLoss()
 
-        self.train_iou = BuildingsIoU()
-        self.val_iou = BuildingsIoU()
-        self.test_iou = BuildingsIoU()
-        self.train_accuracy = Accuracy()
-        self.val_accuracy = Accuracy()
-        self.test_accuracy = Accuracy()
+        self.train_iou = IoU(num_classes=num_classes, threshold=0.5, absent_score=1.0)
+        self.val_iou = IoU(num_classes=num_classes, threshold=0.5, absent_score=1.0)
+        self.test_iou = IoU(num_classes=num_classes, threshold=0.5, absent_score=1.0)
 
-        self.metrics = [
-            self.train_iou,
-            self.val_iou,
-            self.test_iou,
-            self.train_accuracy,
-            self.val_accuracy,
-            self.test_accuracy,
-        ]
+        # TODO: remove this after tests on GPU
+        # self.metrics = [self.train_iou, self.val_iou, self.test_iou]
 
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
         return logits
 
     def step(self, batch: Any):
-        targets = batch.y
         logits = self.forward(batch)
+        targets = batch.y
         loss = self.criterion(logits, targets)
         with torch.no_grad():
             proba = self.softmax(logits)
@@ -93,158 +76,57 @@ class Model(LightningModule):
 
     def on_fit_start(self) -> None:
         self.experiment = self.logger.experiment[0]
-        for metric in self.metrics:
-            metric = metric.to(self.device)
-        assert all(metric.device == self.device for metric in self.metrics)
+        # TODO: remove this after tests on GPU
+        # for metric in self.metrics:
+        #     metric = metric.to(self.device)
+        # assert all(metric.device == self.device for metric in self.metrics)
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-
-        self.train_accuracy(preds, targets)
-        self.log(
-            "train/acc", self.train_accuracy, on_step=True, on_epoch=True, prog_bar=True
-        )
-
         self.train_iou(preds, targets)
+        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
-
-        targets_avg = (targets * 1.0).mean().item()
-        preds_avg = (preds * 1.0).mean().item()
-        self.log(
-            "train/preds_avg", preds_avg, on_step=True, on_epoch=True, prog_bar=False
-        )
-        self.log(
-            "train/targets_avg",
-            targets_avg,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-
         return {
             "loss": loss,
             "proba": proba,
+            "preds": preds,
             "targets": targets,
             "batch": batch,
         }
 
-    # TODO: decide if returning preds is needed
     def validation_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-        self.log(
-            "val/loss",
-            loss,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-
-        self.val_accuracy(preds, targets)
-        self.log(
-            "val/acc",
-            self.val_accuracy,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-        )
-
         self.val_iou(preds, targets)
-        self.log(
-            "val/iou",
-            self.val_iou,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-        )
-
-        preds_avg = (preds * 1.0).mean().item()
-        targets_avg = (targets * 1.0).mean().item()
-
-        self.log(
-            "val/preds_avg",
-            preds_avg,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-        self.log(
-            "val/targets_avg",
-            targets_avg,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-
+        self.log("val/loss", loss, on_step=True, on_epoch=True)
+        self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {
             "loss": loss,
             "proba": proba,
+            "preds": preds,
             "targets": targets,
             "batch": batch,
         }
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
-        self.log(
-            "test/loss",
-            loss,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-
-        self.test_accuracy(preds, targets)
-        self.log(
-            "test/acc",
-            self.test_accuracy,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-        )
-
+        self.log("test/loss", loss, on_step=True, on_epoch=True)
         self.test_iou(preds, targets)
-        self.log(
-            "test/iou",
-            self.test_iou,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-        )
-
-        preds_avg = (preds * 1.0).mean().item()
-        targets_avg = (targets * 1.0).mean().item()
-        self.log(
-            "test/preds_avg",
-            preds_avg,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-        self.log(
-            "test/targets_avg",
-            targets_avg,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=False,
-        )
-
+        self.log("test/iou", self.test_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {
             "loss": loss,
             "proba": proba,
+            "preds": preds,
             "targets": targets,
             "batch": batch,
         }
 
-    @torch.no_grad()
     def predict_step(self, batch: Any):
         logits = self.forward(batch)
         proba = self.softmax(logits)
-        return {
-            "batch": batch,
-            "proba": proba,
-        }
+        preds = torch.argmax(logits, dim=1)
+        return {"batch": batch, "proba": proba, "preds": preds}
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
@@ -279,69 +161,3 @@ class Model(LightningModule):
             }
             return config
         return optimizer
-
-
-class NormalizedFocalLoss(nn.Module):
-    """
-    Weighted, normalized version of Focal Loss.
-    We normalize in part the sum of probabilities for the true class, following Sofiiuk 2019 https://arxiv.org/pdf/1909.07829.pdf,.
-    This is important so that the loss is properly scaled.
-    """
-
-    def __init__(self, weight: torch.Tensor = [0.1, 0.9], gamma: float = 2.0):
-        super(NormalizedFocalLoss, self).__init__()
-        self.alpha = weight
-        self.gamma = gamma
-        self.softmax = nn.Softmax(dim=1)
-        self.eps = EPS
-        self.n_classes = len(weight)
-        self.rare_class_dim = 1
-
-    def forward(self, logits, targets):
-        assert logits.size(1) == self.n_classes
-        proba = self.softmax(logits)
-        loss = torch.zeros_like(targets).type(torch.float)
-        proba_true_class = torch.zeros_like(targets).type(torch.float)
-        for i in range(self.n_classes):
-            ti = targets == i
-            pi = proba[:, i] * ti
-            proba_true_class += pi
-            ai = self.alpha[i]
-            loss += -(ti * ai) * (1 - pi) ** self.gamma * torch.log(pi + self.eps)
-        normalization_factor = (
-            (1 - proba_true_class.detach()) ** self.gamma
-        ).sum() + self.eps
-        loss = loss.sum() / normalization_factor
-        return loss
-
-
-class BuildingsIoU(IoU):
-    """Custom IoU metrics to log building IoU only using PytorchLighting log system."""
-
-    def __init__(
-        self,
-        compute_on_step: bool = True,
-        dist_sync_on_step: bool = False,
-        process_group: Optional[Any] = None,
-    ) -> None:
-        super().__init__(
-            num_classes=2,
-            threshold=0.5,
-            reduction="none",
-            absent_score=1.0,
-            compute_on_step=compute_on_step,
-            dist_sync_on_step=dist_sync_on_step,
-            process_group=process_group,
-        )
-
-    def compute(self) -> Tensor:
-        """Computes intersection over union (IoU)"""
-        iou_no_reduction = _iou_from_confmat(
-            self.confmat,
-            self.num_classes,
-            self.ignore_index,
-            self.absent_score,
-            self.reduction,
-        )
-        iou_building = iou_no_reduction[1]
-        return iou_building

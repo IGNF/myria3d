@@ -1,7 +1,5 @@
 # Adapted from https://github.com/aRI0U/RandLA-Net-pytorch/blob/master/model.py
 
-import time
-
 import torch
 import torch.nn as nn
 
@@ -182,8 +180,8 @@ class RandLANet(nn.Module):
         hparams_net = hparams["net"]
 
         super(RandLANet, self).__init__()
-        num_classes = hparams_net.get("num_classes", 2)
-        d_in = hparams_net.get("d_in", 10)  # xyz + features
+        num_classes = hparams_net.get("num_classes", 6)
+        d_in = hparams_net.get("d_in", 6)  # xyz + features
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
         self.decimation = hparams_net.get("decimation", 4)
 
@@ -223,6 +221,9 @@ class RandLANet(nn.Module):
             SharedMLP(32, num_classes),
         )
 
+    # TODO: separate encoder and decoder for easier reuse of pretrained encoder.
+    # TODO: activate Batch normalization
+    # TODO: deactivate dropout and reduce final layers
     def forward(self, batch):
         r"""
         Forward pass

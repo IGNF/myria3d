@@ -13,7 +13,6 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
-    from semantic_val.optimize import optimize
     from semantic_val.utils import utils
     from semantic_val.train import train
     from semantic_val.predict import predict
@@ -30,13 +29,10 @@ def main(config: DictConfig):
         utils.print_config(config, resolve=True)
 
     # Train model
-    if config.get("task") == "train":
+    if config.task.get("task_name") == "train":
         """Training, eval, and test of a neural network."""
         return train(config)
-    elif config.get("task") == "optimize":
-        """Optimization of decision threshold applied to predictions of the NN."""
-        return optimize(config)
-    elif config.get("task") == "predict":
+    elif config.task.get("task_name") == "predict":
         """Infer probabilities and automate semantic segmentation decisions on unseen data."""
         return predict(config)
 

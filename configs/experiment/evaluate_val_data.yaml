@@ -6,10 +6,10 @@
 
 seed: 12345
 
-# TODO: separate train and test logic for simplicity
-# ATTENTION : you need to override these manually in CLI 
-# fit_the_model: false
-# test_the_model: true
+task:
+  task_name: "train"
+  fit_the_model: false
+  test_the_model: true
 
 hydra:
   verbose: false

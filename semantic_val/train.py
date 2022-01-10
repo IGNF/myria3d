@@ -77,11 +77,11 @@ def train(config: DictConfig) -> Optional[float]:
     )
 
     # Train the model
-    if config.get("fit_the_model"):
+    if config.task.get("fit_the_model"):
         log.info("Starting training!")
         trainer.fit(model=model, datamodule=datamodule)
 
-    if config.get("test_the_model") and not config.trainer.get("fast_dev_run"):
+    if config.task.get("test_the_model"):
         log.info("Starting testing!")
         if not trainer.resume_from_checkpoint or config.get("fit_the_model"):
             trainer.test()
@@ -101,8 +101,3 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Print path to best checkpoint
     log.info(f"Best checkpoint path:\n{trainer.checkpoint_callback.best_model_path}")
-
-    # Return metric score for hyperparameter optimization
-    optimized_metric = config.get("optimized_metric")
-    if optimized_metric:
-        return trainer.callback_metrics[optimized_metric]

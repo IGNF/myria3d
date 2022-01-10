@@ -2,21 +2,11 @@
 
 seed: 12345
 
-# Task at hand. Can be train, decide, or tune  
-task: train
-fit_the_model: true
-test_the_model: false
-
 # path to original working directory
 # hydra hijacks working directory by changing it to the current log directory,
 # so it's useful to have this path as a special variable
 # learn more here: https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
 work_dir: ${hydra:runtime.cwd}
-
-# path to folder with data
-lasfiles_dir: ${oc.env:LASFILES_DIR}
-metadata_shapefile: ${oc.env:METADATA_SHAPEFILE}
-logfile_dir: ${oc.env:LOGS_DIR}
 
 # use `python run.py debug=true` for easy debugging!
 # this will run 1 train, val and test loop with only 1 batch
@@ -25,6 +15,7 @@ logfile_dir: ${oc.env:LOGS_DIR}
 debug: False
 
 # pretty print config at the start of the run using Rich library
+# TODO: check everything is well printed
 print_config: True
 
 # disable python warnings if they annoy you
@@ -38,12 +29,11 @@ defaults:
   - callbacks: callbacks.yaml # set this to null if you don't want to use callbacks
   
   - logger: comet # set logger here or use command line (e.g. `python run.py logger=wandb`)
+  - task: default.yaml # set logger here or use command line (e.g. `python run.py logger=wandb`)
   
   - prediction: default.yaml
-  - optimize: default.yaml
 
   - experiment: null
-  - hparams_search: null
 
   - hydra: default.yaml
 

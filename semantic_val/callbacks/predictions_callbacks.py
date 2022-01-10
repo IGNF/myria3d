@@ -33,8 +33,8 @@ class SavePreds(Callback):
 
         if self.save_predictions:
             log_path = os.getcwd()
-            preds_dirpath = osp.join(log_path, "validation_preds")
-            self.data_handler = DataHandler(preds_dirpath=preds_dirpath)
+            preds_dirpath = osp.join(log_path, "predictions")
+            self.data_handler = DataHandler(output_dir=preds_dirpath)
 
     def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""
@@ -54,7 +54,7 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if self.save_predictions and outputs is not None:
-            self.data_handler.append_pos_and_proba_to_list(outputs, "val")
+            self.data_handler.append_pos_and_classification_to_list(outputs, "val")
 
     def on_test_batch_end(
         self,
@@ -66,14 +66,14 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if self.save_predictions:
-            self.data_handler.append_pos_and_proba_to_list(outputs, "test")
+            self.data_handler.append_pos_and_classification_to_list(outputs, "test")
 
     def on_validation_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         if self.save_predictions:
-            self.data_handler.interpolate_probas_and_save("val")
+            self.data_handler.interpolate_classification_and_save("val")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         if self.save_predictions:
-            self.data_handler.interpolate_probas_and_save("test")
+            self.data_handler.interpolate_classification_and_save("test")
