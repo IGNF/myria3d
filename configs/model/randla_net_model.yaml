@@ -7,6 +7,6 @@ model_architecture: "randla_net"
 
 net:
   d_in: 6  # 3 + F
-  num_classes: 2
+  num_classes: 6
   num_neighbors: 16 
   decimation: 4  # divide by decimation for each of the 4 local encoder.

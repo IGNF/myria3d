@@ -1,7 +1,5 @@
-import functools
 import os.path as osp
 from glob import glob
-from zipfile import ZipFile
 import random
 import time
 import numpy as np
@@ -37,6 +35,17 @@ class DataModule(LightningDataModule):
         self.num_workers = kwargs.get("num_workers", 0)
 
         self.las_geoprojection = kwargs.get("las_geoprojection", "EPSG:2056")
+        self.classification_dict = kwargs.get(
+            "classification_dict",
+            {
+                1: "unclassified",
+                2: "ground",
+                3: "vegetation",
+                6: "building",
+                9: "water",
+                17: "bridge",
+            },
+        )
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subsample_size = kwargs.get("subsample_size", 12500)
         self.augment = kwargs.get("augment", True)
@@ -82,7 +91,7 @@ class DataModule(LightningDataModule):
             files,
             loading_function=load_las_data,
             transform=self._get_train_transforms(),
-            target_transform=TargetTransform(),
+            target_transform=TargetTransform(self.classification_dict),
         )
 
     def _set_val_data(self):
@@ -95,7 +104,7 @@ class DataModule(LightningDataModule):
             files,
             loading_function=load_las_data,
             transform=self._get_val_transforms(),
-            target_transform=TargetTransform(),
+            target_transform=TargetTransform(self.classification_dict),
         )
 
     def _set_test_data(self):
@@ -114,7 +123,7 @@ class DataModule(LightningDataModule):
             files,
             loading_function=load_las_data,
             transform=self._get_test_transforms(),
-            target_transform=TargetTransform(),
+            target_transform=TargetTransform(self.classification_dict),
         )
 
     def _set_predict_data(self, files_to_infer_on: List[AnyStr]):

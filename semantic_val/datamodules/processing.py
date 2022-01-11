@@ -3,7 +3,7 @@ import os
 import os.path as osp
 import math
 from enum import Enum
-from typing import Callable, List
+from typing import Callable, List, AnyStr
 
 import laspy
 import numpy as np
@@ -337,12 +337,25 @@ class TargetTransform(BaseTransform):
     Edit classes
     """
 
-    def __call__(self, data: Data, keys: List[str] = ["y", "y_copy"]):
+    def __init__(self, classification_dict: List[AnyStr]):
+        self.classification_mapper = {
+            class_int: class_index
+            for class_index, class_int in enumerate(classification_dict.keys())
+        }
+
+    def __call__(
+        self,
+        data: Data,
+        keys: List[str] = ["y", "y_copy"],
+    ):
         for key in keys:
             data[key] = self.transform(data[key])
         return data
 
     def transform(self, y):
+        y = np.vectorize(self.classification_mapper.get)(y)
+        # Check if GPU compatible, cf. https://pytorch.org/docs/stable/tensors.html
+        y = torch.LongTensor(y)
         return y
 
 

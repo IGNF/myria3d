@@ -99,13 +99,13 @@ def update_config_with_hyperparams(config):
 def print_config(
     config: DictConfig,
     fields: Sequence[str] = (
+        "task",
         "seed",
         "logger",
         "trainer",
         "model",
         "datamodule",
         "callbacks",
-        "optimize",
         "prediction",
     ),
     resolve: bool = True,
