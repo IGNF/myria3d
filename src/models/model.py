@@ -46,8 +46,6 @@ class Model(LightningModule):
         self.test_iou = self.hparams.iou()
 
         self.softmax = nn.Softmax(dim=1)
-        # TODO: remove this after tests on GPU
-        # self.metrics = [self.train_iou, self.val_iou, self.test_iou]
 
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
@@ -64,10 +62,6 @@ class Model(LightningModule):
 
     def on_fit_start(self) -> None:
         self.experiment = self.logger.experiment[0]
-        # TODO: remove this after tests on GPU
-        # for metric in self.metrics:
-        #     metric = metric.to(self.device)
-        # assert all(metric.device == self.device for metric in self.metrics)
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
