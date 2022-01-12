@@ -6,7 +6,7 @@ num_classes: 6
 neural_net_class_name: ???
 neural_net_hparams: ???
 
-# Evaluation metric
+# Evaluation metric - partial for triple initi
 iou:
   _target_: functools.partial
   _args_:

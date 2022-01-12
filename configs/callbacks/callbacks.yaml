@@ -30,3 +30,13 @@ early_stopping:
   patience: 6 # how many validation epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
 
+log_iou_by_class:
+  _target_: src.callbacks.logging_callbacks.LogIoUByClass
+  iou_by_class:
+    _target_: functools.partial
+    _args_:
+      - "${get_method:torchmetrics.IoU}"
+      - ${model.num_classes}
+    absent_score: 1.0
+    reduction: "none"
+  classification_dict: ${datamodule.classification_dict}
