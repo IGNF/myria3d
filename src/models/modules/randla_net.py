@@ -184,7 +184,7 @@ class RandLANet(nn.Module):
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
         self.decimation = hparams_net.get("decimation", 4)
 
-        self.fc_start = nn.Linear(d_in, 8)
+        self.fc_start = nn.Linear(d_in, d_in * 2)
         self.bn_start = nn.Sequential(
             nn.BatchNorm2d(8, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
         )
@@ -192,7 +192,7 @@ class RandLANet(nn.Module):
         # encoding layers
         self.encoder = nn.ModuleList(
             [
-                LocalFeatureAggregation(8, 16, self.num_neighbors),
+                LocalFeatureAggregation(d_in * 2, 16, self.num_neighbors),
                 LocalFeatureAggregation(32, 64, self.num_neighbors),
                 LocalFeatureAggregation(128, 128, self.num_neighbors),
                 LocalFeatureAggregation(256, 256, self.num_neighbors),
@@ -208,13 +208,13 @@ class RandLANet(nn.Module):
                 SharedMLP(1024, 256, **decoder_kwargs),
                 SharedMLP(512, 128, **decoder_kwargs),
                 SharedMLP(256, 32, **decoder_kwargs),
-                SharedMLP(64, 8, **decoder_kwargs),
+                SharedMLP(64, d_in * 2, **decoder_kwargs),
             ]
         )
 
         # final semantic prediction
         self.fc_end = nn.Sequential(
-            SharedMLP(8, 64, bn=True, activation_fn=nn.ReLU()),
+            SharedMLP(d_in, 64, bn=True, activation_fn=nn.ReLU()),
             SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
             nn.Dropout(),
             SharedMLP(32, num_classes),
