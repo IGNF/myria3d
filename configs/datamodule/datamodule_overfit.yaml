@@ -1,9 +1,0 @@
-_target_: semantic_val.datamodules.datamodule.DataModule
-
-# those two paths are specified in configs/config.yaml
-lasfiles_dir: ${lasfiles_dir}
-metadata_shapefile: ${metadata_shapefile}
-
-batch_size: 2
-subsample_size: 12500
-num_workers: 1

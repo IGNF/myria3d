@@ -2,6 +2,8 @@ import comet_ml
 import dotenv
 import hydra
 from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
+
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
@@ -13,9 +15,9 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
-    from semantic_val.utils import utils
-    from semantic_val.train import train
-    from semantic_val.predict import predict
+    from src.utils import utils
+    from src.train import train
+    from src.predict import predict
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -26,7 +28,7 @@ def main(config: DictConfig):
 
     # Pretty print config using Rich library
     if config.get("print_config"):
-        utils.print_config(config, resolve=True)
+        utils.print_config(config, resolve=False)
 
     # Train model
     if config.task.get("task_name") == "train":
@@ -38,4 +40,6 @@ def main(config: DictConfig):
 
 
 if __name__ == "__main__":
+    # cf. https://github.com/facebookresearch/hydra/issues/1283
+    OmegaConf.register_new_resolver("get_method", hydra.utils.get_method)
     main()

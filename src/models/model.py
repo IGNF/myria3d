@@ -1,22 +1,13 @@
 from typing import Any
-
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch_geometric.data import Batch
-
-from torchmetrics import IoU
-
-from semantic_val.models.modules.point_net import PointNet
-from semantic_val.models.modules.randla_net import RandLANet
-from semantic_val.utils import utils
+from src.models.modules.randla_net import RandLANet
+from src.models.modules.point_net import PointNet
+from src.utils import utils
 
 log = utils.get_logger(__name__)
-
-MODEL_ZOO = {"point_net": PointNet, "randla_net": RandLANet}
-
-EPS = 10 ** -5
 
 
 class Model(LightningModule):
@@ -34,30 +25,27 @@ class Model(LightningModule):
 
     def __init__(
         self,
-        num_classes: int = 2,  # TODO: update for multiclass
-        alpha: float = 0.25,
-        lr: float = 0.001,
         **kwargs,
     ):
         super().__init__()
 
         # this line ensures params passed to LightningModule will be saved to ckpt
         # it also allows to access params with 'self.hparams' attribute
-        self.lr = lr
         self.save_hyperparameters()
 
-        # TODO: use hydra instantiate here instead
-        self.model_architecture = kwargs.get("model_architecture", "randla_net")
-        model_class = MODEL_ZOO[self.model_architecture]
-        self.model = model_class(hparams=self.hparams)
+        neural_net_class = self.get_neural_net_class_name(
+            self.hparams.neural_net_class_name
+        )
+        self.model = neural_net_class(self.hparams.neural_net_hparams)
+
+        self.lr = self.hparams.lr  # aliasing for Pytorch Lightning
+        self.criterion = self.hparams.criterion
+
+        self.train_iou = self.hparams.iou()
+        self.val_iou = self.hparams.iou()
+        self.test_iou = self.hparams.iou()
+
         self.softmax = nn.Softmax(dim=1)
-
-        self.criterion = torch.nn.CrossEntropyLoss()
-
-        self.train_iou = IoU(num_classes=num_classes, threshold=0.5, absent_score=1.0)
-        self.val_iou = IoU(num_classes=num_classes, threshold=0.5, absent_score=1.0)
-        self.test_iou = IoU(num_classes=num_classes, threshold=0.5, absent_score=1.0)
-
         # TODO: remove this after tests on GPU
         # self.metrics = [self.train_iou, self.val_iou, self.test_iou]
 
@@ -128,36 +116,26 @@ class Model(LightningModule):
         preds = torch.argmax(logits, dim=1)
         return {"batch": batch, "proba": proba, "preds": preds}
 
+    def get_neural_net_class_name(self, class_name):
+        """Access class of neural net based on class name."""
+        for neural_net_architecture in [PointNet, RandLANet]:
+            if class_name in neural_net_architecture.__name__:
+                return neural_net_architecture
+        raise KeyError(f"Unknown class name {class_name}")
+
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
-        Normally you'd need one. But in the case of GANs or similar you might have multiple.
 
         See examples here:
             https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
         """
+        optimizer = self.hparams.optimizer(params=self.parameters(), lr=self.lr)
+        lr_scheduler = self.hparams.lr_scheduler(optimizer)
+        config = {
+            "optimizer": optimizer,
+            "lr_scheduler": lr_scheduler,
+            "monitor": self.hparams.monitor,
+        }
+        log.info(f"Scheduler config:\n{config}")
 
-        optimizer = torch.optim.Adam(
-            params=self.parameters(),
-            lr=self.lr,
-        )
-        if self.hparams.reduce_lr_on_plateau.activate:
-            scheduler = ReduceLROnPlateau(
-                optimizer,
-                mode="min",
-                factor=self.hparams.reduce_lr_on_plateau.factor,
-                patience=self.hparams.reduce_lr_on_plateau.patience,  # scheduler called on training epoch !
-                threshold=0.0001,
-                threshold_mode="rel",
-                cooldown=self.hparams.reduce_lr_on_plateau.cooldown,
-                min_lr=0,
-                eps=1e-08,
-                verbose=False,
-            )
-            log.info("ReduceLROnPlateau: activated")
-            config = {
-                "optimizer": optimizer,
-                "lr_scheduler": scheduler,
-                "monitor": "val/loss_epoch",
-            }
-            return config
-        return optimizer
+        return config

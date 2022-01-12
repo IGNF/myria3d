@@ -5,7 +5,7 @@ from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import CometLogger, LoggerCollection
 from pytorch_lightning.utilities import rank_zero_only
 
-from semantic_val.utils import utils
+from src.utils import utils
 
 log = utils.get_logger(__name__)
 

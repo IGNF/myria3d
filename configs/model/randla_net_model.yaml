@@ -1,12 +1,11 @@
 defaults:
   - default.yaml
 
-_target_: semantic_val.models.model.Model
-
-model_architecture: "randla_net"
-
-net:
+neural_net_class_name: "RandLANet"
+neural_net_hparams:
+  num_classes: ${model.num_classes}
   d_in: 6  # 3 + F
-  num_classes: 6
   num_neighbors: 16 
   decimation: 4  # divide by decimation for each of the 4 local encoder.
+
+# not a package

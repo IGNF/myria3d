@@ -6,8 +6,8 @@ from typing import Optional
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
 
-from semantic_val.utils import utils
-from semantic_val.datamodules.processing import DataHandler
+from src.utils import utils
+from src.datamodules.processing import DataHandler
 
 
 log = utils.get_logger(__name__)
@@ -38,7 +38,7 @@ def predict(config: DictConfig) -> Optional[float]:
     data_handler = DataHandler(output_dir=config.prediction.output_dir)
     data_handler.load_las_for_classification_update(config.prediction.src_las)
 
-    model: LightningModule = hydra.utils.instantiate(config.model)
+    model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)
     model = model.load_from_checkpoint(config.prediction.resume_from_checkpoint)
     device = utils.define_device_from_config_param(config.trainer.gpus)
     model.to(device)

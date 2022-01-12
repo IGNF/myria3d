@@ -1,11 +1,11 @@
 
 save_preds:
-  _target_: semantic_val.callbacks.predictions_callbacks.SavePreds
+  _target_: src.callbacks.predictions_callbacks.SavePreds
   save_predictions: false
 
 log_code:
-  _target_: semantic_val.callbacks.comet_callbacks.LogCode
-  code_dir: ${work_dir}/semantic_val
+  _target_: src.callbacks.comet_callbacks.LogCode
+  code_dir: ${work_dir}/src
 
 lr_monitor:
   _target_:  pytorch_lightning.callbacks.LearningRateMonitor

@@ -12,9 +12,9 @@ from pytorch_lightning.utilities.types import STEP_OUTPUT
 import os.path as osp
 import torch
 from torch_geometric.nn.pool import knn
-from semantic_val.datamodules.processing import DataHandler
+from src.datamodules.processing import DataHandler
 
-from semantic_val.utils import utils
+from src.utils import utils
 
 log = utils.get_logger(__name__)
 

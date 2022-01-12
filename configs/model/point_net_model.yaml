@@ -1,10 +1,9 @@
 defaults:
   - default.yaml
 
-_target_: semantic_val.models.model.Model
-
-model_architecture: "point_net"
-net:
+neural_net_class_name: "PointNet"
+neural_net_hparams:
+  num_classes: ${model.num_classes}
   MLP1_channels: [10, 64, 64]
   MLP2_channels: [64, 256, 512, 1024]
   MLP3_channels: [1088, 512, 256, 64, 4]

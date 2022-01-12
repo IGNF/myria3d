@@ -1,34 +1,15 @@
 # @package _global_
 
-# to execute this experiment run:
-# python run.py experiment=example_simple.yaml
-
 defaults:
-  - override /trainer: default.yaml # choose trainer from 'configs/trainer/'
+  - override /trainer: default.yaml
   - override /model: randla_net_model.yaml
-  - override /datamodule: datamodule.yaml # HERE we use toy one with smaller subtiling, etc.
-  - override /callbacks: callbacks.yaml
-  - override /logger: comet
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
-seed: 12345
-
-# # hydra:
-# #   verbose: true
-
 logger:
   comet:
     experiment_name: "RandLaNetDebug"
-
-model:
-  model_architecture: "randla_net"
-  net:
-    d_in: 6  # 3 + F
-    num_classes: 6
-    num_neighbors: 16 
-    decimation: 4  # divide by decimation for each of the 4 local encoder.
 
 trainer:
   log_every_n_steps: 1

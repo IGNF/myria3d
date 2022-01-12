@@ -20,10 +20,9 @@ def MLP(channels, batch_norm: bool = True):
 
 
 class PointNet(nn.Module):
-    def __init__(self, hparams: dict):
+    def __init__(self, hparams_net: dict):
         super().__init__()
 
-        hparams_net = hparams["net"]
         self.mlp1 = MLP(
             hparams_net["MLP1_channels"], batch_norm=hparams_net["batch_norm"]
         )
@@ -33,7 +32,7 @@ class PointNet(nn.Module):
         self.mlp3 = MLP(
             hparams_net["MLP3_channels"], batch_norm=hparams_net["batch_norm"]
         )
-        self.lin = Lin(hparams_net["MLP3_channels"][-1], hparams["num_classes"])
+        self.lin = Lin(hparams_net["MLP3_channels"][-1], hparams_net["num_classes"])
         pi_init = hparams_net["pi_init"]
         a = 0
         b = -np.log((1 - pi_init) / pi_init)

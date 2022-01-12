@@ -11,10 +11,10 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
-from semantic_val.utils import utils
-from semantic_val.datamodules.processing import *
+from src.utils import utils
+from src.datamodules.processing import *
 
-from semantic_val.utils import utils
+from src.utils import utils
 
 log = utils.get_logger(__name__)
 

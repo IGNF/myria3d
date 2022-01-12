@@ -2,6 +2,7 @@ import comet_ml
 from typing import List, Optional
 
 import hydra
+from omegaconf import OmegaConf
 from omegaconf import DictConfig
 from pytorch_lightning import (
     Callback,
@@ -12,7 +13,7 @@ from pytorch_lightning import (
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 
-from semantic_val.utils import utils
+from src.utils import utils
 
 log = utils.get_logger(__name__)
 
@@ -32,14 +33,16 @@ def train(config: DictConfig) -> Optional[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
 
+    # # cf. https://github.com/facebookresearch/hydra/issues/1283
+    # OmegaConf.register_new_resolver("get_method", hydra.utils.get_method)
+
     # Init lightning datamodule
     log.info(f"Instantiating datamodule <{config.datamodule._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
 
-    # Init lightning model
-    log.info(f"Instantiating model <{config.model._target_}>")
-    if config.trainer.resume_from_checkpoint:
-        utils.update_config_with_hyperparams(config)
+    # if config.trainer.resume_from_checkpoint:
+    #     utils.update_config_with_hyperparams(config)
+    # TODO: one should use the right hparams directly in case of resuming from checkpoint.
     model: LightningModule = hydra.utils.instantiate(config.model)
 
     # Init lightning callbacks
@@ -61,7 +64,7 @@ def train(config: DictConfig) -> Optional[float]:
     # Init lightning trainer
     log.info(f"Instantiating trainer <{config.trainer._target_}>")
     trainer: Trainer = hydra.utils.instantiate(
-        config.trainer, callbacks=callbacks, logger=logger, _convert_="partial"
+        config.trainer, callbacks=callbacks, logger=logger
     )
 
     # Send some parameters from config to all lightning loggers

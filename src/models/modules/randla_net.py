@@ -176,8 +176,7 @@ class LocalFeatureAggregation(nn.Module):
 
 
 class RandLANet(nn.Module):
-    def __init__(self, hparams: dict):
-        hparams_net = hparams["net"]
+    def __init__(self, hparams_net: dict):
 
         super(RandLANet, self).__init__()
         num_classes = hparams_net.get("num_classes", 6)
