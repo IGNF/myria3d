@@ -33,9 +33,9 @@ defaults:
   
   - prediction: default.yaml
 
-  - experiment: null
-
   - hydra: default.yaml
+
+  - experiment: RandLaNetDebug.yaml
 
   # enable color logging
   - override hydra/hydra_logging: colorlog
