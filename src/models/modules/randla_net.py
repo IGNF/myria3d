@@ -220,7 +220,6 @@ class RandLANet(nn.Module):
             SharedMLP(32, num_classes),
         )
 
-    # TODO: separate encoder and decoder for easier reuse of pretrained encoder.
     # TODO: activate Batch normalization
     # TODO: deactivate dropout and reduce final layers
     def forward(self, batch):
