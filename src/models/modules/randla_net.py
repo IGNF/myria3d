@@ -175,6 +175,16 @@ class LocalFeatureAggregation(nn.Module):
         return self.lrelu(self.mlp2(x) + self.shortcut(features))
 
 
+""" 
+Implementation is close to paper in 
+Except:
+
+Our modifications:
+- fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid loss of info.
+
+"""
+
+
 class RandLANet(nn.Module):
     def __init__(self, hparams_net: dict):
 
@@ -213,12 +223,15 @@ class RandLANet(nn.Module):
         )
 
         # final semantic prediction
-        self.fc_end = nn.Sequential(
+        parts = [
             SharedMLP(d_in, 64, bn=True, activation_fn=nn.ReLU()),
             SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
-            nn.Dropout(),
-            SharedMLP(32, num_classes),
-        )
+        ]
+        dropout = hparams_net.get("dropout", 0.0)
+        if dropout:
+            parts.append(nn.Dropout(p=dropout))
+        parts.append(SharedMLP(32, num_classes))
+        self.fc_end = nn.Sequential(*parts)
 
     # TODO: activate Batch normalization
     # TODO: deactivate dropout and reduce final layers
