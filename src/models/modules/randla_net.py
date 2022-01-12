@@ -53,11 +53,11 @@ class SharedMLP(nn.Module):
 
 
 class LocalSpatialEncoding(nn.Module):
-    def __init__(self, d, num_neighbors):
+    def __init__(self, d, num_neighbors, bn, activation_fn):
         super(LocalSpatialEncoding, self).__init__()
 
         self.num_neighbors = num_neighbors
-        self.mlp = SharedMLP(10, d, bn=True, activation_fn=nn.ReLU())
+        self.mlp = SharedMLP(10, d, bn=bn, activation_fn=activation_fn)
 
     def forward(self, coords, features, knn_output):
         r"""
@@ -100,14 +100,14 @@ class LocalSpatialEncoding(nn.Module):
 
 
 class AttentivePooling(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, bn, activation_fn):
         super(AttentivePooling, self).__init__()
 
         self.score_fn = nn.Sequential(
             nn.Linear(in_channels, in_channels, bias=False), nn.Softmax(dim=-2)
         )
         self.mlp = SharedMLP(
-            in_channels, out_channels, bn=True, activation_fn=nn.ReLU()
+            in_channels, out_channels, bn=bn, activation_fn=activation_fn
         )
 
     def forward(self, x):
@@ -130,22 +130,37 @@ class AttentivePooling(nn.Module):
 
 
 class LocalFeatureAggregation(nn.Module):
-    def __init__(self, d_in, d_out, num_neighbors):
+    def __init__(
+        self,
+        d_in,
+        d_out,
+        num_neighbors,
+        shortcut_bn: bool = False,
+        lse_bn: bool = False,
+        attention_bn: bool = False,
+        activation_fn=nn.LeakyReLU(0.01),
+    ):
         super(LocalFeatureAggregation, self).__init__()
 
         self.num_neighbors = num_neighbors
 
-        self.mlp1 = SharedMLP(d_in, d_out // 2, activation_fn=nn.LeakyReLU(0.2))
-        self.mlp2 = SharedMLP(d_out, 2 * d_out)
-        self.shortcut = SharedMLP(d_in, 2 * d_out, bn=True)
+        self.mlp1 = SharedMLP(d_in, d_out // 2, activation_fn=activation_fn)
+        self.mlp2 = SharedMLP(d_out, 2 * d_out, activation_fn=activation_fn)
+        self.shortcut = SharedMLP(
+            d_in, 2 * d_out, activation_fn=activation_fn, bn=shortcut_bn
+        )
 
-        self.lse1 = LocalSpatialEncoding(d_out // 2, num_neighbors)
-        self.lse2 = LocalSpatialEncoding(d_out // 2, num_neighbors)
+        self.lse1 = LocalSpatialEncoding(
+            d_out // 2, num_neighbors, lse_bn, activation_fn
+        )
+        self.lse2 = LocalSpatialEncoding(
+            d_out // 2, num_neighbors, lse_bn, activation_fn
+        )
 
-        self.pool1 = AttentivePooling(d_out, d_out // 2)
-        self.pool2 = AttentivePooling(d_out, d_out)
+        self.pool1 = AttentivePooling(d_out, d_out // 2, attention_bn, activation_fn)
+        self.pool2 = AttentivePooling(d_out, d_out, attention_bn, activation_fn)
 
-        self.lrelu = nn.LeakyReLU()
+        self.activation = activation_fn
 
     def forward(self, coords, features):
         r"""
@@ -172,7 +187,7 @@ class LocalFeatureAggregation(nn.Module):
         x = self.lse2(coords, x, knn_output)
         x = self.pool2(x)
 
-        return self.lrelu(self.mlp2(x) + self.shortcut(features))
+        return self.activation(self.mlp2(x) + self.shortcut(features))
 
 
 """ 
@@ -195,24 +210,41 @@ class RandLANet(nn.Module):
         self.decimation = hparams_net.get("decimation", 4)
 
         self.fc_start = nn.Linear(d_in, d_in * 2)
-        self.bn_start = nn.Sequential(
-            nn.BatchNorm2d(8, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
+        self.bn_start = (
+            nn.BatchNorm2d(d_in * 2, eps=1e-6, momentum=0.99)
+            if hparams_net.get("bn_start", False)
+            else False
         )
+        # large leak to avoid killing signal too early
+        self.activation_start = nn.LeakyReLU(0.2)
 
         # encoding layers
+        activation_fn = hparams_net.get("activation_fn", nn.LeakyReLU(0.01))
+        encoder_kwargs = dict(
+            shortcut_bn=hparams_net.get("shortcut_bn", False),
+            lse_bn=hparams_net.get("lse_bn", False),
+            attention_bn=hparams_net.get("attention_bn", False),
+            activation_fn=activation_fn,
+        )
         self.encoder = nn.ModuleList(
             [
-                LocalFeatureAggregation(d_in * 2, 16, self.num_neighbors),
-                LocalFeatureAggregation(32, 64, self.num_neighbors),
-                LocalFeatureAggregation(128, 128, self.num_neighbors),
-                LocalFeatureAggregation(256, 256, self.num_neighbors),
+                LocalFeatureAggregation(
+                    d_in * 2, 16, self.num_neighbors, **encoder_kwargs
+                ),
+                LocalFeatureAggregation(32, 64, self.num_neighbors, **encoder_kwargs),
+                LocalFeatureAggregation(128, 128, self.num_neighbors, **encoder_kwargs),
+                LocalFeatureAggregation(256, 256, self.num_neighbors, **encoder_kwargs),
             ]
         )
 
-        self.mlp = SharedMLP(512, 512, activation_fn=nn.ReLU())
+        self.mlp = SharedMLP(512, 512, activation_fn=activation_fn)
 
         # decoding layers
-        decoder_kwargs = dict(transpose=True, bn=True, activation_fn=nn.ReLU())
+        decoder_kwargs = dict(
+            transpose=True,
+            bn=hparams_net.get("decoder_bn", False),
+            activation_fn=activation_fn,
+        )
         self.decoder = nn.ModuleList(
             [
                 SharedMLP(1024, 256, **decoder_kwargs),
@@ -223,9 +255,10 @@ class RandLANet(nn.Module):
         )
 
         # final semantic prediction
+        bn_final = hparams_net.get("bn_final", False)
         parts = [
-            SharedMLP(d_in, 64, bn=True, activation_fn=nn.ReLU()),
-            SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
+            SharedMLP(d_in * 2, 64, bn=bn_final, activation_fn=activation_fn),
+            SharedMLP(64, 32, bn=bn_final, activation_fn=activation_fn),
         ]
         dropout = hparams_net.get("dropout", 0.0)
         if dropout:
@@ -233,8 +266,6 @@ class RandLANet(nn.Module):
         parts.append(SharedMLP(32, num_classes))
         self.fc_end = nn.Sequential(*parts)
 
-    # TODO: activate Batch normalization
-    # TODO: deactivate dropout and reduce final layers
     def forward(self, batch):
         r"""
         Forward pass
@@ -256,7 +287,9 @@ class RandLANet(nn.Module):
 
         coords = input[..., :3].clone()  # .cpu()
         x = self.fc_start(input).transpose(-2, -1).unsqueeze(-1)
-        x = self.bn_start(x)  # shape (B, d, N, 1)
+        if self.bn_start:
+            x = self.bn_start(x)  # shape (B, d, N, 1)
+        x = self.activation_start(x)
 
         decimation_ratio = 1
 

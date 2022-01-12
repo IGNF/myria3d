@@ -7,6 +7,15 @@ neural_net_hparams:
   d_in: 6  # 3 (xyz) + num of features
   num_neighbors: 16 
   decimation: 4  # divide by decimation for each of the 4 local encoder.
-  dropout: 0.5  # Use 0.0 of false to deactivate
 
-# not a package
+  activation_fn:
+    _target_: torch.nn.LeakyReLU
+    # args: [0.01]  # default already 0.01
+
+  # Regularizations
+  dropout: 0.5  # Use 0.0 of false to deactivate
+  bn_start: True
+  shortcut_bn: True
+  lse_bn: True
+  attention_bn: True
+  bn_final: True
