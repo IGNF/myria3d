@@ -196,7 +196,7 @@ class RandLANet(nn.Module):
 
         self.fc_start = nn.Linear(d_in, d_in * 2)
         self.bn_start = nn.Sequential(
-            nn.BatchNorm2d(8, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
+            nn.BatchNorm2d(d_in * 2, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
         )
 
         # encoding layers
@@ -224,7 +224,7 @@ class RandLANet(nn.Module):
 
         # final semantic prediction
         parts = [
-            SharedMLP(d_in, 64, bn=True, activation_fn=nn.ReLU()),
+            SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
             SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
         ]
         dropout = hparams_net.get("dropout", 0.0)
