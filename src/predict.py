@@ -36,7 +36,6 @@ def predict(config: DictConfig) -> Optional[float]:
     datamodule._set_predict_data([config.predict.src_las])
 
     data_handler = DataHandler(output_dir=config.predict.output_dir)
-    data_handler.load_las_for_classification_update(config.predict.src_las)
 
     model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)
     model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)
@@ -49,9 +48,9 @@ def predict(config: DictConfig) -> Optional[float]:
     ):
         batch.to(device)
         outputs = model.predict_step(batch)
-        data_handler.append_pos_and_classification_to_list(outputs)
+        data_handler.update_with_inference_outputs(outputs)
         # if index >= 1:
         #     break  ###### TODO - this is for debugging purposes ###################
 
-    updated_las_path = data_handler.interpolate_classification_and_save("predict")
+    updated_las_path = data_handler._interpolate_classification_and_save("predict")
     log.info(f"Updated LAS saved to : {updated_las_path}")

@@ -54,7 +54,7 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if self.save_predictions and outputs is not None:
-            self.data_handler.append_pos_and_classification_to_list(outputs, "val")
+            self.data_handler.update_with_inference_outputs(outputs, "val")
 
     def on_test_batch_end(
         self,
@@ -66,14 +66,14 @@ class SavePreds(Callback):
         dataloader_idx: int,
     ) -> None:
         if self.save_predictions:
-            self.data_handler.append_pos_and_classification_to_list(outputs, "test")
+            self.data_handler.update_with_inference_outputs(outputs, "test")
 
     def on_validation_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         if self.save_predictions:
-            self.data_handler.interpolate_classification_and_save("val")
+            self.data_handler._interpolate_classification_and_save("val")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         if self.save_predictions:
-            self.data_handler.interpolate_classification_and_save("test")
+            self.data_handler._interpolate_classification_and_save("test")

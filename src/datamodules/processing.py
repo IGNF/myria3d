@@ -93,6 +93,7 @@ def get_full_las_filepath(data_filepath):
     # Else, we need the path of the full las to save predictions in test/eval.
     basename = osp.basename(data_filepath)
     stem = basename.split("_SUB")[0]
+    stem = stem.replace("-", "_")
 
     lasfile_dir = osp.dirname(osp.dirname(osp.dirname(osp.dirname(data_filepath))))
     return osp.join(lasfile_dir, "colorized", stem + ".las")
@@ -408,12 +409,38 @@ class DataHandler:
         self.preds_dirpath = output_dir
         self.current_full_cloud_filepath = ""
 
-    def load_las_for_classification_update(self, filepath):
+    @torch.no_grad()
+    def update_with_inference_outputs(self, outputs: dict, prefix: str = ""):
+        """
+        Save the predicted classes in las format with position.
+        Handle las loading when necessary.
+
+        :param outputs: outputs of a step.
+        :param prefix: train, val, test or predict (str).
+        """
+        batch = outputs["batch"].detach()
+        batch_classification = outputs["preds"].detach()
+
+        for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
+            is_a_new_tile = full_cloud_filepath != self.current_full_cloud_filepath
+            if is_a_new_tile:
+                close_previous_las_first = self.current_full_cloud_filepath != ""
+                if close_previous_las_first:
+                    self._interpolate_classification_and_save(prefix)
+                self._load_las_for_classification_update(full_cloud_filepath)
+
+            idx_x = batch.batch_x == batch_idx
+            # TODO: change batch_proba[idx_x, 1] to
+            self.updates_classification_subsampled.append(batch_classification[idx_x])
+            self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
+            idx_y = batch.batch_y == batch_idx
+            self.updates_pos.append(batch.pos_copy[idx_y])
+
+    def _load_las_for_classification_update(self, filepath):
         """Load a LAS and add necessary extradim."""
 
-        self.current_full_cloud_filepath = filepath
-
         self.las = laspy.read(filepath)
+        self.current_full_cloud_filepath = filepath
 
         coln = ChannelNames.PredictedClassification.value
         param = laspy.ExtraBytesParams(name=coln, type=int)
@@ -436,42 +463,18 @@ class DataHandler:
         self.updates_pos = []
 
     @torch.no_grad()
-    def append_pos_and_classification_to_list(self, outputs: dict, phase: str = ""):
-        """
-        Save the predicted classes in las format with position. Load the las if necessary.
-
-        :param outputs: outputs of a step.
-        :param phase: train, val or test phase (str).
-        """
-        batch = outputs["batch"].detach()
-        batch_classification = outputs["preds"].detach()
-
-        for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
-            is_a_new_tile = self.current_full_cloud_filepath != full_cloud_filepath
-            if is_a_new_tile:
-                close_previous_las_first = self.current_full_cloud_filepath != ""
-                if close_previous_las_first:
-                    self.interpolate_classification_and_save(phase)
-                self.load_las_for_classification_update(full_cloud_filepath)
-
-            idx_x = batch.batch_x == batch_idx
-            # TODO: change batch_proba[idx_x, 1] to
-            self.updates_classification_subsampled.append(batch_classification[idx_x])
-            self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
-            idx_y = batch.batch_y == batch_idx
-            self.updates_pos.append(batch.pos_copy[idx_y])
-
-    @torch.no_grad()
-    def interpolate_classification_and_save(self, phase):
+    def _interpolate_classification_and_save(self, prefix):
         """
         Interpolate all predicted probabilites to their original points in LAS file, and save.
         Returns the path of the updated, saved LAS file.
         """
 
         tile_basename = os.path.basename(self.current_full_cloud_filepath)
-        filename = f"{phase}_{tile_basename}"
+        if prefix:
+            tile_basename = f"{prefix}_{tile_basename}"
+        
         os.makedirs(self.preds_dirpath, exist_ok=True)
-        self.output_path = os.path.join(self.preds_dirpath, filename)
+        self.output_path = os.path.join(self.preds_dirpath, tile_basename)
 
         self.updates_classification_subsampled = torch.cat(
             self.updates_classification_subsampled
@@ -497,7 +500,7 @@ class DataHandler:
             num_workers=1,
         )[1]
         self.las[ChannelNames.PredictedClassification.value][
-            assign_idx
+            assign_idx.cpu()
         ] = self.updates_classification.cpu()
         log.info(f"Saving LAS updated with predicted classes to {self.output_path}")
         self.las.write(self.output_path)
