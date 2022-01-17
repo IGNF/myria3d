@@ -1,3 +1,4 @@
 src_las: "/path/to/input.las"
 output_dir: "/path/to/output_dir/"
 resume_from_checkpoint: "/path/to/lightning_model.ckpt"
+names_of_probas_to_save: ["ground","vegetation","building"]

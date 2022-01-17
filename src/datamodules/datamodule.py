@@ -273,6 +273,7 @@ class LidarIterableDataset(IterableDataset):
         self.target_transform = target_transform
         self.subtile_width_meters = subtile_width_meters
 
+    @utils.eval_time
     def process_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 

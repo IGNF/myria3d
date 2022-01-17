@@ -37,7 +37,9 @@ def predict(config: DictConfig) -> Optional[float]:
 
     # TODO: pass as a predict.data_handler config for full parameterization outside this repo scope.
     data_handler = DataHandler(
-        config.predict.output_dir, classification_dict=datamodule.classification_dict
+        config.predict.output_dir,
+        datamodule.classification_dict,
+        names_of_probas_to_save=config.predict.names_of_probas_to_save,
     )
 
     model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)

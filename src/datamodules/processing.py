@@ -401,19 +401,30 @@ def collate_fn(data_list: List[Data]) -> Batch:
 
 
 class DataHandler:
-    """A class to load, update with proba, and save a LAS."""
+    """A class to load, update with classification, update with probas (optionnal), and save a LAS."""
 
-    def __init__(self, output_dir: str, classification_dict: Dict[int, str]):
+    def __init__(
+        self,
+        output_dir: str,
+        classification_dict: Dict[int, str],
+        names_of_probas_to_save: List[str] = [],
+    ):
 
         os.makedirs(output_dir, exist_ok=True)
         self.preds_dirpath = output_dir
         self.current_full_cloud_filepath = ""
         self.classification_dict = classification_dict
+        self.names_of_probas_to_save = names_of_probas_to_save
 
         self.reverse_classification_mapper = {
             class_index: class_code
             for class_index, class_code in enumerate(classification_dict.keys())
         }
+
+        self.index_of_probas_to_save = [
+            list(classification_dict.values()).index(name)
+            for name in names_of_probas_to_save
+        ]
 
     @torch.no_grad()
     def update_with_inference_outputs(self, outputs: dict, prefix: str = ""):
@@ -426,7 +437,9 @@ class DataHandler:
         """
         batch = outputs["batch"].detach()
         batch_classification = outputs["preds"].detach()
-
+        batch_probas = outputs["proba"][:, self.index_of_probas_to_save].detach()
+        if self.index_of_probas_to_save:
+            pass
         for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
             is_a_new_tile = full_cloud_filepath != self.current_full_cloud_filepath
             if is_a_new_tile:
@@ -438,6 +451,7 @@ class DataHandler:
             idx_x = batch.batch_x == batch_idx
             # TODO: add probas if needed
             self.updates_classification_subsampled.append(batch_classification[idx_x])
+            self.updates_probas_subsampled.append(batch_probas[idx_x])
             self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
             idx_y = batch.batch_y == batch_idx
             self.updates_pos.append(batch.pos_copy[idx_y])
@@ -453,6 +467,11 @@ class DataHandler:
         self.las.add_extra_dim(param)
         self.las[coln][:] = 0
 
+        for class_name in self.names_of_probas_to_save:
+            param = laspy.ExtraBytesParams(name=class_name, type=float)
+            self.las.add_extra_dim(param)
+            self.las[class_name][:] = 0.0
+
         self.las_pos = torch.from_numpy(
             np.asarray(
                 [
@@ -464,6 +483,7 @@ class DataHandler:
             ).transpose()
         )
         self.updates_classification_subsampled = []
+        self.updates_probas_subsampled = []
         self.updates_pos_subsampled = []
         self.updates_pos = []
 
@@ -474,16 +494,17 @@ class DataHandler:
         Returns the path of the updated, saved LAS file.
         """
 
-        tile_basename = os.path.basename(self.current_full_cloud_filepath)
+        basename = os.path.basename(self.current_full_cloud_filepath)
         if prefix:
-            tile_basename = f"{prefix}_{tile_basename}"
+            basename = f"{prefix}_{basename}"
 
         os.makedirs(self.preds_dirpath, exist_ok=True)
-        self.output_path = os.path.join(self.preds_dirpath, tile_basename)
+        self.output_path = os.path.join(self.preds_dirpath, basename)
 
         # Cat positions
         self.updates_pos = torch.cat(self.updates_pos)
         self.updates_pos_subsampled = torch.cat(self.updates_pos_subsampled)
+        self.updates_probas_subsampled = torch.cat(self.updates_probas_subsampled)
 
         device = self.updates_pos.device
 
@@ -497,6 +518,7 @@ class DataHandler:
         self.updates_classification_subsampled = torch.from_numpy(
             self.updates_classification_subsampled
         ).to(device)
+
         # Accelerate KNN by moving to GPU if possible.
         self.las_pos = self.las_pos.to(device)
 
@@ -507,7 +529,10 @@ class DataHandler:
             k=1,
             num_workers=1,
         )[1]
-        self.updates_classification = self.updates_classification_subsampled[assign_idx]
+        self.updates_classification = self.updates_classification_subsampled[
+            assign_idx
+        ].cpu()
+        self.updates_probas = self.updates_probas_subsampled[assign_idx].cpu()
 
         # 2/2 Propagate dense classes to the full las
         assign_idx = knn(
@@ -516,9 +541,16 @@ class DataHandler:
             k=1,
             num_workers=1,
         )[1]
+        assign_idx = assign_idx.cpu()
         self.las[ChannelNames.PredictedClassification.value][
-            assign_idx.cpu()
-        ] = self.updates_classification.cpu()
+            assign_idx
+        ] = self.updates_classification
+
+        for class_idx_in_tensor, class_name in enumerate(self.names_of_probas_to_save):
+            self.las[class_name][assign_idx] = self.updates_probas[
+                :, class_idx_in_tensor
+            ]
+
         log.info(f"Saving LAS updated with predicted classes to {self.output_path}")
         self.las.write(self.output_path)
 
@@ -530,5 +562,6 @@ class DataHandler:
         del self.updates_pos
         del self.updates_classification_subsampled
         del self.updates_classification
+        del self.updates_probas_subsampled
 
         return self.output_path

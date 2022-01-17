@@ -187,24 +187,6 @@ def log_hyperparameters(
     trainer.logger.log_hyperparams = empty
 
 
-def finish(
-    config: DictConfig,
-    model: pl.LightningModule,
-    datamodule: pl.LightningDataModule,
-    trainer: pl.Trainer,
-    callbacks: List[pl.Callback],
-    logger: List[pl.loggers.LightningLoggerBase],
-) -> None:
-    """Makes sure everything closed properly."""
-
-    # without this sweeps with wandb logger might crash!
-    for lg in logger:
-        if isinstance(lg, pl.loggers.wandb.WandbLogger):
-            import wandb
-
-            wandb.finish()
-
-
 def eval_time(method):
     """decorator to log the duration of the decorated method"""
 

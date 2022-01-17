@@ -92,15 +92,7 @@ def train(config: DictConfig) -> Optional[float]:
             model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
             trainer.test(model=model, datamodule=datamodule)
     # Make sure everything closed properly
-    log.info("Finalizing!")
-    utils.finish(
-        config=config,
-        model=model,
-        datamodule=datamodule,
-        trainer=trainer,
-        callbacks=callbacks,
-        logger=logger,
-    )
+    log.info("Run is over!")
 
     # Print path to best checkpoint
     log.info(f"Best checkpoint path:\n{trainer.checkpoint_callback.best_model_path}")
