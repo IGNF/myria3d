@@ -22,17 +22,15 @@ UNIT = 1
 
 # Warning: be sure that this order matches the one in load_las_data.
 # TODO: change this for swiss data
-# COLORS_NAMES = ["red", "green", "blue", "nir"]
+COLORS_NAMES = ["red", "green", "blue"]
 X_FEATURES_NAMES = [
     "intensity",
     "return_num",
     "num_returns",
-]
-#  + COLORS_NAMES
+] + COLORS_NAMES
 
-# TODO: check those values in new LAS !
-INTENSITY_MAX = 32768.0
-COLORS_MAX = 255 * 256
+INTENSITY_MAX = 255 * 256
+COLORS_MAX = 255
 RETURN_NUM_MAX = 7  # TODO: check
 
 
@@ -45,24 +43,6 @@ class ChannelNames(Enum):
 
     # Custom
     PredictedClassification = "PredictedClassification"
-
-
-def get_full_las_filepath(data_filepath):
-    """
-    Return the reference to the full LAS file from which data_flepath depends.
-    Predict mode: return data_filepath
-    Train/val/test mode: lasfile_dir/test/tile_id/tile_id_SUB1234.las -> /lasfile_dir/colorized/tile_id.las
-    """
-    # Predict mode: we use the full tile path as id directly without processing
-    if "_SUB" not in data_filepath:
-        return data_filepath
-
-    # Else, we need the path of the full las to save predictions in test/eval.
-    basename = osp.basename(data_filepath)
-    stem = basename.split("_SUB")[0]
-
-    lasfile_dir = osp.dirname(osp.dirname(osp.dirname(osp.dirname(data_filepath))))
-    return osp.join(lasfile_dir, "colorized", stem + ".las")
 
 
 def load_las_data(data_filepath):
@@ -98,6 +78,24 @@ def load_las_data(data_filepath):
         full_cloud_filepath=full_cloud_filepath,
         x_features_names=X_FEATURES_NAMES,
     )
+
+
+def get_full_las_filepath(data_filepath):
+    """
+    Return the reference to the full LAS file from which data_flepath depends.
+    Predict mode: return data_filepath
+    Train/val/test mode: lasfile_dir/test/tile_id/tile_id_SUB1234.las -> /lasfile_dir/colorized/tile_id.las
+    """
+    # Predict mode: we use the full tile path as id directly without processing
+    if "_SUB" not in data_filepath:
+        return data_filepath
+
+    # Else, we need the path of the full las to save predictions in test/eval.
+    basename = osp.basename(data_filepath)
+    stem = basename.split("_SUB")[0]
+
+    lasfile_dir = osp.dirname(osp.dirname(osp.dirname(osp.dirname(data_filepath))))
+    return osp.join(lasfile_dir, "colorized", stem + ".las")
 
 
 # DATA TRANSFORMS
@@ -286,20 +284,26 @@ class MakeCopyOfSampledPos(BaseTransform):
 
 
 class CustomNormalizeFeatures(BaseTransform):
-    r"""Scale features in 0-1 range."""
+    r"""
+    Scale features in 0-1 range.
+    Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+    """
 
     def __call__(self, data: Data):
 
         intensity_idx = data.x_features_names.index("intensity")
-        data.x[:, intensity_idx] = data.x[:, intensity_idx] / INTENSITY_MAX - HALF_UNIT
-
-        # colors_idx = [
-        #     data.x_features_names.index(color_name) for color_name in COLORS_NAMES
-        # ]
-        # for color_idx in colors_idx:
-        #     data.x[:, color_idx] = data.x[:, color_idx] / COLORS_MAX - HALF_UNIT
+        data.x[:, intensity_idx] = (
+            data.x[:, intensity_idx] / data.x[:, intensity_idx].max() - HALF_UNIT
+        )
 
         return_num_idx = data.x_features_names.index("return_num")
+        colors_idx = [
+            data.x_features_names.index(color_name) for color_name in COLORS_NAMES
+        ]
+        for color_idx in colors_idx:
+            data.x[:, color_idx] = data.x[:, color_idx] / COLORS_MAX - HALF_UNIT
+            data.x[data.x[:, return_num_idx] > 1, color_idx] = -1.5 * HALF_UNIT
+
         data.x[:, return_num_idx] = (data.x[:, return_num_idx] - UNIT) / (
             RETURN_NUM_MAX - UNIT
         ) - HALF_UNIT
@@ -312,18 +316,18 @@ class CustomNormalizeFeatures(BaseTransform):
 
 
 class CustomNormalizeScale(BaseTransform):
-    r"""Normalizes node positions to the interval (-1, 1)."""
-
-    def __init__(self, z_scale: float = 100.0):
-        self.z_scale = z_scale
-        pass
+    r"""
+    Normalizes node positions to the interval (-1, 1).
+    XYZ are expected to be centered already. Normalization is performed
+    by a single xy positive amplitude to preserve euclidian distances.
+    Typically, xy_positive_amplitude = width / 2
+    """
 
     def __call__(self, data):
-
-        xy_scale = (1 / data.pos[:, :2].abs().max()) * 0.999999
+        xy_positive_amplitude = data.pos[:, :2].abs().max()
+        xy_scale = (1 / xy_positive_amplitude) * 0.999999
         data.pos[:, :2] = data.pos[:, :2] * xy_scale
-
-        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) / self.z_scale
+        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) * xy_scale
 
         return data
 
@@ -331,10 +335,9 @@ class CustomNormalizeScale(BaseTransform):
         return "{}()".format(self.__class__.__name__)
 
 
-# TODO: change this
 class TargetTransform(BaseTransform):
     """
-    Edit classes
+    Make target vector based on input classification dictionnary.
     """
 
     def __init__(self, classification_dict: List[AnyStr]):
@@ -354,7 +357,6 @@ class TargetTransform(BaseTransform):
 
     def transform(self, y):
         y = np.vectorize(self.classification_mapper.get)(y)
-        # Check if GPU compatible, cf. https://pytorch.org/docs/stable/tensors.html
         y = torch.LongTensor(y)
         return y
 
