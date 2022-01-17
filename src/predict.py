@@ -35,7 +35,10 @@ def predict(config: DictConfig) -> Optional[float]:
     datamodule._set_all_transforms()
     datamodule._set_predict_data([config.predict.src_las])
 
-    data_handler = DataHandler(output_dir=config.predict.output_dir)
+    # TODO: pass as a predict.data_handler config for full parameterization outside this repo scope.
+    data_handler = DataHandler(
+        config.predict.output_dir, classification_dict=datamodule.classification_dict
+    )
 
     model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)
     model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)

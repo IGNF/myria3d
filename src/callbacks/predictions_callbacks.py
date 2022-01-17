@@ -34,7 +34,7 @@ class SavePreds(Callback):
         if self.save_predictions:
             log_path = os.getcwd()
             preds_dirpath = osp.join(log_path, "predictions")
-            self.data_handler = DataHandler(output_dir=preds_dirpath)
+            self.data_handler = DataHandler(preds_dirpath)
 
     def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""

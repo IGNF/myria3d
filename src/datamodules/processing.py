@@ -3,7 +3,7 @@ import os
 import os.path as osp
 import math
 from enum import Enum
-from typing import Callable, List, AnyStr
+from typing import Callable, Dict, List, AnyStr
 
 import laspy
 import numpy as np
@@ -343,8 +343,8 @@ class TargetTransform(BaseTransform):
 
     def __init__(self, classification_dict: List[AnyStr]):
         self.classification_mapper = {
-            class_int: class_index
-            for class_index, class_int in enumerate(classification_dict.keys())
+            class_code: class_index
+            for class_index, class_code in enumerate(classification_dict.keys())
         }
 
     def __call__(
@@ -403,11 +403,17 @@ def collate_fn(data_list: List[Data]) -> Batch:
 class DataHandler:
     """A class to load, update with proba, and save a LAS."""
 
-    def __init__(self, output_dir: str = ""):
+    def __init__(self, output_dir: str, classification_dict: Dict[int, str]):
 
         os.makedirs(output_dir, exist_ok=True)
         self.preds_dirpath = output_dir
         self.current_full_cloud_filepath = ""
+        self.classification_dict = classification_dict
+
+        self.reverse_classification_mapper = {
+            class_index: class_code
+            for class_index, class_code in enumerate(classification_dict.keys())
+        }
 
     @torch.no_grad()
     def update_with_inference_outputs(self, outputs: dict, prefix: str = ""):
@@ -430,7 +436,7 @@ class DataHandler:
                 self._load_las_for_classification_update(full_cloud_filepath)
 
             idx_x = batch.batch_x == batch_idx
-            # TODO: change batch_proba[idx_x, 1] to
+            # TODO: add probas if needed
             self.updates_classification_subsampled.append(batch_classification[idx_x])
             self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
             idx_y = batch.batch_y == batch_idx
@@ -457,7 +463,6 @@ class DataHandler:
                 dtype=np.float32,
             ).transpose()
         )
-        # "Never incrementally cat results; append to a list instead"
         self.updates_classification_subsampled = []
         self.updates_pos_subsampled = []
         self.updates_pos = []
@@ -472,16 +477,28 @@ class DataHandler:
         tile_basename = os.path.basename(self.current_full_cloud_filepath)
         if prefix:
             tile_basename = f"{prefix}_{tile_basename}"
-        
+
         os.makedirs(self.preds_dirpath, exist_ok=True)
         self.output_path = os.path.join(self.preds_dirpath, tile_basename)
 
+        # Cat positions
+        self.updates_pos = torch.cat(self.updates_pos)
+        self.updates_pos_subsampled = torch.cat(self.updates_pos_subsampled)
+
+        device = self.updates_pos.device
+
+        # Cat and remap predictions
         self.updates_classification_subsampled = torch.cat(
             self.updates_classification_subsampled
         )
-        self.updates_pos_subsampled = torch.cat(self.updates_pos_subsampled)
-        self.updates_pos = torch.cat(self.updates_pos)
-        self.las_pos = self.las_pos.to(self.updates_pos_subsampled.device)
+        self.updates_classification_subsampled = np.vectorize(
+            self.reverse_classification_mapper.get
+        )(self.updates_classification_subsampled.cpu())
+        self.updates_classification_subsampled = torch.from_numpy(
+            self.updates_classification_subsampled
+        ).to(device)
+        # Accelerate KNN by moving to GPU if possible.
+        self.las_pos = self.las_pos.to(device)
 
         # 1/2 Interpolate locally to have dense classes in infered zones
         assign_idx = knn(
