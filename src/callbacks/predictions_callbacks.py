@@ -72,8 +72,8 @@ class SavePreds(Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         if self.save_predictions:
-            self.data_handler._interpolate_classification_and_save("val")
+            self.data_handler.interpolate_classification_and_save("val")
 
     def on_test_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         if self.save_predictions:
-            self.data_handler._interpolate_classification_and_save("test")
+            self.data_handler.interpolate_classification_and_save("test")

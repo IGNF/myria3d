@@ -445,7 +445,7 @@ class DataHandler:
             if is_a_new_tile:
                 close_previous_las_first = self.current_full_cloud_filepath != ""
                 if close_previous_las_first:
-                    self._interpolate_classification_and_save(prefix)
+                    self.interpolate_classification_and_save(prefix)
                 self._load_las_for_classification_update(full_cloud_filepath)
 
             idx_x = batch.batch_x == batch_idx
@@ -488,7 +488,7 @@ class DataHandler:
         self.updates_pos = []
 
     @torch.no_grad()
-    def _interpolate_classification_and_save(self, prefix):
+    def interpolate_classification_and_save(self, prefix):
         """
         Interpolate all predicted probabilites to their original points in LAS file, and save.
         Returns the path of the updated, saved LAS file.
@@ -501,26 +501,21 @@ class DataHandler:
         os.makedirs(self.preds_dirpath, exist_ok=True)
         self.output_path = os.path.join(self.preds_dirpath, basename)
 
-        # Cat positions
-        self.updates_pos = torch.cat(self.updates_pos)
-        self.updates_pos_subsampled = torch.cat(self.updates_pos_subsampled)
-        self.updates_probas_subsampled = torch.cat(self.updates_probas_subsampled)
-
-        device = self.updates_pos.device
-
-        # Cat and remap predictions
+        # Cat
+        self.updates_pos = torch.cat(self.updates_pos).cpu()
+        self.updates_pos_subsampled = torch.cat(self.updates_pos_subsampled).cpu()
+        self.updates_probas_subsampled = torch.cat(self.updates_probas_subsampled).cpu()
         self.updates_classification_subsampled = torch.cat(
             self.updates_classification_subsampled
-        )
+        ).cpu()
+
+        # Remap predictions
         self.updates_classification_subsampled = np.vectorize(
             self.reverse_classification_mapper.get
-        )(self.updates_classification_subsampled.cpu())
+        )(self.updates_classification_subsampled)
         self.updates_classification_subsampled = torch.from_numpy(
             self.updates_classification_subsampled
-        ).to(device)
-
-        # Accelerate KNN by moving to GPU if possible.
-        self.las_pos = self.las_pos.to(device)
+        )
 
         # 1/2 Interpolate locally to have dense classes in infered zones
         assign_idx = knn(
@@ -529,10 +524,8 @@ class DataHandler:
             k=1,
             num_workers=1,
         )[1]
-        self.updates_classification = self.updates_classification_subsampled[
-            assign_idx
-        ].cpu()
-        self.updates_probas = self.updates_probas_subsampled[assign_idx].cpu()
+        self.updates_classification = self.updates_classification_subsampled[assign_idx]
+        self.updates_probas = self.updates_probas_subsampled[assign_idx]
 
         # 2/2 Propagate dense classes to the full las
         assign_idx = knn(
@@ -541,7 +534,7 @@ class DataHandler:
             k=1,
             num_workers=1,
         )[1]
-        assign_idx = assign_idx.cpu()
+        assign_idx = assign_idx
         self.las[ChannelNames.PredictedClassification.value][
             assign_idx
         ] = self.updates_classification
