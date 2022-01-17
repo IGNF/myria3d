@@ -26,20 +26,20 @@ def predict(config: DictConfig) -> Optional[float]:
     """
 
     # Those are the 3 needed inputs
-    assert os.path.exists(config.prediction.resume_from_checkpoint)
-    assert os.path.exists(config.prediction.src_las)
+    assert os.path.exists(config.predict.resume_from_checkpoint)
+    assert os.path.exists(config.predict.src_las)
 
     torch.set_grad_enabled(False)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_all_transforms()
-    datamodule._set_predict_data([config.prediction.src_las])
+    datamodule._set_predict_data([config.predict.src_las])
 
-    data_handler = DataHandler(output_dir=config.prediction.output_dir)
-    data_handler.load_las_for_classification_update(config.prediction.src_las)
+    data_handler = DataHandler(output_dir=config.predict.output_dir)
+    data_handler.load_las_for_classification_update(config.predict.src_las)
 
     model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)
-    model = model.load_from_checkpoint(config.prediction.resume_from_checkpoint)
+    model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)
     device = utils.define_device_from_config_param(config.trainer.gpus)
     model.to(device)
     model.eval()

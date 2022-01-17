@@ -107,7 +107,7 @@ def print_config(
         "model",
         "datamodule",
         "callbacks",
-        "prediction",
+        "predict",
     ),
     resolve: bool = True,
 ) -> None:
