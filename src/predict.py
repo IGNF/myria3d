@@ -42,7 +42,7 @@ def predict(config: DictConfig) -> Optional[float]:
         names_of_probas_to_save=config.predict.names_of_probas_to_save,
     )
 
-    model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)
+    model: LightningModule = hydra.utils.instantiate(config.model)
     model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
@@ -57,5 +57,5 @@ def predict(config: DictConfig) -> Optional[float]:
         if index >= 1:
             break  ###### TODO - this is for debugging purposes ###################
 
-    updated_las_path = data_handler.interpolate_classification_and_save("predict")
+    updated_las_path = data_handler.interpolate_and_save("predict")
     log.info(f"Updated LAS saved to : {updated_las_path}")
