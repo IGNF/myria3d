@@ -19,7 +19,7 @@ iou:
 criterion: 
   _target_: torch.nn.CrossEntropyLoss
 
-lr: 0.1
+lr: 0.004566395347136576  # 200-long LR-test-range betw 10^-4 and 3.0
 
 optimizer: 
   _target_: functools.partial
@@ -33,7 +33,7 @@ lr_scheduler:
     - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
   mode: "min"
   factor: 0.5  # halving
-  patience: 0
-  cooldown: 0
+  patience: 5  # val epochs
+  cooldown: 0  # val epochs
 
 monitor: "val/loss_epoch"
