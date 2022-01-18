@@ -145,6 +145,7 @@ class DataModule(LightningDataModule):
             shuffle=True,
             num_workers=self.num_workers,
             collate_fn=collate_fn,
+            prefetch_factor=1,
         )
 
     def val_dataloader(self):
@@ -155,6 +156,7 @@ class DataModule(LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             collate_fn=collate_fn,
+            prefetch_factor=1,
         )
 
     def test_dataloader(self):
@@ -165,6 +167,7 @@ class DataModule(LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             collate_fn=collate_fn,
+            prefetch_factor=1,
         )
 
     def predict_dataloader(self):
@@ -174,6 +177,7 @@ class DataModule(LightningDataModule):
             shuffle=False,
             num_workers=1,  # b/c terable dataloader
             collate_fn=collate_fn,
+            prefetch_factor=1,
         )
 
     def _set_all_transforms(self):
