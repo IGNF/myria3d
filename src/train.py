@@ -33,16 +33,11 @@ def train(config: DictConfig) -> Optional[float]:
     if "seed" in config:
         seed_everything(config.seed, workers=True)
 
-    # # cf. https://github.com/facebookresearch/hydra/issues/1283
-    # OmegaConf.register_new_resolver("get_method", hydra.utils.get_method)
-
     # Init lightning datamodule
     log.info(f"Instantiating datamodule <{config.datamodule._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
 
-    # if config.trainer.resume_from_checkpoint:
-    #     utils.update_config_with_hyperparams(config)
-    # TODO: one should use the right hparams directly in case of resuming from checkpoint.
+    log.info(f"Instantiating model <{config.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(config.model)
 
     # Init lightning callbacks
@@ -69,7 +64,6 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Send some parameters from config to all lightning loggers
     log.info("Logging hyperparameters!")
-
     utils.log_hyperparameters(
         config=config,
         model=model,
@@ -79,20 +73,14 @@ def train(config: DictConfig) -> Optional[float]:
         logger=logger,
     )
 
-    # Train the model
-    if config.task.get("fit_the_model"):
-        log.info("Starting training!")
+    task_name = config.task.get("task_name")
+    if "fit" in task_name:
+        log.info("Starting training and validating!")
         trainer.fit(model=model, datamodule=datamodule)
+        log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
+        log.info("End of training and validating!")
 
-    if config.task.get("test_the_model"):
+    if "test" in task_name:
         log.info("Starting testing!")
-        if not trainer.resume_from_checkpoint or config.get("fit_the_model"):
-            trainer.test()
-        else:
-            model = model.load_from_checkpoint(trainer.resume_from_checkpoint)
-            trainer.test(model=model, datamodule=datamodule)
-    # Make sure everything closed properly
-    log.info("Run is over!")
-
-    # Print path to best checkpoint
-    log.info(f"Best checkpoint path:\n{trainer.checkpoint_callback.best_model_path}")
+        trainer.test(model=model, datamodule=datamodule)
+        log.info("End of testing!")

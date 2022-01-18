@@ -30,8 +30,8 @@ def main(config: DictConfig):
     if config.get("print_config"):
         utils.print_config(config, resolve=False)
 
-    # Train model
-    if config.task.get("task_name") == "train":
+    task_name = config.task.get("task_name")
+    if "fit" in task_name or "test" in task_name:
         """Training, eval, and test of a neural network."""
         return train(config)
     elif config.task.get("task_name") == "predict":
