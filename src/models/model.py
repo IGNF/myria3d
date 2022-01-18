@@ -3,6 +3,7 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
+from torchmetrics import MaxMetric
 from src.models.modules.randla_net import RandLANet
 from src.models.modules.point_net import PointNet
 from src.utils import utils
@@ -33,9 +34,7 @@ class Model(LightningModule):
         # it also allows to access params with 'self.hparams' attribute
         self.save_hyperparameters()
 
-        neural_net_class = self.get_neural_net_class_name(
-            self.hparams.neural_net_class_name
-        )
+        neural_net_class = self.get_neural_net_class(self.hparams.neural_net_class_name)
         self.model = neural_net_class(self.hparams.neural_net_hparams)
 
         self.softmax = nn.Softmax(dim=1)
@@ -49,6 +48,7 @@ class Model(LightningModule):
         if stage == "fit":
             self.train_iou = self.hparams.iou()
             self.val_iou = self.hparams.iou()
+            self.val_iou_best = MaxMetric()
         if stage == "test":
             self.test_iou = self.hparams.iou()
         if stage != "predict":
@@ -98,6 +98,14 @@ class Model(LightningModule):
             "batch": batch,
         }
 
+    def validation_epoch_end(self, outputs):
+        iou = self.val_iou.compute()
+        self.val_iou_best.update(iou)
+        self.log(
+            "val/iou_best", self.val_iou_best.compute(), on_epoch=True, prog_bar=True
+        )
+        # self.val_iou.reset()  # in case of `num_sanity_val_steps` in trainer
+
     def test_step(self, batch: Any, batch_idx: int):
         loss, _, proba, preds, targets = self.step(batch)
         self.log("test/loss", loss, on_step=True, on_epoch=True)
@@ -117,11 +125,11 @@ class Model(LightningModule):
         preds = torch.argmax(logits, dim=1)
         return {"batch": batch, "proba": proba, "preds": preds}
 
-    def get_neural_net_class_name(self, class_name):
+    def get_neural_net_class(self, class_name):
         """Access class of neural net based on class name."""
-        for neural_net_architecture in [PointNet, RandLANet]:
-            if class_name in neural_net_architecture.__name__:
-                return neural_net_architecture
+        for neural_net_class in [PointNet, RandLANet]:
+            if class_name in neural_net_class.__name__:
+                return neural_net_class
         raise KeyError(f"Unknown class name {class_name}")
 
     def configure_optimizers(self):
@@ -138,6 +146,5 @@ class Model(LightningModule):
             "lr_scheduler": lr_scheduler,
             "monitor": self.hparams.monitor,
         }
-        log.info(f"Scheduler config:\n{config}")
 
         return config
