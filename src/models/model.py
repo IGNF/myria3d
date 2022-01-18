@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
@@ -38,14 +38,21 @@ class Model(LightningModule):
         )
         self.model = neural_net_class(self.hparams.neural_net_hparams)
 
-        self.lr = self.hparams.lr  # aliasing for Pytorch Lightning
-        self.criterion = self.hparams.criterion
-
-        self.train_iou = self.hparams.iou()
-        self.val_iou = self.hparams.iou()
-        self.test_iou = self.hparams.iou()
-
         self.softmax = nn.Softmax(dim=1)
+
+    def setup(self, stage: Optional[str]):
+        """
+        Setup metrics as needed.
+        Nota : stage "validate" should be included in "fit" stage for our usage.
+        Setup criterion (loss) except in predict mode.
+        """
+        if stage == "fit":
+            self.train_iou = self.hparams.iou()
+            self.val_iou = self.hparams.iou()
+        if stage == "test":
+            self.test_iou = self.hparams.iou()
+        if stage != "predict":
+            self.criterion = self.hparams.criterion
 
     def forward(self, batch: Batch) -> torch.Tensor:
         logits = self.model(batch)
@@ -123,6 +130,7 @@ class Model(LightningModule):
         See examples here:
             https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
         """
+        self.lr = self.hparams.lr  # aliasing for Lightning auto_find_lr
         optimizer = self.hparams.optimizer(params=self.parameters(), lr=self.lr)
         lr_scheduler = self.hparams.lr_scheduler(optimizer)
         config = {
