@@ -44,7 +44,7 @@ def predict(config: DictConfig) -> Optional[float]:
 
     model: LightningModule = hydra.utils.instantiate(config.model, recursive=True)
     model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)
-    device = utils.define_device_from_config_param(config.trainer.gpus)
+    device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()
 
