@@ -139,7 +139,11 @@ class Model(LightningModule):
         """
         self.lr = self.hparams.lr  # aliasing for Lightning auto_find_lr
         optimizer = self.hparams.optimizer(params=self.parameters(), lr=self.lr)
-        lr_scheduler = self.hparams.lr_scheduler(optimizer)
+        try:
+            lr_scheduler = self.hparams.lr_scheduler(optimizer)
+        except:
+            # OneCycleLR needs optimizer and max_lr
+            lr_scheduler = self.hparams.lr_scheduler(optimizer, self.lr)
         config = {
             "optimizer": optimizer,
             "lr_scheduler": lr_scheduler,

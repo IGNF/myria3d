@@ -1,0 +1,7 @@
+_target_: functools.partial
+_args_: 
+  - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
+mode: "min"
+factor: 0.5  # halving
+patience: 5  # val epochs
+cooldown: 0  # val epochs

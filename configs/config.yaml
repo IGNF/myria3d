@@ -23,20 +23,21 @@ ignore_warnings: True
 
 # specify here default training configuration
 defaults:
-  - _self_
+  - _self_  # for legacy reasons
+
   - trainer: default.yaml
-  - model: randla_net_model.yaml
   - datamodule: datamodule.yaml
   - callbacks: callbacks.yaml # set this to null if you don't want to use callbacks
+  - model: randla_net_model.yaml
   
   - logger: comet # set logger here or use command line (e.g. `python run.py logger=wandb`)
   - task: default.yaml # set logger here or use command line (e.g. `python run.py logger=wandb`)
-  
   - predict: default.yaml
-
-  - hydra: default.yaml
+  
 
   - experiment: RandLaNetDebug.yaml
+
+  - hydra: default.yaml
 
   # enable color logging
   - override hydra/hydra_logging: colorlog

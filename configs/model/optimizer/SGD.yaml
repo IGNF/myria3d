@@ -1,0 +1,5 @@
+_target_: functools.partial
+_args_: 
+  - "${get_method:torch.optim.SGD}"
+lr: ${model.lr}
+momentum: ${model.momentum}

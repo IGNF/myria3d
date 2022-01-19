@@ -1,0 +1,12 @@
+_target_: functools.partial
+_args_: 
+  - ${get_method:torch.optim.lr_scheduler.OneCycleLR}
+div_factor: 10  # from model.lr which whil be used direcly as it is positional
+final_div_factor: 1000  # large = anhilihation
+epochs: ${trainer.min_epochs}  # min_epochs becomes the target and should equate max_epochs
+steps_per_epoch: 818  # num_sample / batch_size, adpat to dataset
+pct_start: 0.3  
+cycle_momentum: true
+base_momentum: 0.85
+max_momentum: 0.95
+verbose: true # for debug
