@@ -1,4 +1,3 @@
-
 save_preds:
   _target_: src.callbacks.predictions_callbacks.SavePreds
   save_predictions: false
@@ -32,11 +31,4 @@ early_stopping:
 
 log_iou_by_class:
   _target_: src.callbacks.logging_callbacks.LogIoUByClass
-  iou_by_class:
-    _target_: functools.partial
-    _args_:
-      - "${get_method:torchmetrics.IoU}"
-      - ${model.num_classes}
-    absent_score: 1.0
-    reduction: "none"
   classification_dict: ${datamodule.classification_dict}
