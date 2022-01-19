@@ -66,7 +66,14 @@ def load_las_data(data_filepath):
         [las[x_name] for x_name in X_FEATURES_NAMES],
         dtype=np.float32,
     ).transpose()
-    y = las.classification.array.astype(np.int)
+
+    # TODO: assure that post-preparation data are always in LAS Format1.4
+    try:
+        # LAS format V1.2
+        y = las.classification.array.astype(np.int)
+    except:
+        # Accept LAS format V1.4
+        y = las.classification.astype(np.int)
 
     full_cloud_filepath = get_full_las_filepath(data_filepath)
 
