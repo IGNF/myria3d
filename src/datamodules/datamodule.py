@@ -194,7 +194,7 @@ class DataModule(LightningDataModule):
         self.preparation = [
             EmptySubtileFilter(),
             ToTensor(),
-            MakeCopyOfPosAndY(),
+            MakeCopyOfPos(),
             FixedPointsPosXY(self.subsample_size, replace=False, allow_duplicates=True),
             MakeCopyOfSampledPos(),
             Center(),

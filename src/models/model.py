@@ -82,7 +82,6 @@ class Model(LightningModule):
             "proba": proba,
             "preds": preds,
             "targets": targets,
-            "batch": batch,
         }
 
     def validation_step(self, batch: Any, batch_idx: int):
