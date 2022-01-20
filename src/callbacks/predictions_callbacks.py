@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import os
 
 import laspy
@@ -21,20 +21,25 @@ log = utils.get_logger(__name__)
 
 class SavePreds(Callback):
     """
-    A Callback to save predictions back to original LAS file, into a new BuildingProba channel.
-    Keep a full LAS tile in memory until it changes and thus must be saved.
+    A Callback to save predictions and probas to the original LAS file, into new channels.
     """
 
     def __init__(
         self,
         save_predictions: bool = False,
+        classification_dict: Dict[int, str] = None,
+        names_of_probas_to_save: List[str] = [],
     ):
         self.save_predictions = save_predictions
 
         if self.save_predictions:
             log_path = os.getcwd()
             preds_dirpath = osp.join(log_path, "predictions")
-            self.data_handler = DataHandler(preds_dirpath)
+            self.data_handler = DataHandler(
+                preds_dirpath,
+                classification_dict,
+                names_of_probas_to_save=names_of_probas_to_save,
+            )
 
     def on_init_end(self, trainer: pl.Trainer) -> None:
         """Setup logging functionnalities ; create the outputs dir."""

@@ -12,21 +12,22 @@ task:
 hydra:
   verbose: false
 
+callbacks/save_preds:
+    save_predictions: true  # This activates saving of outputs.
+
 datamodule:
   use_val_data_at_test_time: True # Here we use val data instead of test data
   batch_size: 50
   num_workers: 1
 
 trainer:
-  resume_from_checkpoint: "path/to/checkpoint"  # override
+  resume_from_checkpoint: ???  # to override in CLI
   log_every_n_steps: 1
   num_sanity_val_steps: 0
   min_epochs: 1
   max_epochs: 100000
   check_val_every_n_epoch: 1
-  # limit_test_batches: 1  # Disable to predict on all data
+  # limit_test_batches: 1  # Uncomment to limit on a subset
 
-callbacks:
-  save_preds:
-    save_predictions: true
+
 

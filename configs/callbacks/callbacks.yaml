@@ -1,7 +1,3 @@
-save_preds:
-  _target_: src.callbacks.predictions_callbacks.SavePreds
-  save_predictions: false
-
 log_code:
   _target_: src.callbacks.comet_callbacks.LogCode
   code_dir: ${work_dir}/src
@@ -10,6 +6,10 @@ lr_monitor:
   _target_:  pytorch_lightning.callbacks.LearningRateMonitor
   logging_interval: "step"
   log_momentum: true
+
+log_iou_by_class:
+  _target_: src.callbacks.logging_callbacks.LogIoUByClass
+  classification_dict: ${datamodule.classification_dict}
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
@@ -29,6 +29,8 @@ early_stopping:
   patience: 6 # how many validation epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
 
-log_iou_by_class:
-  _target_: src.callbacks.logging_callbacks.LogIoUByClass
+save_preds:
+  _target_: src.callbacks.predictions_callbacks.SavePreds
+  save_predictions: false
   classification_dict: ${datamodule.classification_dict}
+  names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]

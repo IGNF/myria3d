@@ -62,12 +62,13 @@ class LogIoUByClass(Callback):
             # TODO: move once in on_fit_start using trainer.device / pl_module.device ?
             class_iou = class_iou.to(device)
             class_iou(outputs["preds"], outputs["targets"])
+            metric_name = f"train/iou_CLASS_{class_name}"
             self.log(
-                f"train/iou_CLASS_{class_name}",
+                metric_name,
                 class_iou,
                 on_step=False,
                 on_epoch=True,
-                metric_attribute=f"train/iou_CLASS_{class_name}",
+                metric_attribute=metric_name,
             )
 
     def on_validation_batch_end(
@@ -83,12 +84,13 @@ class LogIoUByClass(Callback):
         for class_name, class_iou in self.val_iou_by_class_dict.items():
             class_iou = class_iou.to(device)
             class_iou(outputs["preds"], outputs["targets"])
+            metric_name = f"val/iou_CLASS_{class_name}"
             self.log(
-                f"val/iou_CLASS_{class_name}",
+                metric_name,
                 class_iou,
                 on_step=False,
                 on_epoch=True,
-                metric_attribute=f"train/iou_CLASS_{class_name}",
+                metric_attribute=metric_name,
             )
 
     def on_test_batch_end(
@@ -101,16 +103,16 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         device = outputs["preds"].device
-        self.test_iou_by_class = self.test_iou_by_class.to(outputs["preds"].device)
         for class_name, class_iou in self.test_iou_by_class_dict.items():
             class_iou = class_iou.to(device)
             class_iou(outputs["preds"], outputs["targets"])
+            metric_name = f"train/iou_CLASS_{class_name}"
             self.log(
-                f"test/iou_CLASS_{class_name}",
+                metric_name,
                 class_iou,
                 on_step=False,
                 on_epoch=True,
-                metric_attribute=f"train/iou_CLASS_{class_name}",
+                metric_attribute=metric_name,
             )
 
 
