@@ -17,35 +17,14 @@ from src.utils import utils
 log = utils.get_logger(__name__)
 
 # CONSTANTS
-HALF_UNIT = 0.5
 UNIT = 1
-
-# Warning: be sure that this order matches the one in load_las_data.
-# TODO: change this for swiss data
-COLORS_NAMES = ["red", "green", "blue"]
-X_FEATURES_NAMES = [
-    "intensity",
-    "return_num",
-    "num_returns",
-] + COLORS_NAMES
-
-INTENSITY_MAX = 255 * 256
-COLORS_MAX = 255
-RETURN_NUM_MAX = 7  # TODO: check
+HALF_UNIT = 0.5
 
 
-# For now, no probas are saved
-class ChannelNames(Enum):
-    """Names of custom and standard LAS channel"""
-
-    # Standard
-    Classification = "classification"
-
-    # Custom
-    PredictedClassification = "PredictedClassification"
-
-
-def load_las_data(data_filepath):
+def load_las_data(
+    data_filepath,
+    features_names=["intensity", "return_num", "num_returns", "red", "green", "blue"],
+):
     """
     Load a cloud of points and its labels. LAS Format: 1.2.
     Shape: [n_points, n_features].
@@ -63,7 +42,7 @@ def load_las_data(data_filepath):
         dtype=np.float32,
     ).transpose()
     x = np.asarray(
-        [las[x_name] for x_name in X_FEATURES_NAMES],
+        [las[x_name] for x_name in features_names],
         dtype=np.float32,
     ).transpose()
 
@@ -72,7 +51,7 @@ def load_las_data(data_filepath):
         # LAS format V1.2
         y = las.classification.array.astype(np.int)
     except:
-        # Accept LAS format V1.4
+        # LAS format V1.4
         y = las.classification.astype(np.int)
 
     full_cloud_filepath = get_full_las_filepath(data_filepath)
@@ -83,7 +62,7 @@ def load_las_data(data_filepath):
         y=y,
         data_filepath=data_filepath,
         full_cloud_filepath=full_cloud_filepath,
-        x_features_names=X_FEATURES_NAMES,
+        x_features_names=features_names,
     )
 
 
@@ -252,6 +231,15 @@ class CustomNormalizeFeatures(BaseTransform):
     Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
     """
 
+    def __init__(
+        self,
+        colors_normalization_max_value: int,
+        return_num_normalization_max_value: int,
+    ):
+        self.standard_colors_names = ["red", "green", "blue", "nir"]
+        self.colors_normalization_max_value = colors_normalization_max_value
+        self.return_num_normalization_max_value = return_num_normalization_max_value
+
     def __call__(self, data: Data):
 
         intensity_idx = data.x_features_names.index("intensity")
@@ -260,19 +248,22 @@ class CustomNormalizeFeatures(BaseTransform):
         )
 
         return_num_idx = data.x_features_names.index("return_num")
-        colors_idx = [
-            data.x_features_names.index(color_name) for color_name in COLORS_NAMES
-        ]
+        colors_idx = []
+        for color_name in self.standard_colors_names:
+            if color_name in data.x_features_names:
+                colors_idx.append(data.x_features_names.index(color_name))
         for color_idx in colors_idx:
-            data.x[:, color_idx] = data.x[:, color_idx] / COLORS_MAX - HALF_UNIT
+            data.x[:, color_idx] = (
+                data.x[:, color_idx] / self.colors_normalization_max_value - HALF_UNIT
+            )
             data.x[data.x[:, return_num_idx] > 1, color_idx] = -1.5 * HALF_UNIT
 
         data.x[:, return_num_idx] = (data.x[:, return_num_idx] - UNIT) / (
-            RETURN_NUM_MAX - UNIT
+            self.return_num_normalization_max_value - UNIT
         ) - HALF_UNIT
         num_return_idx = data.x_features_names.index("num_returns")
         data.x[:, num_return_idx] = (data.x[:, num_return_idx] - UNIT) / (
-            RETURN_NUM_MAX - UNIT
+            self.return_num_normalization_max_value - UNIT
         ) - HALF_UNIT
 
         return data
@@ -358,6 +349,12 @@ def collate_fn(data_list: List[Data]) -> Batch:
     )
     batch.batch_size = len(data_list)
     return batch
+
+
+class ChannelNames(Enum):
+    """Names of custom additional LAS channel"""
+
+    PredictedClassification = "PredictedClassification"
 
 
 class DataHandler:

@@ -12,9 +12,6 @@ task:
 hydra:
   verbose: false
 
-callbacks/save_preds:
-    save_predictions: true  # This activates saving of outputs.
-
 datamodule:
   use_val_data_at_test_time: True # Here we use val data instead of test data
   batch_size: 50
@@ -29,5 +26,10 @@ trainer:
   check_val_every_n_epoch: 1
   # limit_test_batches: 1  # Uncomment to limit on a subset
 
+callbacks:
+  save_preds:
+    save_predictions: true  # This activates saving of outputs.
+    classification_dict: ${datamodule.dataset_description.classification_dict}
+    names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]
 
 

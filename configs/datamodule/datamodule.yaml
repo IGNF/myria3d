@@ -4,17 +4,16 @@ _target_: src.datamodules.datamodule.DataModule
 input_data_dir: ${oc.env:INPUT_DATA_DIR}
 prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 
-# classification_dict = {int: name, ...} and MUST be sorted (increasing order). 
-classification_dict: {1: "unclassified", 2: "ground", 3: "vegetation", 6: "building", 9: "water", 17: "bridge"}
-
+num_workers: 1
 batch_size: 32
-
-augment: false
 subsample_size: 12500
 subtile_width_meters: 50
 
-num_workers: 1
+augment: false
 
 # By default, do not use the test set unless explicitely required by user.
 use_val_data_at_test_time: true
 
+# Dataset Specific information
+defaults:
+  - dataset_description: SwissSURFACE3D.yaml

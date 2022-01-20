@@ -1,3 +1,4 @@
+import functools
 import os.path as osp
 from glob import glob
 import random
@@ -34,22 +35,16 @@ class DataModule(LightningDataModule):
 
         self.num_workers = kwargs.get("num_workers", 0)
 
-        self.classification_dict = kwargs.get(
-            "classification_dict",
-            {
-                1: "unclassified",
-                2: "ground",
-                3: "vegetation",
-                6: "building",
-                9: "water",
-                17: "bridge",
-            },
-        )
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subsample_size = kwargs.get("subsample_size", 12500)
-        self.augment = kwargs.get("augment", True)
         self.batch_size = kwargs.get("batch_size", 32)
+        self.augment = kwargs.get("augment", True)
 
+        self.dataset_description = kwargs.get("dataset_description")
+        self.classification_dict = self.dataset_description.classification_dict
+        self.load_las_data_partial = functools.partial(
+            load_las_data, features_names=self.dataset_description.features_names
+        )
         # By default, do not use the test set unless explicitely required by user.
         self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
 
@@ -57,14 +52,6 @@ class DataModule(LightningDataModule):
         self.val_data: Optional[Dataset] = None
         self.test_data: Optional[Dataset] = None
         self.predict_data: Optional[Dataset] = None
-
-    def prepare_data(self):
-        """
-        Stratify train/val/test data if needed.
-        Nota: Do not use it to assign state (self.x = y). This method is called only from a single GPU.
-        """
-        if self.trainer.state.stage == "predict":
-            return
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -88,7 +75,7 @@ class DataModule(LightningDataModule):
         )
         self.train_data = LidarMapDataset(
             files,
-            loading_function=load_las_data,
+            loading_function=self.load_las_data_partial,
             transform=self._get_train_transforms(),
             target_transform=TargetTransform(self.classification_dict),
         )
@@ -101,7 +88,7 @@ class DataModule(LightningDataModule):
         log.info(f"Validation on {len(files)} subtiles.")
         self.val_data = LidarMapDataset(
             files,
-            loading_function=load_las_data,
+            loading_function=self.load_las_data_partial,
             transform=self._get_val_transforms(),
             target_transform=TargetTransform(self.classification_dict),
         )
@@ -120,7 +107,7 @@ class DataModule(LightningDataModule):
         )
         self.test_data = LidarMapDataset(
             files,
-            loading_function=load_las_data,
+            loading_function=self.load_las_data_partial,
             transform=self._get_test_transforms(),
             target_transform=TargetTransform(self.classification_dict),
         )
@@ -129,7 +116,7 @@ class DataModule(LightningDataModule):
         """This is used in predict.py, with a single file in a list."""
         self.predict_data = LidarIterableDataset(
             files_to_infer_on,
-            loading_function=load_las_data,
+            loading_function=self.load_las_data_partial,
             transform=self._get_predict_transforms(),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
@@ -206,7 +193,10 @@ class DataModule(LightningDataModule):
             ]
         self.normalization = [
             CustomNormalizeScale(),
-            CustomNormalizeFeatures(),
+            CustomNormalizeFeatures(
+                self.dataset_description.colors_normalization_max_value,
+                self.dataset_description.return_num_normalization_max_value,
+            ),
         ]
 
     def _get_train_transforms(self) -> CustomCompose:
