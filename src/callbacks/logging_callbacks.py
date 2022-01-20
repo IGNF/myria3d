@@ -106,7 +106,7 @@ class LogIoUByClass(Callback):
         for class_name, class_iou in self.test_iou_by_class_dict.items():
             class_iou = class_iou.to(device)
             class_iou(outputs["preds"], outputs["targets"])
-            metric_name = f"train/iou_CLASS_{class_name}"
+            metric_name = f"test/iou_CLASS_{class_name}"
             self.log(
                 metric_name,
                 class_iou,
