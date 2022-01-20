@@ -246,50 +246,6 @@ class MakeCopyOfSampledPos(BaseTransform):
         return data
 
 
-# class RandomTranslateFeatures(BaseTransform):
-#     r"""
-#     Randomly translate the (unnormalized) features values.
-
-#     Intensity: random translate by rel_translation * max
-#     Colors (RGB): random translate by rel_translation * max
-#     Number of returns: +1/+0/-1 with equal probability
-#     Return number: +1/+0/-1 with equal probability, max-clamped by number of returns.
-#     """
-
-#     def __call__(self, data: Data, rel_translation: float = 0.02):
-
-#         x = data.x
-#         (n, _) = x.size()
-
-#         translation = rel_translation * INTENSITY_MAX
-#         intensity_idx = data.x_features_names.index("intensity")
-#         delta = x[:, intensity_idx].new_empty(n).uniform_(-translation, translation)
-#         x[:, intensity_idx] = x[:, intensity_idx] + delta
-#         x[:, intensity_idx] = x[:, intensity_idx].clamp(min=0, max=INTENSITY_MAX)
-
-#         translation = rel_translation * COLORS_MAX
-#         COLORS_IDX = [
-#             data.x_features_names.index(color_name) for color_name in COLORS_NAMES
-#         ]
-#         for color_idx in COLORS_IDX:
-#             delta = x[:, color_idx].new_empty(n).uniform_(-translation, translation)
-#             x[:, color_idx] = x[:, color_idx] + delta
-#             x[:, color_idx] = x[:, color_idx].clamp(min=0, max=COLORS_MAX)
-
-#         num_return_idx = data.x_features_names.index("num_returns")
-#         delta = x[:, num_return_idx].new_empty(n).random_(-1, 2)
-#         x[:, num_return_idx] = x[:, num_return_idx] + delta
-#         x[:, num_return_idx] = x[:, num_return_idx].clamp(min=1, max=RETURN_NUM_MAX)
-
-#         return_num_idx = data.x_features_names.index("return_num")
-#         delta = x[:, return_num_idx].new_empty(n).random_(-1, 2)
-#         x[:, return_num_idx] = x[:, return_num_idx] + delta
-#         x[:, return_num_idx] = x[:, return_num_idx].clamp(min=1)
-#         x[:, return_num_idx] = torch.min(x[:, return_num_idx], x[:, num_return_idx])
-
-#         return data
-
-
 class CustomNormalizeFeatures(BaseTransform):
     r"""
     Scale features in 0-1 range.

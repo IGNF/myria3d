@@ -4,8 +4,6 @@ _target_: src.datamodules.datamodule.DataModule
 input_data_dir: ${oc.env:INPUT_DATA_DIR}
 prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 
-las_geoprojection: "EPSG:2056"  # LV95 = MN95 = Swiss Geoprojection
-
 # classification_dict = {int: name, ...} and MUST be sorted (increasing order). 
 classification_dict: {1: "unclassified", 2: "ground", 3: "vegetation", 6: "building", 9: "water", 17: "bridge"}
 

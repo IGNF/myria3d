@@ -34,8 +34,6 @@ class DataModule(LightningDataModule):
 
         self.num_workers = kwargs.get("num_workers", 0)
 
-        # TODO: get rid of las_geoprojection or find usage.
-        # self.las_geoprojection = kwargs.get("las_geoprojection", "EPSG:2056")
         self.classification_dict = kwargs.get(
             "classification_dict",
             {
