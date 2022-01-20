@@ -115,5 +115,5 @@ def train(config: DictConfig) -> Optional[float]:
         log.info("Starting testing!")
         trainer.test(
             model=model, datamodule=datamodule, ckpt_path=trainer.resume_from_checkpoint
-        )  # ckpt_path
+        )
         log.info("End of testing!")
