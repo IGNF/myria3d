@@ -18,6 +18,7 @@ iou:
 
 criterion: 
   _target_: torch.nn.CrossEntropyLoss
+  label_smoothing: 0.0
 
 lr: 0.004566395347136576  # 200-long LR-test-range betw 10^-4 and 3.0
 momentum: 0.9  # arbitrary
