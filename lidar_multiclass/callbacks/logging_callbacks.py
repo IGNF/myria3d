@@ -7,7 +7,7 @@ from pytorch_lightning.utilities.types import STEP_OUTPUT
 from torchmetrics import IoU
 from torchmetrics.functional.classification.iou import _iou_from_confmat
 
-from src.utils import utils
+from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
 

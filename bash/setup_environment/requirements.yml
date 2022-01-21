@@ -1,4 +1,4 @@
-name: validation_module
+name: lidar_segmentation_env
 channels:
   - conda-forge
   - anaconda
@@ -12,8 +12,6 @@ dependencies:
   # --------- geo --------- #
   - laspy
   - python-pdal
-  - pyshp
-  - geopandas
   - pygeos
   # --------- loggers --------- #
   - comet_ml

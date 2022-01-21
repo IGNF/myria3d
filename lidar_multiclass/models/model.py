@@ -4,9 +4,9 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torchmetrics import MaxMetric
-from src.models.modules.randla_net import RandLANet
-from src.models.modules.point_net import PointNet
-from src.utils import utils
+from lidar_multiclass.models.modules.randla_net import RandLANet
+from lidar_multiclass.models.modules.point_net import PointNet
+from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
 

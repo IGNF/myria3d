@@ -50,3 +50,19 @@ conda activate lidar_segmentation_env
 ```
 
 Rename `.env_example` to `.env` and fill out the needed variables.
+
+### Install as a package
+Once you have the environement setup, you can install as a package in the environment, to deploy inference in other codes.
+
+```
+# activate using
+conda activate lidar_segmentation_env
+
+# install from local source using 
+pip install -e .
+```
+
+Then, simply copy and paste the `run.py` script and make inferences as usual.
+
+
+In the future, conda packages should be supported instead of this basic pip env.

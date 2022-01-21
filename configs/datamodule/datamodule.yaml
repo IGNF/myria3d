@@ -1,4 +1,4 @@
-_target_: src.datamodules.datamodule.DataModule
+_target_: lidar_multiclass.datamodules.datamodule.DataModule
 
 # those two paths are specified in configs/config.yaml
 input_data_dir: ${oc.env:INPUT_DATA_DIR}

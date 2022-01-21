@@ -12,10 +12,10 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
-from src.utils import utils
-from src.datamodules.processing import *
+from lidar_multiclass.utils import utils
+from lidar_multiclass.datamodules.processing import *
 
-from src.utils import utils
+from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
 

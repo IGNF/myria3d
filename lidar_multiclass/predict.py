@@ -6,8 +6,8 @@ from typing import Optional
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
 
-from src.utils import utils
-from src.datamodules.processing import DataHandler
+from lidar_multiclass.utils import utils
+from lidar_multiclass.datamodules.processing import DataHandler
 
 
 log = utils.get_logger(__name__)

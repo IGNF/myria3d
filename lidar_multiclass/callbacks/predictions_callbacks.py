@@ -12,9 +12,9 @@ from pytorch_lightning.utilities.types import STEP_OUTPUT
 import os.path as osp
 import torch
 from torch_geometric.nn.pool import knn
-from src.datamodules.processing import DataHandler
+from lidar_multiclass.datamodules.processing import DataHandler
 
-from src.utils import utils
+from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
 

@@ -15,9 +15,9 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
-    from src.utils import utils
-    from src.train import train
-    from src.predict import predict
+    from lidar_multiclass.utils import utils
+    from lidar_multiclass.train import train
+    from lidar_multiclass.predict import predict
 
     # A couple of optional utilities:
     # - disabling python warnings

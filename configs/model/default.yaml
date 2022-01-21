@@ -1,4 +1,4 @@
-_target_: src.models.model.Model
+_target_: lidar_multiclass.models.model.Model
 
 num_classes: 6
 
