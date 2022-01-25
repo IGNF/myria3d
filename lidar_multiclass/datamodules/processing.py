@@ -395,8 +395,6 @@ class DataHandler:
         batch = outputs["batch"].detach()
         batch_classification = outputs["preds"].detach()
         batch_probas = outputs["proba"][:, self.index_of_probas_to_save].detach()
-        if self.index_of_probas_to_save:
-            pass
         for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
             is_a_new_tile = full_cloud_filepath != self.current_full_cloud_filepath
             if is_a_new_tile:
@@ -457,6 +455,7 @@ class DataHandler:
 
         os.makedirs(self.preds_dirpath, exist_ok=True)
         self.output_path = os.path.join(self.preds_dirpath, basename)
+        log.info(f"Updated LAS will be saved to {self.output_path}")
 
         # Cat
         self.updates_pos = torch.cat(self.updates_pos).cpu()
@@ -466,7 +465,7 @@ class DataHandler:
             self.updates_classification_subsampled
         ).cpu()
 
-        # Remap predictions
+        # Remap predictions to good classification codes
         self.updates_classification_subsampled = np.vectorize(
             self.reverse_classification_mapper.get
         )(self.updates_classification_subsampled)
@@ -474,35 +473,34 @@ class DataHandler:
             self.updates_classification_subsampled
         )
 
-        # 1/2 Interpolate locally to have dense classes in infered zones
+        # Find nn among points with predictions for all points
         assign_idx = knn(
             self.updates_pos_subsampled,
-            self.updates_pos,
+            self.las_pos,
             k=1,
             num_workers=1,
         )[1]
+
+        # Interpolate predictions
         self.updates_classification = self.updates_classification_subsampled[assign_idx]
         self.updates_probas = self.updates_probas_subsampled[assign_idx]
 
-        # 2/2 Propagate dense classes to the full las
-        assign_idx = knn(
-            self.las_pos,
-            self.updates_pos,
-            k=1,
-            num_workers=1,
-        )[1]
-        assign_idx = assign_idx
+        # Only update channels for points with a predicted point that is close enough
+        nn_pos = self.updates_pos_subsampled[assign_idx]
+        euclidian_distance = torch.sqrt(((self.las_pos - nn_pos) ** 2).sum(axis=1))
+        INTERPOLATION_RADIUS = 2.5
+        close_enough_with_preds = euclidian_distance < INTERPOLATION_RADIUS
         self.las[ChannelNames.PredictedClassification.value][
-            assign_idx
-        ] = self.updates_classification
-
+            close_enough_with_preds
+        ] = self.updates_classification[close_enough_with_preds]
         for class_idx_in_tensor, class_name in enumerate(self.names_of_probas_to_save):
-            self.las[class_name][assign_idx] = self.updates_probas[
-                :, class_idx_in_tensor
+            self.las[class_name][close_enough_with_preds] = self.updates_probas[
+                close_enough_with_preds, class_idx_in_tensor
             ]
 
-        log.info(f"Saving LAS updated with predicted classes to {self.output_path}")
+        log.info(f"Saving...")
         self.las.write(self.output_path)
+        log.info(f"Saved...")
 
         # Clean-up - get rid of current data to go easy on memory
         self.current_full_cloud_filepath = ""
