@@ -1,6 +1,6 @@
 <div align="center">
 
-# Semantic Segmentation - Inspection Module
+# [Work in Progress] Lidar HD Semantic Segmentation with Deep Learning
 
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
@@ -14,7 +14,11 @@
 ### Context
 The Lidar HD project ambitions to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
 
-Here we aim to train a multiclass segmentation model that can serve as a base model for further segmentation tasks on French Lidar HD data. To kickstart these training, we will use data from the [SwissSurface3D](https://www.swisstopo.admin.ch/fr/geodata/height/surface3d.htm), a similar initiative from the Swiss geographical institute SwissTopo.
+Here we train multiclass segmentation models that can serve as base model for further segmentation tasks on French Lidar HD data. 
+
+The goal is to be somewhat data-agnostic yet opiniated, with default configuration for different national Lidar data specifications. 
+
+To kickstart these training, we will use data from the [SwissSurface3D](https://www.swisstopo.admin.ch/fr/geodata/height/surface3d.htm), a similar initiative from the Swiss geographical institute SwissTopo. Once labeled French Lidar HD data becomes available, we will switch to different datasets.
 
 ### Content
 
@@ -33,14 +37,14 @@ In this repository you will find two main components:
 
 ```yaml
 # clone project
-git clone https://github.com/CharlesGaydon/Multiclass-Root-Model
-cd Multiclass-Root-Model
+git clone https://github.com/CharlesGaydon/Lidar-Deep-Segmentation
+cd Lidar-Deep-Segmentation
 
 # [OPTIONAL] If you want to use a gpu make sure cuda toolkit is installed
 sudo apt install nvidia-cuda-toolkit
 
 # install conda
-https://www.anaconda.com/products/individual
+# see https://www.anaconda.com/products/individual
 
 # create conda environment (you may need to run lines manually as conda may not activate properly from bash script)
 source bash/setup_environment/setup_env.sh
@@ -49,7 +53,7 @@ source bash/setup_environment/setup_env.sh
 conda activate lidar_segmentation_env
 ```
 
-Rename `.env_example` to `.env` and fill out the needed variables.
+Rename `.env_example` to `.env` and fill out the needed variables for looging and data directories.
 
 ### Install as a package
 Once you have the environement setup, you can install as a package in the environment, to deploy inference in other codes.
