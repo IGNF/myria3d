@@ -1,4 +1,5 @@
 # pylint: disable
+import copy
 import os
 import os.path as osp
 import math
@@ -23,15 +24,27 @@ HALF_UNIT = 0.5
 
 def load_las_data(
     data_filepath,
-    features_names=["intensity", "return_num", "num_returns", "red", "green", "blue"],
+    features_names=[
+        "intensity",
+        "return_num",
+        "num_returns",
+        "red",
+        "green",
+        "blue",
+        "composite",
+    ],
 ):
     """
     Load a cloud of points and its labels. LAS Format: 1.2.
     Shape: [n_points, n_features].
     Warning: las.x is in meters, las.X is in centimeters.
     """
+
     log.debug(f"Loading {data_filepath}")
     las = laspy.read(data_filepath)
+
+    features_names = copy.deepcopy(features_names)
+    las_features_name = [f for f in features_names if f not in ["composite"]]
 
     pos = np.asarray(
         [
@@ -42,9 +55,20 @@ def load_las_data(
         dtype=np.float32,
     ).transpose()
     x = np.asarray(
-        [las[x_name] for x_name in features_names],
+        [las[x_name] for x_name in las_features_name],
         dtype=np.float32,
     ).transpose()
+
+    colors = ["red", "green", "blue"]
+    commposite = (
+        np.asarray(
+            [las[x_name] for x_name in colors],
+            dtype=np.float32,
+        )
+        .transpose()
+        .mean(axis=1, keepdims=True)
+    )
+    x = np.concatenate([x, commposite], axis=1)
 
     # TODO: assure that post-preparation data are always in LAS Format1.4
     try:
@@ -236,7 +260,7 @@ class CustomNormalizeFeatures(BaseTransform):
         colors_normalization_max_value: int,
         return_num_normalization_max_value: int,
     ):
-        self.standard_colors_names = ["red", "green", "blue", "nir"]
+        self.standard_colors_names = ["red", "green", "blue", "nir", "composite"]
         self.colors_normalization_max_value = colors_normalization_max_value
         self.return_num_normalization_max_value = return_num_normalization_max_value
 
@@ -252,11 +276,19 @@ class CustomNormalizeFeatures(BaseTransform):
         for color_name in self.standard_colors_names:
             if color_name in data.x_features_names:
                 colors_idx.append(data.x_features_names.index(color_name))
+
         for color_idx in colors_idx:
             data.x[:, color_idx] = (
                 data.x[:, color_idx] / self.colors_normalization_max_value - HALF_UNIT
             )
             data.x[data.x[:, return_num_idx] > 1, color_idx] = -1.5 * HALF_UNIT
+
+        composite_idx = data.x_features_names.index("composite")
+        clamp_value = -3
+        data.x[:, composite_idx] = self._standardize_channel(
+            data.x[:, composite_idx]
+        ).clamp(min=-5)
+        data.x[data.x[:, return_num_idx] > 1, composite_idx] = 1.5 * clamp_value
 
         data.x[:, return_num_idx] = (data.x[:, return_num_idx] - UNIT) / (
             self.return_num_normalization_max_value - UNIT
@@ -267,6 +299,12 @@ class CustomNormalizeFeatures(BaseTransform):
         ) - HALF_UNIT
 
         return data
+
+    def _standardize_channel(self, channel_data):
+        """Sample-wise standardization y* = (y-y_mean)/y_std"""
+        mean = channel_data.mean()
+        std = channel_data.std()
+        return (channel_data - mean) / std
 
 
 class CustomNormalizeScale(BaseTransform):
