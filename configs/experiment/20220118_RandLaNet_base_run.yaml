@@ -11,12 +11,7 @@ trainer:
   max_epochs: 150
   check_val_every_n_epoch: 1
   val_check_interval: 0.25 
-  # gpus: "1"
-
-datamodule:
-  batch_size: 32
-  subsample_size: 12500 
-  num_workers: 1
+  # gpus: [1]
 
 callbacks:
   early_stopping:

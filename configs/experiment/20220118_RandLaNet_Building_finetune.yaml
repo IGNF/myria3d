@@ -4,30 +4,31 @@ defaults:
   - override /trainer: default.yaml
   - override /callbacks: finetuning.yaml
   - override /model: randla_net_model.yaml
+  - override /datamodule/dataset_description/classification: SwissSURFACE3D_Building_class
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 task:
   task_name: finetune
 
-model:
-    # d_in: 9
-    num_classes: 6  # For now. We will need to adapt data preparation to unclassify unsued classes.
-
 logger:
   comet:
-    experiment_name: "RandLaNetDebugFineTune"
+    experiment_name: "RandLaNet - Specialize on buildings"
+
+model:
+    num_classes: 2
+    lr: 0.0004566395347136576  # i.e. the initial one from auto_find_lr one / 10
+
+callbacks:
+  finetune:
+    unfreeze_decoder_train_epoch: 1
 
 trainer:
-  overfit_batches: 1
   log_every_n_steps: 1
   num_sanity_val_steps: 0
-  min_epochs: 1
-  max_epochs: 30
+  min_epochs: 2
+  max_epochs: 10
   check_val_every_n_epoch: 1
-  # gpus: "1"
-
-datamodule:
-  batch_size: 16
-  num_workers: 1
+  val_check_interval: 0.25 
+  # gpus: [1]
 
