@@ -1,22 +1,17 @@
 # @package _global_
 defaults:
   - RandLaNetDebugFineTune.yaml
+  - override /datamodule/dataset_description/classification: SwissSURFACE3D_Building_class
 
 model:
     # d_in: 9
-    num_classes: 2  # For now. We will need to adapt data preparation to unclassify unsued classes.
+    num_classes: 2  # should match /datamodule/dataset_description/classification
 
-
-# TODO/ find a way to modify just those params.
-# datamodule:
-#   dataset_description:
-#     classification_preprocessing_dict: {2: 1, 3: 1, 9: 1, 17: 1}
-#     classification_dict: {1: "unclassified", 6: "building"}
+callbacks:
+  finetune:
+    unfreeze_decoder_train_epoch: 10
 
 logger:
   comet:
     experiment_name: "RandLaNetDebugFineTuneBinaryClassification"
-
-# trainer:
-  # gpus: "1"
 
