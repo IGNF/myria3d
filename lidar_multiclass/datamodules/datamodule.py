@@ -29,7 +29,7 @@ class DataModule(LightningDataModule):
 
     def __init__(self, **kwargs):
         super().__init__()
-
+        # TODO: try to use save_hyperparameters to lightne this code.
         self.input_data_dir = kwargs.get("input_data_dir")
         self.prepared_data_dir = kwargs.get("prepared_data_dir")
 
@@ -41,9 +41,12 @@ class DataModule(LightningDataModule):
         self.augment = kwargs.get("augment", True)
 
         self.dataset_description = kwargs.get("dataset_description")
-        self.classification_dict = self.dataset_description.classification_dict
+        self.classification_dict = self.dataset_description.classification.get("classification_dict")
+        self.classification_preprocessing_dict = self.dataset_description.classification.get(
+            "classification_preprocessing_dict"
+        )
         self.load_las_data_partial = functools.partial(
-            load_las_data, features_names=self.dataset_description.features_names
+            load_las_data, features_names=self.dataset_description.get("features_names")
         )
         # By default, do not use the test set unless explicitely required by user.
         self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
@@ -77,7 +80,10 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las_data_partial,
             transform=self._get_train_transforms(),
-            target_transform=TargetTransform(self.classification_dict),
+            target_transform=TargetTransform(
+                self.classification_preprocessing_dict,
+                self.classification_dict,
+            ),
         )
 
     def _set_val_data(self):
@@ -90,7 +96,10 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las_data_partial,
             transform=self._get_val_transforms(),
-            target_transform=TargetTransform(self.classification_dict),
+            target_transform=TargetTransform(
+                self.classification_preprocessing_dict,
+                self.classification_dict,
+            ),
         )
 
     def _set_test_data(self):
@@ -109,7 +118,10 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las_data_partial,
             transform=self._get_test_transforms(),
-            target_transform=TargetTransform(self.classification_dict),
+            target_transform=TargetTransform(
+                self.classification_preprocessing_dict,
+                self.classification_dict,
+            ),
         )
 
     def _set_predict_data(self, files_to_infer_on: List[AnyStr]):
@@ -171,11 +183,6 @@ class DataModule(LightningDataModule):
         Called at initialization.
         """
 
-        MAX_ROTATION_DEGREES = 5
-        MIN_RANDOM_SCALE = 0.9
-        MAX_RANDOM_SCALE = 1.1
-        POS_TRANSLATIONS_METERS = (0.25, 0.25, 0.25)
-
         self.preparation = [
             EmptySubtileFilter(),
             ToTensor(),
@@ -194,8 +201,8 @@ class DataModule(LightningDataModule):
         self.normalization = [
             CustomNormalizeScale(),
             CustomNormalizeFeatures(
-                self.dataset_description.colors_normalization_max_value,
-                self.dataset_description.return_num_normalization_max_value,
+                self.dataset_description.get("colors_normalization_max_value"),
+                self.dataset_description.get("return_num_normalization_max_value"),
             ),
         ]
 

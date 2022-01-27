@@ -1,4 +1,5 @@
 # pylint: disable
+import copy
 import os
 import os.path as osp
 import math
@@ -292,25 +293,52 @@ class CustomNormalizeScale(BaseTransform):
 class TargetTransform(BaseTransform):
     """
     Make target vector based on input classification dictionnary.
+
+    Example:
+    Source : y = [6,6,17,9,1]
+    Pre-processed:
+    - classification_preprocessing_dict = {17:1, 9:1}
+    - y' = [6,6,1,1,1]
+    Mapped to consecutive integers:
+    - classification_dict = {1:"unclassified", 6:"building"}
+    - y'' = [1,1,0,0,0]
+
     """
 
-    def __init__(self, classification_dict: List[AnyStr]):
-        self.classification_mapper = {
-            class_code: class_index
-            for class_index, class_code in enumerate(classification_dict.keys())
-        }
-
-    def __call__(
+    def __init__(
         self,
-        data: Data,
+        classification_preprocessing_dict: Dict[int, int],
+        classification_dict: Dict[int, str],
     ):
+
+        self._set_preprocessing_mapper(classification_preprocessing_dict)
+        self._set_mapper(classification_dict)
+
+    def __call__(self, data: Data):
         data.y = self.transform(data.y)
         return data
 
     def transform(self, y):
-        y = np.vectorize(self.classification_mapper.get)(y)
-        y = torch.LongTensor(y)
-        return y
+        y = self.preprocessing_mapper(y)
+        if np.isnan(y).sum() > 0:
+            print("1")
+        y = self.mapper(y)
+        return torch.LongTensor(y)
+
+    def _set_preprocessing_mapper(self, classification_preprocessing_dict):
+        """Set mapper from source classification code to another code."""
+        d = {key: value for key, value in classification_preprocessing_dict.items()}
+        self.preprocessing_mapper = np.vectorize(
+            lambda class_code: d.get(class_code, class_code)
+        )
+
+    def _set_mapper(self, classification_dict):
+        """Set mapper from source classification code to consecutive integers."""
+        d = {
+            class_code: class_index
+            for class_index, class_code in enumerate(classification_dict.keys())
+        }
+        self.mapper = np.vectorize(lambda class_code: d.get(class_code))
 
 
 def collate_fn(data_list: List[Data]) -> Batch:
