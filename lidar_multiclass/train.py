@@ -107,7 +107,9 @@ def train(config: DictConfig) -> Optional[float]:
 
     if "fit" in task_name:
         log.info("Starting training and validating!")
-        trainer.fit(model=model, datamodule=datamodule)
+        trainer.fit(
+            model=model, datamodule=datamodule, ckpt_path=trainer.resume_from_checkpoint
+        )
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
         log.info("End of training and validating!")
 
