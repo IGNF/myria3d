@@ -1,2 +1,2 @@
 # Task at hand. Can be train or predict
-task_name: fit  # "fit" or "test" or "fit+test"
+task_name: fit  # "fit" or "test" or "fit+test", or "predict", or "finetune"

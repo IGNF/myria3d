@@ -17,8 +17,10 @@ datamodule:
   batch_size: 50
   num_workers: 1
 
+model:
+  ckpt_path: "path/to/checkpoint"  # override
+
 trainer:
-  resume_from_checkpoint: ???  # to override in CLI
   log_every_n_steps: 1
   num_sanity_val_steps: 0
   min_epochs: 1

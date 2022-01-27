@@ -10,7 +10,6 @@ check_val_every_n_epoch: 10
 
 weights_summary: null
 progress_bar_refresh_rate: 5
-resume_from_checkpoint: null
 
 auto_lr_find: false
 

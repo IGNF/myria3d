@@ -1,0 +1,33 @@
+# @package _global_
+
+defaults:
+  - override /trainer: default.yaml
+  - override /callbacks: finetuning.yaml
+  - override /model: randla_net_model.yaml
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+task:
+  task_name: finetune
+
+model:
+    # d_in: 9
+    num_classes: 6  # For now. We will need to adapt data preparation to unclassify unsued classes.
+
+logger:
+  comet:
+    experiment_name: "RandLaNetDebugFineTune"
+
+trainer:
+  overfit_batches: 1
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 1
+  max_epochs: 30
+  check_val_every_n_epoch: 1
+  # gpus: "1"
+
+datamodule:
+  batch_size: 16
+  num_workers: 1
+

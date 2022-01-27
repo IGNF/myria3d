@@ -189,20 +189,21 @@ class RandLANet(nn.Module):
     def __init__(self, hparams_net: dict):
 
         super(RandLANet, self).__init__()
-        num_classes = hparams_net.get("num_classes", 6)
-        d_in = hparams_net.get("d_in", 6)  # xyz + features
+        self.d_in = hparams_net.get("d_in", 6)  # xyz + features
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
         self.decimation = hparams_net.get("decimation", 4)
+        self.dropout = hparams_net.get("dropout", 0.0)
+        self.num_classes = hparams_net.get("num_classes", 6)
 
-        self.fc_start = nn.Linear(d_in, d_in * 2)
+        self.fc_start = nn.Linear(self.d_in, self.d_in * 2)
         self.bn_start = nn.Sequential(
-            nn.BatchNorm2d(d_in * 2, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
+            nn.BatchNorm2d(self.d_in * 2, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
         )
 
         # encoding layers
         self.encoder = nn.ModuleList(
             [
-                LocalFeatureAggregation(d_in * 2, 16, self.num_neighbors),
+                LocalFeatureAggregation(self.d_in * 2, 16, self.num_neighbors),
                 LocalFeatureAggregation(32, 64, self.num_neighbors),
                 LocalFeatureAggregation(128, 128, self.num_neighbors),
                 LocalFeatureAggregation(256, 256, self.num_neighbors),
@@ -218,23 +219,22 @@ class RandLANet(nn.Module):
                 SharedMLP(1024, 256, **decoder_kwargs),
                 SharedMLP(512, 128, **decoder_kwargs),
                 SharedMLP(256, 32, **decoder_kwargs),
-                SharedMLP(64, d_in * 2, **decoder_kwargs),
+                SharedMLP(64, self.d_in * 2, **decoder_kwargs),
             ]
         )
+        self.set_fc_end(self.d_in, self.dropout, self.num_classes)
 
-        # final semantic prediction
+    def set_fc_end(self, d_in, dropout, num_classes):
+        """Build the final fully connected layer."""
         parts = [
             SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
             SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
         ]
-        dropout = hparams_net.get("dropout", 0.0)
         if dropout:
             parts.append(nn.Dropout(p=dropout))
         parts.append(SharedMLP(32, num_classes))
         self.fc_end = nn.Sequential(*parts)
 
-    # TODO: activate Batch normalization
-    # TODO: deactivate dropout and reduce final layers
     def forward(self, batch):
         r"""
         Forward pass
@@ -309,3 +309,16 @@ class RandLANet(nn.Module):
             [score_cloud.permute(1, 0) for score_cloud in scores]
         )  # B*N, C
         return scores
+
+    def update_outer_layers_for_finetuning(self, d_in, num_classes):
+        """
+        Change start and end layers
+         WIP:
+         Phase 1 : only let final MLP trainable.
+         Phase 2: try to let decoder trainable as well.
+        """
+        # to_freeze = [self.fc_start, self. ]
+        # Order should not be important here.
+        if (d_in != self.d_in) or (num_classes != self.num_classes):
+            # TODO
+            pass

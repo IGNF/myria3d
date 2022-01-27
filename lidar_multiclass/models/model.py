@@ -138,7 +138,10 @@ class Model(LightningModule):
             https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
         """
         self.lr = self.hparams.lr  # aliasing for Lightning auto_find_lr
-        optimizer = self.hparams.optimizer(params=self.parameters(), lr=self.lr)
+        # TODO:
+        optimizer = self.hparams.optimizer(
+            params=filter(lambda p: p.requires_grad, self.parameters()), lr=self.lr
+        )
         try:
             lr_scheduler = self.hparams.lr_scheduler(optimizer)
         except:

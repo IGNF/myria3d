@@ -1,3 +1,5 @@
+# Override with "none" to deactivate. 
+
 log_code:
   _target_: lidar_multiclass.callbacks.comet_callbacks.LogCode
   code_dir: ${work_dir}/lidar_multiclass
@@ -34,3 +36,4 @@ save_preds:
   save_predictions: false
   classification_dict: ${datamodule.dataset_description.classification_dict}
   names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]
+  
