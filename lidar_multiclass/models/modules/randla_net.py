@@ -320,5 +320,5 @@ class RandLANet(nn.Module):
         # to_freeze = [self.fc_start, self. ]
         # Order should not be important here.
         if (d_in != self.d_in) or (num_classes != self.num_classes):
-            # TODO
+            self.set_fc_end(d_in, self.dropout, num_classes)
             pass

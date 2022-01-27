@@ -6,3 +6,4 @@ finetune:
   _target_: lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze
   d_in: ${model.d_in}
   num_classes: ${model.num_classes}
+  unfreeze_decoder_train_epoch: null  # decoder is unfrozen later than last FC layer.
