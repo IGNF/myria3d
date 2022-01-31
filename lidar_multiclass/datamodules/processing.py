@@ -393,6 +393,7 @@ class ChannelNames(Enum):
     """Names of custom additional LAS channel"""
 
     PredictedClassification = "PredictedClassification"
+    ProbasEntropy = "entropy"
 
 
 class DataHandler:
@@ -432,6 +433,8 @@ class DataHandler:
         """
         batch = outputs["batch"].detach()
         batch_classification = outputs["preds"].detach()
+        if "entropy" in outputs:
+            batch_entropy = outputs["entropy"].detach()
         batch_probas = outputs["proba"][:, self.index_of_probas_to_save].detach()
         for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
             is_a_new_tile = full_cloud_filepath != self.current_full_cloud_filepath
@@ -442,9 +445,10 @@ class DataHandler:
                 self._load_las_for_classification_update(full_cloud_filepath)
 
             idx_x = batch.batch_x == batch_idx
-            # TODO: add probas if needed
             self.updates_classification_subsampled.append(batch_classification[idx_x])
             self.updates_probas_subsampled.append(batch_probas[idx_x])
+            if "entropy" in outputs:
+                self.updates_entropy_subsampled.append(batch_entropy[idx_x])
             self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
             idx_y = batch.batch_y == batch_idx
             self.updates_pos.append(batch.pos_copy[idx_y])
@@ -459,6 +463,13 @@ class DataHandler:
         param = laspy.ExtraBytesParams(name=coln, type=int)
         self.las.add_extra_dim(param)
         self.las[coln][:] = 0
+
+        # TODO: conditional creation
+        param = laspy.ExtraBytesParams(
+            name=ChannelNames.ProbasEntropy.value, type=float
+        )
+        self.las.add_extra_dim(param)
+        self.las[ChannelNames.ProbasEntropy.value][:] = 0.0
 
         for class_name in self.names_of_probas_to_save:
             param = laspy.ExtraBytesParams(name=class_name, type=float)
@@ -477,6 +488,7 @@ class DataHandler:
         )
         self.updates_classification_subsampled = []
         self.updates_probas_subsampled = []
+        self.updates_entropy_subsampled = []
         self.updates_pos_subsampled = []
         self.updates_pos = []
 
@@ -502,6 +514,10 @@ class DataHandler:
         self.updates_classification_subsampled = torch.cat(
             self.updates_classification_subsampled
         ).cpu()
+        if len(self.updates_entropy_subsampled):
+            self.updates_entropy_subsampled = torch.cat(
+                self.updates_entropy_subsampled
+            ).cpu()
 
         # Remap predictions to good classification codes
         self.updates_classification_subsampled = np.vectorize(
@@ -522,23 +538,30 @@ class DataHandler:
         # Interpolate predictions
         self.updates_classification = self.updates_classification_subsampled[assign_idx]
         self.updates_probas = self.updates_probas_subsampled[assign_idx]
+        if len(self.updates_entropy_subsampled):
+            self.updates_entropy = self.updates_entropy_subsampled[assign_idx]
 
         # Only update channels for points with a predicted point that is close enough
         nn_pos = self.updates_pos_subsampled[assign_idx]
         euclidian_distance = torch.sqrt(((self.las_pos - nn_pos) ** 2).sum(axis=1))
         INTERPOLATION_RADIUS = 2.5
         close_enough_with_preds = euclidian_distance < INTERPOLATION_RADIUS
-        self.las[ChannelNames.PredictedClassification.value][
-            close_enough_with_preds
-        ] = self.updates_classification[close_enough_with_preds]
+
         for class_idx_in_tensor, class_name in enumerate(self.names_of_probas_to_save):
             self.las[class_name][close_enough_with_preds] = self.updates_probas[
                 close_enough_with_preds, class_idx_in_tensor
             ]
+        self.las[ChannelNames.PredictedClassification.value][
+            close_enough_with_preds
+        ] = self.updates_classification[close_enough_with_preds]
+        if len(self.updates_entropy):
+            self.las[ChannelNames.ProbasEntropy.value][
+                close_enough_with_preds
+            ] = self.updates_entropy[close_enough_with_preds]
 
         log.info(f"Saving...")
         self.las.write(self.output_path)
-        log.info(f"Saved...")
+        log.info(f"Saved.")
 
         # Clean-up - get rid of current data to go easy on memory
         self.current_full_cloud_filepath = ""

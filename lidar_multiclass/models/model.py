@@ -2,6 +2,7 @@ from typing import Any, Optional
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
+from torch.distributions import Categorical
 from torch_geometric.data import Batch
 from torchmetrics import MaxMetric
 from lidar_multiclass.models.modules.randla_net import RandLANet
@@ -95,6 +96,7 @@ class Model(LightningModule):
             "preds": preds,
             "targets": targets,
             "batch": batch,
+            "entropy": None,
         }
 
     def validation_epoch_end(self, outputs):
@@ -116,13 +118,15 @@ class Model(LightningModule):
             "preds": preds,
             "targets": targets,
             "batch": batch,
+            "entropy": None,
         }
 
     def predict_step(self, batch: Any):
         logits = self.forward(batch)
         proba = self.softmax(logits)
         preds = torch.argmax(logits, dim=1)
-        return {"batch": batch, "proba": proba, "preds": preds}
+        entropy = Categorical(probs=proba).entropy()
+        return {"batch": batch, "proba": proba, "preds": preds, "entropy": entropy}
 
     def get_neural_net_class(self, class_name):
         """Access class of neural net based on class name."""
