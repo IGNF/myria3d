@@ -2,25 +2,22 @@ from typing import Any, List, Optional
 
 import pytorch_lightning as pl
 from pytorch_lightning import Callback
-import os.path as osp
 from pytorch_lightning.utilities.types import STEP_OUTPUT
-from torchmetrics import IoU
-from torchmetrics.functional.classification.iou import _iou_from_confmat
-
+from torchmetrics import JaccardIndex
+from torchmetrics.functional.classification.jaccard import _jaccard_from_confmat
 from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
 
 
-# This is not optimal at the moment, and a single class IoU by phase could be used
+# This is not optimal at the moment, and a single class JaccardIndex by phase could be used
 # with specific class of interest specified before each logging. But this seems dangerous so
 # first tests with num_class objects are performed.
 
 
 class LogIoUByClass(Callback):
     """
-    A Callback to log an IoU for each class.
-    We do not log on each step because this could (slightly) mess with IoU computation.
+    A Callback to log JaccardIndex for each class.
     """
 
     def __init__(self, classification_dict):
@@ -116,12 +113,12 @@ class LogIoUByClass(Callback):
             )
 
 
-class SingleClassIoU(IoU):
+class SingleClassIoU(JaccardIndex):
     """
-    Custom IoU metrics to log single class IoU using PytorchLighting log system.
-    This enables good computation of epoch-level IoU.
-    i.e. use the full confusion matrix instead of averaging many step-level IoU.
-    Default parameters of IoU are used except for absent_score set to 1.0 and none reduction.
+    Custom JaccardIndex metrics to log single class JaccardIndex using PytorchLighting log system.
+    This enables good computation of epoch-level JaccardIndex.
+    i.e. use the full confusion matrix instead of averaging many step-level JaccardIndex.
+    Default parameters of JaccardIndex are used except for absent_score set to 1.0 and none reduction.
     """
 
     def __init__(
@@ -154,9 +151,9 @@ class SingleClassIoU(IoU):
     #     self.class_of_interest_idx = class_of_interest_idx
 
     def compute(self):
-        """Computes intersection over union (IoU)"""
+        """Computes intersection over union (JaccardIndex)"""
 
-        iou_no_reduction = _iou_from_confmat(
+        iou_no_reduction = _jaccard_from_confmat(
             self.confmat,
             self.num_classes,
             self.ignore_index,

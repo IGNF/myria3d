@@ -10,7 +10,7 @@ neural_net_hparams: ???
 iou:
   _target_: functools.partial
   _args_:
-    - "${get_method:torchmetrics.IoU}"
+    - "${get_method:torchmetrics.JaccardIndex}"
     - ${model.num_classes}
   absent_score: 1.0
 

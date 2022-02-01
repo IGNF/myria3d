@@ -50,7 +50,7 @@ sudo apt install nvidia-cuda-toolkit
 source bash/setup_environment/setup_env.sh
 
 # activate using
-conda activate lidar_segmentation_env
+conda activate lidar_multiclass_env
 ```
 
 Rename `.env_example` to `.env` and fill out the needed variables for looging and data directories.
@@ -60,7 +60,7 @@ Once you have the environement setup, you can install as a package in the enviro
 
 ```
 # activate using
-conda activate lidar_segmentation_env
+conda activate lidar_multiclass_env
 
 # install from local source using 
 pip install -e .
