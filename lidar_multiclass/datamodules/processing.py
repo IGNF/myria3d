@@ -136,41 +136,6 @@ class CustomCompose(BaseTransform):
         return data
 
 
-class SelectPredictSubTile:
-    r"""
-    Select a specified square subtile from a tile to infer on.
-    Returns None if there are no candidate building points.
-    """
-
-    def __init__(
-        self,
-        subtile_width_meters: float = 50.0,
-    ):
-        self.subtile_width_meters = subtile_width_meters
-
-    def __call__(self, data: Data):
-
-        subtile_data = self.get_subtile_data(data, data.current_subtile_center)
-        if len(subtile_data.pos) > 0:
-            return subtile_data
-        return None
-
-    def get_subtile_data(self, data: Data, subtile_center_xy):
-        """Extract tile points and labels around a subtile center using Chebyshev distance, in meters."""
-        subtile_data = data.clone()
-
-        chebyshev_distance = np.max(
-            np.abs(subtile_data.pos[:, :2] - subtile_center_xy), axis=1
-        )
-        mask = chebyshev_distance <= (self.subtile_width_meters / 2)
-
-        subtile_data.pos = subtile_data.pos[mask]
-        subtile_data.x = subtile_data.x[mask]
-        subtile_data.y = subtile_data.y[mask]
-
-        return subtile_data
-
-
 class EmptySubtileFilter(BaseTransform):
     r"""Filter out almost empty subtiles"""
 

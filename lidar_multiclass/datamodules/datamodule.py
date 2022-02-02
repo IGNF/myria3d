@@ -4,7 +4,7 @@ from glob import glob
 import random
 import time
 import numpy as np
-from typing import Optional, List, AnyStr
+from typing import Optional, List, AnyStr, Tuple
 
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
@@ -41,9 +41,13 @@ class DataModule(LightningDataModule):
         self.augment = kwargs.get("augment", True)
 
         self.dataset_description = kwargs.get("dataset_description")
-        self.classification_dict = self.dataset_description.classification.get("classification_dict")
-        self.classification_preprocessing_dict = self.dataset_description.classification.get(
-            "classification_preprocessing_dict"
+        self.classification_dict = self.dataset_description.classification.get(
+            "classification_dict"
+        )
+        self.classification_preprocessing_dict = (
+            self.dataset_description.classification.get(
+                "classification_preprocessing_dict"
+            )
         )
         self.load_las_data_partial = functools.partial(
             load_las_data, features_names=self.dataset_description.get("features_names")
@@ -219,10 +223,7 @@ class DataModule(LightningDataModule):
 
     def _get_predict_transforms(self) -> CustomCompose:
         """Create a transform composition for predict phase."""
-        selection = SelectPredictSubTile(
-            subtile_width_meters=self.subtile_width_meters,
-        )
-        return CustomCompose([selection] + self.preparation + self.normalization)
+        return self._get_val_transforms()
 
 
 class LidarMapDataset(Dataset):
@@ -280,12 +281,13 @@ class LidarIterableDataset(IterableDataset):
         for idx, filepath in enumerate(self.files):
             log.info(f"Predicting for file {idx+1}/{len(self.files)} [{filepath}]")
             tile_data = self.loading_function(filepath)
-            centers = self.get_all_subtile_centers(tile_data)
+            centers = self.get_all_subtiles_xy_min_corner(tile_data)
             # TODO: change to process time function
             ts = time.time()
-            for tile_data.current_subtile_center in centers:
+            for xy_min_corner in centers:
+                data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
                 if self.transform:
-                    data = self.transform(tile_data)
+                    data = self.transform(data)
                 if data is not None:
                     if self.target_transform:
                         data = self.target_transform(data)
@@ -296,20 +298,37 @@ class LidarIterableDataset(IterableDataset):
     def __iter__(self):
         return self.process_data()
 
-    def get_all_subtile_centers(self, data: Data):
+    def get_all_subtiles_xy_min_corner(self, data: Data):
         """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
 
-        half_subtile_width_meters = self.subtile_width_meters / 2
-        low = data.pos[:, :2].min(0) + half_subtile_width_meters
-        high = data.pos[:, :2].max(0) - half_subtile_width_meters + 1
-        centers = [
-            (x, y)
+        low = data.pos[:, :2].min(0)
+        high = data.pos[:, :2].max(0)
+        xy_min_corners = [
+            np.array([x, y])
             for x in np.arange(
-                start=low[0], stop=high[0], step=self.subtile_width_meters
+                start=low[0], stop=high[0] + 1, step=self.subtile_width_meters
             )
             for y in np.arange(
-                start=low[1], stop=high[1], step=self.subtile_width_meters
+                start=low[1], stop=high[1] + 1, step=self.subtile_width_meters
             )
         ]
-        random.shuffle(centers)
-        return centers
+        # random.shuffle(centers)
+        return xy_min_corners
+
+    def extract_subtile_from_tile_data(self, data: Data, low_xy):
+        """Extract the subset from xy_min_corner to xy_min_corner + self.subtile_width_meters
+
+        Args:
+            tile_data (Data): The full tile data.
+            xy_min_corner (np.array): Coordonates of xy min corner of subtile to extract.
+        """
+        high_xy = low_xy + self.subtile_width_meters
+        mask_x = (low_xy[0] <= data.pos[:, 0]) & (data.pos[:, 0] <= high_xy[0])
+        mask_y = (low_xy[1] <= data.pos[:, 1]) & (data.pos[:, 1] <= high_xy[1])
+        mask = mask_x & mask_y
+
+        sub = data.clone()
+        sub.pos = sub.pos[mask]
+        sub.x = sub.x[mask]
+        sub.y = sub.y[mask]
+        return sub
