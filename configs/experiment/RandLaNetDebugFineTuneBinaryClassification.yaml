@@ -6,11 +6,6 @@ defaults:
 model:
     num_classes: 2  # should match /datamodule/dataset_description/classification
 
-callbacks:
-  finetune:
-    unfreeze_decoder_train_epoch: 10
-
 logger:
   comet:
-    experiment_name: "RandLaNetDebugFineTuneBinaryClassification"
-
+    experiment_name: "RandLaNet-Debug-FineTune-Building-Specialization"

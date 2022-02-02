@@ -145,6 +145,9 @@ class Model(LightningModule):
         optimizer = self.hparams.optimizer(
             params=filter(lambda p: p.requires_grad, self.parameters()), lr=self.lr
         )
+        if self.hparams.lr_scheduler is None:
+            return optimizer
+
         try:
             lr_scheduler = self.hparams.lr_scheduler(optimizer)
         except:

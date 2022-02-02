@@ -310,15 +310,8 @@ class RandLANet(nn.Module):
         )  # B*N, C
         return scores
 
-    def update_outer_layers_for_finetuning(self, d_in, num_classes):
-        """
-        Change start and end layers
-         WIP:
-         Phase 1 : only let final MLP trainable.
-         Phase 2: try to let decoder trainable as well.
-        """
-        # to_freeze = [self.fc_start, self. ]
-        # Order should not be important here.
-        if (d_in != self.d_in) or (num_classes != self.num_classes):
-            self.set_fc_end(d_in, self.dropout, num_classes)
-            pass
+    def change_num_class_last_MLP(self, new_num_classes: int):
+        """Change end layer output number of classes."""
+        if new_num_classes != self.num_classes:
+            self.fc_end[-1] = SharedMLP(32, new_num_classes)
+            self.num_classes = new_num_classes

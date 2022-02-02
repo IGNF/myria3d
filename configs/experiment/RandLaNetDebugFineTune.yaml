@@ -10,23 +10,23 @@ defaults:
 task:
   task_name: finetune
 
-model:
-    num_classes: 6  # For now. We will need to adapt data preparation to unclassify unsued classes.
-
 logger:
   comet:
-    experiment_name: "RandLaNetDebugFineTune"
+    experiment_name: "RandLaNet-Debug-FineTune"
 
 trainer:
   overfit_batches: 1
   log_every_n_steps: 1
   num_sanity_val_steps: 0
-  min_epochs: 1
+  min_epochs: 10
   max_epochs: 30
   check_val_every_n_epoch: 1
-  # gpus: "1"
+  # gpus: [1]
 
-datamodule:
-  batch_size: 16
-  num_workers: 1
+callbacks:
+  finetune:
+    unfreeze_fc_end_epoch: 1
+    unfreeze_decoder_train_epoch: 3
 
+model:
+    lr_scheduler: null

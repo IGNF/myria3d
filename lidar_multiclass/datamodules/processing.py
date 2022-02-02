@@ -357,8 +357,6 @@ class TargetTransform(BaseTransform):
 
     def transform(self, y):
         y = self.preprocessing_mapper(y)
-        if np.isnan(y).sum() > 0:
-            print("1")
         y = self.mapper(y)
         return torch.LongTensor(y)
 

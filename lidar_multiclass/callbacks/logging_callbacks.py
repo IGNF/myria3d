@@ -147,9 +147,6 @@ class SingleClassIoU(JaccardIndex):
             process_group,
         )
 
-    # def set_set_class_of_interest(self, class_of_interest_idx):
-    #     self.class_of_interest_idx = class_of_interest_idx
-
     def compute(self):
         """Computes intersection over union (JaccardIndex)"""
 
