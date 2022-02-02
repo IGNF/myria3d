@@ -59,25 +59,6 @@ def extras(config: DictConfig) -> None:
     OmegaConf.set_struct(config, True)
 
 
-# # TODO: get rid of this. Dangerous.
-# def update_config_with_hyperparams(config):
-#     """When loading from checkpoint, update hydra config with checkpointed model hyperparams."""
-
-#     assert config.trainer.resume_from_checkpoint
-
-#     model_hyper_parameters = torch.load(
-#         config.trainer.resume_from_checkpoint, map_location="cpu"
-#     )["hyper_parameters"]
-#     for key, value in model_hyper_parameters.items():
-#         if key == "neural_net_architecture":
-#             for net_key, net_value in value.items():
-#                 OmegaConf.update(
-#                     config, "model.neural_net_architecture." + net_key, net_value, force_add=True
-#                 )
-#         else:
-#             OmegaConf.update(config, "model." + key, value, force_add=True)
-
-
 @rank_zero_only
 def print_config(
     config: DictConfig,

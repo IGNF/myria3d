@@ -1,7 +1,6 @@
 import comet_ml
 import dotenv
 import hydra
-from omegaconf import DictConfig
 from omegaconf import DictConfig, OmegaConf
 
 
