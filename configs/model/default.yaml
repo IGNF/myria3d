@@ -1,7 +1,7 @@
 _target_: lidar_multiclass.models.model.Model
 
 ## Inputs and outputs
-d_in: 9  # XYZ (3) + Other features (N)
+d_in: 10  # XYZ (3) + Other features (N)
 num_classes: 6
 
 # Architecture defined in sub-configs

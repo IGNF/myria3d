@@ -11,7 +11,6 @@ task:
   task_name: finetune
 
 model:
-    # d_in: 9
     num_classes: 6  # For now. We will need to adapt data preparation to unclassify unsued classes.
 
 logger:

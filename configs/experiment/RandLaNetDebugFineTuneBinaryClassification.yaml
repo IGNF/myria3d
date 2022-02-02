@@ -4,7 +4,6 @@ defaults:
   - override /datamodule/dataset_description/classification: SwissSURFACE3D_Building_class
 
 model:
-    # d_in: 9
     num_classes: 2  # should match /datamodule/dataset_description/classification
 
 callbacks:
