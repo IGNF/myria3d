@@ -11,8 +11,14 @@ features_names:
   - "red"
   - "green"
   - "blue"
+<<<<<<< HEAD
 # INPUT specific parameters: change to apply on data with different scale.
 # Largest values for intensity, colors (if applicable), and return number
+=======
+  - "composite"
+  # INPUT specific parameters: change to apply on data with different scale.
+  # Largest values for intensity, colors (if applicable), and return number
+>>>>>>> main
 colors_normalization_max_value: 256  # usually 256*256 or 256 (sometimes 1?)
 return_num_normalization_max_value: 7  # usually constant across datasets  # TODO: hardcode !
 

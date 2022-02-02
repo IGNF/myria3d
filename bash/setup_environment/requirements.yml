@@ -1,4 +1,4 @@
-name: lidar_segmentation_env
+name: lidar_multiclass_env
 channels:
   - conda-forge
   - anaconda
@@ -11,8 +11,8 @@ dependencies:
   - numpy==1.20
   # --------- geo --------- #
   - laspy
-  - python-pdal
   - pygeos
+  - python-pdal  # useful for data preparation
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #
@@ -29,6 +29,5 @@ dependencies:
   - seaborn # used in some callbacks
   - jupyterlab # better jupyter notebooks
   - pudb # debugger
-  # --------- torch --------- #
   - pip:
       - -r requirements.txt

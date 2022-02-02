@@ -24,15 +24,27 @@ HALF_UNIT = 0.5
 
 def load_las_data(
     data_filepath,
-    features_names=["intensity", "return_num", "num_returns", "red", "green", "blue"],
+    features_names=[
+        "intensity",
+        "return_num",
+        "num_returns",
+        "red",
+        "green",
+        "blue",
+        "composite",
+    ],
 ):
     """
     Load a cloud of points and its labels. LAS Format: 1.2.
     Shape: [n_points, n_features].
     Warning: las.x is in meters, las.X is in centimeters.
     """
+
     log.debug(f"Loading {data_filepath}")
     las = laspy.read(data_filepath)
+
+    features_names = copy.deepcopy(features_names)
+    las_features_name = [f for f in features_names if f not in ["composite"]]
 
     pos = np.asarray(
         [
@@ -43,9 +55,20 @@ def load_las_data(
         dtype=np.float32,
     ).transpose()
     x = np.asarray(
-        [las[x_name] for x_name in features_names],
+        [las[x_name] for x_name in las_features_name],
         dtype=np.float32,
     ).transpose()
+
+    colors = ["red", "green", "blue"]
+    commposite = (
+        np.asarray(
+            [las[x_name] for x_name in colors],
+            dtype=np.float32,
+        )
+        .transpose()
+        .mean(axis=1, keepdims=True)
+    )
+    x = np.concatenate([x, commposite], axis=1)
 
     # TODO: assure that post-preparation data are always in LAS Format1.4
     try:
@@ -237,7 +260,7 @@ class CustomNormalizeFeatures(BaseTransform):
         colors_normalization_max_value: int,
         return_num_normalization_max_value: int,
     ):
-        self.standard_colors_names = ["red", "green", "blue", "nir"]
+        self.standard_colors_names = ["red", "green", "blue", "nir", "composite"]
         self.colors_normalization_max_value = colors_normalization_max_value
         self.return_num_normalization_max_value = return_num_normalization_max_value
 
@@ -253,11 +276,19 @@ class CustomNormalizeFeatures(BaseTransform):
         for color_name in self.standard_colors_names:
             if color_name in data.x_features_names:
                 colors_idx.append(data.x_features_names.index(color_name))
+
         for color_idx in colors_idx:
             data.x[:, color_idx] = (
                 data.x[:, color_idx] / self.colors_normalization_max_value - HALF_UNIT
             )
             data.x[data.x[:, return_num_idx] > 1, color_idx] = -1.5 * HALF_UNIT
+
+        composite_idx = data.x_features_names.index("composite")
+        clamp_value = -3
+        data.x[:, composite_idx] = self._standardize_channel(
+            data.x[:, composite_idx]
+        ).clamp(min=-5)
+        data.x[data.x[:, return_num_idx] > 1, composite_idx] = 1.5 * clamp_value
 
         data.x[:, return_num_idx] = (data.x[:, return_num_idx] - UNIT) / (
             self.return_num_normalization_max_value - UNIT
@@ -268,6 +299,12 @@ class CustomNormalizeFeatures(BaseTransform):
         ) - HALF_UNIT
 
         return data
+
+    def _standardize_channel(self, channel_data):
+        """Sample-wise standardization y* = (y-y_mean)/y_std"""
+        mean = channel_data.mean()
+        std = channel_data.std()
+        return (channel_data - mean) / std
 
 
 class CustomNormalizeScale(BaseTransform):
@@ -383,6 +420,7 @@ class ChannelNames(Enum):
     """Names of custom additional LAS channel"""
 
     PredictedClassification = "PredictedClassification"
+    ProbasEntropy = "entropy"
 
 
 class DataHandler:
@@ -422,6 +460,8 @@ class DataHandler:
         """
         batch = outputs["batch"].detach()
         batch_classification = outputs["preds"].detach()
+        if "entropy" in outputs:
+            batch_entropy = outputs["entropy"].detach()
         batch_probas = outputs["proba"][:, self.index_of_probas_to_save].detach()
         for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
             is_a_new_tile = full_cloud_filepath != self.current_full_cloud_filepath
@@ -432,9 +472,10 @@ class DataHandler:
                 self._load_las_for_classification_update(full_cloud_filepath)
 
             idx_x = batch.batch_x == batch_idx
-            # TODO: add probas if needed
             self.updates_classification_subsampled.append(batch_classification[idx_x])
             self.updates_probas_subsampled.append(batch_probas[idx_x])
+            if "entropy" in outputs:
+                self.updates_entropy_subsampled.append(batch_entropy[idx_x])
             self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
             idx_y = batch.batch_y == batch_idx
             self.updates_pos.append(batch.pos_copy[idx_y])
@@ -449,6 +490,13 @@ class DataHandler:
         param = laspy.ExtraBytesParams(name=coln, type=int)
         self.las.add_extra_dim(param)
         self.las[coln][:] = 0
+
+        # TODO: conditional creation
+        param = laspy.ExtraBytesParams(
+            name=ChannelNames.ProbasEntropy.value, type=float
+        )
+        self.las.add_extra_dim(param)
+        self.las[ChannelNames.ProbasEntropy.value][:] = 0.0
 
         for class_name in self.names_of_probas_to_save:
             param = laspy.ExtraBytesParams(name=class_name, type=float)
@@ -467,6 +515,7 @@ class DataHandler:
         )
         self.updates_classification_subsampled = []
         self.updates_probas_subsampled = []
+        self.updates_entropy_subsampled = []
         self.updates_pos_subsampled = []
         self.updates_pos = []
 
@@ -492,6 +541,10 @@ class DataHandler:
         self.updates_classification_subsampled = torch.cat(
             self.updates_classification_subsampled
         ).cpu()
+        if len(self.updates_entropy_subsampled):
+            self.updates_entropy_subsampled = torch.cat(
+                self.updates_entropy_subsampled
+            ).cpu()
 
         # Remap predictions to good classification codes
         self.updates_classification_subsampled = np.vectorize(
@@ -512,23 +565,30 @@ class DataHandler:
         # Interpolate predictions
         self.updates_classification = self.updates_classification_subsampled[assign_idx]
         self.updates_probas = self.updates_probas_subsampled[assign_idx]
+        if len(self.updates_entropy_subsampled):
+            self.updates_entropy = self.updates_entropy_subsampled[assign_idx]
 
         # Only update channels for points with a predicted point that is close enough
         nn_pos = self.updates_pos_subsampled[assign_idx]
         euclidian_distance = torch.sqrt(((self.las_pos - nn_pos) ** 2).sum(axis=1))
         INTERPOLATION_RADIUS = 2.5
         close_enough_with_preds = euclidian_distance < INTERPOLATION_RADIUS
-        self.las[ChannelNames.PredictedClassification.value][
-            close_enough_with_preds
-        ] = self.updates_classification[close_enough_with_preds]
+
         for class_idx_in_tensor, class_name in enumerate(self.names_of_probas_to_save):
             self.las[class_name][close_enough_with_preds] = self.updates_probas[
                 close_enough_with_preds, class_idx_in_tensor
             ]
+        self.las[ChannelNames.PredictedClassification.value][
+            close_enough_with_preds
+        ] = self.updates_classification[close_enough_with_preds]
+        if len(self.updates_entropy):
+            self.las[ChannelNames.ProbasEntropy.value][
+                close_enough_with_preds
+            ] = self.updates_entropy[close_enough_with_preds]
 
         log.info(f"Saving...")
         self.las.write(self.output_path)
-        log.info(f"Saved...")
+        log.info(f"Saved.")
 
         # Clean-up - get rid of current data to go easy on memory
         self.current_full_cloud_filepath = ""
