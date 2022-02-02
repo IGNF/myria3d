@@ -22,18 +22,16 @@ To kickstart these training, we will use data from the [SwissSurface3D](https://
 
 ### Content
 
-In this repository you will find two main components:
+This repository provides scripts tackles the following tasks:
 
-- `train.py`: Training and evaluation of the semantic segmentation neural network.
+- `train.py`: Training and evaluation of the semantic segmentation neural network on aerial Lidar point clouds.
 - `predict.py`: Applying model on unseen data.
 
-### Process
+Code is packaged for easy deployment (see below). Only trained models are not public-hosted at the moment.
 
-...
+## How to use
 
-## How to run
-
-### Install dependencies
+### Setup virtual environment
 
 ```yaml
 # clone project
@@ -53,20 +51,72 @@ source bash/setup_environment/setup_env.sh
 conda activate lidar_multiclass_env
 ```
 
-Rename `.env_example` to `.env` and fill out the needed variables for looging and data directories.
-
-### Install as a package
-Once you have the environement setup, you can install as a package in the environment, to deploy inference in other codes.
+### Run inference from package
+If you are interested in running inference from anywhere, you can install code as a package in a your virtual environment.
 
 ```
-# activate using
+# activate an env matching ./bash/setup_env.sh requirements.
 conda activate lidar_multiclass_env
 
-# install from local source using 
-pip install -e .
+# install the package
+pip install -e .  # from local sources
+pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/main  # from github directly
 ```
 
-Then, simply copy and paste the `run.py` script and make inferences as usual.
+To run inference, you will need:
+- A source cloud point in LAS format on which to infer new classes. and probabilites.
+- A checkpoint of a trained lightning module implementing model logic (class `lidar_multiclass.models.model.Model`)
+- A minimal yaml configuration specifying parameters. We use [hydra](https://hydra.cc/) to manage configurations, and this yaml results from the model training. The `datamodule` and `model` parameters groups must match datset characteristics and model training settings.  The `predict` parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal).
 
+Fill out the {missing parameters} and run: 
+```
+python -m lidar_multiclass.predict --config-path {/path/to/.hydra} --config-name {config.yaml} predict.src_las={/path/to/cloud.las} predict.output_dir={/path/to/out/dir/} predict.resume_from_checkpoint={/path/to/checkpoint.ckpt} predict.gpus={0 for none, [i] to use GPU number i} datamodule.batch_size={N}
+```
 
-In the future, conda packages should be supported instead of this basic pip env.
+To show you current inference config, simply add a `--help` flag 
+
+```
+python -m lidar_multiclass.predict --config-path {/path/to/.hydra} --config-name {config.yaml} --help
+```
+
+TODO: add a control to where hydra log files are saved.
+
+### Training new models
+
+#### Setup
+Some environment variable are injected at runtime and need to be specified in a `.env` file. Rename `.env_example` to `.env` and fill out: 
+- `LOG PATH`, where hydra logs and config are saved.
+- `DATAMODULE` section, which specify where to look for training data.
+- `LOGGER` section, which specify credentials needed for logging to [comet.ml](comet.ml). Alternatively, logging can be disabled by setting `logger=null` ar runtime.
+
+For training and evaluation, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. 
+
+The expected file structure is summarized in `.env`.
+
+A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
+
+#### Train and evaluate
+Define your experiment setting in an experiment file in the `configs/experiment` folder. 
+
+To try out your setting by overfitting on a single batch, try:
+
+```
+python run.py experiment=RandLaNetDebug.yaml
+```
+
+Once you have a trained model, you can evaluate on either validation or test set via
+
+```
+python run.py experiment=evaluate_val_data model.ckpt_path={/path/to/checkpoint.ckpt}
+python run.py experiment=evaluate_test_data model.ckpt_path={/path/to/checkpoint.ckpt}
+```
+
+Predictions are saved by default during these evaluations. To go easy on storage memory you can disable it by setting `callbacks.save_preds.save_predictions=false`.
+
+#### Run inference from sources
+After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified.
+
+From the line for package-based inference above, simply change `python -m lidar_multiclass.predict` to `python run.py` to run directly from sources.
+
+In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of the `config.yaml` file and commenting out the lines containing `oc.env` logic.
+

@@ -1,7 +1,7 @@
 import os
 import hydra
 import torch
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from typing import Optional
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
@@ -59,3 +59,28 @@ def predict(config: DictConfig) -> Optional[float]:
 
     updated_las_path = data_handler.interpolate_and_save("predict")
     log.info(f"Updated LAS saved to : {updated_las_path}")
+
+
+@hydra.main(config_path="../configs/", config_name="config.yaml")
+def main(config: DictConfig):
+    # Imports should be nested inside @hydra.main to optimize tab completion
+    # Read more here: https://github.com/facebookresearch/hydra/issues/934
+    from lidar_multiclass.utils import utils
+    from lidar_multiclass.train import train
+    from lidar_multiclass.predict import predict
+
+    # A couple of optional utilities:
+    # - disabling python warnings
+    # You can safely get rid of this line if you don't want those
+    utils.extras(config)
+
+    if config.get("print_config"):
+        utils.print_config(config, resolve=False)
+
+    return predict(config)
+
+
+if __name__ == "__main__":
+    # cf. https://github.com/facebookresearch/hydra/issues/1283
+    OmegaConf.register_new_resolver("get_method", hydra.utils.get_method)
+    main()
