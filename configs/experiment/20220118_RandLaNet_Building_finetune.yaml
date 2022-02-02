@@ -17,11 +17,12 @@ logger:
 
 model:
     num_classes: 2
-    lr: 0.0004566395347136576  # i.e. the initial one from auto_find_lr one / 10
+    lr_scheduler: null
 
 callbacks:
   finetune:
-    unfreeze_decoder_train_epoch: 1
+    unfreeze_fc_end_epoch: 1
+    unfreeze_decoder_train_epoch: 3
 
 trainer:
   log_every_n_steps: 1
