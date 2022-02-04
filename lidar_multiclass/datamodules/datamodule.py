@@ -12,6 +12,9 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
+from lidar_multiclass.datamodules.preparation.prepare_french_lidar_HD_dataset import (
+    FrenchLidarDataPreparation,
+)
 from lidar_multiclass.utils import utils
 from lidar_multiclass.datamodules.processing import *
 
@@ -49,9 +52,6 @@ class DataModule(LightningDataModule):
                 "classification_preprocessing_dict"
             )
         )
-        self.load_las_data_partial = functools.partial(
-            load_las_data, features_names=self.dataset_description.get("features_names")
-        )
         # By default, do not use the test set unless explicitely required by user.
         self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
 
@@ -59,6 +59,10 @@ class DataModule(LightningDataModule):
         self.val_data: Optional[Dataset] = None
         self.test_data: Optional[Dataset] = None
         self.predict_data: Optional[Dataset] = None
+
+        self.load_las_data = (
+            FrenchLidarDataPreparation.load_las_data
+        )  # TODO: should be a parameter.
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -78,11 +82,11 @@ class DataModule(LightningDataModule):
     def _set_train_data(self):
         """Get the train dataset"""
         files = glob(
-            osp.join(self.prepared_data_dir, "train", "**", "*.las"), recursive=True
+            osp.join(self.prepared_data_dir, "train", "**", "*.data"), recursive=True
         )
         self.train_data = LidarMapDataset(
             files,
-            loading_function=self.load_las_data_partial,
+            loading_function=torch.load,
             transform=self._get_train_transforms(),
             target_transform=TargetTransform(
                 self.classification_preprocessing_dict,
@@ -93,12 +97,12 @@ class DataModule(LightningDataModule):
     def _set_val_data(self):
         """Get the validation dataset"""
         files = glob(
-            osp.join(self.prepared_data_dir, "val", "**", "*.las"), recursive=True
+            osp.join(self.prepared_data_dir, "val", "**", "*.data"), recursive=True
         )
         log.info(f"Validation on {len(files)} subtiles.")
         self.val_data = LidarMapDataset(
             files,
-            loading_function=self.load_las_data_partial,
+            loading_function=torch.load,
             transform=self._get_val_transforms(),
             target_transform=TargetTransform(
                 self.classification_preprocessing_dict,
@@ -116,15 +120,14 @@ class DataModule(LightningDataModule):
             )
             return
         files = glob(
-            osp.join(self.prepared_data_dir, "test", "**", "*.las"), recursive=True
+            osp.join(self.prepared_data_dir, "test", "**", "*.data"), recursive=True
         )
         self.test_data = LidarMapDataset(
             files,
-            loading_function=self.load_las_data_partial,
+            loading_function=torch.load,
             transform=self._get_test_transforms(),
             target_transform=TargetTransform(
-                self.classification_preprocessing_dict,
-                self.classification_dict,
+                self.classification_preprocessing_dict, self.classification_dict
             ),
         )
 
@@ -132,7 +135,7 @@ class DataModule(LightningDataModule):
         """This is used in predict.py, with a single file in a list."""
         self.predict_data = LidarIterableDataset(
             files_to_infer_on,
-            loading_function=self.load_las_data_partial,
+            loading_function=self.load_las_data,
             transform=self._get_predict_transforms(),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
@@ -195,20 +198,10 @@ class DataModule(LightningDataModule):
             MakeCopyOfSampledPos(),
             Center(),
         ]
-        # TODO: add a 90° rotation using LinearTransformation nested in a custom transforms
         self.augmentation = []
         if self.augment:
-            self.augmentation = [
-                RandomFlip(0, p=0.5),
-                RandomFlip(1, p=0.5),
-            ]
-        self.normalization = [
-            CustomNormalizeScale(),
-            CustomNormalizeFeatures(
-                self.dataset_description.get("colors_normalization_max_value"),
-                self.dataset_description.get("return_num_normalization_max_value"),
-            ),
-        ]
+            self.augmentation = [RandomFlip(0, p=0.5), RandomFlip(1, p=0.5)]
+        self.normalization = [NormalizePos(), StandardizeFeatures()]
 
     def _get_train_transforms(self) -> CustomCompose:
         """Create a transform composition for train phase."""
@@ -219,6 +212,7 @@ class DataModule(LightningDataModule):
         return CustomCompose(self.preparation + self.normalization)
 
     def _get_test_transforms(self) -> CustomCompose:
+        """Create a transform composition for test phase."""
         return self._get_val_transforms()
 
     def _get_predict_transforms(self) -> CustomCompose:

@@ -22,72 +22,72 @@ UNIT = 1
 HALF_UNIT = 0.5
 
 
-def load_las_data(
-    data_filepath,
-    features_names=[
-        "intensity",
-        "return_num",
-        "num_returns",
-        "red",
-        "green",
-        "blue",
-        "composite",
-    ],
-):
-    """
-    Load a cloud of points and its labels. LAS Format: 1.2.
-    Shape: [n_points, n_features].
-    Warning: las.x is in meters, las.X is in centimeters.
-    """
+# def load_las_data(
+#     data_filepath,
+#     features_names=[
+#         "intensity",
+#         "return_num",
+#         "num_returns",
+#         "red",
+#         "green",
+#         "blue",
+#         "composite",
+#     ],
+# ):
+#     """
+#     Load a cloud of points and its labels. LAS Format: 1.2.
+#     Shape: [n_points, n_features].
+#     Warning: las.x is in meters, las.X is in centimeters.
+#     """
 
-    log.debug(f"Loading {data_filepath}")
-    las = laspy.read(data_filepath)
+#     log.debug(f"Loading {data_filepath}")
+#     las = laspy.read(data_filepath)
 
-    features_names = copy.deepcopy(features_names)
-    las_features_name = [f for f in features_names if f not in ["composite"]]
+#     features_names = copy.deepcopy(features_names)
+#     las_features_name = [f for f in features_names if f not in ["composite"]]
 
-    pos = np.asarray(
-        [
-            las.x,
-            las.y,
-            las.z,
-        ],
-        dtype=np.float32,
-    ).transpose()
-    x = np.asarray(
-        [las[x_name] for x_name in las_features_name],
-        dtype=np.float32,
-    ).transpose()
+#     pos = np.asarray(
+#         [
+#             las.x,
+#             las.y,
+#             las.z,
+#         ],
+#         dtype=np.float32,
+#     ).transpose()
+#     x = np.asarray(
+#         [las[x_name] for x_name in las_features_name],
+#         dtype=np.float32,
+#     ).transpose()
 
-    colors = ["red", "green", "blue"]
-    commposite = (
-        np.asarray(
-            [las[x_name] for x_name in colors],
-            dtype=np.float32,
-        )
-        .transpose()
-        .mean(axis=1, keepdims=True)
-    )
-    x = np.concatenate([x, commposite], axis=1)
+#     colors = ["red", "green", "blue"]
+#     commposite = (
+#         np.asarray(
+#             [las[x_name] for x_name in colors],
+#             dtype=np.float32,
+#         )
+#         .transpose()
+#         .mean(axis=1, keepdims=True)
+#     )
+#     x = np.concatenate([x, commposite], axis=1)
 
-    # TODO: assure that post-preparation data are always in LAS Format1.4
-    try:
-        # LAS format V1.2
-        y = las.classification.array.astype(np.int)
-    except:
-        # LAS format V1.4
-        y = las.classification.astype(np.int)
+#     # TODO: assure that post-preparation data are always in LAS Format1.4
+#     try:
+#         # LAS format V1.2
+#         y = las.classification.array.astype(np.int)
+#     except:
+#         # LAS format V1.4
+#         y = las.classification.astype(np.int)
 
-    full_cloud_filepath = get_full_las_filepath(data_filepath)
+#     full_cloud_filepath = get_full_las_filepath(data_filepath)
 
-    return Data(
-        pos=pos,
-        x=x,
-        y=y,
-        data_filepath=data_filepath,
-        full_cloud_filepath=full_cloud_filepath,
-        x_features_names=features_names,
-    )
+#     return Data(
+#         pos=pos,
+#         x=x,
+#         y=y,
+#         data_filepath=data_filepath,
+#         full_cloud_filepath=full_cloud_filepath,
+#         x_features_names=features_names,
+#     )
 
 
 def get_full_las_filepath(data_filepath):
@@ -214,55 +214,17 @@ class MakeCopyOfSampledPos(BaseTransform):
         return data
 
 
-class CustomNormalizeFeatures(BaseTransform):
+class StandardizeFeatures(BaseTransform):
     r"""
     Scale features in 0-1 range.
     Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
     """
 
-    def __init__(
-        self,
-        colors_normalization_max_value: int,
-        return_num_normalization_max_value: int,
-    ):
-        self.standard_colors_names = ["red", "green", "blue", "nir", "composite"]
-        self.colors_normalization_max_value = colors_normalization_max_value
-        self.return_num_normalization_max_value = return_num_normalization_max_value
-
     def __call__(self, data: Data):
-
-        intensity_idx = data.x_features_names.index("intensity")
-        data.x[:, intensity_idx] = (
-            data.x[:, intensity_idx] / data.x[:, intensity_idx].max() - HALF_UNIT
-        )
-
-        return_num_idx = data.x_features_names.index("return_num")
-        colors_idx = []
-        for color_name in self.standard_colors_names:
-            if color_name in data.x_features_names:
-                colors_idx.append(data.x_features_names.index(color_name))
-
-        for color_idx in colors_idx:
-            data.x[:, color_idx] = (
-                data.x[:, color_idx] / self.colors_normalization_max_value - HALF_UNIT
-            )
-            data.x[data.x[:, return_num_idx] > 1, color_idx] = -1.5 * HALF_UNIT
-
-        composite_idx = data.x_features_names.index("composite")
-        clamp_value = -3
-        data.x[:, composite_idx] = self._standardize_channel(
-            data.x[:, composite_idx]
-        ).clamp(min=-5)
-        data.x[data.x[:, return_num_idx] > 1, composite_idx] = 1.5 * clamp_value
-
-        data.x[:, return_num_idx] = (data.x[:, return_num_idx] - UNIT) / (
-            self.return_num_normalization_max_value - UNIT
-        ) - HALF_UNIT
-        num_return_idx = data.x_features_names.index("num_returns")
-        data.x[:, num_return_idx] = (data.x[:, num_return_idx] - UNIT) / (
-            self.return_num_normalization_max_value - UNIT
-        ) - HALF_UNIT
-
+        idx = data.x_features_names.index("intensity")
+        data.x[:, idx] = data.x[:, idx] / data.x[:, idx].max()
+        idx = data.x_features_names.index("composite")
+        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
         return data
 
     def _standardize_channel(self, channel_data):
@@ -272,12 +234,13 @@ class CustomNormalizeFeatures(BaseTransform):
         return (channel_data - mean) / std
 
 
-class CustomNormalizeScale(BaseTransform):
+class NormalizePos(BaseTransform):
     r"""
-    Normalizes node positions to the interval (-1, 1).
-    XYZ are expected to be centered already. Normalization is performed
-    by a single xy positive amplitude to preserve euclidian distances.
-    Typically, xy_positive_amplitude = width / 2
+    Normalizes positions:
+      - xy positions to be in the interval (-1, 1)
+      - z position to start at 0.
+      - preserve euclidian distances
+    XYZ are expected to be centered already.
     """
 
     def __call__(self, data):
