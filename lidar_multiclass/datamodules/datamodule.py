@@ -1,5 +1,5 @@
 import os.path as osp
-from glob import glob
+import glob
 import time
 import numpy as np
 from typing import Optional, List, AnyStr
@@ -12,7 +12,10 @@ from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
 from lidar_multiclass.utils import utils
 from lidar_multiclass.datamodules.transforms import *
-from lidar_multiclass.datamodules.data_logic import *
+from lidar_multiclass.datamodules.data import (
+    FrenchLidarDataLogic,
+    SwissTopoLidarDataLogic,
+)
 
 from lidar_multiclass.utils import utils
 
@@ -29,7 +32,6 @@ class DataModule(LightningDataModule):
     def __init__(self, **kwargs):
         super().__init__()
         # TODO: try to use save_hyperparameters to lightne this code.
-        self.input_data_dir = kwargs.get("input_data_dir")
         self.prepared_data_dir = kwargs.get("prepared_data_dir")
 
         self.num_workers = kwargs.get("num_workers", 0)
@@ -56,11 +58,7 @@ class DataModule(LightningDataModule):
         self.test_data: Optional[Dataset] = None
         self.predict_data: Optional[Dataset] = None
 
-        # TODO: should be a config.
-        # self.load_las_data = FrenchLidarDataLogic.load_las_data
-        self.load_las_data = kwargs.get(
-            "loading_func", FrenchLidarDataLogic
-        ).load_las_data
+        self.load_las = kwargs.get("load_las_func", FrenchLidarDataLogic.load_las)
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -79,7 +77,7 @@ class DataModule(LightningDataModule):
 
     def _set_train_data(self):
         """Get the train dataset"""
-        files = glob(
+        files = glob.glob(
             osp.join(self.prepared_data_dir, "train", "**", "*.data"), recursive=True
         )
         self.train_data = LidarMapDataset(
@@ -94,7 +92,7 @@ class DataModule(LightningDataModule):
 
     def _set_val_data(self):
         """Get the validation dataset"""
-        files = glob(
+        files = glob.glob(
             osp.join(self.prepared_data_dir, "val", "**", "*.data"), recursive=True
         )
         log.info(f"Validation on {len(files)} subtiles.")
@@ -117,7 +115,7 @@ class DataModule(LightningDataModule):
                 "Using validation data as test data. Use real test data with use_val_data_at_test_time=False at run time."
             )
             return
-        files = glob(
+        files = glob.glob(
             osp.join(self.prepared_data_dir, "test", "**", "*.data"), recursive=True
         )
         self.test_data = LidarMapDataset(
@@ -133,7 +131,7 @@ class DataModule(LightningDataModule):
         """This is used in predict.py, with a single file in a list."""
         self.predict_data = LidarIterableDataset(
             files_to_infer_on,
-            loading_function=self.load_las_data,
+            loading_function=self.load_las,
             transform=self._get_predict_transforms(),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,

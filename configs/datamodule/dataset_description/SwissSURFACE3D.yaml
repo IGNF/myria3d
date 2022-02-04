@@ -1,17 +1,5 @@
 # Characteristics of datasets obtained from SwissTopo Data
 # In particular: from combining SwissSURFACE3D and SwissIMAGE10cm
 
-# The features_names to include. 
-# You must use names from LAS convention for standard channels.
-# XYZ will also be included.
-features_names:  
-  - "intensity"
-  - "return_num"
-  - "num_returns"
-  - "red"
-  - "green"
-  - "blue"
-  - "composite"  # (R+G+B)/3, will be created on the fly at dataloading time.
-
 defaults:
   - classification: SwissSURFACE3D_all_6_classes.yaml

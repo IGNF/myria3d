@@ -1,6 +1,6 @@
 """ 
 1) Data loading logics specific to each data format.
-    The "load_las_data" class method can be passed to the datamodule at inference time.
+    The "load_las" class method can be passed to the datamodule at inference time.
 2) A data preparation script for deep learning training.
     From a data directory containing point cloud in LAS format, and a scv specifying the dataset 
     train/val/test split for each file (columns: split, basename, example: "val","123_456.las"),
@@ -39,9 +39,8 @@ class LidarDataLogic(ABC):
 
     def __init__(self, **kwargs):
         self.input_data_dir = kwargs.get("input_data_dir")
-        self.output_data_dir = kwargs.get("output_data_dir")
-        split_csv = kwargs.get("split_csv")
-        self.split_df = pd.read_csv(split_csv)
+        self.prepared_data_dir = kwargs.get("prepared_data_dir")
+        self.split_csv = kwargs.get("split_csv")
         self.range_by_axis = np.arange(
             self.input_tile_width_meters // self.subtile_width_meters + 1
         )
@@ -50,8 +49,7 @@ class LidarDataLogic(ABC):
     def load_las(self, las_filepath: str):
         """
         Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
-        Build a composite (average) color channel on the fly.
-
+        
         Args:
             las_filepath (str): path to the LAS file.
 
@@ -68,14 +66,15 @@ class LidarDataLogic(ABC):
         then y axis.
         Serialize the resulting Data object using torch.save.
         """
+        split_df = pd.read_csv(self.split_csv)
         for phase in tqdm(self.split, desc="Phases"):
-            basenames = self.split_df[self.split_df.split == phase].basename.tolist()
+            basenames = self.split_df[split_df.split == phase].basename.tolist()
             print(f"Subset: {phase}")
             print("  -  ".join(basenames))
             for file_basename in tqdm(basenames, desc="Files"):
                 filepath = self.find_file_in_dir(self.input_data_dir, file_basename)
                 output_subdir_path = osp.join(
-                    self.output_data_dir, phase, osp.basename(filepath)
+                    self.prepared_data_dir, phase, osp.basename(filepath)
                 )
                 os.makedirs(output_subdir_path, exist_ok=True)
                 self.split_and_save(filepath, output_subdir_path)
@@ -364,7 +363,7 @@ def main():
         help="Path to folder with las files stored in train/val/test subfolders.",
     )
     parser.add_argument(
-        "--output_data_dir",
+        "--prepared_data_dir",
         type=str,
         default="./prepared/",
         help="Path to folder to save Data object train/val/test subfolders.",

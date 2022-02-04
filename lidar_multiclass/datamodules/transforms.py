@@ -124,7 +124,7 @@ class StandardizeFeatures(BaseTransform):
     def __call__(self, data: Data):
         idx = data.x_features_names.index("intensity")
         data.x[:, idx] = data.x[:, idx] / data.x[:, idx].max()
-        idx = data.x_features_names.index("composite")
+        idx = data.x_features_names.index("rgb_avg")
         data.x[:, idx] = self._standardize_channel(data.x[:, idx])
         return data
 

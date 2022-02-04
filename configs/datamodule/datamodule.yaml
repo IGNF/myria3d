@@ -1,7 +1,5 @@
 _target_: lidar_multiclass.datamodules.datamodule.DataModule
 
-# those two paths are specified in configs/config.yaml
-input_data_dir: ${oc.env:INPUT_DATA_DIR}
 prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 
 num_workers: 1
@@ -14,9 +12,11 @@ augment: false
 # By default, do not use the test set unless explicitely required by user.
 use_val_data_at_test_time: true
 
-# The class that has a load_las_data class method.
-loading_func:
-  _target_: lidar_multiclass.datamodules.data_logic.FrenchLidarDataLogic
+# The load_las class method with signature load_las((las_filepath) .that returns a Data object.
+load_las_func:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:lidar_multiclass.datamodules.data.FrenchLidarDataLogic.load_las}"
 
 # Dataset Specific information
 defaults:
