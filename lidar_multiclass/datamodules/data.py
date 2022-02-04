@@ -68,7 +68,7 @@ class LidarDataLogic(ABC):
         """
         split_df = pd.read_csv(self.split_csv)
         for phase in tqdm(self.split, desc="Phases"):
-            basenames = self.split_df[split_df.split == phase].basename.tolist()
+            basenames = split_df[split_df.split == phase].basename.tolist()
             print(f"Subset: {phase}")
             print("  -  ".join(basenames))
             for file_basename in tqdm(basenames, desc="Files"):

@@ -123,16 +123,23 @@ class StandardizeFeatures(BaseTransform):
 
     def __call__(self, data: Data):
         idx = data.x_features_names.index("intensity")
-        data.x[:, idx] = data.x[:, idx] / data.x[:, idx].max()
+        data.x[:, idx] = self._log(data.x[:, idx], shift=1)
+        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
         idx = data.x_features_names.index("rgb_avg")
         data.x[:, idx] = self._standardize_channel(data.x[:, idx])
         return data
 
-    def _standardize_channel(self, channel_data):
+    def _log(self, channel_data, shift: float = 0.0):
+        return torch.log(channel_data + shift)
+
+    def _standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
         """Sample-wise standardization y* = (y-y_mean)/y_std"""
         mean = channel_data.mean()
-        std = channel_data.std()
-        return (channel_data - mean) / std
+        std = channel_data.std() + 10**-6
+        standard = (channel_data - mean) / std
+        clamp = clamp_sigma * std
+        clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
+        return clamped
 
 
 class NormalizePos(BaseTransform):
