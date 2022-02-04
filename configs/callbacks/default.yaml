@@ -30,10 +30,4 @@ early_stopping:
   mode: "min" # can be "max" or "min"
   patience: 6 # how many validation epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
-
-save_preds:
-  _target_: lidar_multiclass.callbacks.predictions_callbacks.SavePreds
-  save_predictions: false
-  classification_dict: ${datamodule.dataset_description.classification.classification_dict}
-  names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]
   

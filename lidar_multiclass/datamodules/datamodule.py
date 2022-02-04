@@ -12,11 +12,9 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
-from lidar_multiclass.datamodules.preparation.prepare_french_lidar_HD_dataset import (
-    FrenchLidarDataPreparation,
-)
 from lidar_multiclass.utils import utils
-from lidar_multiclass.datamodules.processing import *
+from lidar_multiclass.datamodules.transforms import *
+from lidar_multiclass.datamodules.data_logic import *
 
 from lidar_multiclass.utils import utils
 
@@ -60,9 +58,8 @@ class DataModule(LightningDataModule):
         self.test_data: Optional[Dataset] = None
         self.predict_data: Optional[Dataset] = None
 
-        self.load_las_data = (
-            FrenchLidarDataPreparation.load_las_data
-        )  # TODO: should be a parameter.
+        # TODO: should be a config.
+        self.load_las_data = FrenchLidarDataLogic.load_las_data
 
     def setup(self, stage: Optional[str] = None):
         """

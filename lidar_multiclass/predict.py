@@ -7,7 +7,7 @@ from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
 
 from lidar_multiclass.utils import utils
-from lidar_multiclass.datamodules.processing import DataHandler
+from lidar_multiclass.datamodules.interpolation import Interpolator
 
 
 log = utils.get_logger(__name__)
@@ -36,7 +36,7 @@ def predict(config: DictConfig) -> Optional[float]:
     datamodule._set_predict_data([config.predict.src_las])
 
     # TODO: pass as a predict.data_handler config for full parameterization outside this repo scope.
-    data_handler = DataHandler(
+    data_handler = Interpolator(
         config.predict.output_dir,
         datamodule.dataset_description.classification.classification_dict,
         names_of_probas_to_save=config.predict.names_of_probas_to_save,

@@ -53,11 +53,11 @@ def main():
     )
     args = parser.parse_args()
     if args.origin == "FR":
-        data_prepper = FrenchLidarDataPreparation(**args.__dict__)
+        data_prepper = FrenchLidarDataLogic(**args.__dict__)
         data_prepper.prepare()
 
 
-class LidarDataPreparation(ABC):
+class LidarDataLogic(ABC):
     """
     Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
@@ -197,7 +197,7 @@ class LidarDataPreparation(ABC):
         return torch.load(data_path)
 
 
-class FrenchLidarDataPreparation(LidarDataPreparation):
+class FrenchLidarDataLogic(LidarDataLogic):
 
     x_features_names = [
         "intensity",
@@ -287,7 +287,7 @@ class FrenchLidarDataPreparation(LidarDataPreparation):
         )
 
 
-class SwissTopoLidarDataPreparation(LidarDataPreparation):
+class SwissTopoLidarDataLogic(LidarDataLogic):
     x_features_names = [
         "intensity",
         "return_num",

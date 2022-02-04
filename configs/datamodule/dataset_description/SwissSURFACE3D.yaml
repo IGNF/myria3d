@@ -13,10 +13,5 @@ features_names:
   - "blue"
   - "composite"  # (R+G+B)/3, will be created on the fly at dataloading time.
 
-# INPUT specific parameters: change to apply on data with different scale.
-# Largest values for intensity, colors (if applicable), and return number
-colors_normalization_max_value: 256  # usually 256*256 or 256 (sometimes 1?)
-return_num_normalization_max_value: 7  # usually constant across datasets  # TODO: hardcode this as it does not change.
-
 defaults:
   - classification: SwissSURFACE3D_all_6_classes.yaml
