@@ -28,10 +28,4 @@ trainer:
   check_val_every_n_epoch: 1
   # limit_test_batches: 1  # Uncomment to limit on a subset
 
-callbacks:
-  save_preds:
-    save_predictions: true  # This activates saving of outputs.
-    classification_dict: ${datamodule.dataset_description.classification_dict}
-    names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]
-
 

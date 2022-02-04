@@ -111,8 +111,6 @@ python run.py experiment=evaluate_val_data model.ckpt_path={/path/to/checkpoint.
 python run.py experiment=evaluate_test_data model.ckpt_path={/path/to/checkpoint.ckpt}
 ```
 
-Predictions are saved by default during these evaluations. To go easy on storage memory you can disable it by setting `callbacks.save_preds.save_predictions=false`.
-
 #### Run inference from sources
 After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified.
 

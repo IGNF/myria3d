@@ -17,3 +17,6 @@ callbacks:
   early_stopping:
     patience: 20
 
+datamodule:
+  augment: true
+
