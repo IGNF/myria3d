@@ -1,8 +1,8 @@
 _target_: lidar_multiclass.models.model.Model
 
 ## Inputs and outputs
-d_in: 10  # XYZ (3) + Other features (N)
-num_classes: 6
+d_in: ${datamodule.dataset_description.d_in}  # XYZ (3) + Other features (N)
+num_classes: ${datamodule.dataset_description.num_classes}
 
 # Architecture defined in sub-configs
 ckpt_path: null  # str, for resuming training and finetuning.

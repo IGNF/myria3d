@@ -1,9 +1,9 @@
 _convert_: all  # For omegaconf struct to be converted to python dictionnaries
-
-# Example combination for binary classification of buildings vs. others.
-# Other classes are grouped under the "unclassified" one.
-
 # classification_preprocessing_dict = {source_class_code_int: target_class_code_int},
 classification_preprocessing_dict: {2: 1, 3: 1, 9: 1, 17: 1}
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 6: "building"}
+
+# Input and output dims of neural net are dataset dependant:
+d_in: 10
+num_classes: 2

@@ -20,4 +20,4 @@ load_las_func:
 
 # Dataset Specific information
 defaults:
-  - dataset_description: SwissSURFACE3D.yaml
+  - dataset_description: SwissSURFACE3D_all_6_classes.yaml

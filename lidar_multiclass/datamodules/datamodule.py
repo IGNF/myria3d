@@ -42,13 +42,9 @@ class DataModule(LightningDataModule):
         self.augment = kwargs.get("augment", True)
 
         self.dataset_description = kwargs.get("dataset_description")
-        self.classification_dict = self.dataset_description.classification.get(
-            "classification_dict"
-        )
-        self.classification_preprocessing_dict = (
-            self.dataset_description.classification.get(
-                "classification_preprocessing_dict"
-            )
+        self.classification_dict = self.dataset_description.get("classification_dict")
+        self.classification_preprocessing_dict = self.dataset_description.get(
+            "classification_preprocessing_dict"
         )
         # By default, do not use the test set unless explicitely required by user.
         self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)

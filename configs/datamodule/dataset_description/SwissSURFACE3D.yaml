@@ -1,5 +1,0 @@
-# Characteristics of datasets obtained from SwissTopo Data
-# In particular: from combining SwissSURFACE3D and SwissIMAGE10cm
-
-defaults:
-  - classification: SwissSURFACE3D_all_6_classes.yaml

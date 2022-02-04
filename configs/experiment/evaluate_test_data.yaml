@@ -30,5 +30,5 @@ trainer:
 callbacks:
   save_preds:
     save_predictions: true  # This activates saving of outputs.
-    classification_dict: ${datamodule.dataset_description.classification.classification_dict}
+    classification_dict: ${datamodule.dataset_description.classification_dict}
     names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]

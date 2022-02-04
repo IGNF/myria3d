@@ -1,0 +1,10 @@
+_convert_: all  # For omegaconf struct to be converted to python dictionnaries
+# classification_preprocessing_dict = {source_class_code_int: target_class_code_int},
+classification_preprocessing_dict: {}
+# classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
+classification_dict: {1: "unclassified", 2: "ground", 3: "vegetation", 6: "building", 9: "water", 17: "bridge"}
+
+# Input and output dims of neural net are dataset dependant:
+d_in: 10
+num_classes: 6
+

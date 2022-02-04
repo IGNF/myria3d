@@ -11,7 +11,7 @@ lr_monitor:
 
 log_iou_by_class:
   _target_: lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass
-  classification_dict: ${datamodule.dataset_description.classification.classification_dict}
+  classification_dict: ${datamodule.dataset_description.classification_dict}
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
