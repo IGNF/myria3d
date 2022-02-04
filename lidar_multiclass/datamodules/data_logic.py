@@ -23,40 +23,6 @@ import torch
 from torch_geometric.data import Data
 
 
-def main():
-
-    parser = argparse.ArgumentParser(
-        description="Prepare a Lidar dataset for deep learning."
-    )
-    parser.add_argument(
-        "--split_csv",
-        type=str,
-        default="./split.csv",
-        help="Path to csv with a basename (e.g. '123_456.las') and split (train/val/test) columns specifying the dataset split.",
-    )
-    parser.add_argument(
-        "--input_data_dir",
-        type=str,
-        default="./data/raw/",
-        help="Path to folder with las files stored in train/val/test subfolders.",
-    )
-    parser.add_argument(
-        "--output_data_dir",
-        type=str,
-        default="./prepared/",
-        help="Path to folder to save Data object train/val/test subfolders.",
-    )
-    parser.add_argument(
-        "--origin",
-        type=str,
-        default="FR",
-    )
-    args = parser.parse_args()
-    if args.origin == "FR":
-        data_prepper = FrenchLidarDataLogic(**args.__dict__)
-        data_prepper.prepare()
-
-
 class LidarDataLogic(ABC):
     """
     Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
@@ -66,7 +32,7 @@ class LidarDataLogic(ABC):
     split = ["train", "val", "test"]
     input_tile_width_meters = 1000
     subtile_width_meters = 50
-    return_num_normalization_max_value: 7
+    return_num_normalization_max_value = 7
 
     def __init__(self, **kwargs):
         self.input_data_dir = kwargs.get("input_data_dir")
@@ -210,7 +176,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
         "rgb_avg",
         "ndvi",
     ]
-    colors_normalization_max_value: 255 * 256
+    colors_normalization_max_value = 255 * 256
 
     @classmethod
     def load_las(self, las_filepath: str):
@@ -260,16 +226,15 @@ class FrenchLidarDataLogic(LidarDataLogic):
                 x[:, idx] = x[:, idx] / self.colors_normalization_max_value
                 x[occluded_points, idx] = 0
 
-        rgb_avg = (
-            np.asarray([las[x_name] for x_name in self.rgb], dtype=np.float32)
-            .transpose()
-            .mean(axis=1, keepdims=True)
-        )
         red = x[:, self.x_features_names.index("red")]
-        nir = x[:, self.x_features_names.index("nir")]
+        green = x[:, self.x_features_names.index("green")]
+        blue = x[:, self.x_features_names.index("blue")]
 
+        rgb_avg = np.asarray([red, green, blue], dtype=np.float32).mean(axis=0)
+
+        nir = x[:, self.x_features_names.index("nir")]
         ndvi = (nir - red) / (nir + red + 10 ** -6)
-        x = np.concatenate([x, rgb_avg, ndvi], axis=1)
+        x = np.concatenate([x, rgb_avg[:, None], ndvi[:, None]], axis=1)
 
         try:
             # for LAS format V1.2
@@ -299,7 +264,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         "rgb_avg",
         "ndvi",
     ]
-    colors_normalization_max_value: 256
+    colors_normalization_max_value = 256
 
     @classmethod
     def load_las(self, las_filepath: str):
@@ -350,7 +315,9 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
                 x[occluded_points, idx] = 0
 
         rgb_avg = (
-            np.asarray([las[x_name] for x_name in self.rgb], dtype=np.float32)
+            np.asarray(
+                [las[x_name] for x_name in ["red", "green", "blue"]], dtype=np.float32
+            )
             .transpose()
             .mean(axis=1, keepdims=True)
         )
@@ -374,6 +341,40 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             las_filepath=las_filepath,
             x_features_names=self.x_features_names,
         )
+
+
+def main():
+
+    parser = argparse.ArgumentParser(
+        description="Prepare a Lidar dataset for deep learning."
+    )
+    parser.add_argument(
+        "--split_csv",
+        type=str,
+        default="./split.csv",
+        help="Path to csv with a basename (e.g. '123_456.las') and split (train/val/test) columns specifying the dataset split.",
+    )
+    parser.add_argument(
+        "--input_data_dir",
+        type=str,
+        default="./data/raw/",
+        help="Path to folder with las files stored in train/val/test subfolders.",
+    )
+    parser.add_argument(
+        "--output_data_dir",
+        type=str,
+        default="./prepared/",
+        help="Path to folder to save Data object train/val/test subfolders.",
+    )
+    parser.add_argument(
+        "--origin",
+        type=str,
+        default="FR",
+    )
+    args = parser.parse_args()
+    if args.origin == "FR":
+        data_prepper = FrenchLidarDataLogic(**args.__dict__)
+        data_prepper.prepare()
 
 
 if __name__ == "__main__":

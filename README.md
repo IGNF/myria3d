@@ -89,7 +89,7 @@ Some environment variable are injected at runtime and need to be specified in a 
 - `DATAMODULE` section, which specify where to look for training data.
 - `LOGGER` section, which specify credentials needed for logging to [comet.ml](comet.ml). Alternatively, logging can be disabled by setting `logger=null` ar runtime.
 
-For training and evaluation, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. 
+For training and evaluation, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. A specific preparation is needed that is described in section Data preparation
 
 The expected file structure is summarized in `.env`.
 
@@ -120,3 +120,6 @@ From the line for package-based inference above, simply change `python -m lidar_
 
 In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of the `config.yaml` file and commenting out the lines containing `oc.env` logic.
 
+### Data preparation
+
+TODO
