@@ -1,11 +1,14 @@
 """ 
-From a data directory containing point cloud in LAS format, and a scv specifying the dataset 
-train/val/test split for each file (columns: split, basename, example: "val","123_456.las"),
-split the dataset, chunk the point cloud tiles into smaller subtiles, and prepare each sample
-as a pytorch geometric Data object.
+1) Data loading logics specific to each data format.
+    The "load_las_data" class method can be passed to the datamodule at inference time.
+2) A data preparation script for deep learning training.
+    From a data directory containing point cloud in LAS format, and a scv specifying the dataset 
+    train/val/test split for each file (columns: split, basename, example: "val","123_456.las"),
+    split the dataset, chunk the point cloud tiles into smaller subtiles, and prepare each sample
+    as a pytorch geometric Data object.
 
-Current features are : standard LAS features + RGB + Near Infrared + composite colors (R+G+B)/3
-Echo numbers and colors are scaled to be in 0-1 range.
+    Echo numbers and colors are scaled to be in 0-1 range. Intensity and average color
+    are not scaled b/c they are expected to be standardized later.
 
 For help run
     python prepare_french_lidar.py -h
@@ -374,6 +377,9 @@ def main():
     args = parser.parse_args()
     if args.origin == "FR":
         data_prepper = FrenchLidarDataLogic(**args.__dict__)
+        data_prepper.prepare()
+    if args.origin == "CH":
+        data_prepper = SwissTopoLidarDataLogic(**args.__dict__)
         data_prepper.prepare()
 
 
