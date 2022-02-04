@@ -32,7 +32,7 @@ class LidarDataLogic(ABC):
     load_las and its needed parameters ares specified in child classes.
     """
 
-    split = ["train", "val", "test"]
+    split = ["val", "train", "test"]
     input_tile_width_meters = 1000
     subtile_width_meters = 50
     return_num_normalization_max_value = 7
@@ -49,7 +49,7 @@ class LidarDataLogic(ABC):
     def load_las(self, las_filepath: str):
         """
         Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
-        
+
         Args:
             las_filepath (str): path to the LAS file.
 
@@ -235,7 +235,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
         rgb_avg = np.asarray([red, green, blue], dtype=np.float32).mean(axis=0)
 
         nir = x[:, self.x_features_names.index("nir")]
-        ndvi = (nir - red) / (nir + red + 10 ** -6)
+        ndvi = (nir - red) / (nir + red + 10**-6)
         x = np.concatenate([x, rgb_avg[:, None], ndvi[:, None]], axis=1)
 
         try:
@@ -326,7 +326,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         red = x[:, self.x_features_names.index("red")]
         nir = x[:, self.x_features_names.index("nir")]
 
-        ndvi = (nir - red) / (nir + red + 10 ** -6)
+        ndvi = (nir - red) / (nir + red + 10**-6)
         x = np.concatenate([x, rgb_avg, ndvi], axis=1)
 
         try:
