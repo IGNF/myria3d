@@ -14,6 +14,10 @@ augment: false
 # By default, do not use the test set unless explicitely required by user.
 use_val_data_at_test_time: true
 
+# The class that has a load_las_data class method.
+loading_func:
+  _target_: lidar_multiclass.datamodules.data_logic.FrenchLidarDataLogic
+
 # Dataset Specific information
 defaults:
   - dataset_description: SwissSURFACE3D.yaml

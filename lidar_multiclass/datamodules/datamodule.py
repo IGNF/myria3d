@@ -1,10 +1,8 @@
-import functools
 import os.path as osp
 from glob import glob
-import random
 import time
 import numpy as np
-from typing import Optional, List, AnyStr, Tuple
+from typing import Optional, List, AnyStr
 
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
@@ -59,7 +57,10 @@ class DataModule(LightningDataModule):
         self.predict_data: Optional[Dataset] = None
 
         # TODO: should be a config.
-        self.load_las_data = FrenchLidarDataLogic.load_las_data
+        # self.load_las_data = FrenchLidarDataLogic.load_las_data
+        self.load_las_data = kwargs.get(
+            "loading_func", FrenchLidarDataLogic
+        ).load_las_data
 
     def setup(self, stage: Optional[str] = None):
         """
