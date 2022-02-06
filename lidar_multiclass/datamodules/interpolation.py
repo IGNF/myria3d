@@ -26,7 +26,7 @@ class Interpolator:
 
         os.makedirs(output_dir, exist_ok=True)
         self.preds_dirpath = output_dir
-        self.current_full_cloud_filepath = ""
+        self.current_las_filepath = ""
         self.classification_dict = classification_dict
         self.names_of_probas_to_save = names_of_probas_to_save
 
@@ -54,13 +54,13 @@ class Interpolator:
         if "entropy" in outputs:
             batch_entropy = outputs["entropy"].detach()
         batch_probas = outputs["proba"][:, self.index_of_probas_to_save].detach()
-        for batch_idx, full_cloud_filepath in enumerate(batch.full_cloud_filepath):
-            is_a_new_tile = full_cloud_filepath != self.current_full_cloud_filepath
+        for batch_idx, las_filepath in enumerate(batch.las_filepath):
+            is_a_new_tile = las_filepath != self.current_las_filepath
             if is_a_new_tile:
-                close_previous_las_first = self.current_full_cloud_filepath != ""
+                close_previous_las_first = self.current_las_filepath != ""
                 if close_previous_las_first:
                     self.interpolate_and_save(prefix)
-                self._load_las_for_classification_update(full_cloud_filepath)
+                self._load_las_for_classification_update(las_filepath)
 
             idx_x = batch.batch_x == batch_idx
             self.updates_classification_subsampled.append(batch_classification[idx_x])
@@ -75,7 +75,7 @@ class Interpolator:
         """Load a LAS and add necessary extradim."""
 
         self.las = laspy.read(filepath)
-        self.current_full_cloud_filepath = filepath
+        self.current_las_filepath = filepath
 
         coln = ChannelNames.PredictedClassification.value
         param = laspy.ExtraBytesParams(name=coln, type=int)
@@ -117,7 +117,7 @@ class Interpolator:
         Returns the path of the updated, saved LAS file.
         """
 
-        basename = os.path.basename(self.current_full_cloud_filepath)
+        basename = os.path.basename(self.current_las_filepath)
         if prefix:
             basename = f"{prefix}_{basename}"
 
@@ -182,7 +182,7 @@ class Interpolator:
         log.info(f"Saved.")
 
         # Clean-up - get rid of current data to go easy on memory
-        self.current_full_cloud_filepath = ""
+        self.current_las_filepath = ""
         del self.las
         del self.las_pos
         del self.updates_pos_subsampled
