@@ -1,6 +1,7 @@
 # Usr defined
 nohup.out
 outputs/
+bash/schedule/*.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

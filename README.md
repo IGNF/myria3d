@@ -24,7 +24,7 @@ To kickstart these training, we will use data from the [SwissSurface3D](https://
 
 This repository provides scripts tackles the following tasks:
 
-- `train.py`: Training and evaluation of the semantic segmentation neural network on aerial Lidar point clouds.
+- `train.py`: Training of the semantic segmentation neural network on aerial Lidar point clouds.
 - `predict.py`: Applying model on unseen data.
 
 Code is packaged for easy deployment (see below). Only trained models are not public-hosted at the moment.
@@ -89,26 +89,19 @@ Some environment variable are injected at runtime and need to be specified in a 
 - `DATAMODULE` section, which specify where to look for training data.
 - `LOGGER` section, which specify credentials needed for logging to [comet.ml](comet.ml). Alternatively, logging can be disabled by setting `logger=null` ar runtime.
 
-For training and evaluation, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. A specific preparation is needed that is described in section Data preparation
+For training, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. A specific preparation is needed that is described in section Data preparation
 
 The expected file structure is summarized in `.env`.
 
 A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
 
-#### Train and evaluate
+#### Training
 Define your experiment setting in an experiment file in the `configs/experiment` folder. 
 
 To try out your setting by overfitting on a single batch, try:
 
 ```
 python run.py experiment=RandLaNetDebug.yaml
-```
-
-Once you have a trained model, you can evaluate on either validation or test set via
-
-```
-python run.py experiment=evaluate_val_data model.ckpt_path={/path/to/checkpoint.ckpt}
-python run.py experiment=evaluate_test_data model.ckpt_path={/path/to/checkpoint.ckpt}
 ```
 
 #### Run inference from sources
