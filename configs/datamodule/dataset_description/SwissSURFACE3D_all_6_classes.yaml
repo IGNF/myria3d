@@ -8,3 +8,8 @@ classification_dict: {1: "unclassified", 2: "ground", 3: "vegetation", 6: "build
 d_in: 10
 num_classes: 6
 
+# loading functions for data object prepared via lidar_multiclass/datamodule/data.py
+load_las_func:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:lidar_multiclass.datamodules.data.SwissTopoLidarDataLogic.load_las}"

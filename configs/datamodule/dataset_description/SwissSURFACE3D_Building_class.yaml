@@ -7,3 +7,9 @@ classification_dict: {1: "unclassified", 6: "building"}
 # Input and output dims of neural net are dataset dependant:
 d_in: 10
 num_classes: 2
+
+# loading functions for data object prepared via lidar_multiclass/datamodule/data.py
+load_las_func:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:lidar_multiclass.datamodules.data.SwissTopoLidarDataLogic.load_las}"

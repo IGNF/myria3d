@@ -96,9 +96,9 @@ The expected file structure is summarized in `.env`.
 A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
 
 #### Training
-Define your experiment setting in an experiment file in the `configs/experiment` folder. 
+Once you have data, define your experiment setting in an experiment file in the `configs/experiment` folder. 
 
-To try out your setting by overfitting on a single batch, try:
+To try out your setting by overfitting on a single batch of a Swiss dataset, run
 
 ```
 python run.py experiment=RandLaNetDebug.yaml
@@ -113,4 +113,4 @@ In case you want to swicth to package-based inference, you will need to comment 
 
 ### Data preparation
 
-TODO
+In `lidar_multiclass/datamodule/data.py` is the logic for data pre-processing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time. The loading function is dataset dependant, and there are currently a logic for both SwissTopo data (withour infrared channel) and French IGN data (with infrared channel).

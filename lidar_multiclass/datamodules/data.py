@@ -102,8 +102,9 @@ class LidarDataLogic(ABC):
         Returns:
             [type]: first file path matching the query.
         """
-        query = osp.join(input_data_dir, "*", basename)
-        return glob.glob(query)[0]
+        query = f"{input_data_dir}*{basename}"
+        files = glob.glob(query)
+        return files[0]
 
     def extract_by_axis(self, data: Data, axis=0):
         """
@@ -185,6 +186,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
         """
         Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
         Build a composite (average) color channel on the fly.
+        Calculate NDVI on the fly.
 
         Args:
             las_filepath (str): path to the LAS file.
@@ -262,9 +264,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         "red",
         "green",
         "blue",
-        "nir",
         "rgb_avg",
-        "ndvi",
     ]
     colors_normalization_max_value = 256
 
@@ -293,7 +293,6 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
                     "red",
                     "green",
                     "blue",
-                    "nir",
                 ]
             ],
             dtype=np.float32,
@@ -311,7 +310,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         )
 
         for idx, c in enumerate(self.x_features_names):
-            if c in ["red", "green", "blue", "nir"]:
+            if c in ["red", "green", "blue"]:
                 assert x[:, idx].max() <= self.colors_normalization_max_value
                 x[:, idx] = x[:, idx] / self.colors_normalization_max_value
                 x[occluded_points, idx] = 0
@@ -323,11 +322,8 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             .transpose()
             .mean(axis=1, keepdims=True)
         )
-        red = x[:, self.x_features_names.index("red")]
-        nir = x[:, self.x_features_names.index("nir")]
 
-        ndvi = (nir - red) / (nir + red + 10**-6)
-        x = np.concatenate([x, rgb_avg, ndvi], axis=1)
+        x = np.concatenate([x, rgb_avg], axis=1)
 
         try:
             # for LAS format V1.2

@@ -12,12 +12,6 @@ augment: false
 # By default, do not use the test set unless explicitely required by user.
 use_val_data_at_test_time: true
 
-# The load_las class method with signature load_las((las_filepath) .that returns a Data object.
-load_las_func:
-  _target_: functools.partial
-  _args_:
-    - "${get_method:lidar_multiclass.datamodules.data.FrenchLidarDataLogic.load_las}"
-
 # Dataset Specific information
 defaults:
   - dataset_description: SwissSURFACE3D_all_6_classes.yaml

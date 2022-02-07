@@ -1,0 +1,24 @@
+# @package _global_
+defaults:
+  - override /datamodule/dataset_description: 20220204_BuildingValidation_and_Ground
+
+datamodule:
+  augment: true
+
+logger:
+  comet:
+    experiment_name: "RandLaNet - FR Data"
+
+trainer:
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 30
+  max_epochs: 150
+  check_val_every_n_epoch: 1
+  val_check_interval: 0.25 
+  # gpus: [1]
+
+callbacks:
+  early_stopping:
+    patience: 20
+

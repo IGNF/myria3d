@@ -54,7 +54,9 @@ class DataModule(LightningDataModule):
         self.test_data: Optional[Dataset] = None
         self.predict_data: Optional[Dataset] = None
 
-        self.load_las = kwargs.get("load_las_func", FrenchLidarDataLogic.load_las)
+        self.load_las = self.dataset_description.get(
+            "load_las_func", FrenchLidarDataLogic.load_las
+        )
 
     def setup(self, stage: Optional[str] = None):
         """
