@@ -4,6 +4,9 @@ log_code:
   _target_: lidar_multiclass.callbacks.comet_callbacks.LogCode
   code_dir: ${work_dir}/lidar_multiclass
 
+log_logs_dir:
+  _target_: lidar_multiclass.callbacks.comet_callbacks.LogLogsPath
+
 lr_monitor:
   _target_:  pytorch_lightning.callbacks.LearningRateMonitor
   logging_interval: "step"
