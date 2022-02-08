@@ -26,9 +26,3 @@ trainer:
   min_epochs: 1
   max_epochs: 100000
   check_val_every_n_epoch: 1
-
-callbacks:
-  save_preds:
-    save_predictions: true  # This activates saving of outputs.
-    classification_dict: ${datamodule.dataset_description.classification.classification_dict}
-    names_of_probas_to_save: ["unclassified","ground","vegetation","building","water","bridge"]

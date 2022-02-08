@@ -151,15 +151,15 @@ def log_hyperparameters(
 
 
 def eval_time(method):
-    """decorator to log the duration of the decorated method"""
+    """Decorator to log the duration of the decorated method"""
 
     def timed(*args, **kwargs):
         log = get_logger()
-        time_start = time.process_time()
+        time_start = time.time()
         result = method(*args, **kwargs)
-        time_elapsed = round(time.process_time() - time_start, 2)
+        time_elapsed = round(time.time() - time_start, 2)
 
-        log.info(f"Processing time of {method.__name__}: {time_elapsed}s")
+        log.info(f"Runtime of {method.__name__}: {time_elapsed}s")
         return result
 
     return timed

@@ -17,18 +17,14 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
         self._unfreeze_fc_end_epoch = unfreeze_fc_end_epoch
 
     def freeze_before_training(self, pl_module):
-        """Update in adn out dimensions and freeze everything at start."""
+        """Update in and out dimensions, and freeze everything at start."""
 
         # here we could both load the model weights and update its dim afterward
-        pl_module.model.change_num_class_last_MLP(self._num_classes)
+        pl_module.model.change_num_class_for_finetuning(self._num_classes)
         self.freeze(pl_module.model)
 
     def finetune_function(self, pl_module, current_epoch, optimizer, optimizer_idx):
-        """
-
-        Later unfreeze fc_start and bn_start as well.
-
-        """
+        """Unfreeze layers sequentially, starting from the end of the architecture."""
         if current_epoch == 0:
             self.unfreeze_and_add_param_group(
                 modules=pl_module.model.fc_end[-1],

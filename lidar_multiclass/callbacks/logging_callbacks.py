@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import pytorch_lightning as pl
 from pytorch_lightning import Callback
@@ -10,9 +10,9 @@ from lidar_multiclass.utils import utils
 log = utils.get_logger(__name__)
 
 
-# This is not optimal at the moment, and a single class JaccardIndex by phase could be used
-# with specific class of interest specified before each logging. But this seems dangerous so
-# first tests with num_class objects are performed.
+# Training was not lenghtend so we keep "as-is" for now, but this
+# is not optimal at the moment, and a single class JaccardIndex by phase could
+# be used # with specific class of interest specified before each logging.
 
 
 class LogIoUByClass(Callback):
@@ -34,10 +34,12 @@ class LogIoUByClass(Callback):
         return iou_dict
 
     def on_fit_start(self, trainer, pl_module):
+        """Setup IoU torchmetrics objects for train and val phases."""
         self.train_iou_by_class_dict = self.get_all_iou_by_class_object()
         self.val_iou_by_class_dict = self.get_all_iou_by_class_object()
 
     def on_test_start(self, trainer, pl_module):
+        """Setup IoU torchmetrics objects for test phase."""
         self.test_iou_by_class_dict = self.get_all_iou_by_class_object()
 
     def on_init_end(self, trainer: pl.Trainer) -> None:
@@ -53,10 +55,9 @@ class LogIoUByClass(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ):
+        """Log IoU for each class."""
         device = outputs["preds"].device
         for class_name, class_iou in self.train_iou_by_class_dict.items():
-            # TODO: shoudl we always stay to CPU to preserve GPU ressources ?
-            # TODO: move once in on_fit_start using trainer.device / pl_module.device ?
             class_iou = class_iou.to(device)
             class_iou(outputs["preds"], outputs["targets"])
             metric_name = f"train/iou_CLASS_{class_name}"
@@ -77,6 +78,7 @@ class LogIoUByClass(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ):
+        """Log IoU for each class."""
         device = outputs["preds"].device
         for class_name, class_iou in self.val_iou_by_class_dict.items():
             class_iou = class_iou.to(device)
@@ -99,6 +101,7 @@ class LogIoUByClass(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ):
+        """Log IoU for each class."""
         device = outputs["preds"].device
         for class_name, class_iou in self.test_iou_by_class_dict.items():
             class_iou = class_iou.to(device)

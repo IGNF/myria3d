@@ -1,6 +1,6 @@
 <div align="center">
 
-# [Work in Progress] Lidar HD Semantic Segmentation with Deep Learning
+# Aerial Lidar HD Semantic Segmentation with Deep Learning
 
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
@@ -12,22 +12,22 @@
 
 ## Description
 ### Context
-The Lidar HD project ambitions to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
+The French Lidar HD project ambitions to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
 
 Here we train multiclass segmentation models that can serve as base model for further segmentation tasks on French Lidar HD data. 
 
 The goal is to be somewhat data-agnostic yet opiniated, with default configuration for different national Lidar data specifications. 
 
-To kickstart these training, we will use data from the [SwissSurface3D](https://www.swisstopo.admin.ch/fr/geodata/height/surface3d.htm), a similar initiative from the Swiss geographical institute SwissTopo. Once labeled French Lidar HD data becomes available, we will switch to different datasets.
-
 ### Content
 
 This repository provides scripts tackles the following tasks:
 
-- `train.py`: Training and evaluation of the semantic segmentation neural network on aerial Lidar point clouds.
+- `train.py`: Training of the semantic segmentation neural network on aerial Lidar point clouds.
 - `predict.py`: Applying model on unseen data.
 
-Code is packaged for easy deployment (see below). Only trained models are not public-hosted at the moment.
+Code is packaged for easy deployment (see below). Trained models are not public-hosted at the moment.
+
+This Lidar Segmentation repository is heavily based on the following [template](https://github.com/ashleve/lightning-hydra-template). Please refer to its README for documentation on its general logic.
 
 ## How to use
 
@@ -41,10 +41,10 @@ cd Lidar-Deep-Segmentation
 # [OPTIONAL] If you want to use a gpu make sure cuda toolkit is installed
 sudo apt install nvidia-cuda-toolkit
 
-# install conda
+# install anaconda
 # see https://www.anaconda.com/products/individual
 
-# create conda environment (you may need to run lines manually as conda may not activate properly from bash script)
+# create conda environment - adapt versions and use of cudatoolkit to your own infrastructure.
 source bash/setup_environment/setup_env.sh
 
 # activate using
@@ -59,8 +59,8 @@ If you are interested in running inference from anywhere, you can install code a
 conda activate lidar_multiclass_env
 
 # install the package
-pip install -e .  # from local sources
 pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/main  # from github directly
+pip install -e .  # from local sources
 ```
 
 To run inference, you will need:
@@ -89,34 +89,40 @@ Some environment variable are injected at runtime and need to be specified in a 
 - `DATAMODULE` section, which specify where to look for training data.
 - `LOGGER` section, which specify credentials needed for logging to [comet.ml](comet.ml). Alternatively, logging can be disabled by setting `logger=null` ar runtime.
 
-For training and evaluation, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. 
+For training, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. A specific preparation is needed that is described in section Data preparation
 
 The expected file structure is summarized in `.env`.
 
 A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
 
-#### Train and evaluate
-Define your experiment setting in an experiment file in the `configs/experiment` folder. 
+#### Training
+Once you have data, define your experiment setting in an experiment file in the `configs/experiment` folder. 
 
-To try out your setting by overfitting on a single batch, try:
+To try out your setting by overfitting on a single batch of a Swiss dataset, run
 
 ```
 python run.py experiment=RandLaNetDebug.yaml
 ```
 
-Once you have a trained model, you can evaluate on either validation or test set via
-
-```
-python run.py experiment=evaluate_val_data model.ckpt_path={/path/to/checkpoint.ckpt}
-python run.py experiment=evaluate_test_data model.ckpt_path={/path/to/checkpoint.ckpt}
-```
-
-Predictions are saved by default during these evaluations. To go easy on storage memory you can disable it by setting `callbacks.save_preds.save_predictions=false`.
-
+After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified, with an associated hydra `config.yaml`.
 #### Run inference from sources
-After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified.
 
 From the line for package-based inference above, simply change `python -m lidar_multiclass.predict` to `python run.py` to run directly from sources.
 
 In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of the `config.yaml` file and commenting out the lines containing `oc.env` logic.
 
+### Data preparation
+
+In `lidar_multiclass/datamodule/data.py` is the logic for data pre-processing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time. 
+
+The loading function is dataset dependant, and there are currently a logic for both SwissTopo data (withour infrared channel) and French IGN data (with infrared channel).
+
+For help, run 
+
+```
+python lidar_multiclass/datamodules/data.py -h
+```
+Currently, two sources are supported:
+
+- [French Lidar HD](https://geoservices.ign.fr/lidarhd), produced by the French geographical Institute. The data is colorized with both RGB and Infrared. Therefore, data processing will include Infrared channel as well as NDVI.
+- Swiss Lidar from [SwissSurface3D (en)](https://www.swisstopo.admin.ch/en/geodata/height/surface3d.html), a similar initiative from the Swiss geographical institute SwissTopo. The data comes from the SwissSurface3D Lidar database and is not colorized, so we have to join it with SwissImage10 orthoimages database. The procedure is described in this standalone [repository](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).

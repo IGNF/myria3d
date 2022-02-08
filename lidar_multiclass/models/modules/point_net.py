@@ -1,50 +1,26 @@
-import numpy as np
 import torch
 from torch import nn
-from torch.nn import BatchNorm1d as BN
-from torch.nn import Linear as Lin
+from torch.nn import BatchNorm1d
+from torch.nn import Linear
 from torch.nn import ReLU
 from torch.nn import Sequential as Seq
 from torch_geometric.nn.glob.glob import global_max_pool
-
-
-def MLP(channels, batch_norm: bool = True):
-    return Seq(
-        *[
-            Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
-            if batch_norm
-            else Seq(Lin(channels[i - 1], channels[i]), ReLU())
-            for i in range(1, len(channels))
-        ]
-    )
 
 
 class PointNet(nn.Module):
     def __init__(self, hparams_net: dict):
         super().__init__()
 
-        self.mlp1 = MLP(
-            hparams_net["MLP1_channels"], batch_norm=hparams_net["batch_norm"]
-        )
-        self.mlp2 = MLP(
-            hparams_net["MLP2_channels"], batch_norm=hparams_net["batch_norm"]
-        )
-        self.mlp3 = MLP(
-            hparams_net["MLP3_channels"], batch_norm=hparams_net["batch_norm"]
-        )
-        self.lin = Lin(hparams_net["MLP3_channels"][-1], hparams_net["num_classes"])
-        pi_init = hparams_net["pi_init"]
-        a = 0
-        b = -np.log((1 - pi_init) / pi_init)
-        self.lin.bias = torch.nn.Parameter(
-            torch.Tensor(
-                [
-                    a,
-                    b,
-                ]
-            )
-        )
-        nn.init.xavier_normal_(self.lin.weight)
+        self.num_classes = hparams_net["num_classes"]
+        bn = hparams_net.get("batch_norm", True)
+        d1 = hparams_net.get("MLP1_channels", [10, 64, 64])
+        d2 = hparams_net.get("MLP2_channels", [64, 256, 512, 1024])
+        d3 = hparams_net.get("MLP3_channels", [1088, 512, 256, 64, 4])
+
+        self.mlp1 = MLP(d1, batch_norm=bn)
+        self.mlp2 = MLP(d2, batch_norm=bn)
+        self.mlp3 = MLP(d3, batch_norm=bn)
+        self.lin = Linear(d3[-1], self.num_classes)
 
     def forward(self, batch):
         """
@@ -67,4 +43,30 @@ class PointNet(nn.Module):
         f3 = self.mlp3(Gf1)
         logits = self.lin(f3)
 
+        self.change_num_class_for_finetuning(5)
+
         return logits
+
+    def change_num_class_for_finetuning(self, new_num_classes: int):
+        """
+        Change end layer output number of classes if new_num_classes is different.
+        This method is used for finetuning.
+
+        Args:
+            new_num_classes (int): new number of classes for finetuning pretrained model.
+        """
+        if new_num_classes != self.num_classes:
+            mlp3_out_f = self.mlp3[-1][0].out_features
+            self.lin = Linear(mlp3_out_f, new_num_classes)
+            self.num_classes = new_num_classes
+
+
+def MLP(channels, batch_norm: bool = True):
+    return Seq(
+        *[
+            Seq(Linear(channels[i - 1], channels[i]), ReLU(), BatchNorm1d(channels[i]))
+            if batch_norm
+            else Seq(Linear(channels[i - 1], channels[i]), ReLU())
+            for i in range(1, len(channels))
+        ]
+    )

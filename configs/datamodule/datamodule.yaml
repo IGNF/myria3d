@@ -1,7 +1,5 @@
 _target_: lidar_multiclass.datamodules.datamodule.DataModule
 
-# those two paths are specified in configs/config.yaml
-input_data_dir: ${oc.env:INPUT_DATA_DIR}
 prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 
 num_workers: 1
@@ -16,4 +14,4 @@ use_val_data_at_test_time: true
 
 # Dataset Specific information
 defaults:
-  - dataset_description: SwissSURFACE3D.yaml
+  - dataset_description: SwissSURFACE3D_all_6_classes.yaml

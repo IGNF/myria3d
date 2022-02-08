@@ -1,10 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /trainer: default.yaml
   - override /callbacks: finetuning.yaml
-  - override /model: randla_net_model.yaml
-  - override /datamodule/dataset_description/classification: SwissSURFACE3D_Building_class
+  - override /datamodule/dataset_description: SwissSURFACE3D_Building_class
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters

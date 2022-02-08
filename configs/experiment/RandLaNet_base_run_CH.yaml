@@ -1,5 +1,11 @@
 # @package _global_
 
+defaults:
+  - override /datamodule/dataset_description: SwissSURFACE3D_all_6_classes
+
+datamodule:
+  augment: true
+
 logger:
   comet:
     experiment_name: "RandLaNet - First run"
@@ -16,4 +22,6 @@ trainer:
 callbacks:
   early_stopping:
     patience: 20
+
+
 
