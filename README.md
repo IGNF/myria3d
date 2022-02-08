@@ -25,7 +25,9 @@ This repository provides scripts tackles the following tasks:
 - `train.py`: Training of the semantic segmentation neural network on aerial Lidar point clouds.
 - `predict.py`: Applying model on unseen data.
 
-Code is packaged for easy deployment (see below). Only trained models are not public-hosted at the moment.
+Code is packaged for easy deployment (see below). Trained models are not public-hosted at the moment.
+
+This Lidar Segmentation repository is heavily based on the following [template](https://github.com/ashleve/lightning-hydra-template). Please refer to its README for documentation on its general logic.
 
 ## How to use
 
