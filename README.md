@@ -12,13 +12,11 @@
 
 ## Description
 ### Context
-The Lidar HD project ambitions to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
+The French Lidar HD project ambitions to map France in 3D using 10 pulse/m² aerial Lidar. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
 
 Here we train multiclass segmentation models that can serve as base model for further segmentation tasks on French Lidar HD data. 
 
 The goal is to be somewhat data-agnostic yet opiniated, with default configuration for different national Lidar data specifications. 
-
-To kickstart these training, we will use data from the [SwissSurface3D](https://www.swisstopo.admin.ch/fr/geodata/height/surface3d.htm), a similar initiative from the Swiss geographical institute SwissTopo. Once labeled French Lidar HD data becomes available, we will switch to different datasets.
 
 ### Content
 
@@ -104,8 +102,8 @@ To try out your setting by overfitting on a single batch of a Swiss dataset, run
 python run.py experiment=RandLaNetDebug.yaml
 ```
 
+After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified, with an associated hydra `config.yaml`.
 #### Run inference from sources
-After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified.
 
 From the line for package-based inference above, simply change `python -m lidar_multiclass.predict` to `python run.py` to run directly from sources.
 
@@ -113,4 +111,16 @@ In case you want to swicth to package-based inference, you will need to comment 
 
 ### Data preparation
 
-In `lidar_multiclass/datamodule/data.py` is the logic for data pre-processing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time. The loading function is dataset dependant, and there are currently a logic for both SwissTopo data (withour infrared channel) and French IGN data (with infrared channel).
+In `lidar_multiclass/datamodule/data.py` is the logic for data pre-processing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time. 
+
+The loading function is dataset dependant, and there are currently a logic for both SwissTopo data (withour infrared channel) and French IGN data (with infrared channel).
+
+For help, run 
+
+```
+python lidar_multiclass/datamodules/data.py -h
+```
+Currently, two sources are supported:
+
+- [French Lidar HD](https://geoservices.ign.fr/lidarhd), produced by the French geographical Institute. The data is colorized with both RGB and Infrared. Therefore, data processing will include Infrared channel as well as NDVI.
+- Swiss Lidar from [SwissSurface3D (en)](https://www.swisstopo.admin.ch/en/geodata/height/surface3d.html), a similar initiative from the Swiss geographical institute SwissTopo. The data comes from the SwissSurface3D Lidar database and is not colorized, so we have to join it with SwissImage10 orthoimages database. The procedure is described in this standalone [repository](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
