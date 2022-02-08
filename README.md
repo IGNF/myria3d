@@ -39,10 +39,10 @@ cd Lidar-Deep-Segmentation
 # [OPTIONAL] If you want to use a gpu make sure cuda toolkit is installed
 sudo apt install nvidia-cuda-toolkit
 
-# install conda
+# install anaconda
 # see https://www.anaconda.com/products/individual
 
-# create conda environment (you may need to run lines manually as conda may not activate properly from bash script)
+# create conda environment - adapt versions and use of cudatoolkit to your own infrastructure.
 source bash/setup_environment/setup_env.sh
 
 # activate using
@@ -57,8 +57,8 @@ If you are interested in running inference from anywhere, you can install code a
 conda activate lidar_multiclass_env
 
 # install the package
-pip install -e .  # from local sources
 pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/main  # from github directly
+pip install -e .  # from local sources
 ```
 
 To run inference, you will need:
