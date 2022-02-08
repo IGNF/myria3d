@@ -175,19 +175,16 @@ class LocalFeatureAggregation(nn.Module):
         return self.lrelu(self.mlp2(x) + self.shortcut(features))
 
 
-""" 
-Implementation is close to paper in 
-Except:
-
-Our modifications:
-- fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid loss of info.
-
-"""
-
-
 class RandLANet(nn.Module):
     def __init__(self, hparams_net: dict):
+        """
+        Implementation follows original paper: RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
+        https://arxiv.org/abs/1911.11236
 
+        Our modifications:
+        - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
+        information bottleneck in cases where d_in is above 8.
+        """
         super(RandLANet, self).__init__()
         self.d_in = hparams_net.get("d_in", 6)  # xyz + features
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
@@ -225,7 +222,13 @@ class RandLANet(nn.Module):
         self.set_fc_end(self.d_in, self.dropout, self.num_classes)
 
     def set_fc_end(self, d_in, dropout, num_classes):
-        """Build the final fully connected layer."""
+        """Build the final fully connected layer.
+
+        Args:
+            d_in (int): number of input features
+            dropout (float): dropout level in final FC layer
+            num_classes (int): number of output classes
+        """
         parts = [
             SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
             SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
@@ -236,20 +239,20 @@ class RandLANet(nn.Module):
         self.fc_end = nn.Sequential(*parts)
 
     def forward(self, batch):
-        r"""
-        Forward pass
-        Parameters
-        ----------
-        batch:
-        Returns
-        -------
-        torch.Tensor, shape (B, num_classes, N)
-            segmentation scores for each point
+        """, shape
+
+
+        Args:
+            batch (pytorch_geometric.Data): Subtile information with shape (B*N, 3+F).
+            Attributs: pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.
+
+        Returns:
+            torch.Tensor: classification logits for each point, with shape (B*num_classes,C)
         """
 
         input = torch.cat([batch.pos, batch.x], axis=1)
         chunks = torch.split(input, len(batch.pos) // batch.batch_size)
-        input = torch.stack(chunks)  # B N, 3+F
+        input = torch.stack(chunks)  # B, N, 3+F
 
         N = input.size(1)
         d = self.decimation
@@ -308,10 +311,16 @@ class RandLANet(nn.Module):
         scores = torch.cat(
             [score_cloud.permute(1, 0) for score_cloud in scores]
         )  # B*N, C
-        return scores
+        return scores  # B*N, C
 
     def change_num_class_last_MLP(self, new_num_classes: int):
-        """Change end layer output number of classes."""
+        """
+        Change end layer output number of classes if new_num_classes is different.
+        This mehtod is used for finetuning.
+
+        Args:
+            new_num_classes (int): new numer of classes for finetuning pretrained model.
+        """
         if new_num_classes != self.num_classes:
             self.fc_end[-1] = SharedMLP(32, new_num_classes)
             self.num_classes = new_num_classes

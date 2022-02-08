@@ -12,10 +12,6 @@ from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
 from lidar_multiclass.utils import utils
 from lidar_multiclass.datamodules.transforms import *
-from lidar_multiclass.datamodules.data import (
-    FrenchLidarDataLogic,
-    SwissTopoLidarDataLogic,
-)
 
 from lidar_multiclass.utils import utils
 
@@ -54,9 +50,7 @@ class DataModule(LightningDataModule):
         self.test_data: Optional[Dataset] = None
         self.predict_data: Optional[Dataset] = None
 
-        self.load_las = self.dataset_description.get(
-            "load_las_func", FrenchLidarDataLogic.load_las
-        )
+        self.load_las = self.dataset_description.get("load_las_func")
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -263,7 +257,7 @@ class LidarIterableDataset(IterableDataset):
         self.subtile_width_meters = subtile_width_meters
 
     @utils.eval_time
-    def process_data(self):
+    def yield_transformed_subtile_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
         for idx, filepath in enumerate(self.files):
@@ -281,10 +275,8 @@ class LidarIterableDataset(IterableDataset):
                         data = self.target_transform(data)
                     yield data
 
-            log.info(f"Took {(time.time() - ts):.6} seconds")
-
     def __iter__(self):
-        return self.process_data()
+        return self.yield_transformed_subtile_data()
 
     def get_all_subtiles_xy_min_corner(self, data: Data):
         """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
