@@ -3,10 +3,9 @@ defaults:
 
 neural_net_class_name: "PointNet"
 neural_net_hparams:
-  num_classes: ${model.num_classes}
-  MLP1_channels: [${model.d_in}, 64, 64]
+  batch_norm: true
+  MLP1_channels: ["${model.d_in}", 64, 64]
   MLP2_channels: [64, 256, 512, 1024]
   MLP3_channels: [1088, 512, 256, 64, 4]
-  batch_norm: true
-  pi_init: 0.05
+  num_classes: "${model.num_classes}"
 

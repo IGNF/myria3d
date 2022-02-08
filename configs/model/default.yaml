@@ -9,19 +9,18 @@ ckpt_path: null  # str, for resuming training and finetuning.
 neural_net_class_name: ???
 neural_net_hparams: ???
 
-## Evaluation metric - partial for triple init
+## Evaluation metric - partial for triple (train/val/test) init
 iou:
   _target_: functools.partial
   _args_:
     - "${get_method:torchmetrics.JaccardIndex}"
     - ${model.num_classes}
-  absent_score: 1.0
+  absent_score: 1.0  # do not penalize if a class is absent from labels.
 
 ## Optimization
 criterion: 
   _target_: torch.nn.CrossEntropyLoss
   label_smoothing: 0.0
-
 lr: 0.004566395347136576  # 200-long LR-test-range betw 10^-4 and 3.0
 momentum: 0.9  # arbitrary
 monitor: "val/loss_epoch"
