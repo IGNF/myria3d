@@ -2,5 +2,3 @@
 hydra-core==1.1.0
 hydra-colorlog==1.1.0
 optuna>=2.5
-# --------- PDAL --------- #
-PDAL
