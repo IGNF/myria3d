@@ -35,8 +35,8 @@ This Lidar Segmentation repository is heavily based on the following [template](
 
 ```yaml
 # clone project
-git clone https://github.com/CharlesGaydon/Lidar-Deep-Segmentation
-cd Lidar-Deep-Segmentation
+git clone https://github.com/IGNF/lidar-deep-segmentation
+cd lidar-deep-segmentation
 
 # [OPTIONAL] If you want to use a gpu make sure cuda toolkit is installed
 sudo apt install nvidia-cuda-toolkit
