@@ -44,8 +44,9 @@ sudo apt install nvidia-cuda-toolkit
 # install anaconda
 # see https://www.anaconda.com/products/individual
 
-# create conda environment - adapt versions and use of cudatoolkit to your own infrastructure.
-source bash/setup_environment/setup_env.sh
+# create conda environment - modify script to adapt versions and cudatoolkit to your own infrastructure.
+source bash/setup_environment/setup_env.sh  # with cudatoolkit
+source bash/setup_environment/setup_env_cpu_only.sh  # cpu version only
 
 # activate using
 conda activate lidar_deep_segmentation
