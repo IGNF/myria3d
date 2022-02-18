@@ -48,7 +48,7 @@ sudo apt install nvidia-cuda-toolkit
 source bash/setup_environment/setup_env.sh
 
 # activate using
-conda activate lidar_multiclass_env
+conda activate lidar_deep_segmentation
 ```
 
 ### Run inference from package
@@ -56,7 +56,7 @@ If you are interested in running inference from anywhere, you can install code a
 
 ```
 # activate an env matching ./bash/setup_env.sh requirements.
-conda activate lidar_multiclass_env
+conda activate lidar_deep_segmentation
 
 # install the package
 pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/main  # from github directly

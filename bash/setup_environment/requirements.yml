@@ -1,4 +1,4 @@
-name: lidar_multiclass_env
+name: lidar_deep_segmentation
 channels:
   - conda-forge
   - anaconda
