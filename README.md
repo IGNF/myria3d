@@ -70,7 +70,7 @@ To run inference, you will need:
 
 Fill out the {missing parameters} and run: 
 ```
-python -m lidar_multiclass.predict --config-path {/path/to/.hydra} --config-name {config.yaml} predict.src_las={/path/to/cloud.las} predict.output_dir={/path/to/out/dir/} predict.resume_from_checkpoint={/path/to/checkpoint.ckpt} predict.gpus={0 for none, [i] to use GPU number i} datamodule.batch_size={N}
+python -m lidar_multiclass.predict --config-path {/path/to/.hydra} --config-name {config.yaml} predict.src_las={/path/to/cloud.las} predict.output_dir={/path/to/out/dir/} predict.resume_from_checkpoint={/path/to/checkpoint.ckpt} predict.gpus={0 for none, [i] to use GPU number i} datamodule.batch_size={N} hydra.run.dir={path/for/hydra/logs}
 ```
 
 To show you current inference config, simply add a `--help` flag 
