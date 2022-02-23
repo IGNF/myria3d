@@ -47,7 +47,6 @@ class Interpolator:
         Handle las loading when necessary.
 
         :param outputs: outputs of a step.
-        :param prefix: train, val, test or predict (str).
         """
         batch = outputs["batch"].detach()
         batch_classification = outputs["preds"].detach()
@@ -82,7 +81,6 @@ class Interpolator:
         self.las.add_extra_dim(param)
         self.las[coln][:] = 0
 
-        # TODO: conditional creation
         param = laspy.ExtraBytesParams(
             name=ChannelNames.ProbasEntropy.value, type=float
         )
@@ -111,7 +109,7 @@ class Interpolator:
         self.updates_pos = []
 
     @torch.no_grad()
-    def interpolate_and_save(self, prefix):
+    def interpolate_and_save(self):
         """
         Interpolate all predicted probabilites to their original points in LAS file, and save.
         Returns the path of the updated, saved LAS file.
