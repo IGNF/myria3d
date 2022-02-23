@@ -62,16 +62,12 @@ def predict(config: DictConfig) -> Optional[float]:
     model.to(device)
     model.eval()
 
-    for index, batch in tqdm(
-        enumerate(datamodule.predict_dataloader()), desc="Infering on batch..."
-    ):
+    for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
         outputs = model.predict_step(batch)
         data_handler.update_with_inference_outputs(outputs)
-        # if index >= 1:
-        #     break  ###### TODO - this is for debugging purposes ###################
 
-    updated_las_path = data_handler.interpolate_and_save("predict")
+    updated_las_path = data_handler.interpolate_and_save()
     return updated_las_path
 
 

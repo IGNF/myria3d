@@ -41,7 +41,7 @@ class Interpolator:
         ]
 
     @torch.no_grad()
-    def update_with_inference_outputs(self, outputs: dict, prefix: str = ""):
+    def update_with_inference_outputs(self, outputs: dict):
         """
         Save the predicted classes in las format with position.
         Handle las loading when necessary.
@@ -59,7 +59,7 @@ class Interpolator:
             if is_a_new_tile:
                 close_previous_las_first = self.current_las_filepath != ""
                 if close_previous_las_first:
-                    self.interpolate_and_save(prefix)
+                    self.interpolate_and_save()
                 self._load_las_for_classification_update(las_filepath)
 
             idx_x = batch.batch_x == batch_idx
@@ -118,8 +118,6 @@ class Interpolator:
         """
 
         basename = os.path.basename(self.current_las_filepath)
-        if prefix:
-            basename = f"{prefix}_{basename}"
 
         os.makedirs(self.preds_dirpath, exist_ok=True)
         self.output_path = os.path.join(self.preds_dirpath, basename)
