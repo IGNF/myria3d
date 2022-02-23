@@ -51,6 +51,7 @@ class DataModule(LightningDataModule):
         self.predict_data: Optional[Dataset] = None
 
         self.load_las = self.dataset_description.get("load_las_func")
+        self._set_all_transforms()
 
     def setup(self, stage: Optional[str] = None):
         """
@@ -58,8 +59,6 @@ class DataModule(LightningDataModule):
         test_data = val data, because we only use all validation data after training.
         Test data can be used but only after final model is chosen.
         """
-        self._set_all_transforms()
-
         if stage == "fit" or stage is None:
             self._set_train_data()
             self._set_val_data()

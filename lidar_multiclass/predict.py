@@ -47,7 +47,6 @@ def predict(config: DictConfig) -> Optional[float]:
     assert os.path.exists(config.predict.src_las)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
-    datamodule._set_all_transforms()
     datamodule._set_predict_data([config.predict.src_las])
 
     data_handler = Interpolator(
