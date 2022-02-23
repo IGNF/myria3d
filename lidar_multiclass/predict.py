@@ -49,17 +49,17 @@ def predict(config: DictConfig) -> Optional[float]:
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_predict_data([config.predict.src_las])
 
-    data_handler = Interpolator(
-        config.predict.output_dir,
-        datamodule.dataset_description.get("classification_dict"),
-        names_of_probas_to_save=config.predict.names_of_probas_to_save,
-    )
-
     model: LightningModule = hydra.utils.instantiate(config.model)
     model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()
+
+    data_handler = Interpolator(
+        config.predict.output_dir,
+        datamodule.dataset_description.get("classification_dict"),
+        names_of_probas_to_save=config.predict.names_of_probas_to_save,
+    )
 
     for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
