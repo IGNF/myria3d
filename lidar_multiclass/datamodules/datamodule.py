@@ -42,8 +42,6 @@ class DataModule(LightningDataModule):
         self.classification_preprocessing_dict = self.dataset_description.get(
             "classification_preprocessing_dict"
         )
-        # By default, do not use the test set unless explicitely required by user.
-        self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
 
         self.train_data: Optional[Dataset] = None
         self.val_data: Optional[Dataset] = None
@@ -99,26 +97,20 @@ class DataModule(LightningDataModule):
 
     def _set_test_data(self):
         """Get the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
-        if self.use_val_data_at_test_time:
-            self._set_val_data()
-            self.test_data = self.val_data
-            log.info(
-                "Using validation data as test data. Use real test data with use_val_data_at_test_time=False at run time."
-            )
-            return
         files = glob.glob(
-            osp.join(self.prepared_data_dir, "test", "**", "*.data"), recursive=True
+            osp.join(self.prepared_data_dir, "test", "**", "*.las"), recursive=True
         )
-        self.test_data = LidarMapDataset(
+        self.test_data = LidarIterableDataset(
             files,
-            loading_function=torch.load,
+            loading_function=self.load_las,
             transform=self._get_test_transforms(),
             target_transform=TargetTransform(
                 self.classification_preprocessing_dict, self.classification_dict
             ),
+            subtile_width_meters=self.subtile_width_meters,
         )
 
-    def _set_predict_data(self, files_to_infer_on: List[AnyStr]):
+    def _set_predict_data(self, files_to_infer_on: List[str]):
         """This is used in predict.py, with a single file in a list."""
         self.predict_data = LidarIterableDataset(
             files_to_infer_on,
@@ -156,7 +148,7 @@ class DataModule(LightningDataModule):
             dataset=self.test_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=self.num_workers,
+            num_workers=1,
             collate_fn=collate_fn,
             prefetch_factor=1,
         )
