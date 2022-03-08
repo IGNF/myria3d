@@ -17,8 +17,11 @@ lr_monitor:
 log_iou_by_class:
   _target_: lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass
   classification_dict: ${datamodule.dataset_description.classification_dict}
-  # names_of_probas_to_save: []  # e.g. ["unclassified","ground","vegetation","building","water","bridge"]
-  # output_dir: ""
+  interpolator:  # only used at test time
+    _target_: lidar_multiclass.datamodules.interpolation.Interpolator
+    output_dir: null
+    classification_dict: ${datamodule.dataset_description.classification_dict}
+    names_of_probas_to_save: ["unclassified","ground","building"]
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint

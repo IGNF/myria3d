@@ -55,19 +55,19 @@ def predict(config: DictConfig) -> Optional[float]:
     model.to(device)
     model.eval()
 
-    data_handler = Interpolator(
-        config.predict.output_dir,
-        datamodule.dataset_description.get("classification_dict"),
+    itp = Interpolator(
+        output_dir=config.predict.output_dir,
+        classification_dict=datamodule.dataset_description.get("classification_dict"),
         names_of_probas_to_save=config.predict.names_of_probas_to_save,
     )
 
     for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
         outputs = model.predict_step(batch)
-        data_handler.update_with_inference_outputs(outputs)
+        itp.update(outputs)
 
-    updated_las_path = data_handler.interpolate_and_save()
-    return updated_las_path
+    out_f = itp.interpolate_and_save()
+    return out_f
 
 
 if __name__ == "__main__":

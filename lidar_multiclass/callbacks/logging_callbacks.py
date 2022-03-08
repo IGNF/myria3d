@@ -1,10 +1,12 @@
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import pytorch_lightning as pl
 from pytorch_lightning import Callback
 from pytorch_lightning.utilities.types import STEP_OUTPUT
+import torch
 from torchmetrics import JaccardIndex
 from torchmetrics.functional.classification.jaccard import _jaccard_from_confmat
+from lidar_multiclass.datamodules.interpolation import Interpolator
 from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
@@ -20,11 +22,11 @@ class LogIoUByClass(Callback):
     A Callback to log JaccardIndex for each class.
     """
 
-    def __init__(self, classification_dict):
+    def __init__(self, classification_dict: Dict[int, str], interpolator: Interpolator):
         self.classification_names = classification_dict.values()
         self.num_classes = len(classification_dict)
         self.metric = SingleClassIoU
-        # TODO: add inputs
+        self.itp = interpolator
 
     def get_all_iou_by_class_object(self):
         """Get a dict with schema {class_name:iou_for_class_name, ...}"""
@@ -34,12 +36,12 @@ class LogIoUByClass(Callback):
         }
         return iou_dict
 
-    def on_fit_start(self, trainer, pl_module):
+    def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         """Setup IoU torchmetrics objects for train and val phases."""
         self.train_iou_by_class_dict = self.get_all_iou_by_class_object()
         self.val_iou_by_class_dict = self.get_all_iou_by_class_object()
 
-    def on_test_start(self, trainer, pl_module):
+    def on_test_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         """Setup IoU torchmetrics objects for test phase."""
         self.test_iou_by_class_dict = self.get_all_iou_by_class_object()
 
@@ -57,18 +59,9 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         """Log IoU for each class."""
-        device = outputs["preds"].device
-        for class_name, class_iou in self.train_iou_by_class_dict.items():
-            class_iou = class_iou.to(device)
-            class_iou(outputs["preds"], outputs["targets"])
-            metric_name = f"train/iou_CLASS_{class_name}"
-            self.log(
-                metric_name,
-                class_iou,
-                on_step=False,
-                on_epoch=True,
-                metric_attribute=metric_name,
-            )
+        logits = outputs["logits"]
+        targets = outputs["targets"]
+        self.log_iou(logits, targets, "train", self.train_iou_by_class_dict)
 
     def on_validation_batch_end(
         self,
@@ -80,18 +73,9 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         """Log IoU for each class."""
-        device = outputs["preds"].device
-        for class_name, class_iou in self.val_iou_by_class_dict.items():
-            class_iou = class_iou.to(device)
-            class_iou(outputs["preds"], outputs["targets"])
-            metric_name = f"val/iou_CLASS_{class_name}"
-            self.log(
-                metric_name,
-                class_iou,
-                on_step=False,
-                on_epoch=True,
-                metric_attribute=metric_name,
-            )
+        logits = outputs["logits"]
+        targets = outputs["targets"]
+        self.log_iou(logits, targets, "val", self.val_iou_by_class_dict)
 
     def on_test_batch_end(
         self,
@@ -102,17 +86,22 @@ class LogIoUByClass(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ):
-        """Log IoU for each class."""
-        device = outputs["preds"].device
+        """Log IoU for each class. Loop in case of multiple files in a single batch."""
+        interpolations = self.itp.update(outputs)
+        for logits, targets in interpolations:
+            self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
 
-        # TODO: update with interpolator, which returns the file that were saved, if any
-        # if some file were saved, for each of them
-        # load file, get the classification
+    def on_test_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
+        logits, targets = self.itp._interpolate()
+        self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
 
-        for class_name, class_iou in self.test_iou_by_class_dict.items():
+    def log_iou(self, logits, targets, phase: str, iou_dict):
+        device = logits.device
+        preds = torch.argmax(logits, dim=1)
+        for class_name, class_iou in iou_dict.items():
             class_iou = class_iou.to(device)
-            class_iou(outputs["preds"], outputs["targets"])
-            metric_name = f"test/iou_CLASS_{class_name}"
+            class_iou(preds, targets)
+            metric_name = f"{phase}/iou_CLASS_{class_name}"
             self.log(
                 metric_name,
                 class_iou,
