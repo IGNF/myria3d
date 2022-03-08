@@ -41,6 +41,8 @@ class Interpolator:
         ]
 
     @torch.no_grad()
+    # TODO: interpolate_and_save to return a path that is appended to a list.
+    # TODO: only one file, systematically -> OK for predict, and elsewise dealt with in on_test_batch_end of callback.
     def update_with_inference_outputs(self, outputs: dict):
         """
         Save the predicted classes in las format with position.
@@ -70,6 +72,7 @@ class Interpolator:
             idx_y = batch.batch_y == batch_idx
             self.updates_pos.append(batch.pos_copy[idx_y])
 
+    # TODO: make sure that called only for prediction ?
     def _load_las_for_classification_update(self, filepath):
         """Load a LAS and add necessary extradim."""
 
@@ -102,11 +105,16 @@ class Interpolator:
                 dtype=np.float32,
             ).transpose()
         )
+        # TODO: move these declaration to init
         self.updates_classification_subsampled = []
         self.updates_probas_subsampled = []
         self.updates_entropy_subsampled = []
         self.updates_pos_subsampled = []
         self.updates_pos = []
+
+    # TODO: Reduce values to have unique by pos with torch_scatter -> find mean to index pos with integers
+    # -> simply sort them ?
+    # TODO: separate interpolate from save (two steps), and remapping happens before saving ?
 
     @torch.no_grad()
     def interpolate_and_save(self):

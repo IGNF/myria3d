@@ -9,9 +9,6 @@ subtile_width_meters: 50
 
 augment: false
 
-# By default, do not use the test set unless explicitely required by user.
-use_val_data_at_test_time: true
-
 # Dataset Specific information
 defaults:
   - dataset_description: SwissSURFACE3D_all_6_classes.yaml

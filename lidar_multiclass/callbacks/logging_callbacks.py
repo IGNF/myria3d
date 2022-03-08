@@ -24,6 +24,7 @@ class LogIoUByClass(Callback):
         self.classification_names = classification_dict.values()
         self.num_classes = len(classification_dict)
         self.metric = SingleClassIoU
+        # TODO: add inputs
 
     def get_all_iou_by_class_object(self):
         """Get a dict with schema {class_name:iou_for_class_name, ...}"""
@@ -103,6 +104,11 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         device = outputs["preds"].device
+
+        # TODO: update with interpolator, which returns the file that were saved, if any
+        # if some file were saved, for each of them
+        # load file, get the classification
+
         for class_name, class_iou in self.test_iou_by_class_dict.items():
             class_iou = class_iou.to(device)
             class_iou(outputs["preds"], outputs["targets"])

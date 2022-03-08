@@ -13,7 +13,6 @@ hydra:
   verbose: false
 
 datamodule:
-  use_val_data_at_test_time: False # We use val the real test data and not val data
   batch_size: 50
   num_workers: 1
 
