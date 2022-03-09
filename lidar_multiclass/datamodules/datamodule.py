@@ -110,10 +110,10 @@ class DataModule(LightningDataModule):
             subtile_width_meters=self.subtile_width_meters,
         )
 
-    def _set_predict_data(self, files_to_infer_on: List[str]):
+    def _set_predict_data(self, files: List[str]):
         """This is used in predict.py, with a single file in a list."""
         self.predict_data = LidarIterableDataset(
-            files_to_infer_on,
+            files,
             loading_function=self.load_las,
             transform=self._get_predict_transforms(),
             target_transform=None,
@@ -252,7 +252,7 @@ class LidarIterableDataset(IterableDataset):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
         for idx, filepath in enumerate(self.files):
-            log.info(f"Predicting for file {idx+1}/{len(self.files)} [{filepath}]")
+            log.info(f"Parsing file {idx+1}/{len(self.files)} [{filepath}]")
             tile_data = self.loading_function(filepath)
             centers = self.get_all_subtiles_xy_min_corner(tile_data)
             # TODO: change to process time function
