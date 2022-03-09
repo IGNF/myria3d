@@ -3,7 +3,7 @@ import glob
 import time
 import numpy as np
 from typing import Optional, List, AnyStr
-
+from numbers import Number
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.dataset import IterableDataset
@@ -33,6 +33,7 @@ class DataModule(LightningDataModule):
         self.num_workers = kwargs.get("num_workers", 0)
 
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
+        self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 12500)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", True)
@@ -108,6 +109,7 @@ class DataModule(LightningDataModule):
                 self.classification_preprocessing_dict, self.classification_dict
             ),
             subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
         )
 
     def _set_predict_data(self, files: List[str]):
@@ -118,6 +120,7 @@ class DataModule(LightningDataModule):
             transform=self._get_predict_transforms(),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
         )
 
     def train_dataloader(self):
@@ -239,13 +242,15 @@ class LidarIterableDataset(IterableDataset):
         loading_function=None,
         transform=None,
         target_transform=None,
-        subtile_width_meters: float = 50,
+        subtile_width_meters: Number = 50,
+        subtile_overlap: Number = 0,
     ):
         self.files = files
         self.loading_function = loading_function
         self.transform = transform
         self.target_transform = target_transform
         self.subtile_width_meters = subtile_width_meters
+        self.subtile_overlap = subtile_overlap
 
     @utils.eval_time
     def yield_transformed_subtile_data(self):
@@ -277,10 +282,14 @@ class LidarIterableDataset(IterableDataset):
         xy_min_corners = [
             np.array([x, y])
             for x in np.arange(
-                start=low[0], stop=high[0] + 1, step=self.subtile_width_meters
+                start=low[0],
+                stop=high[0] + 1,
+                step=self.subtile_width_meters - self.subtile_overlap,
             )
             for y in np.arange(
-                start=low[1], stop=high[1] + 1, step=self.subtile_width_meters
+                start=low[1],
+                stop=high[1] + 1,
+                step=self.subtile_width_meters - self.subtile_overlap,
             )
         ]
         # random.shuffle(centers)

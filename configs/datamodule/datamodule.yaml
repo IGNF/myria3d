@@ -6,6 +6,7 @@ num_workers: 1
 batch_size: 32
 subsample_size: 12500
 subtile_width_meters: 50
+subtile_overlap: 0  # e.g. 40 - combine with interpolation_k > 1
 
 augment: false
 

@@ -3,6 +3,7 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 classification_preprocessing_dict: {59: 6, 50: 1}
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 6: "building"}
+names_of_probas_to_save: ["unclassified","ground","building"]
 
 # Input and output dims of neural net are dataset dependant:
 d_in: 12

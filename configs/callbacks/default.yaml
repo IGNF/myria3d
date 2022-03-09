@@ -19,9 +19,8 @@ log_iou_by_class:
   classification_dict: ${datamodule.dataset_description.classification_dict}
   interpolator:  # only used at test time
     _target_: lidar_multiclass.datamodules.interpolation.Interpolator
-    output_dir: null
     classification_dict: ${datamodule.dataset_description.classification_dict}
-    names_of_probas_to_save: ["unclassified","ground","building"]
+    interpolation_k: ${predict.interpolation_k}
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint

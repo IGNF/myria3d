@@ -1,4 +1,5 @@
 import os
+from tokenize import Number
 from typing import Dict, List, Optional
 
 import laspy
@@ -20,18 +21,19 @@ class Interpolator:
 
     def __init__(
         self,
-        output_dir: Optional[str] = None,
         classification_dict: Dict[int, str] = {},
+        interpolation_k: Number = 10,
+        output_dir: Optional[str] = None,
         names_of_probas_to_save: List[str] = [],
     ):
-        self.output_dir = None
-        if output_dir:
-            os.makedirs(output_dir, exist_ok=True)
-            self.output_dir = output_dir
+        self.output_dir = output_dir
+        if self.output_dir:
+            os.makedirs(self.output_dir, exist_ok=True)
 
         self.classification_dict = classification_dict
         self.probas_names = names_of_probas_to_save
         self.current_f = ""
+        self.k = interpolation_k
 
         self.reverse_mapper = {
             class_index: class_code
@@ -134,7 +136,7 @@ class Interpolator:
             self.pos_las,
             batch_x=None,
             batch_y=None,
-            k=1,
+            k=self.k,
             num_workers=4,
         )
         # If no target, returns interpolared logits (i.e. at predict time)
