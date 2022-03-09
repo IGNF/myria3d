@@ -1,0 +1,4 @@
+_target_: lidar_multiclass.datamodules.transforms.RandomSampler
+subsample_size: 12500
+replace: false
+allow_duplicates: true

@@ -37,6 +37,7 @@ class DataModule(LightningDataModule):
         self.subsample_size = kwargs.get("subsample_size", 12500)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", True)
+        self.subsampler = kwargs.get("subsampler")
 
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")
@@ -176,7 +177,7 @@ class DataModule(LightningDataModule):
             EmptySubtileFilter(),
             ToTensor(),
             MakeCopyOfPosAndY(),
-            FixedPointsPosXY(self.subsample_size, replace=False, allow_duplicates=True),
+            self.subsampler,
             MakeCopyOfSampledPos(),
             Center(),
         ]

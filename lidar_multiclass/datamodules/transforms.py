@@ -6,6 +6,7 @@ from typing import Callable, Dict, List
 import numpy as np
 import torch
 from torch_geometric.data import Batch, Data
+from torch_geometric.nn.pool import fps
 from torch_geometric.transforms import BaseTransform
 
 from lidar_multiclass.utils import utils
@@ -68,44 +69,68 @@ class MakeCopyOfPosAndY(BaseTransform):
         return data
 
 
-class FixedPointsPosXY(BaseTransform):
+SAMPLING_KEYS = ("x", "pos", "y")
+
+
+class RandomSampler(BaseTransform):
     r"""
     Samples a fixed number of points from a point cloud.
     Modified to preserve specific attributes of the data for inference interpolation, from
     https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/fixed_points.html#FixedPoints
     """
 
-    def __init__(self, num, replace=True, allow_duplicates=False):
-        self.num = num
-        self.replace = replace
-        self.allow_duplicates = allow_duplicates
+    def __init__(self, subsample_size: int = 12500):
+        self.subsample_size = subsample_size
 
-    def __call__(self, data: Data, keys=["x", "pos", "y"]):
+    def __call__(self, data: Data):
         num_nodes = data.num_nodes
+        choice = torch.cat(
+            [
+                torch.randperm(num_nodes)
+                for _ in range(math.ceil(self.subsample_size / num_nodes))
+            ],
+            dim=0,
+        )[: self.subsample_size]
 
-        if self.replace:
-            choice = np.random.choice(num_nodes, self.num, replace=True)
-            choice = torch.from_numpy(choice).to(torch.long)
-        elif not self.allow_duplicates:
-            choice = torch.randperm(num_nodes)[: self.num]
-        else:
-            choice = torch.cat(
-                [
-                    torch.randperm(num_nodes)
-                    for _ in range(math.ceil(self.num / num_nodes))
-                ],
-                dim=0,
-            )[: self.num]
-
-        for key in keys:
+        for key in SAMPLING_KEYS:
             data[key] = data[key][choice]
 
         return data
 
     def __repr__(self):
         return "{}({}, replace={})".format(
-            self.__class__.__name__, self.num, self.replace
+            self.__class__.__name__, self.subsample_size, self.replace
         )
+
+
+# TODO: make subsampler herit from Subsampler where keys are shared args.
+
+
+class FPSSampler(BaseTransform):
+    r"""
+    Samples a fixed number of points from a point cloud, using Fartest Point Sampling.
+    See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
+    """
+
+    def __init__(self, subsample_size: int = 12500, random_start=False):
+        self.subsample_size = subsample_size
+        self.rs = RandomSampler(subsample_size=subsample_size)
+        self.random_start = random_start
+
+    @utils.eval_time
+    def __call__(self, data: Data):
+        num_nodes = data.num_nodes
+        # Random sampling if we are short in points
+        if num_nodes < self.subsample_size:
+            return self.rs(data)
+
+        # Else, use Farthest Point Sampling
+        ratio = (self.subsample_size / num_nodes) + 0.01
+        choice = fps(data.pos, ratio=ratio, random_start=self.random_start)
+        choice = choice[: self.subsample_size]
+        for key in SAMPLING_KEYS:
+            data[key] = data[key][choice]
+        return data
 
 
 class MakeCopyOfSampledPos(BaseTransform):

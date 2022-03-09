@@ -1,0 +1,1 @@
+_target_: lidar_multiclass.datamodules.transforms.FPSSampler

@@ -4,13 +4,11 @@ prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 
 num_workers: 1
 batch_size: 32
-subsample_size: 12500
 subtile_width_meters: 50
 subtile_overlap: ${predict.subtile_overlap}  # Used for test and predict phases only
 
 augment: false
 
-
-# Dataset Specific information
 defaults:
   - dataset_description: SwissSURFACE3D_all_6_classes.yaml
+  - subsampler: fps.yaml
