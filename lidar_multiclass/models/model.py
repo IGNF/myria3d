@@ -107,12 +107,7 @@ class Model(LightningModule):
     def test_step(self, batch: Any, batch_idx: int):
         """Logging happens in specific IoU logigng callback to have proper aggregation of predictions"""
         logits = self.forward(batch)
-        targets = batch.y
-        return {
-            "logits": logits,
-            "targets": targets,
-            "batch": batch,
-        }
+        return {"logits": logits, "batch": batch}
 
     def predict_step(self, batch: Any):
         logits = self.forward(batch)

@@ -59,11 +59,12 @@ class ToTensor(BaseTransform):
         return data
 
 
-class MakeCopyOfPos(BaseTransform):
+class MakeCopyOfPosAndY(BaseTransform):
     r"""Make a copy of the full cloud's positions and labels, for inference interpolation."""
 
     def __call__(self, data: Data):
         data["pos_copy"] = data["pos"].clone()
+        data["y_copy"] = data["y"].clone()
         return data
 
 
@@ -189,6 +190,7 @@ class TargetTransform(BaseTransform):
 
     def __call__(self, data: Data):
         data.y = self.transform(data.y)
+        data.y_copy = self.transform(data.y_copy)
         return data
 
     def transform(self, y):
@@ -225,7 +227,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
         batch[key] = [data[key] for data in data_list]
 
     # 2: define relevant Tensor in long PyG format.
-    keys_to_long_format = ["pos", "x", "y", "pos_copy", "pos_copy_subsampled"]
+    keys_to_long_format = ["pos", "x", "y", "pos_copy", "pos_copy_subsampled", "y_copy"]
     for key in keys_to_long_format:
         batch[key] = torch.cat([data[key] for data in data_list])
 

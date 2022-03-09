@@ -5,7 +5,7 @@ import laspy
 import numpy as np
 import torch
 from torch_geometric.nn.pool import knn
-
+from torch_geometric.nn.unpool import knn_interpolate
 from lidar_multiclass.utils import utils
 from lidar_multiclass.utils import utils
 from torch.distributions import Categorical
@@ -65,7 +65,7 @@ class Interpolator:
             self.las.add_extra_dim(param)
             self.las[class_name][:] = 0.0
 
-        self.pos = torch.from_numpy(
+        self.pos_las = torch.from_numpy(
             np.asarray(
                 [
                     self.las.x,
@@ -75,10 +75,10 @@ class Interpolator:
                 dtype=np.float32,
             ).transpose()
         )
-        self.logits_sub = []
-        self.targets_sub = []
-        self.pos_sub = []
-        self.pos_u = []
+        self.logits_sub_l = []
+        self.targets_l = []
+        self.pos_sub_l = []
+        self.pos_l = []
 
     @torch.no_grad()
     def update(self, outputs: dict):
@@ -94,9 +94,9 @@ class Interpolator:
 
         batch = outputs["batch"].detach()
         logits_b = outputs["logits"].detach()
-        itp_targets = "targets" in outputs
-        if itp_targets:
-            targets_b = outputs["targets"].detach()
+        some_targets_to_interpolate = "y_copy" in batch
+        if some_targets_to_interpolate:
+            targets_b = batch.y_copy.detach()
 
         for batch_idx, las_filepath in enumerate(batch.las_filepath):
             is_a_new_tile = las_filepath != self.current_f
@@ -109,32 +109,44 @@ class Interpolator:
                     _itps += [interpolation]
                 self._load_las(las_filepath)
 
+            # subsampled elements
             idx_x = batch.batch_x == batch_idx
-            self.logits_sub.append(logits_b[idx_x])
-            if itp_targets:
-                self.targets_sub.append(targets_b[idx_x])
+            self.logits_sub_l.append(logits_b[idx_x])
+            self.pos_sub_l.append(batch.pos_copy_subsampled[idx_x])
 
-            self.pos_sub.append(batch.pos_copy_subsampled[idx_x])
-            idx_y = batch.batch_y == batch_idx
-            self.pos_u.append(batch.pos_copy[idx_y])
+            if some_targets_to_interpolate:
+                # non-sampled elements
+                idx_y = batch.batch_y == batch_idx
+                self.pos_l.append(batch.pos_copy[idx_y])
+                self.targets_l.append(targets_b[idx_y])
 
         return _itps
 
     def _interpolate(self):
         # Cat
-        self.pos_u = torch.cat(self.pos_u).cpu()
-        self.pos_sub = torch.cat(self.pos_sub).cpu()
-        self.logits_sub = torch.cat(self.logits_sub).cpu()
+        pos_sub = torch.cat(self.pos_sub_l).cpu()
+        logits_sub = torch.cat(self.logits_sub_l).cpu()
 
         # Find nn among points with predictions for all points
-        assign_idx = knn(self.pos_sub, self.pos, k=1, num_workers=1)[1]
+        logits = knn_interpolate(
+            logits_sub,
+            pos_sub,
+            self.pos_las,
+            batch_x=None,
+            batch_y=None,
+            k=1,
+            num_workers=4,
+        )
+        # If no target, returns interpolared logits (i.e. at predict time)
+        if not self.targets_l:
+            return logits, None
 
-        # Interpolate predictions
-        logits = self.logits_sub[assign_idx]
-        targets = None
-        if self.targets_sub:
-            self.targets_sub = torch.cat(self.targets_sub).cpu()
-            targets = self.targets_sub[assign_idx]
+        # Interpolate non-sampled targets if present (i.e. at test time)
+        targets = torch.cat(self.targets_l).cpu()
+        pos = torch.cat(self.pos_l).cpu()
+        assign_idx = knn(pos, self.pos_las, k=1, num_workers=4)
+        _, x_idx = assign_idx
+        targets = targets[x_idx]
 
         return logits, targets
 
