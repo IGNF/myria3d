@@ -11,4 +11,4 @@ augment: false
 
 defaults:
   - dataset_description: SwissSURFACE3D_all_6_classes.yaml
-  - subsampler: fps.yaml
+  - subsampler: random.yaml
