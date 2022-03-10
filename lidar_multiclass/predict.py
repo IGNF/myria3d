@@ -30,7 +30,6 @@ def main(config: DictConfig):
     return predict(config)
 
 
-@utils.eval_time
 def predict(config: DictConfig) -> Optional[float]:
     """
     Inference pipeline,

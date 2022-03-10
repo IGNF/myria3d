@@ -253,7 +253,6 @@ class LidarIterableDataset(IterableDataset):
         self.subtile_width_meters = subtile_width_meters
         self.subtile_overlap = subtile_overlap
 
-    @utils.eval_time
     def yield_transformed_subtile_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
