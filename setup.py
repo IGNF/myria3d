@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="lidar_multiclass",
-    version="1.5.3",
+    version="1.6.0",
     description="Multiclass Semantic Segmentation for Lidar Point Cloud",
     author="Charles GAYDON",
     author_email="",
