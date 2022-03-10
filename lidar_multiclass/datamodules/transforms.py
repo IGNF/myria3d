@@ -1,14 +1,17 @@
 # pylint: disable
 import math
 from enum import Enum
+from numbers import Number
 from typing import Callable, Dict, List
 
 import numpy as np
 import torch
+import torch_geometric
 from torch_geometric.data import Batch, Data
-from torch_geometric.nn.pool import fps
 from torch_geometric.transforms import BaseTransform
-
+from torch_geometric.nn.pool import fps
+from torch_scatter import scatter_add, scatter_mean
+import torch.nn.functional as F
 from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
@@ -112,10 +115,9 @@ class FPSSampler(BaseTransform):
     See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
     """
 
-    def __init__(self, subsample_size: int = 12500, random_start=False):
+    def __init__(self, subsample_size: int = 12500):
         self.subsample_size = subsample_size
         self.rs = RandomSampler(subsample_size=subsample_size)
-        self.random_start = random_start
 
     @utils.eval_time
     def __call__(self, data: Data):
@@ -126,10 +128,51 @@ class FPSSampler(BaseTransform):
 
         # Else, use Farthest Point Sampling
         ratio = (self.subsample_size / num_nodes) + 0.01
-        choice = fps(data.pos, ratio=ratio, random_start=self.random_start)
+        choice = fps(data.pos, ratio=ratio, random_start=False)
         choice = choice[: self.subsample_size]
         for key in SAMPLING_KEYS:
             data[key] = data[key][choice]
+        return data
+
+
+class CustomGridSampler(BaseTransform):
+    r"""
+    Samples a fixed number of points from a point cloud, using a voxel grid.
+    Modified to preserve specific attributes of the data for inference interpolation, from
+    https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling
+    """
+
+    def __init__(self, subsample_size: int = 12500, voxel_size: Number = 0.25):
+        self.subsample_size = subsample_size
+        self.rs = RandomSampler(subsample_size=subsample_size)
+        self.voxel_size = voxel_size
+
+    @utils.eval_time
+    def __call__(self, data: Data) -> Data:
+        num_nodes = data.num_nodes
+
+        # Random sampling if we are short in points
+        if num_nodes < self.subsample_size:
+            return self.rs(data)
+
+        batch = data.get("batch", None)
+
+        c = torch_geometric.nn.voxel_grid(data.pos, self.voxel_size, batch, None, None)
+        c, perm = torch_geometric.nn.pool.consecutive.consecutive_cluster(c)
+
+        for key in SAMPLING_KEYS:
+            item = data[key]
+            if torch.is_tensor(item) and item.size(0) == num_nodes:
+                if key == "y":
+                    item = F.one_hot(item)
+                    item = scatter_add(item, c, dim=0)
+                    data[key] = item.argmax(dim=-1)
+                elif key == "batch":
+                    data[key] = item[perm]
+                else:
+                    data[key] = scatter_mean(item, c, dim=0)
+        # Up or downsample to get to subsample_size
+        data = self.rs(data)
         return data
 
 
