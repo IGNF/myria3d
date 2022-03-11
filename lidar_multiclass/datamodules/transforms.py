@@ -119,7 +119,6 @@ class FPSSampler(BaseTransform):
         self.subsample_size = subsample_size
         self.rs = RandomSampler(subsample_size=subsample_size)
 
-    @utils.eval_time
     def __call__(self, data: Data):
         num_nodes = data.num_nodes
         # Random sampling if we are short in points
@@ -147,7 +146,6 @@ class CustomGridSampler(BaseTransform):
         self.rs = RandomSampler(subsample_size=subsample_size)
         self.voxel_size = voxel_size
 
-    @utils.eval_time
     def __call__(self, data: Data) -> Data:
         num_nodes = data.num_nodes
 
