@@ -2,7 +2,7 @@
 import math
 from enum import Enum
 from numbers import Number
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 import torch
@@ -15,6 +15,13 @@ import torch.nn.functional as F
 from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
+
+
+class ChannelNames(Enum):
+    """Names of custom additional LAS channel."""
+
+    PredictedClassification = "PredictedClassification"
+    ProbasEntropy = "entropy"
 
 
 class CustomCompose(BaseTransform):
@@ -72,15 +79,22 @@ class MakeCopyOfPosAndY(BaseTransform):
         return data
 
 
-SAMPLING_KEYS = ("x", "pos", "y")
+class Subsampler(BaseTransform):
+    """Base class for custom cloud subsampler to inherit from.
 
-
-class RandomSampler(BaseTransform):
-    r"""
-    Samples a fixed number of points from a point cloud.
-    Modified to preserve specific attributes of the data for inference interpolation, from
-    https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/fixed_points.html#FixedPoints
+    Subsampling to a unique size is needed for batching clouds with different initial size.
+    Subclasses are modified from https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/,
+    to preserve specific attributes of the data for inference interpolation
     """
+
+    sampling_keys: Tuple[str] = ("x", "pos", "y")
+
+    def _call_(self, data: Data):
+        raise NotImplementedError("Use a non-abstract subsampler class instead.")
+
+
+class RandomSampler(Subsampler):
+    r"""Samples a fixed number of points from a point cloud, randomly."""
 
     def __init__(self, subsample_size: int = 12500):
         self.subsample_size = subsample_size
@@ -95,23 +109,16 @@ class RandomSampler(BaseTransform):
             dim=0,
         )[: self.subsample_size]
 
-        for key in SAMPLING_KEYS:
+        for key in self.sampling_keys:
             data[key] = data[key][choice]
 
         return data
 
-    def __repr__(self):
-        return "{}({}, replace={})".format(
-            self.__class__.__name__, self.subsample_size, self.replace
-        )
 
-
-# TODO: make subsampler herit from Subsampler where keys are shared args.
-
-
-class FPSSampler(BaseTransform):
+class FPSSampler(Subsampler):
     r"""
     Samples a fixed number of points from a point cloud, using Fartest Point Sampling.
+
     See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
     """
 
@@ -129,16 +136,17 @@ class FPSSampler(BaseTransform):
         ratio = (self.subsample_size / num_nodes) + 0.01
         choice = fps(data.pos, ratio=ratio, random_start=False)
         choice = choice[: self.subsample_size]
-        for key in SAMPLING_KEYS:
+        for key in self.sampling_keys:
             data[key] = data[key][choice]
         return data
 
 
-class CustomGridSampler(BaseTransform):
+class CustomGridSampler(Subsampler):
     r"""
-    Samples a fixed number of points from a point cloud, using a voxel grid.
-    Modified to preserve specific attributes of the data for inference interpolation, from
-    https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling
+    Samples a point cloud, using a voxel grid.
+
+    A final random sampling is then needed to have a fixed number of points.
+    See https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling
     """
 
     def __init__(self, subsample_size: int = 12500, voxel_size: Number = 0.25):
@@ -158,7 +166,7 @@ class CustomGridSampler(BaseTransform):
         c = torch_geometric.nn.voxel_grid(data.pos, self.voxel_size, batch, None, None)
         c, perm = torch_geometric.nn.pool.consecutive.consecutive_cluster(c)
 
-        for key in SAMPLING_KEYS:
+        for key in self.sampling_keys:
             item = data[key]
             if torch.is_tensor(item) and item.size(0) == num_nodes:
                 if key == "y":
@@ -316,10 +324,3 @@ def collate_fn(data_list: List[Data]) -> Batch:
     )
     batch.batch_size = len(data_list)
     return batch
-
-
-class ChannelNames(Enum):
-    """Names of custom additional LAS channel"""
-
-    PredictedClassification = "PredictedClassification"
-    ProbasEntropy = "entropy"
