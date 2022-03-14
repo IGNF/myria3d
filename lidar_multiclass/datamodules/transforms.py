@@ -119,6 +119,8 @@ class FPSSampler(Subsampler):
     r"""
     Samples a fixed number of points from a point cloud, using Fartest Point Sampling.
 
+    In our experiments, FPS is slower by an order of magnitude than Random/Grid sampling, and yields worst results.
+
     See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
     """
 
