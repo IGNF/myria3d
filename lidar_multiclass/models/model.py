@@ -69,6 +69,10 @@ class Model(LightningModule):
         self.experiment = self.logger.experiment[0]
 
     def training_step(self, batch: Any, batch_idx: int):
+        """Trainning Step.
+
+        For speed, preds and targets are considered only on sumbsampled points, giving an approximation of the actual IoU.
+        """
         loss, logits, targets = self.step(batch)
         with torch.no_grad():
             preds = torch.argmax(logits, dim=1)
@@ -77,23 +81,25 @@ class Model(LightningModule):
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
-        # TODO: remove proba -> not used by iou ?
         return {
             "loss": loss,
-            "preds": preds,
+            "logits": logits,
             "targets": targets,
         }
 
     def validation_step(self, batch: Any, batch_idx: int):
+        """Validation Step.
+
+        For speed, preds and targets are considered only on sumbsampled points, giving an approximation of the actual IoU.
+        """
         loss, logits, targets = self.step(batch)
-        with torch.no_grad():
-            preds = torch.argmax(logits, dim=1)
+        preds = torch.argmax(logits, dim=1)
         self.val_iou(preds, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {
             "loss": loss,
-            "preds": preds,
+            "logits": logits,
             "targets": targets,
         }
 
