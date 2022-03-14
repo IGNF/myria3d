@@ -1,16 +1,27 @@
 # pylint: disable
 import math
 from enum import Enum
-from typing import Callable, Dict, List
+from numbers import Number
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 import torch
+import torch_geometric
 from torch_geometric.data import Batch, Data
 from torch_geometric.transforms import BaseTransform
-
+from torch_geometric.nn.pool import fps
+from torch_scatter import scatter_add, scatter_mean
+import torch.nn.functional as F
 from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
+
+
+class ChannelNames(Enum):
+    """Names of custom additional LAS channel."""
+
+    PredictedClassification = "PredictedClassification"
+    ProbasEntropy = "entropy"
 
 
 class CustomCompose(BaseTransform):
@@ -59,52 +70,118 @@ class ToTensor(BaseTransform):
         return data
 
 
-class MakeCopyOfPos(BaseTransform):
+class MakeCopyOfPosAndY(BaseTransform):
     r"""Make a copy of the full cloud's positions and labels, for inference interpolation."""
 
     def __call__(self, data: Data):
         data["pos_copy"] = data["pos"].clone()
+        data["y_copy"] = data["y"].clone()
         return data
 
 
-class FixedPointsPosXY(BaseTransform):
-    r"""
-    Samples a fixed number of points from a point cloud.
-    Modified to preserve specific attributes of the data for inference interpolation, from
-    https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/fixed_points.html#FixedPoints
+class Subsampler(BaseTransform):
+    """Base class for custom cloud subsampler to inherit from.
+
+    Subsampling to a unique size is needed for batching clouds with different initial size.
+    Subclasses are modified from https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/,
+    to preserve specific attributes of the data for inference interpolation
     """
 
-    def __init__(self, num, replace=True, allow_duplicates=False):
-        self.num = num
-        self.replace = replace
-        self.allow_duplicates = allow_duplicates
+    sampling_keys: Tuple[str] = ("x", "pos", "y")
 
-    def __call__(self, data: Data, keys=["x", "pos", "y"]):
+    def _call_(self, data: Data):
+        raise NotImplementedError("Use a non-abstract subsampler class instead.")
+
+
+class RandomSampler(Subsampler):
+    r"""Samples a fixed number of points from a point cloud, randomly."""
+
+    def __init__(self, subsample_size: int = 12500):
+        self.subsample_size = subsample_size
+
+    def __call__(self, data: Data):
         num_nodes = data.num_nodes
+        choice = torch.cat(
+            [
+                torch.randperm(num_nodes)
+                for _ in range(math.ceil(self.subsample_size / num_nodes))
+            ],
+            dim=0,
+        )[: self.subsample_size]
 
-        if self.replace:
-            choice = np.random.choice(num_nodes, self.num, replace=True)
-            choice = torch.from_numpy(choice).to(torch.long)
-        elif not self.allow_duplicates:
-            choice = torch.randperm(num_nodes)[: self.num]
-        else:
-            choice = torch.cat(
-                [
-                    torch.randperm(num_nodes)
-                    for _ in range(math.ceil(self.num / num_nodes))
-                ],
-                dim=0,
-            )[: self.num]
-
-        for key in keys:
+        for key in self.sampling_keys:
             data[key] = data[key][choice]
 
         return data
 
-    def __repr__(self):
-        return "{}({}, replace={})".format(
-            self.__class__.__name__, self.num, self.replace
-        )
+
+class FPSSampler(Subsampler):
+    r"""
+    Samples a fixed number of points from a point cloud, using Fartest Point Sampling.
+
+    In our experiments, FPS is slower by an order of magnitude than Random/Grid sampling, and yields worst results.
+
+    See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
+    """
+
+    def __init__(self, subsample_size: int = 12500):
+        self.subsample_size = subsample_size
+        self.rs = RandomSampler(subsample_size=subsample_size)
+
+    def __call__(self, data: Data):
+        num_nodes = data.num_nodes
+        # Random sampling if we are short in points
+        if num_nodes < self.subsample_size:
+            return self.rs(data)
+
+        # Else, use Farthest Point Sampling
+        ratio = (self.subsample_size / num_nodes) + 0.01
+        choice = fps(data.pos, ratio=ratio, random_start=False)
+        choice = choice[: self.subsample_size]
+        for key in self.sampling_keys:
+            data[key] = data[key][choice]
+        return data
+
+
+class CustomGridSampler(Subsampler):
+    r"""
+    Samples a point cloud, using a voxel grid.
+
+    A final random sampling is then needed to have a fixed number of points.
+    See https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling
+    """
+
+    def __init__(self, subsample_size: int = 12500, voxel_size: Number = 0.25):
+        self.subsample_size = subsample_size
+        self.rs = RandomSampler(subsample_size=subsample_size)
+        self.voxel_size = voxel_size
+
+    def __call__(self, data: Data) -> Data:
+        num_nodes = data.num_nodes
+
+        # Random sampling if we are short in points
+        if num_nodes < self.subsample_size:
+            return self.rs(data)
+
+        batch = data.get("batch", None)
+
+        c = torch_geometric.nn.voxel_grid(data.pos, self.voxel_size, batch, None, None)
+        c, perm = torch_geometric.nn.pool.consecutive.consecutive_cluster(c)
+
+        for key in self.sampling_keys:
+            item = data[key]
+            if torch.is_tensor(item) and item.size(0) == num_nodes:
+                if key == "y":
+                    item = F.one_hot(item)
+                    item = scatter_add(item, c, dim=0)
+                    data[key] = item.argmax(dim=-1)
+                elif key == "batch":
+                    data[key] = item[perm]
+                else:
+                    data[key] = scatter_mean(item, c, dim=0)
+        # Up or downsample to get to subsample_size
+        data = self.rs(data)
+        return data
 
 
 class MakeCopyOfSampledPos(BaseTransform):
@@ -189,6 +266,7 @@ class TargetTransform(BaseTransform):
 
     def __call__(self, data: Data):
         data.y = self.transform(data.y)
+        data.y_copy = self.transform(data.y_copy)
         return data
 
     def transform(self, y):
@@ -225,7 +303,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
         batch[key] = [data[key] for data in data_list]
 
     # 2: define relevant Tensor in long PyG format.
-    keys_to_long_format = ["pos", "x", "y", "pos_copy", "pos_copy_subsampled"]
+    keys_to_long_format = ["pos", "x", "y", "pos_copy", "pos_copy_subsampled", "y_copy"]
     for key in keys_to_long_format:
         batch[key] = torch.cat([data[key] for data in data_list])
 
@@ -248,10 +326,3 @@ def collate_fn(data_list: List[Data]) -> Batch:
     )
     batch.batch_size = len(data_list)
     return batch
-
-
-class ChannelNames(Enum):
-    """Names of custom additional LAS channel"""
-
-    PredictedClassification = "PredictedClassification"
-    ProbasEntropy = "entropy"

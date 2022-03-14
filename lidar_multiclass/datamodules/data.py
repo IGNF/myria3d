@@ -18,6 +18,7 @@ from abc import ABC, abstractmethod
 import argparse
 import os, glob
 import os.path as osp
+from shutil import copyfile
 from tqdm import tqdm
 import laspy
 import numpy as np
@@ -60,11 +61,13 @@ class LidarDataLogic(ABC):
 
     def prepare(self):
         """
-        For each subfolder (train/val/test), parse through LAS files,
-        load them into memory as a Data object with selected features,
-        then iteratively extract 50m*50m subtiles by filtering along x
-        then y axis.
-        Serialize the resulting Data object using torch.save.
+        Parse through LAS files listed in a csv metadata file.
+        train/val
+            Load them into memory as a Data object with selected features,
+            then iteratively extract 50m*50m subtiles by filtering along x
+            then y axis. Serialize the resulting Data object using torch.save.
+        test
+            Simply copy the LAS to the new test folder.
         """
         split_df = pd.read_csv(self.split_csv)
         for phase in tqdm(self.split, desc="Phases"):
@@ -73,11 +76,19 @@ class LidarDataLogic(ABC):
             print("  -  ".join(basenames))
             for file_basename in tqdm(basenames, desc="Files"):
                 filepath = self.find_file_in_dir(self.input_data_dir, file_basename)
-                output_subdir_path = osp.join(
-                    self.prepared_data_dir, phase, osp.basename(filepath)
-                )
-                os.makedirs(output_subdir_path, exist_ok=True)
-                self.split_and_save(filepath, output_subdir_path)
+                output_subdir_path = osp.join(self.prepared_data_dir, phase)
+                if phase == "test":
+                    os.makedirs(output_subdir_path, exist_ok=True)
+                    target_file = osp.join(output_subdir_path, file_basename)
+                    copyfile(filepath, target_file)
+                elif phase in ["train", "val"]:
+                    output_subdir_path = osp.join(
+                        output_subdir_path, osp.basename(filepath)
+                    )
+                    os.makedirs(output_subdir_path, exist_ok=True)
+                    self.split_and_save(filepath, output_subdir_path)
+                else:
+                    raise KeyError("Phase should be one of train/val/test.")
 
     def split_and_save(self, filepath, output_subdir_path):
         data = self.load_las(filepath)

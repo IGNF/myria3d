@@ -63,40 +63,38 @@ class Model(LightningModule):
         logits = self.forward(batch)
         targets = batch.y
         loss = self.criterion(logits, targets)
-        with torch.no_grad():
-            proba = self.softmax(logits)
-            preds = torch.argmax(logits, dim=1)
-        return loss, logits, proba, preds, targets
+        return loss, logits, targets
 
     def on_fit_start(self) -> None:
         self.experiment = self.logger.experiment[0]
 
     def training_step(self, batch: Any, batch_idx: int):
-        loss, _, proba, preds, targets = self.step(batch)
+        loss, logits, targets = self.step(batch)
+        with torch.no_grad():
+            preds = torch.argmax(logits, dim=1)
         self.train_iou(preds, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
+        # TODO: remove proba -> not used by iou ?
         return {
             "loss": loss,
-            "proba": proba,
             "preds": preds,
             "targets": targets,
         }
 
     def validation_step(self, batch: Any, batch_idx: int):
-        loss, _, proba, preds, targets = self.step(batch)
+        loss, logits, targets = self.step(batch)
+        with torch.no_grad():
+            preds = torch.argmax(logits, dim=1)
         self.val_iou(preds, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {
             "loss": loss,
-            "proba": proba,
             "preds": preds,
             "targets": targets,
-            "batch": batch,
-            "entropy": None,
         }
 
     def validation_epoch_end(self, outputs):
@@ -105,28 +103,15 @@ class Model(LightningModule):
         self.log(
             "val/iou_best", self.val_iou_best.compute(), on_epoch=True, prog_bar=True
         )
-        # self.val_iou.reset()  # in case of `num_sanity_val_steps` in trainer
 
     def test_step(self, batch: Any, batch_idx: int):
-        loss, _, proba, preds, targets = self.step(batch)
-        self.log("test/loss", loss, on_step=True, on_epoch=True)
-        self.test_iou(preds, targets)
-        self.log("test/iou", self.test_iou, on_step=True, on_epoch=True, prog_bar=True)
-        return {
-            "loss": loss,
-            "proba": proba,
-            "preds": preds,
-            "targets": targets,
-            "batch": batch,
-            "entropy": None,
-        }
+        """Logging happens in specific IoU logigng callback to have proper aggregation of predictions"""
+        logits = self.forward(batch)
+        return {"logits": logits, "batch": batch}
 
     def predict_step(self, batch: Any):
         logits = self.forward(batch)
-        proba = self.softmax(logits)
-        preds = torch.argmax(logits, dim=1)
-        entropy = Categorical(probs=proba).entropy()
-        return {"batch": batch, "proba": proba, "preds": preds, "entropy": entropy}
+        return {"batch": batch, "logits": logits}
 
     def get_neural_net_class(self, class_name):
         """Access class of neural net based on class name."""

@@ -1,13 +1,15 @@
 import os
-from typing import Dict, List
+from tokenize import Number
+from typing import Dict, List, Optional
 
 import laspy
 import numpy as np
 import torch
 from torch_geometric.nn.pool import knn
-
+from torch_geometric.nn.unpool import knn_interpolate
 from lidar_multiclass.utils import utils
 from lidar_multiclass.utils import utils
+from torch.distributions import Categorical
 
 from lidar_multiclass.datamodules.transforms import ChannelNames
 
@@ -19,62 +21,35 @@ class Interpolator:
 
     def __init__(
         self,
-        output_dir: str,
-        classification_dict: Dict[int, str],
+        classification_dict: Dict[int, str] = {},
+        interpolation_k: Number = 10,
+        output_dir: Optional[str] = None,
         names_of_probas_to_save: List[str] = [],
     ):
+        self.output_dir = output_dir
+        if self.output_dir:
+            os.makedirs(self.output_dir, exist_ok=True)
 
-        os.makedirs(output_dir, exist_ok=True)
-        self.preds_dirpath = output_dir
-        self.current_las_filepath = ""
         self.classification_dict = classification_dict
-        self.names_of_probas_to_save = names_of_probas_to_save
+        self.probas_names = names_of_probas_to_save
+        self.current_f = ""
+        self.k = interpolation_k
 
-        self.reverse_classification_mapper = {
+        self.reverse_mapper = {
             class_index: class_code
             for class_index, class_code in enumerate(classification_dict.keys())
         }
 
-        self.index_of_probas_to_save = [
+        self.probas_idx = [
             list(classification_dict.values()).index(name)
             for name in names_of_probas_to_save
         ]
 
-    @torch.no_grad()
-    def update_with_inference_outputs(self, outputs: dict):
-        """
-        Save the predicted classes in las format with position.
-        Handle las loading when necessary.
-
-        :param outputs: outputs of a step.
-        """
-        batch = outputs["batch"].detach()
-        batch_classification = outputs["preds"].detach()
-        if "entropy" in outputs:
-            batch_entropy = outputs["entropy"].detach()
-        batch_probas = outputs["proba"][:, self.index_of_probas_to_save].detach()
-        for batch_idx, las_filepath in enumerate(batch.las_filepath):
-            is_a_new_tile = las_filepath != self.current_las_filepath
-            if is_a_new_tile:
-                close_previous_las_first = self.current_las_filepath != ""
-                if close_previous_las_first:
-                    self.interpolate_and_save()
-                self._load_las_for_classification_update(las_filepath)
-
-            idx_x = batch.batch_x == batch_idx
-            self.updates_classification_subsampled.append(batch_classification[idx_x])
-            self.updates_probas_subsampled.append(batch_probas[idx_x])
-            if "entropy" in outputs:
-                self.updates_entropy_subsampled.append(batch_entropy[idx_x])
-            self.updates_pos_subsampled.append(batch.pos_copy_subsampled[idx_x])
-            idx_y = batch.batch_y == batch_idx
-            self.updates_pos.append(batch.pos_copy[idx_y])
-
-    def _load_las_for_classification_update(self, filepath):
+    def _load_las(self, filepath: str):
         """Load a LAS and add necessary extradim."""
 
         self.las = laspy.read(filepath)
-        self.current_las_filepath = filepath
+        self.current_f = filepath
 
         coln = ChannelNames.PredictedClassification.value
         param = laspy.ExtraBytesParams(name=coln, type=int)
@@ -87,12 +62,12 @@ class Interpolator:
         self.las.add_extra_dim(param)
         self.las[ChannelNames.ProbasEntropy.value][:] = 0.0
 
-        for class_name in self.names_of_probas_to_save:
+        for class_name in self.probas_names:
             param = laspy.ExtraBytesParams(name=class_name, type=float)
             self.las.add_extra_dim(param)
             self.las[class_name][:] = 0.0
 
-        self.las_pos = torch.from_numpy(
+        self.pos_las = torch.from_numpy(
             np.asarray(
                 [
                     self.las.x,
@@ -102,89 +77,114 @@ class Interpolator:
                 dtype=np.float32,
             ).transpose()
         )
-        self.updates_classification_subsampled = []
-        self.updates_probas_subsampled = []
-        self.updates_entropy_subsampled = []
-        self.updates_pos_subsampled = []
-        self.updates_pos = []
+        self.logits_sub_l = []
+        self.targets_l = []
+        self.pos_sub_l = []
+        self.pos_l = []
 
     @torch.no_grad()
-    def interpolate_and_save(self):
+    def update(self, outputs: dict):
+        """
+        Save the predicted classes in las format with position.
+        Handle las loading when necessary.
+
+        :param outputs: outputs of a step.
+        returns:
+          list[str]: when
+        """
+        _itps = []
+
+        batch = outputs["batch"].detach()
+        logits_b = outputs["logits"].detach()
+        some_targets_to_interpolate = "y_copy" in batch
+        if some_targets_to_interpolate:
+            targets_b = batch.y_copy.detach()
+
+        for batch_idx, las_filepath in enumerate(batch.las_filepath):
+            is_a_new_tile = las_filepath != self.current_f
+            if is_a_new_tile:
+                close_previous_las_first = self.current_f != ""
+                if close_previous_las_first:
+                    interpolation = self._interpolate()
+                    if self.output_dir:
+                        self._write(interpolation)
+                    _itps += [interpolation]
+                self._load_las(las_filepath)
+
+            # subsampled elements
+            idx_x = batch.batch_x == batch_idx
+            self.logits_sub_l.append(logits_b[idx_x])
+            self.pos_sub_l.append(batch.pos_copy_subsampled[idx_x])
+
+            if some_targets_to_interpolate:
+                # non-sampled elements
+                idx_y = batch.batch_y == batch_idx
+                self.pos_l.append(batch.pos_copy[idx_y])
+                self.targets_l.append(targets_b[idx_y])
+
+        return _itps
+
+    def _interpolate(self):
+        # Cat
+        pos_sub = torch.cat(self.pos_sub_l).cpu()
+        logits_sub = torch.cat(self.logits_sub_l).cpu()
+
+        # Find nn among points with predictions for all points
+        logits = knn_interpolate(
+            logits_sub,
+            pos_sub,
+            self.pos_las,
+            batch_x=None,
+            batch_y=None,
+            k=self.k,
+            num_workers=4,
+        )
+        # If no target, returns interpolared logits (i.e. at predict time)
+        if not self.targets_l:
+            return logits, None
+
+        # Interpolate non-sampled targets if present (i.e. at test time)
+        targets = torch.cat(self.targets_l).cpu()
+        pos = torch.cat(self.pos_l).cpu()
+        assign_idx = knn(pos, self.pos_las, k=1, num_workers=4)
+        _, x_idx = assign_idx
+        targets = targets[x_idx]
+
+        return logits, targets
+
+    @torch.no_grad()
+    def _write(self, interpolation):
         """
         Interpolate all predicted probabilites to their original points in LAS file, and save.
         Returns the path of the updated, saved LAS file.
         """
 
-        basename = os.path.basename(self.current_las_filepath)
+        basename = os.path.basename(self.current_f)
+        out_f = os.path.join(self.output_dir, basename)
+        log.info(f"Updated LAS will be saved to {out_f}")
 
-        os.makedirs(self.preds_dirpath, exist_ok=True)
-        self.output_path = os.path.join(self.preds_dirpath, basename)
-        log.info(f"Updated LAS will be saved to {self.output_path}")
+        logits, _ = interpolation
 
-        # Cat
-        self.updates_pos = torch.cat(self.updates_pos).cpu()
-        self.updates_pos_subsampled = torch.cat(self.updates_pos_subsampled).cpu()
-        self.updates_probas_subsampled = torch.cat(self.updates_probas_subsampled).cpu()
-        self.updates_classification_subsampled = torch.cat(
-            self.updates_classification_subsampled
-        ).cpu()
-        if len(self.updates_entropy_subsampled):
-            self.updates_entropy_subsampled = torch.cat(
-                self.updates_entropy_subsampled
-            ).cpu()
+        probas = torch.nn.Softmax(dim=1)(logits)
+        for idx, class_name in enumerate(self.probas_names):
+            self.las[class_name][:] = probas[:, idx]
 
-        # Remap predictions to good classification codes
-        self.updates_classification_subsampled = np.vectorize(
-            self.reverse_classification_mapper.get
-        )(self.updates_classification_subsampled)
-        self.updates_classification_subsampled = torch.from_numpy(
-            self.updates_classification_subsampled
-        )
+        preds = torch.argmax(logits, dim=1)
+        preds = np.vectorize(self.reverse_mapper.get)(preds)
+        self.las[ChannelNames.PredictedClassification.value][:] = preds
 
-        # Find nn among points with predictions for all points
-        assign_idx = knn(
-            self.updates_pos_subsampled,
-            self.las_pos,
-            k=1,
-            num_workers=1,
-        )[1]
-
-        # Interpolate predictions
-        self.updates_classification = self.updates_classification_subsampled[assign_idx]
-        self.updates_probas = self.updates_probas_subsampled[assign_idx]
-        if len(self.updates_entropy_subsampled):
-            self.updates_entropy = self.updates_entropy_subsampled[assign_idx]
-
-        # Only update channels for points with a predicted point that is close enough
-        nn_pos = self.updates_pos_subsampled[assign_idx]
-        euclidian_distance = torch.sqrt(((self.las_pos - nn_pos) ** 2).sum(axis=1))
-        INTERPOLATION_RADIUS = 2.5
-        close_enough_with_preds = euclidian_distance < INTERPOLATION_RADIUS
-
-        for class_idx_in_tensor, class_name in enumerate(self.names_of_probas_to_save):
-            self.las[class_name][close_enough_with_preds] = self.updates_probas[
-                close_enough_with_preds, class_idx_in_tensor
-            ]
-        self.las[ChannelNames.PredictedClassification.value][
-            close_enough_with_preds
-        ] = self.updates_classification[close_enough_with_preds]
-        if len(self.updates_entropy):
-            self.las[ChannelNames.ProbasEntropy.value][
-                close_enough_with_preds
-            ] = self.updates_entropy[close_enough_with_preds]
+        entropy = Categorical(probs=probas).entropy()
+        self.las[ChannelNames.ProbasEntropy.value][:] = entropy
 
         log.info(f"Saving...")
-        self.las.write(self.output_path)
+        self.las.write(out_f)
         log.info(f"Saved.")
 
-        # Clean-up - get rid of current data to go easy on memory
-        self.current_las_filepath = ""
-        del self.las
-        del self.las_pos
-        del self.updates_pos_subsampled
-        del self.updates_pos
-        del self.updates_classification_subsampled
-        del self.updates_classification
-        del self.updates_probas_subsampled
+        return out_f
 
-        return self.output_path
+    def interpolate_and_save(self):
+        """Interpolate and save in a single method, for predictions."""
+        interpolation = self._interpolate()
+        out_f = self._write(interpolation)
+
+        return out_f

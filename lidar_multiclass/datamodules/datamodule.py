@@ -3,7 +3,7 @@ import glob
 import time
 import numpy as np
 from typing import Optional, List, AnyStr
-
+from numbers import Number
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.dataset import IterableDataset
@@ -33,17 +33,17 @@ class DataModule(LightningDataModule):
         self.num_workers = kwargs.get("num_workers", 0)
 
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
+        self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.subsample_size = kwargs.get("subsample_size", 12500)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", True)
+        self.subsampler = kwargs.get("subsampler")
 
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")
         self.classification_preprocessing_dict = self.dataset_description.get(
             "classification_preprocessing_dict"
         )
-        # By default, do not use the test set unless explicitely required by user.
-        self.use_val_data_at_test_time = kwargs.get("use_val_data_at_test_time", True)
 
         self.train_data: Optional[Dataset] = None
         self.val_data: Optional[Dataset] = None
@@ -99,33 +99,29 @@ class DataModule(LightningDataModule):
 
     def _set_test_data(self):
         """Get the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
-        if self.use_val_data_at_test_time:
-            self._set_val_data()
-            self.test_data = self.val_data
-            log.info(
-                "Using validation data as test data. Use real test data with use_val_data_at_test_time=False at run time."
-            )
-            return
         files = glob.glob(
-            osp.join(self.prepared_data_dir, "test", "**", "*.data"), recursive=True
+            osp.join(self.prepared_data_dir, "test", "**", "*.las"), recursive=True
         )
-        self.test_data = LidarMapDataset(
+        self.test_data = LidarIterableDataset(
             files,
-            loading_function=torch.load,
+            loading_function=self.load_las,
             transform=self._get_test_transforms(),
             target_transform=TargetTransform(
                 self.classification_preprocessing_dict, self.classification_dict
             ),
+            subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
         )
 
-    def _set_predict_data(self, files_to_infer_on: List[AnyStr]):
+    def _set_predict_data(self, files: List[str]):
         """This is used in predict.py, with a single file in a list."""
         self.predict_data = LidarIterableDataset(
-            files_to_infer_on,
+            files,
             loading_function=self.load_las,
             transform=self._get_predict_transforms(),
             target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
+            subtile_overlap=self.subtile_overlap,
         )
 
     def train_dataloader(self):
@@ -156,7 +152,7 @@ class DataModule(LightningDataModule):
             dataset=self.test_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=self.num_workers,
+            num_workers=1,
             collate_fn=collate_fn,
             prefetch_factor=1,
         )
@@ -180,8 +176,8 @@ class DataModule(LightningDataModule):
         self.preparation = [
             EmptySubtileFilter(),
             ToTensor(),
-            MakeCopyOfPos(),
-            FixedPointsPosXY(self.subsample_size, replace=False, allow_duplicates=True),
+            MakeCopyOfPosAndY(),
+            self.subsampler,
             MakeCopyOfSampledPos(),
             Center(),
         ]
@@ -247,20 +243,21 @@ class LidarIterableDataset(IterableDataset):
         loading_function=None,
         transform=None,
         target_transform=None,
-        subtile_width_meters: float = 50,
+        subtile_width_meters: Number = 50,
+        subtile_overlap: Number = 0,
     ):
         self.files = files
         self.loading_function = loading_function
         self.transform = transform
         self.target_transform = target_transform
         self.subtile_width_meters = subtile_width_meters
+        self.subtile_overlap = subtile_overlap
 
-    @utils.eval_time
     def yield_transformed_subtile_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
         for idx, filepath in enumerate(self.files):
-            log.info(f"Predicting for file {idx+1}/{len(self.files)} [{filepath}]")
+            log.info(f"Parsing file {idx+1}/{len(self.files)} [{filepath}]")
             tile_data = self.loading_function(filepath)
             centers = self.get_all_subtiles_xy_min_corner(tile_data)
             # TODO: change to process time function
@@ -285,10 +282,14 @@ class LidarIterableDataset(IterableDataset):
         xy_min_corners = [
             np.array([x, y])
             for x in np.arange(
-                start=low[0], stop=high[0] + 1, step=self.subtile_width_meters
+                start=low[0],
+                stop=high[0] + 1,
+                step=self.subtile_width_meters - self.subtile_overlap,
             )
             for y in np.arange(
-                start=low[1], stop=high[1] + 1, step=self.subtile_width_meters
+                start=low[1],
+                stop=high[1] + 1,
+                step=self.subtile_width_meters - self.subtile_overlap,
             )
         ]
         # random.shuffle(centers)
