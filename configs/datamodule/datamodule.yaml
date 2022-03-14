@@ -10,5 +10,5 @@ subtile_overlap: ${predict.subtile_overlap}  # Used for test and predict phases 
 augment: false
 
 defaults:
-  - dataset_description: SwissSURFACE3D_all_6_classes.yaml
-  - subsampler: random.yaml
+  - dataset_description: 20220204_BuildingValidation_and_Ground.yaml
+  - subsampler: grid.yaml
