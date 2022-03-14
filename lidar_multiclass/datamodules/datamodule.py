@@ -34,7 +34,6 @@ class DataModule(LightningDataModule):
 
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
-        self.subsample_size = kwargs.get("subsample_size", 12500)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", True)
         self.subsampler = kwargs.get("subsampler")
