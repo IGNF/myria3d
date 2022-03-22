@@ -7,5 +7,5 @@ names_of_probas_to_save: ${datamodule.dataset_description.names_of_probas_to_sav
 
 # Relative to how probas are interpolated
 # e.g. subtile_overlap=25 to use a sliding window of inference of whihc predictions will be merged.
-subtile_overlap: 0
+subtile_overlap: 25
 interpolation_k: 10
