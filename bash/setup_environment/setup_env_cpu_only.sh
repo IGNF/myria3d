@@ -3,7 +3,7 @@ set -e
 # SETUP
 conda install -y mamba -n base -c conda-forge
 mamba env create -f bash/setup_environment/requirements.yml
-conda activate lidar_deep_segmentation
+conda activate lidar_multiclass
 
 # INSTALL
 export PYTORCHVERSION="1.10.1"

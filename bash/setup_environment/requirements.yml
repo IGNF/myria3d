@@ -1,17 +1,17 @@
-name: lidar_deep_segmentation
+name: lidar_multiclass
 channels:
   - conda-forge
   - anaconda
   - comet_ml
   - pytorch
 dependencies:
-  - python==3.9
+  - python==3.9.*
   - pip
   # --------- numpy --------- #
   - numpy==1.20
   # --------- geo --------- #
-  - laspy
   - pygeos
+  - laspy
   - python-pdal  # useful for data preparation
   # --------- loggers --------- #
   - comet_ml

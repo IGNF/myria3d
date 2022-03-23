@@ -2,7 +2,7 @@ import os
 from tokenize import Number
 from typing import Dict, List, Optional
 
-import laspy
+import pdal
 import numpy as np
 import torch
 from torch_geometric.nn.pool import knn
@@ -47,32 +47,27 @@ class Interpolator:
 
     def _load_las(self, filepath: str):
         """Load a LAS and add necessary extradim."""
-
-        self.las = laspy.read(filepath)
         self.current_f = filepath
+        pipeline = pdal.Reader.las(filename=filepath)
 
-        coln = ChannelNames.PredictedClassification.value
-        param = laspy.ExtraBytesParams(name=coln, type=int)
-        self.las.add_extra_dim(param)
-        self.las[coln][:] = 0
+        new_dims = self.probas_names + [
+            ChannelNames.PredictedClassification.value,
+            ChannelNames.ProbasEntropy.value,
+        ]
+        for new_dim in new_dims:
+            pipeline |= pdal.Filter.ferry(
+                dimensions=f"=>{new_dim}"
+            ) | pdal.Filter.assign(value=f"{new_dim}=0")
+        pipeline.execute()
+        self.las = pipeline.arrays[0]  # named array
 
-        param = laspy.ExtraBytesParams(
-            name=ChannelNames.ProbasEntropy.value, type=float
-        )
-        self.las.add_extra_dim(param)
-        self.las[ChannelNames.ProbasEntropy.value][:] = 0.0
-
-        for class_name in self.probas_names:
-            param = laspy.ExtraBytesParams(name=class_name, type=float)
-            self.las.add_extra_dim(param)
-            self.las[class_name][:] = 0.0
-
+        # TODO: check scale of x versus X ?
         self.pos_las = torch.from_numpy(
             np.asarray(
                 [
-                    self.las.x,
-                    self.las.y,
-                    self.las.z,
+                    self.las["X"],
+                    self.las["Y"],
+                    self.las["Z"],
                 ],
                 dtype=np.float32,
             ).transpose()
@@ -177,7 +172,13 @@ class Interpolator:
         self.las[ChannelNames.ProbasEntropy.value][:] = entropy
 
         log.info(f"Saving...")
-        self.las.write(out_f)
+
+        pipeline = pdal.Writer.las(
+            filename=out_f,
+            extra_dims=f"all",
+            minor_version=4,
+        ).pipeline(self.las)
+        pipeline.execute()
         log.info(f"Saved.")
 
         return out_f

@@ -49,7 +49,7 @@ source bash/setup_environment/setup_env.sh  # with cudatoolkit
 source bash/setup_environment/setup_env_cpu_only.sh  # cpu version only
 
 # activate using
-conda activate lidar_deep_segmentation
+conda activate lidar_multiclass
 ```
 
 ### Run inference from package
@@ -57,7 +57,7 @@ If you are interested in running inference from anywhere, you can install code a
 
 ```
 # activate an env matching ./bash/setup_env.sh requirements.
-conda activate lidar_deep_segmentation
+conda activate lidar_multiclass
 
 # install the package
 pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/main  # from github directly
