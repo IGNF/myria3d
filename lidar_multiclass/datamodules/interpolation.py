@@ -174,9 +174,7 @@ class Interpolator:
         log.info(f"Saving...")
 
         pipeline = pdal.Writer.las(
-            filename=out_f,
-            extra_dims=f"all",
-            minor_version=4,
+            filename=out_f, extra_dims=f"all", minor_version=4, dataformat_id=8
         ).pipeline(self.las)
         pipeline.execute()
         log.info(f"Saved.")
