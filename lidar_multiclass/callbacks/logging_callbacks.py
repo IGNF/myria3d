@@ -92,8 +92,11 @@ class LogIoUByClass(Callback):
             self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
 
     def on_test_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
-        logits, targets = self.itp._interpolate()
+        interpolation = self.itp._interpolate()
+        logits, targets = interpolation
         self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
+        if self.itp.output_dir:
+            self.itp._write(interpolation)
 
     def log_iou(self, logits, targets, phase: str, iou_dict):
         device = logits.device

@@ -21,6 +21,8 @@ log_iou_by_class:
     _target_: lidar_multiclass.datamodules.interpolation.Interpolator
     classification_dict: ${datamodule.dataset_description.classification_dict}
     interpolation_k: ${predict.interpolation_k}
+    names_of_probas_to_save: ${datamodule.dataset_description.names_of_probas_to_save}
+    output_dir: null # Replace by an output to save resultsduring test
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
