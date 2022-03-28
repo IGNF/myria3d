@@ -61,7 +61,6 @@ class Interpolator:
         pipeline.execute()
         self.las = pipeline.arrays[0]  # named array
 
-        # TODO: check scale of x versus X ?
         self.pos_las = torch.from_numpy(
             np.asarray(
                 [
