@@ -2,7 +2,6 @@ from typing import Any, Optional
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
-from torch.distributions import Categorical
 from torch_geometric.data import Batch
 from torchmetrics import MaxMetric
 from lidar_multiclass.models.modules.randla_net import RandLANet
@@ -13,16 +12,19 @@ log = utils.get_logger(__name__)
 
 
 class Model(LightningModule):
-    """
-    A LightningModule organizesm your PyTorch code into 5 sections:
-        - Computations (init).
-        - Train loop (training_step)
-        - Validation loop (validation_step)
-        - Test loop (test_step)
-        - Optimizers (configure_optimizers)
+    """This LightningModule implements the logic for model trainin, validation, tests, and prediction.
 
-    Read the docs:
+    It is fully initialized by named parameters for maximal flexibility with hydra configs.
+
+    During training and validation, IoU is calculed based on sumbsampled points only, and is therefore
+    an approximation.
+    At test time, IoU is calculated considering all the points. To keep this module light, a callback
+    takes care of the interpolation of predictions between all points.
+
+
+    Read the Pytorch Lightning docs:
         https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html
+
     """
 
     def __init__(
@@ -41,11 +43,6 @@ class Model(LightningModule):
         self.softmax = nn.Softmax(dim=1)
 
     def setup(self, stage: Optional[str]):
-        """
-        Setup metrics as needed.
-        Nota : stage "validate" should be included in "fit" stage for our usage.
-        Setup criterion (loss) except in predict mode.
-        """
         if stage == "fit":
             self.train_iou = self.hparams.iou()
             self.val_iou = self.hparams.iou()
@@ -69,10 +66,6 @@ class Model(LightningModule):
         self.experiment = self.logger.experiment[0]
 
     def training_step(self, batch: Any, batch_idx: int):
-        """Trainning Step.
-
-        For speed, preds and targets are considered only on sumbsampled points, giving an approximation of the actual IoU.
-        """
         loss, logits, targets = self.step(batch)
         with torch.no_grad():
             preds = torch.argmax(logits, dim=1)
@@ -88,10 +81,6 @@ class Model(LightningModule):
         }
 
     def validation_step(self, batch: Any, batch_idx: int):
-        """Validation Step.
-
-        For speed, preds and targets are considered only on sumbsampled points, giving an approximation of the actual IoU.
-        """
         loss, logits, targets = self.step(batch)
         preds = torch.argmax(logits, dim=1)
         self.val_iou(preds, targets)
@@ -111,7 +100,6 @@ class Model(LightningModule):
         )
 
     def test_step(self, batch: Any, batch_idx: int):
-        """Logging happens in specific IoU logigng callback to have proper aggregation of predictions"""
         logits = self.forward(batch)
         return {"logits": logits, "batch": batch}
 
@@ -120,18 +108,17 @@ class Model(LightningModule):
         return {"batch": batch, "logits": logits}
 
     def get_neural_net_class(self, class_name):
-        """Access class of neural net based on class name."""
+        """A Class Factory to class of neural net based on class name.
+
+        :meta private:
+
+        """
         for neural_net_class in [PointNet, RandLANet]:
             if class_name in neural_net_class.__name__:
                 return neural_net_class
         raise KeyError(f"Unknown class name {class_name}")
 
     def configure_optimizers(self):
-        """Choose what optimizers and learning-rate schedulers to use in your optimization.
-
-        See examples here:
-            https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html#configure-optimizers
-        """
         self.lr = self.hparams.lr  # aliasing for Lightning auto_find_lr
         optimizer = self.hparams.optimizer(
             params=filter(lambda p: p.requires_grad, self.parameters()), lr=self.lr

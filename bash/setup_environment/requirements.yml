@@ -30,7 +30,7 @@ dependencies:
   - jupyterlab # better jupyter notebooks
   - pudb # debugger
   # --------- doc --------- #
-  - sphinx=0.4.*
+  - sphinx=4.4.*
   - sphinx_rtd_theme
   - myst-parser
   - pip:

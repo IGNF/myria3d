@@ -14,7 +14,12 @@ help:
 
 .PHONY: help Makefile
 
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+
+# If you would regenerate all docs you could use the following,
+# which WILL ERASE MODIFIFCATIONs.
+# sphinx-apidoc -o "$(SOURCEDIR)"/apidoc_new/ ./../  
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
