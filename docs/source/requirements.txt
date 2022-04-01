@@ -1,0 +1,29 @@
+# from https://github.com/pyg-team/pytorch_geometric/blob/master/docs/requirements.txt
+
+setuptools
+numpy
+numpydoc
+
+
+sphinx==4.5.*
+sphinx_rtd_theme==1.0.*
+myst_parser==0.17.*
+sphinx_paramlinks==0.5.*
+recommonmark==0.7.*
+# sphinx-panels
+# sphinx-tabs
+# nbsphinx
+docutils==0.17
+sphinxnotes-mock==1.*
+hydra-core
+rich
+
+torch==1.10.*
+torchmetrics
+pytorch-lightning==1.5.9
+torch_points_kernels
+torch_geometric
+torch_sparse
+torch_scatter
+
+comet_ml

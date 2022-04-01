@@ -12,7 +12,7 @@ log = utils.get_logger(__name__)
 
 
 def get_comet_logger(trainer: Trainer) -> CometLogger:
-    """Safely get Weights&Biases logger from Trainer."""
+    """Safely get logger from Trainer."""
 
     if isinstance(trainer.logger, CometLogger):
         return trainer.logger
