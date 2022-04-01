@@ -31,38 +31,7 @@ This Lidar Segmentation repository is heavily based on the following [template](
 
 ## How to use
 
-### Setup virtual environment
 
-```yaml
-# clone project
-git clone https://github.com/IGNF/lidar-deep-segmentation
-cd lidar-deep-segmentation
-
-# [OPTIONAL] If you want to use a gpu make sure cuda toolkit is installed
-sudo apt install nvidia-cuda-toolkit
-
-# install anaconda
-# see https://www.anaconda.com/products/individual
-
-# create conda environment - modify script to adapt versions and cudatoolkit to your own infrastructure.
-source bash/setup_environment/setup_env.sh  # with cudatoolkit
-source bash/setup_environment/setup_env_cpu_only.sh  # cpu version only
-
-# activate using
-conda activate lidar_multiclass
-```
-
-### Run inference from package
-If you are interested in running inference from anywhere, you can install code as a package in a your virtual environment.
-
-```
-# activate an env matching ./bash/setup_env.sh requirements.
-conda activate lidar_multiclass
-
-# install the package
-pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/main  # from github directly
-pip install -e .  # from local sources
-```
 
 To run inference, you will need:
 - A source cloud point in LAS format on which to infer new classes. and probabilites.

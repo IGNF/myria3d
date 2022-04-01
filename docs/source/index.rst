@@ -1,18 +1,50 @@
-.. lidar-deep-segmentation documentation master file, created by
-   sphinx-quickstart on Wed Mar 30 15:00:38 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+:github_url: https://github.com/IGNF/lidar-deep-segmentation
 
-Lidar-deep-segmentation - The documentation!
+Lidar-Deep-Segmentation > Documentation
 ===================================================
+
+.. include:: introduction.md
+   :parser: myst_parser.sphinx_
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Getting Started
+
+   tutorials/setup_install
+   tutorials/make_predictions
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Guides
 
-   getting_started
-   how_to_guides
-   background
-   package_reference
+   how_to/prepare_dataset
+   how_to/add_new_data_signature
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Guides
+
+   background/interpolation
+   background/data_optimization
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Package Reference
+
+   apidoc/run
+   apidoc/lidar_multiclass.train
+   apidoc/lidar_multiclass.predict
+   apidoc/lidar_multiclass.datamodules
+   apidoc/lidar_multiclass.models
+   apidoc/lidar_multiclass.models.modules
+   apidoc/lidar_multiclass.callbacks
+   apidoc/lidar_multiclass.utils
+
+
+Indices and Tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`

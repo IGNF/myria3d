@@ -31,10 +31,12 @@ release = "1.6.12"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.napoleon",  # Support for google-style docstrings
-    "sphinx.ext.autodoc",  # auto-generate doc fgrom docstrings
-    "sphinx.ext.doctest",  # test code in docstrings - used by pytorch lightning
-    "sphinx.ext.viewcode",  # create links to view code sources in a new web page
+    "sphinx.ext.napoleon",  # Supports google-style docstrings
+    "sphinx.ext.autodoc",  # auto-generates doc fgrom docstrings
+    "sphinx.ext.doctest",  # tests code in docstrings - used by pytorch lightning
+    "sphinx.ext.viewcode",  # creates links to view code sources in a new web page
+    "sphinx.ext.githubpages",  # creates .nojekyll file to publish the doc on GitHub Pages.
+    "myst_parser",  # supports markdown syntax for doc pages
 ]
 
 # Add any paths that contain templates here, relative to this directory.
