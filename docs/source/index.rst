@@ -11,6 +11,7 @@ Lidar-Deep-Segmentation > Documentation
    :caption: Getting Started
 
    tutorials/setup_install
+   tutorials/prepare_dataset
    tutorials/make_predictions
 
 
@@ -18,12 +19,12 @@ Lidar-Deep-Segmentation > Documentation
    :maxdepth: 1
    :caption: Guides
 
-   how_to/prepare_dataset
    how_to/add_new_data_signature
+   how_to/train_new_model
 
 .. toctree::
    :maxdepth: 1
-   :caption: Guides
+   :caption: Background
 
    background/interpolation
    background/data_optimization

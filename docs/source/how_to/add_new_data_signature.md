@@ -1,1 +1,1 @@
-# How-To: add a new data signature for training and inference [TODO]
+# How to add a new data signature [TODO]

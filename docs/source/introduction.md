@@ -1,4 +1,3 @@
-
 Lidar-Deep-Segmentation is a deep learning library and designed with a single task in mind: the multiclass semantic segmentation of large scale, high density aerial Lidar points cloud.
 
 The library implements the training of 3D Segmentation neural networks, with optimized data-processing and evaluation logics at fit time.

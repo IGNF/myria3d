@@ -1,4 +1,4 @@
-# Tutorial: environment setup and installation
+# Installation
 
 ## Setting up a virtual environment
 

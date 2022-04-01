@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from unittest import mock
 
 sys.path.insert(0, os.path.abspath("./../../"))
 
@@ -63,3 +64,53 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+
+try:
+    import torch  # noqa
+except ImportError:
+    to_mock = [
+        "torch",
+        "comet_ml",
+        "numpy",
+        "pytorch_lightning",
+        "tqdm",
+        "pdal",
+        "hydra",
+        "torch_geometric",
+        "omegaconf",
+        "dotenv",
+        "rich",
+        "rich.syntax",
+        "torch_points_kernels",
+        "torch_geometric",
+        "torch_geometric.nn",
+        "torch_geometric.data",
+        "torch_geometric.nn.glob",
+        "torch_geometric.transforms",
+        "torchmetrics",
+        "torchvision",
+        "torch.nn",
+        "torch.nn.parallel",
+        "torch.distributed",
+        "torch.multiprocessing",
+        "torch.autograd",
+        "torch.autograd.function",
+        "torch.nn.modules",
+        "torch.nn.modules.utils",
+        "torch.utils",
+        "torch.utils.data",
+        "torch.onnx",
+        "torchvision",
+        "torchvision.ops",
+    ]
+    for m in to_mock:
+        sys.modules[m] = mock.Mock(name=m)
+    sys.modules["torch"].__version__ = "1.7"  # fake version
+    HAS_TORCH = False
+
+    autodoc_mock_imports = []
+    for m in to_mock:
+        autodoc_mock_imports.append(m)
+else:
+    HAS_TORCH = True
