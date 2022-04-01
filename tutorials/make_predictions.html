@@ -42,10 +42,8 @@
 <li class="toctree-l1"><a class="reference internal" href="setup_install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training [TODO]</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Performing inference on new data [TODO]</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#run-inference-from-installed-package">Run inference from installed package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#run-inference-from-sources">Run inference from sources</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-inference-from-sources">Run inference from sources</a></li>
 </ul>
 </li>
 </ul>
@@ -115,11 +113,11 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m lidar_multiclass.predict --config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> --config-name <span class="o">{</span>config.yaml<span class="o">}</span> --help
 </pre></div>
 </div>
+</section>
 <section id="run-inference-from-sources">
-<h3>Run inference from sources<a class="headerlink" href="#run-inference-from-sources" title="Permalink to this headline"></a></h3>
+<h2>Run inference from sources<a class="headerlink" href="#run-inference-from-sources" title="Permalink to this headline"></a></h2>
 <p>From the line for package-based inference above, simply change <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">lidar_multiclass.predict</span></code> to <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">run.py</span></code> to run directly from sources.</p>
 <p>In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of the <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code> file and commenting out the lines containing <code class="docutils literal notranslate"><span class="pre">oc.env</span></code> logic.</p>
-</section>
 </section>
 </section>
 

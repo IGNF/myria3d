@@ -1,7 +1,7 @@
 # How to train new models
 
-Refer to [this tutorial](./setup_install.md) for how to setup a virtual environment and install the library.
-Refer to [this other turotial](./setup_install.md) for how to prepare a dataset.
+Refer to [this tutorial](../tutorials/setup_install.md) for how to setup a virtual environment and install the library.
+Refer to [this other tutorial](../tutorials/prepare_dataset.md) for how to prepare a dataset.
 
 
 ## Setup
