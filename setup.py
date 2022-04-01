@@ -1,11 +1,15 @@
 from setuptools import find_packages, setup
+import yaml
+
+with open("package_metadata.yaml", "r") as f:
+    pm = yaml.safe_load(f)
 
 setup(
-    name="lidar_multiclass",
-    version="1.6.12",
-    description="Multiclass Semantic Segmentation for Lidar Point Cloud",
-    author="Charles GAYDON",
-    url="https://github.com/CharlesGaydon/Multiclass-Root-Model",  # replace with your own github project link
+    name=pm["__name__"],
+    version=pm["__version__"],
+    url=pm["__url__"],
+    description=pm["__description__"],
+    author=pm["__author__"],
     install_requires=[
         # assume an environment as described in ./bash/setup_env.sh
     ],

@@ -11,6 +11,13 @@ dotenv.load_dotenv(override=True)
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
 def main(config: DictConfig):
+    """Entrypoint to training-related logic and inference code.
+
+    Run `python run.py -h` to print configuration and see parameters.
+
+    Hydra configs can be overriden in CLI with `--config-path` and `--config-name` arguments.
+
+    """
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934

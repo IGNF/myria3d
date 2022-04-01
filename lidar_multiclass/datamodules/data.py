@@ -1,4 +1,5 @@
-""" 
+"""This module contains
+
 1) Data loading logics specific to each data format.
     The "load_las" class method can be passed to the datamodule at inference time.
 2) A data preparation script for deep learning training.
@@ -10,8 +11,10 @@
     Echo numbers and colors are scaled to be in 0-1 range. Intensity and average color
     are not scaled b/c they are expected to be standardized later.
 
-For help run
+To show help, run
+    cd lidar_multiclass/datamodules/
     python prepare_french_lidar.py -h
+
 """
 
 from abc import ABC, abstractmethod
@@ -28,9 +31,9 @@ from torch_geometric.data import Data
 
 
 class LidarDataLogic(ABC):
-    """
-    Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
+    """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
+
     """
 
     split = ["val", "train", "test"]
@@ -47,9 +50,8 @@ class LidarDataLogic(ABC):
         )
 
     @abstractmethod
-    def load_las(self, las_filepath: str):
-        """
-        Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
+    def load_las(self, las_filepath: str) -> None:
+        """Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
 
         Args:
             las_filepath (str): path to the LAS file.
@@ -60,14 +62,20 @@ class LidarDataLogic(ABC):
         raise NotImplementedError
 
     def prepare(self):
-        """
-        Parse through LAS files listed in a csv metadata file.
-        train/val
-            Load them into memory as a Data object with selected features,
+        """Prepare a dataset for model training and model evaluation.
+
+        Iterates through LAS files listed in a csv metadata file. A `split` column
+        specifies the train/val/test split of the dataset to be created.
+        Depending on the set, this method will:
+
+        train/val:
+            Load LAS into memory as a Data object with selected features,
             then iteratively extract 50m*50m subtiles by filtering along x
             then y axis. Serialize the resulting Data object using torch.save.
-        test
+
+        test:
             Simply copy the LAS to the new test folder.
+
         """
         split_df = pd.read_csv(self.split_csv)
         for phase in tqdm(self.split, desc="Phases"):
@@ -75,7 +83,7 @@ class LidarDataLogic(ABC):
             print(f"Subset: {phase}")
             print("  -  ".join(basenames))
             for file_basename in tqdm(basenames, desc="Files"):
-                filepath = self.find_file_in_dir(self.input_data_dir, file_basename)
+                filepath = self._find_file_in_dir(self.input_data_dir, file_basename)
                 output_subdir_path = osp.join(self.prepared_data_dir, phase)
                 if phase == "test":
                     os.makedirs(output_subdir_path, exist_ok=True)
@@ -90,36 +98,42 @@ class LidarDataLogic(ABC):
                 else:
                     raise KeyError("Phase should be one of train/val/test.")
 
-    def split_and_save(self, filepath, output_subdir_path):
+    def split_and_save(self, filepath: str, output_subdir_path: str) -> None:
+        """Parse a LAS, extract and save each subtile as a Data object.
+
+        Args:
+            filepath (str): input LAS file
+            output_subdir_path (str): output directory to save splitted `.data` objects.
+        """
         data = self.load_las(filepath)
         idx = 0
         for _ in tqdm(self.range_by_axis):
             if len(data.pos) == 0:
                 break
-            data_x_band = self.extract_by_x(data)
+            data_x_band = self._extract_by_x(data)
             for _ in self.range_by_axis:
                 if len(data_x_band.pos) == 0:
                     break
-                subtile_data = self.extract_by_y(data_x_band)
-                self.save(subtile_data, output_subdir_path, idx)
+                subtile_data = self._extract_by_y(data_x_band)
+                self._save(subtile_data, output_subdir_path, idx)
                 idx += 1
 
-    def find_file_in_dir(self, input_data_dir: str, basename: str):
+    def _find_file_in_dir(self, input_data_dir: str, basename: str) -> str:
         """Query files with .las extension in subfolder of input_data_dir.
 
         Args:
             input_data_dir (str): data directory
 
         Returns:
-            [type]: first file path matching the query.
+            [str]: first file path matching the query.
+
         """
         query = f"{input_data_dir}*{basename}"
         files = glob.glob(query)
         return files[0]
 
-    def extract_by_axis(self, data: Data, axis=0):
-        """
-        Filter a data object on a chosen axis, using a relative position .
+    def _extract_by_axis(self, data: Data, axis=0) -> Data:
+        """Filter a data object on a chosen axis, using a relative position .
         Modifies the original data object so that extracted future filters are faster.
 
         Args:
@@ -146,15 +160,15 @@ class LidarDataLogic(ABC):
         data.y = data.y[~mask]
         return sub_tile_data
 
-    def extract_by_x(self, data: Data):
+    def _extract_by_x(self, data: Data) -> Data:
         """extract_by_axis applied on first axis x"""
-        return self.extract_by_axis(data, axis=0)
+        return self._extract_by_axis(data, axis=0)
 
-    def extract_by_y(self, data: Data):
+    def _extract_by_y(self, data: Data) -> Data:
         """extract_by_axis applied on second axis y"""
-        return self.extract_by_axis(data, axis=1)
+        return self._extract_by_axis(data, axis=1)
 
-    def save(self, subtile_data: Data, output_subdir_path: str, idx: int):
+    def _save(self, subtile_data: Data, output_subdir_path: str, idx: int) -> None:
         """Save the subtile data object with torch.
 
         Args:
@@ -164,17 +178,6 @@ class LidarDataLogic(ABC):
         """
         subtile_save_path = osp.join(output_subdir_path, f"{str(idx).zfill(4)}.data")
         torch.save(subtile_data, subtile_save_path)
-
-    def load(self, data_path: str):
-        """Load a serialized Data object in memory.
-
-        Args:
-            data_path (str): path to serialized data object
-
-        Returns:
-            Data: the data object of the serialized subtile.
-        """
-        return torch.load(data_path)
 
 
 class FrenchLidarDataLogic(LidarDataLogic):
@@ -194,8 +197,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
 
     @classmethod
     def load_las(self, las_filepath: str):
-        """
-        Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
+        """Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
         Build a composite (average) color channel on the fly.
         Calculate NDVI on the fly.
 
@@ -204,6 +206,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
 
         Returns:
             Data: the point cloud formatted for later deep learning training.
+
         """
         las = laspy.read(las_filepath)
         pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
@@ -280,9 +283,8 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
     colors_normalization_max_value = 256
 
     @classmethod
-    def load_las(self, las_filepath: str):
-        """
-        Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
+    def load_las(self, las_filepath: str) -> Data:
+        """Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
         Build a composite (average) color channel on the fly.
 
         Args:
@@ -290,6 +292,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
 
         Returns:
             Data: the point cloud formatted for later deep learning training.
+
         """
         las = laspy.read(las_filepath)
         pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
@@ -353,6 +356,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
 
 
 def main():
+    """Main logic to prepare a new set of Lidar tiles for model training."""
 
     parser = argparse.ArgumentParser(
         description="Prepare a Lidar dataset for deep learning."

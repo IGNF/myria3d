@@ -1,0 +1,5 @@
+__version__: "1.6.5"
+__name__: "lidar_multiclass"
+__url__: "https://github.com/IGNF/lidar-deep-segmentation"
+__description__: "Multiclass Semantic Segmentation for Lidar Point Cloud"
+__author__: "Charles GAYDON"

@@ -1,4 +1,3 @@
-# pylint: disable
 import math
 from enum import Enum
 from numbers import Number
@@ -31,6 +30,7 @@ class CustomCompose(BaseTransform):
 
     Args:
         transforms (List[Callable]): List of transforms to compose.
+
     """
 
     def __init__(self, transforms: List[Callable]):
@@ -49,7 +49,7 @@ class CustomCompose(BaseTransform):
 
 
 class EmptySubtileFilter(BaseTransform):
-    r"""Filter out almost empty subtiles"""
+    """Filter out almost empty subtiles"""
 
     def __call__(self, data: Data, min_num_points_subtile: int = 50):
         if len(data["x"]) < min_num_points_subtile:
@@ -58,7 +58,7 @@ class EmptySubtileFilter(BaseTransform):
 
 
 class ToTensor(BaseTransform):
-    r"""Turn np.arrays specified by their keys into Tensor."""
+    """Turn np.arrays specified by their keys into Tensor."""
 
     def __init__(self, keys=["pos", "x", "y"]):
         self.keys = keys
@@ -71,7 +71,7 @@ class ToTensor(BaseTransform):
 
 
 class MakeCopyOfPosAndY(BaseTransform):
-    r"""Make a copy of the full cloud's positions and labels, for inference interpolation."""
+    """Make a copy of the full cloud's positions and labels, for inference interpolation."""
 
     def __call__(self, data: Data):
         data["pos_copy"] = data["pos"].clone()
@@ -85,6 +85,7 @@ class Subsampler(BaseTransform):
     Subsampling to a unique size is needed for batching clouds with different initial size.
     Subclasses are modified from https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/,
     to preserve specific attributes of the data for inference interpolation
+
     """
 
     sampling_keys: Tuple[str] = ("x", "pos", "y")
@@ -94,7 +95,7 @@ class Subsampler(BaseTransform):
 
 
 class RandomSampler(Subsampler):
-    r"""Samples a fixed number of points from a point cloud, randomly."""
+    """Samples a fixed number of points from a point cloud, randomly."""
 
     def __init__(self, subsample_size: int = 12500):
         self.subsample_size = subsample_size
@@ -116,12 +117,13 @@ class RandomSampler(Subsampler):
 
 
 class FPSSampler(Subsampler):
-    r"""
+    """
     Samples a fixed number of points from a point cloud, using Fartest Point Sampling.
 
     In our experiments, FPS is slower by an order of magnitude than Random/Grid sampling, and yields worst results.
 
     See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
+
     """
 
     def __init__(self, subsample_size: int = 12500):
@@ -144,11 +146,11 @@ class FPSSampler(Subsampler):
 
 
 class CustomGridSampler(Subsampler):
-    r"""
-    Samples a point cloud, using a voxel grid.
+    """Samples a point cloud, using a voxel grid.
 
     A final random sampling is then needed to have a fixed number of points.
     See https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling
+
     """
 
     def __init__(self, subsample_size: int = 12500, voxel_size: Number = 0.25):
@@ -193,9 +195,9 @@ class MakeCopyOfSampledPos(BaseTransform):
 
 
 class StandardizeFeatures(BaseTransform):
-    r"""
-    Scale features in 0-1 range.
+    """Scale features in 0-1 range.
     Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+
     """
 
     def __call__(self, data: Data):
@@ -220,12 +222,14 @@ class StandardizeFeatures(BaseTransform):
 
 
 class NormalizePos(BaseTransform):
-    r"""
+    """
     Normalizes positions:
-      - xy positions to be in the interval (-1, 1)
-      - z position to start at 0.
-      - preserve euclidian distances
+        - xy positions to be in the interval (-1, 1)
+        - z position to start at 0.
+        - preserve euclidian distances
+
     XYZ are expected to be centered already.
+
     """
 
     def __call__(self, data):
@@ -294,6 +298,7 @@ def collate_fn(data_list: List[Data]) -> Batch:
     """
     Batch Data objects from a list, to be used in DataLoader. Modified from:
     https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn
+
     """
     batch = Batch()
     data_list = list(filter(lambda x: x is not None, data_list))
