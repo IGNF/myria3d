@@ -1,0 +1,54 @@
+# Workflow name
+name: "Build and deploy Github pages"
+
+# Event that must trigger the workflow
+on:
+  push:         # <- trigger when we call push
+    branches:
+      - main  # <- but only on main branch
+      - DocumentationSetup  # <- also on this branch until documentation is up and running.
+
+jobs:
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    # Task to do when launching the workflow
+    steps:
+
+      # 1. First get the repository source
+
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      # 2. Sphinx part : install tool and dependencies
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: "Install Python dependencies"
+        run: |
+          pip3 install setuptools
+          pip3 install pydata-sphinx-theme
+          pip3 install sphinx-panels
+          pip3 install sphinx-tabs
+          pip3 install numpydoc
+          pip3 install nbsphinx
+          pip3 install myst_parser
+
+      - name: "Build Sphinx Doc"
+        working-directory: ./docs/
+        run: |
+          make html
+
+      # 3. Déploiement sur les Github Pages
+
+      - name: "Deploy Github Pages"
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          BRANCH: gh-pages     # <- Branch where generated doc files will be commited
+          FOLDER: docs/build/html/  # <- Dir where .nojekyll is created and from which to deploy github pages.
