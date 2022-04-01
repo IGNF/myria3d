@@ -1,5 +1,8 @@
 # Performing inference on new data [TODO]
 
+.. warning:: Work in progress
+
+
 Refer to [this tutorial](./setup_install.md) for how to setup a virtual environment and install the library.
 
 ## Run inference from installed package
