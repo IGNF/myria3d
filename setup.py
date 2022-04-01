@@ -5,11 +5,11 @@ with open("package_metadata.yaml", "r") as f:
     pm = yaml.safe_load(f)
 
 setup(
-    name=pm["name"],
-    version=pm["version"],
+    name=pm["__name__"],
+    version=pm["__version__"],
     url=pm.url,
-    description=pm["description"],
-    author=pm["author"],
+    description=pm["__description__"],
+    author=pm["__author__"],
     install_requires=[
         # assume an environment as described in ./bash/setup_env.sh
     ],
