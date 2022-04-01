@@ -24,7 +24,7 @@ To show you current inference config, simply add a `--help` flag
 python -m lidar_multiclass.predict --config-path {/path/to/.hydra} --config-name {config.yaml} --help
 ```
 
-#### Run inference from sources
+## Run inference from sources
 
 From the line for package-based inference above, simply change `python -m lidar_multiclass.predict` to `python run.py` to run directly from sources.
 
