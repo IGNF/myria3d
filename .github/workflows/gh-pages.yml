@@ -29,8 +29,9 @@ jobs:
           python-version: 3.9.10
 
       - name: "Install Python dependencies"
+        working-directory: ./docs/
         run: |
-          pip install -r ./docs/requirements.txt
+          pip install -r requirements.txt
 
       - name: "Build Sphinx Doc"
         working-directory: ./docs/
