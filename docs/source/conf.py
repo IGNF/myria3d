@@ -14,15 +14,19 @@ import os
 import sys
 from unittest import mock
 
-sys.path.insert(0, os.path.abspath("./../../"))
+root_path = os.path.abspath("./../../")
+sys.path.insert(0, root_path)
 
-from package_metadata import __version__, __author__, __name__
+import yaml
 
+with open(os.path.join(root_path, "package_metadata.yaml"), "r") as f:
+    pm = yaml.safe_load(f)
+print(pm)
 # -- Project information -----------------------------------------------------
 
-release = __version__
-project = __name__
-author = __author__
+release = pm["__version__"]
+project = pm["__name__"]
+author = pm["__author__"]
 copyright = "2021, Institut National de l'Information Géographique et Forestière"
 
 

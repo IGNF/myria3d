@@ -1,5 +1,5 @@
 # Workflow name
-name: "Build and deploy Github pages"
+name: "Documentation Build"
 
 # Event that must trigger the workflow
 on:
