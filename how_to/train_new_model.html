@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to train new models &mdash; lidar-deep-segmentation 1.6.12 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="KNN-Interpolation to merge multiple predictions [TODO]" href="../background/interpolation.html" />
+    <link rel="prev" title="How to add a new data signature [TODO]" href="add_new_data_signature.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> lidar-deep-segmentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/setup_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/run.html">run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.train.html">lidar_multiclass.train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.predict.html">lidar_multiclass.predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">lidar-deep-segmentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>How to train new models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/how_to/train_new_model.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-train-new-models">
+<h1>How to train new models<a class="headerlink" href="#how-to-train-new-models" title="Permalink to this headline"></a></h1>
+<p>Refer to <span class="xref myst">this tutorial</span> for how to setup a virtual environment and install the library.
+Refer to <span class="xref myst">this other turotial</span> for how to prepare a dataset.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
+<p>Some environment variable are injected at runtime and need to be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LOG</span> <span class="pre">PATH</span></code>, where hydra logs and config are saved.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DATAMODULE</span></code> section, which specify where to look for training data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LOGGER</span></code> section, which specify credentials needed for logging to <a class="reference external" href="https://www.comet.ml/">comet.ml</a>. Alternatively, logging can be disabled by setting <code class="docutils literal notranslate"><span class="pre">logger=null</span></code> ar runtime.</p></li>
+</ul>
+<p>For training, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m*50m to be a good balance between the model’s receptive field and capacity. A specific preparation is needed that is described in section Data preparation</p>
+<p>The expected file structure is summarized in <code class="docutils literal notranslate"><span class="pre">.env</span></code>.</p>
+<p>A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in <a class="reference external" href="https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar">this repo</a>.</p>
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
+<p>Once you have data, define your experiment setting in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder.</p>
+<p>To try out your setting by overfitting on a single batch of a Swiss dataset, run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">run</span><span class="o">.</span><span class="n">py</span> <span class="n">experiment</span><span class="o">=</span><span class="n">RandLaNetDebug</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOG_PATH</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="add_new_data_signature.html" class="btn btn-neutral float-left" title="How to add a new data signature [TODO]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../background/interpolation.html" class="btn btn-neutral float-right" title="KNN-Interpolation to merge multiple predictions [TODO]" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Charles GAYDON.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

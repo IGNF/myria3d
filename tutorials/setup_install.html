@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; lidar-deep-segmentation 1.6.12 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Preparing data for training [TODO]" href="prepare_dataset.html" />
+    <link rel="prev" title="Lidar-Deep-Segmentation &gt; Documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> lidar-deep-segmentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-virtual-environment">Setting up a virtual environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-installation">Environment Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#install-source-as-a-package">Install source as a package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data [TODO]</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/run.html">run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.train.html">lidar_multiclass.train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.predict.html">lidar_multiclass.predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">lidar-deep-segmentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/setup_install.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<section id="setting-up-a-virtual-environment">
+<h2>Setting up a virtual environment<a class="headerlink" href="#setting-up-a-virtual-environment" title="Permalink to this headline"></a></h2>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline"></a></h3>
+<p>We use <a class="reference external" href="https://www.anaconda.com/products/individual">anaconda</a> to manage virtual environments.
+This makes installing pytorch-related libraries way easier than using pure pip installs.</p>
+<p>If you want to use a gpu to speed up model training and inference, make sure that the cuda toolkit is installed on your machine.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt install nvidia-cuda-toolkit
+</pre></div>
+</div>
+<p>The  <a class="reference external" href="https://github.com/IGNF/lidar-deep-segmentation/bash/">bash</a> folder contains everything you need to setup a compatible pytorch virtual environement.
+You can get it by by cloning the entire project with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/IGNF/lidar-deep-segmentation
+<span class="nb">cd</span> lidar-deep-segmentation
+</pre></div>
+</div>
+<p>or by manually downloading its content.</p>
+</section>
+<section id="environment-installation">
+<h3>Environment Installation<a class="headerlink" href="#environment-installation" title="Permalink to this headline"></a></h3>
+<p>To install the environment, run either on of these commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> bash/setup_environment/setup_env.sh  <span class="c1"># if you have a GPU</span>
+<span class="nb">source</span> bash/setup_environment/setup_env_cpu_only.sh  <span class="c1"># if you only have a CPU</span>
+</pre></div>
+</div>
+<p>Before doing so, and to enable GPU support, <a class="reference external" href="https://varhowto.com/check-cuda-version/">check you CUDA version</a> and be sure that <code class="docutils literal notranslate"><span class="pre">TORCH_CUDA</span></code> in <code class="docutils literal notranslate"><span class="pre">bash/setup_environment/setup_env.sh</span></code> matches yours.</p>
+<p>Finally, activate the created environmnt by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate lidar_multiclass
+</pre></div>
+</div>
+</section>
+</section>
+<section id="install-source-as-a-package">
+<h2>Install source as a package<a class="headerlink" href="#install-source-as-a-package" title="Permalink to this headline"></a></h2>
+<p>If you are interested in running inference from anywhere, the easiest way is to install code as a package in a your virtual environment.</p>
+<p>Start by activating the virtual environment with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate lidar_multiclass
+</pre></div>
+</div>
+<p>Then install from a specific branch from github directly. Argument <code class="docutils literal notranslate"><span class="pre">branch_name</span></code> might be <code class="docutils literal notranslate"><span class="pre">main</span></code>, but could also be <code class="docutils literal notranslate"><span class="pre">prod</span></code>, or a specific release.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">IGNF</span><span class="o">/</span><span class="n">lidar</span><span class="o">-</span><span class="n">deep</span><span class="o">-</span><span class="n">segmentation</span><span class="o">/</span><span class="n">tarball</span><span class="o">/</span><span class="p">{</span><span class="n">branch_name</span><span class="p">}</span> 
+</pre></div>
+</div>
+<p>Alternatively, you can install from sources directly in editable mode with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --editable .
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Lidar-Deep-Segmentation &gt; Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="prepare_dataset.html" class="btn btn-neutral float-right" title="Preparing data for training [TODO]" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Charles GAYDON.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
