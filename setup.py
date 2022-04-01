@@ -7,7 +7,7 @@ with open("package_metadata.yaml", "r") as f:
 setup(
     name=pm["__name__"],
     version=pm["__version__"],
-    url=pm.url,
+    url=pm["__url__"],
     description=pm["__description__"],
     author=pm["__author__"],
     install_requires=[
