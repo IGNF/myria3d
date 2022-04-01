@@ -88,14 +88,9 @@
            <div itemprop="articleBody">
              
   <p>Lidar-Deep-Segmentation is a deep learning library designed with a focused scope: the multiclass semantic segmentation of large scale, high density aerial Lidar points cloud.</p>
-<p>The library implements the training of 3D Segmentation neural networks, with optimized data-processing and evaluation logics at fit time.
+<p>The library implements the training of 3D Segmentation neural networks, with optimized data-processing and evaluation logics at fit time. Inference on unseen, large scale point cloud is also supported.
 It allows for the evaluation of single-class IoU on the full point cloud, which results in reliable model evaluation.</p>
-<p>Although the library can be easily extended with new neural network architectures or new data signatures, the library makes some opiniated choices. In particular, the RandLa-Net neural network architecture is the go-to choice for its reprensation power, conceptual simplicity, and speed.
-Additionnaly, two data signatures are supported:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://geoservices.ign.fr/lidarhd">French Lidar HD</a>, produced by the French geographical Institute. The data is colorized with both RGB and Infrared. Therefore, data processing will include Infrared channel as well as NDVI.</p></li>
-<li><p>Swiss Lidar from <a class="reference external" href="https://www.swisstopo.admin.ch/en/geodata/height/surface3d.html">SwissSurface3D (en)</a>, a similar initiative from the Swiss geographical institute SwissTopo. The data comes from the SwissSurface3D Lidar database and is not colorized, so we have to join it with SwissImage10 orthoimages database. The procedure is described in this standalone <a class="reference external" href="https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar">repository</a>.</p></li>
-</ul>
+<p>Although the library can be easily extended with new neural network architectures or new data signatures, the library makes some opiniated choices in terms of neural network architecture, data processing logics, and inference logic.</p>
 <p>Lidar-Deep-Segmentation is built upon <a class="reference external" href="https://pytorch.org/">PyTorch</a>. It keeps the standard data format
 from <a class="reference external" href="https://pytorch-geometric.readthedocs.io/">Pytorch-Geometric</a>.
 Its structure was bootstraped from <a class="reference external" href="https://github.com/ashleve/lightning-hydra-template">this code template</a>,
