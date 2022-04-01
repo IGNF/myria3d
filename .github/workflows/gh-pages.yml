@@ -20,15 +20,13 @@ jobs:
 
       - name: "Checkout"
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
 
       # 2. Sphinx part : install tool and dependencies
 
       - name: "Set up Python"
         uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: "Install Python dependencies"
         run: |

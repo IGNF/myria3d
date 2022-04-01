@@ -1,7 +1,3 @@
----
-layout: default
----
-
 <div align="center">
 
 # Aerial Lidar HD Semantic Segmentation with Deep Learning
