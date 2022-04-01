@@ -16,15 +16,15 @@ from unittest import mock
 
 sys.path.insert(0, os.path.abspath("./../../"))
 
+from package_metadata import __version__, __author__, __name__
+
 # -- Project information -----------------------------------------------------
 
-project = "lidar-deep-segmentation"
-copyright = "2022, Charles Gaydon"
-author = "Charles Gaydon"
+release = __version__
+project = __name__
+author = __author__
+copyright = "2021, Institut National de l'Information Géographique et Forestière"
 
-# The full version, including alpha/beta/rc tags
-release = "1.6.12"
-copyright = "2022, Charles GAYDON"
 
 # -- General configuration ---------------------------------------------------
 
@@ -106,7 +106,7 @@ except ImportError:
     ]
     for m in to_mock:
         sys.modules[m] = mock.Mock(name=m)
-    sys.modules["torch"].__version__ = "1.7"  # fake version
+    sys.modules["torch"].__version__ = "1.10"  # fake version
     HAS_TORCH = False
 
     autodoc_mock_imports = []
