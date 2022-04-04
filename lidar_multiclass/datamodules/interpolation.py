@@ -1,6 +1,6 @@
 import os
 from tokenize import Number
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Literal, Union
 
 import pdal
 import numpy as np
@@ -21,36 +21,56 @@ class Interpolator:
 
     def __init__(
         self,
+        interpolation_k: int = 10,
         classification_dict: Dict[int, str] = {},
-        interpolation_k: Number = 10,
+        probas_to_save: Union[List[str], Literal["all"]] = "all",
         output_dir: Optional[str] = None,
-        names_of_probas_to_save: List[str] = [],
     ):
+        """Initialization method.
+
+        Args:
+            interpolation_k (int, optional): Number of Nearest-Neighboors to consider for inverse-distance averaging of logits. Defaults to 10.
+            classification_dict (Dict[int, str], optional): Mapper, from classification code to class name (e.g. {6:building}). Defaults to {}.
+            probas_to_save (List[str] or "all", optional): Specific probabilities to save as new LAS dimensions.
+            Override with None for no saving of probabilitiues. Defaults to "all".
+            output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,
+            and probabilities. Defaults to None.
+
+        """
         self.output_dir = output_dir
         if self.output_dir:
             os.makedirs(self.output_dir, exist_ok=True)
 
-        self.classification_dict = classification_dict
-        self.probas_names = names_of_probas_to_save
-        self.current_f = ""
         self.k = interpolation_k
+        self.classification_dict = classification_dict
 
-        self.reverse_mapper = {
+        if probas_to_save == "all":
+            self.probas_to_save = list(classification_dict.values())
+        elif probas_to_save is None:
+            self.probas_to_save = []
+        else:
+            self.probas_to_save = probas_to_save
+
+        # Maps ascending index (0,1,2,...) back to conventionnal LAS classification codes (6=buildings, etc.)
+        self.reverse_mapper: Dict[int, int] = {
             class_index: class_code
             for class_index, class_code in enumerate(classification_dict.keys())
         }
 
-        self.probas_idx = [
-            list(classification_dict.values()).index(name)
-            for name in names_of_probas_to_save
-        ]
+        # Tracker for current processed file.
+        self.current_f = ""
 
     def _load_las(self, filepath: str):
-        """Load a LAS and add necessary extradim."""
+        """Loads a LAS and adds necessary extradim.
+
+        Args:
+            filepath (str): Path to LAS for which predictions are made.
+
+        """
         self.current_f = filepath
         pipeline = pdal.Reader.las(filename=filepath)
 
-        new_dims = self.probas_names + [
+        new_dims = self.probas_to_save + [
             ChannelNames.PredictedClassification.value,
             ChannelNames.ProbasEntropy.value,
         ]
@@ -78,13 +98,17 @@ class Interpolator:
 
     @torch.no_grad()
     def update(self, outputs: dict):
-        """
-        Save the predicted classes in las format with position.
-        Handle las loading when necessary.
+        """Keep a list of predictions made so far.
+        In Test phase, interpolation and saving are trigerred when a new file is encountered.
 
-        :param outputs: outputs of a step.
-        returns:
-          list[str]: when
+        Args:
+            outputs (dict): Outputs of lightning's predict_step or test_step.
+
+        Returns:
+            List[interpolation]: list of interpolation made for these specific outputs. This is typically empty,
+            except when we switch from a LAS to another, at which point we need to output the result of the interpolation
+            for IoU logging by a callback.
+
         """
         _itps = []
 
@@ -119,6 +143,13 @@ class Interpolator:
         return _itps
 
     def _interpolate(self):
+        """Interpolate logits to points without predictions using an inverse-distance weightning scheme.
+
+        Returns:
+            torch.Tensor, torch.Tensor: interpolated logits and targets/original classification
+
+        """
+
         # Cat
         pos_sub = torch.cat(self.pos_sub_l).cpu()
         logits_sub = torch.cat(self.logits_sub_l).cpu()
@@ -147,10 +178,15 @@ class Interpolator:
         return logits, targets
 
     @torch.no_grad()
-    def _write(self, interpolation):
-        """
-        Interpolate all predicted probabilites to their original points in LAS file, and save.
-        Returns the path of the updated, saved LAS file.
+    def _write(self, interpolation) -> str:
+        """Interpolate all predicted probabilites to their original points in LAS file, and save.
+
+        Args:
+            interpolation (torch.Tensor, torch.Tensor): output of _interpolate, of which we need the logits.
+
+        Returns:
+            str: path of the updated, saved LAS file.
+
         """
 
         basename = os.path.basename(self.current_f)
@@ -160,8 +196,9 @@ class Interpolator:
         logits, _ = interpolation
 
         probas = torch.nn.Softmax(dim=1)(logits)
-        for idx, class_name in enumerate(self.probas_names):
-            self.las[class_name][:] = probas[:, idx]
+        for idx, class_name in enumerate(self.classification_dict.values()):
+            if class_name in self.probas_to_save:
+                self.las[class_name][:] = probas[:, idx]
 
         preds = torch.argmax(logits, dim=1)
         preds = np.vectorize(self.reverse_mapper.get)(preds)

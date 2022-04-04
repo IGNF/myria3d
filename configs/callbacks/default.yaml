@@ -19,9 +19,9 @@ log_iou_by_class:
   classification_dict: ${datamodule.dataset_description.classification_dict}
   interpolator:  # only used at test time
     _target_: lidar_multiclass.datamodules.interpolation.Interpolator
-    classification_dict: ${datamodule.dataset_description.classification_dict}
     interpolation_k: ${predict.interpolation_k}
-    names_of_probas_to_save: ${datamodule.dataset_description.names_of_probas_to_save}
+    classification_dict: ${datamodule.dataset_description.classification_dict}
+    probas_to_save: ${predict.probas_to_save}  # replace by a list of string of class names to select specific probas to save
     output_dir: null # Replace by an output to save resultsduring test
 
 model_checkpoint:

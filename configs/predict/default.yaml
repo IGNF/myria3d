@@ -3,7 +3,7 @@ output_dir: "/path/to/output_dir/"
 resume_from_checkpoint: "/path/to/lightning_model.ckpt"
 gpus: 0  # 0 for none, 1 for one, [gpu_id] to specify which gpu to use e.g [1]
 
-names_of_probas_to_save: ${datamodule.dataset_description.names_of_probas_to_save}
+probas_to_save: "all"  # override with a list of string matching class names to select specific probas to save
 
 # Relative to how probas are interpolated
 # e.g. subtile_overlap=25 to use a sliding window of inference of whihc predictions will be merged.
