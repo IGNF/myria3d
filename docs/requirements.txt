@@ -21,7 +21,6 @@ rich
 torch==1.10.*
 torchmetrics
 pytorch-lightning==1.5.9
-torch_points_kernels
 torch_geometric
 torch_sparse
 torch_scatter

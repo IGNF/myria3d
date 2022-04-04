@@ -108,6 +108,7 @@ to_mock = [
     "torch_geometric",
     # "omegaconf",
     "dotenv",
+    "torch_points_kernels",
     # "rich",
     # "rich.tree",
     # "rich.syntax",
