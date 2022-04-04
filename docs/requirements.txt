@@ -18,10 +18,10 @@ sphinxnotes-mock==1.0.0b0  # still a beta
 hydra-core
 rich
 
-torch==1.10.*
+torch==1.10.1
 torchmetrics
 pytorch-lightning==1.5.9
-torch_geometric
+torch_geometric==2.0.3
 torch_sparse
 torch_scatter
 
