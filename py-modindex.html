@@ -6,6 +6,7 @@
   <title>Python Module Index &mdash; lidar_multiclass 1.6.13 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -39,14 +40,26 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/setup_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/setup_install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/setup_install.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/make_predictions.html">Performing inference on new data [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="how_to/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_to/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="how_to/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/train_new_model.html#training">Training</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
@@ -55,14 +68,39 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/run.html">run</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.train.html">lidar_multiclass.train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.predict.html">lidar_multiclass.predict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.models.html">lidar_multiclass.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.data">lidar_multiclass.datamodules.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.datamodule">lidar_multiclass.datamodules.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.interpolation">lidar_multiclass.datamodules.interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils">Module contents</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -92,34 +130,74 @@
    <h1>Python Module Index</h1>
 
    <div class="modindex-jumpbox">
-   <a href="#cap-l"><strong>l</strong></a> | 
-   <a href="#cap-r"><strong>r</strong></a>
+   <a href="#cap-c"><strong>c</strong></a> | 
+   <a href="#cap-d"><strong>d</strong></a> | 
+   <a href="#cap-p"><strong>p</strong></a> | 
+   <a href="#cap-r"><strong>r</strong></a> | 
+   <a href="#cap-u"><strong>u</strong></a>
    </div>
 
    <table class="indextable modindextable">
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-l"><td></td><td>
-       <strong>l</strong></td><td></td></tr>
+     <tr class="cap" id="cap-c"><td></td><td>
+       <strong>c</strong></td><td></td></tr>
      <tr>
        <td><img src="_static/minus.png" class="toggler"
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
-       <code class="xref">lidar_multiclass</code></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks"><code class="xref">lidar_multiclass.callbacks</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="apidoc/lidar_multiclass.models.modules.html#module-lidar_multiclass.models.modules.randla_net"><code class="xref">lidar_multiclass.models.modules.randla_net</code></a></td><td>
+       <a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks"><code class="xref">lidar_multiclass.callbacks.comet_callbacks</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils"><code class="xref">lidar_multiclass.utils</code></a></td><td>
+       <a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks"><code class="xref">lidar_multiclass.callbacks.finetuning_callbacks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks"><code class="xref">lidar_multiclass.callbacks.logging_callbacks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-d"><td></td><td>
+       <strong>d</strong></td><td></td></tr>
+     <tr>
+       <td><img src="_static/minus.png" class="toggler"
+              id="toggle-2" style="display: none" alt="-" /></td>
+       <td>
+       <code class="xref">lidar_multiclass.datamodules</code></td><td>
+       <em></em></td></tr>
+     <tr class="cg-2">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.data"><code class="xref">lidar_multiclass.datamodules.data</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-2">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.datamodule"><code class="xref">lidar_multiclass.datamodules.datamodule</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-2">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.interpolation"><code class="xref">lidar_multiclass.datamodules.interpolation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-2">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms"><code class="xref">lidar_multiclass.datamodules.transforms</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-p"><td></td><td>
+       <strong>p</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="apidoc/scripts.html#module-lidar_multiclass.predict"><code class="xref">lidar_multiclass.predict</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-r"><td></td><td>
@@ -127,7 +205,21 @@
      <tr>
        <td></td>
        <td>
-       <a href="apidoc/run.html#module-run"><code class="xref">run</code></a></td><td>
+       <a href="apidoc/scripts.html#module-run"><code class="xref">run</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-u"><td></td><td>
+       <strong>u</strong></td><td></td></tr>
+     <tr>
+       <td><img src="_static/minus.png" class="toggler"
+              id="toggle-3" style="display: none" alt="-" /></td>
+       <td>
+       <a href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils"><code class="xref">lidar_multiclass.utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-3">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils"><code class="xref">lidar_multiclass.utils.utils</code></a></td><td>
        <em></em></td></tr>
    </table>
 

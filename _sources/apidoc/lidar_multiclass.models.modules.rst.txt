@@ -1,19 +1,14 @@
 lidar\_multiclass.models.modules
 ========================================
 
-Submodules
-----------
+PointNet
+-------------
 
-lidar\_multiclass.models.modules.point\_net
---------------------------------------------------
-
-.. automodule:: lidar_multiclass.models.modules.point_net
+.. autoclass:: lidar_multiclass.models.modules.point_net.PointNet
    :members:
-   :show-inheritance:
 
-lidar\_multiclass.models.modules.randla\_net
----------------------------------------------------
+RandLA-Net
+-------------
 
-.. automodule:: lidar_multiclass.models.modules.randla_net
+.. autoclass:: lidar_multiclass.models.modules.randla_net.RandLANet
    :members:
-   :show-inheritance:

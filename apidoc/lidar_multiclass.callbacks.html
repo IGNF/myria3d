@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lidar_multiclass.callbacks &mdash; lidar_multiclass 1.6.13 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -39,14 +40,26 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/setup_install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/setup_install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/setup_install.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#training">Training</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
@@ -55,21 +68,39 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="run.html">run</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.train.html">lidar_multiclass.train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.predict.html">lidar_multiclass.predict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.html">lidar_multiclass.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.data">lidar_multiclass.datamodules.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.datamodule">lidar_multiclass.datamodules.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.interpolation">lidar_multiclass.datamodules.interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.callbacks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#lidar-multiclass-callbacks-comet-callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#lidar-multiclass-callbacks-finetuning-callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#lidar-multiclass-callbacks-logging-callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.callbacks">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.utils.html">lidar_multiclass.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.utils.html#module-lidar_multiclass.utils">Module contents</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -101,14 +132,145 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 </section>
-<section id="lidar-multiclass-callbacks-comet-callbacks">
-<h2>lidar_multiclass.callbacks.comet_callbacks<a class="headerlink" href="#lidar-multiclass-callbacks-comet-callbacks" title="Permalink to this headline"></a></h2>
+<section id="module-lidar_multiclass.callbacks.comet_callbacks">
+<span id="lidar-multiclass-callbacks-comet-callbacks"></span><h2>lidar_multiclass.callbacks.comet_callbacks<a class="headerlink" href="#module-lidar_multiclass.callbacks.comet_callbacks" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.comet_callbacks.LogCode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.callbacks.comet_callbacks.</span></span><span class="sig-name descname"><span class="pre">LogCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/comet_callbacks.html#LogCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.comet_callbacks.LogCode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.base.Callback</span></code></p>
+<p>Upload all code files to comet, at the beginning of the run.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.comet_callbacks.LogCode.on_train_start">
+<span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/comet_callbacks.html#LogCode.on_train_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.comet_callbacks.LogCode.on_train_start" title="Permalink to this definition"></a></dt>
+<dd><p>Called when the train begins.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.comet_callbacks.LogLogsPath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.callbacks.comet_callbacks.</span></span><span class="sig-name descname"><span class="pre">LogLogsPath</span></span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/comet_callbacks.html#LogLogsPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.comet_callbacks.LogLogsPath" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.base.Callback</span></code></p>
+<p>Logs run working directory to comet.ml</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.comet_callbacks.LogLogsPath.on_init_end">
+<span class="sig-name descname"><span class="pre">on_init_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/comet_callbacks.html#LogLogsPath.on_init_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.comet_callbacks.LogLogsPath.on_init_end" title="Permalink to this definition"></a></dt>
+<dd><p>Called when the trainer initialization ends, model has not yet been set.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.comet_callbacks.get_comet_logger">
+<span class="sig-prename descclassname"><span class="pre">lidar_multiclass.callbacks.comet_callbacks.</span></span><span class="sig-name descname"><span class="pre">get_comet_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pytorch_lightning.loggers.comet.CometLogger</span></span></span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/comet_callbacks.html#get_comet_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.comet_callbacks.get_comet_logger" title="Permalink to this definition"></a></dt>
+<dd><p>Safely get logger from Trainer.</p>
+</dd></dl>
+
 </section>
-<section id="lidar-multiclass-callbacks-finetuning-callbacks">
-<h2>lidar_multiclass.callbacks.finetuning_callbacks<a class="headerlink" href="#lidar-multiclass-callbacks-finetuning-callbacks" title="Permalink to this headline"></a></h2>
+<section id="module-lidar_multiclass.callbacks.finetuning_callbacks">
+<span id="lidar-multiclass-callbacks-finetuning-callbacks"></span><h2>lidar_multiclass.callbacks.finetuning_callbacks<a class="headerlink" href="#module-lidar_multiclass.callbacks.finetuning_callbacks" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.callbacks.finetuning_callbacks.</span></span><span class="sig-name descname"><span class="pre">FinetuningFreezeUnfreeze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unfreeze_fc_end_epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unfreeze_decoder_train_epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/finetuning_callbacks.html#FinetuningFreezeUnfreeze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.finetuning.BaseFinetuning</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">
+<span class="sig-name descname"><span class="pre">finetune_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pl_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/finetuning_callbacks.html#FinetuningFreezeUnfreeze.finetune_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function" title="Permalink to this definition"></a></dt>
+<dd><p>Unfreeze layers sequentially, starting from the end of the architecture.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">
+<span class="sig-name descname"><span class="pre">freeze_before_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pl_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/finetuning_callbacks.html#FinetuningFreezeUnfreeze.freeze_before_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training" title="Permalink to this definition"></a></dt>
+<dd><p>Update in and out dimensions, and freeze everything at start.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="lidar-multiclass-callbacks-logging-callbacks">
-<h2>lidar_multiclass.callbacks.logging_callbacks<a class="headerlink" href="#lidar-multiclass-callbacks-logging-callbacks" title="Permalink to this headline"></a></h2>
+<section id="module-lidar_multiclass.callbacks.logging_callbacks">
+<span id="lidar-multiclass-callbacks-logging-callbacks"></span><h2>lidar_multiclass.callbacks.logging_callbacks<a class="headerlink" href="#module-lidar_multiclass.callbacks.logging_callbacks" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.callbacks.logging_callbacks.</span></span><span class="sig-name descname"><span class="pre">LogIoUByClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classification_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="lidar_multiclass.datamodules.html#lidar_multiclass.datamodules.interpolation.Interpolator" title="lidar_multiclass.datamodules.interpolation.Interpolator"><span class="pre">lidar_multiclass.datamodules.interpolation.Interpolator</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.base.Callback</span></code></p>
+<p>A Callback to log JaccardIndex for each class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.get_all_iou_by_class_object">
+<span class="sig-name descname"><span class="pre">get_all_iou_by_class_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.get_all_iou_by_class_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.get_all_iou_by_class_object" title="Permalink to this definition"></a></dt>
+<dd><p>Get a dict with schema {class_name:iou_for_class_name, …}</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.log_iou">
+<span class="sig-name descname"><span class="pre">log_iou</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">iou_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.log_iou"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.log_iou" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_fit_start">
+<span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.core.lightning.LightningModule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_fit_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_fit_start" title="Permalink to this definition"></a></dt>
+<dd><p>Setup IoU torchmetrics objects for train and val phases.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_init_end">
+<span class="sig-name descname"><span class="pre">on_init_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_init_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_init_end" title="Permalink to this definition"></a></dt>
+<dd><p>Setup logging functionnalities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end">
+<span class="sig-name descname"><span class="pre">on_test_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.core.lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataloader_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_test_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end" title="Permalink to this definition"></a></dt>
+<dd><p>Log IoU for each class. Loop in case of multiple files in a single batch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_epoch_end">
+<span class="sig-name descname"><span class="pre">on_test_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.core.lightning.LightningModule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_test_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_epoch_end" title="Permalink to this definition"></a></dt>
+<dd><p>Called when the test epoch ends.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_start">
+<span class="sig-name descname"><span class="pre">on_test_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.core.lightning.LightningModule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_test_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_start" title="Permalink to this definition"></a></dt>
+<dd><p>Setup IoU torchmetrics objects for test phase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_train_batch_end">
+<span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.core.lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataloader_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_train_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_train_batch_end" title="Permalink to this definition"></a></dt>
+<dd><p>Log IoU for each class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">
+<span class="sig-name descname"><span class="pre">on_validation_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.core.lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataloader_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#LogIoUByClass.on_validation_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end" title="Permalink to this definition"></a></dt>
+<dd><p>Log IoU for each class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.callbacks.logging_callbacks.</span></span><span class="sig-name descname"><span class="pre">SingleClassIoU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_of_interest_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absent_score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_on_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_sync_on_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#SingleClassIoU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torchmetrics.classification.jaccard.JaccardIndex</span></code></p>
+<p>Custom JaccardIndex metrics to log single class JaccardIndex using PytorchLighting log system.
+This enables good computation of epoch-level JaccardIndex.
+i.e. use the full confusion matrix instead of averaging many step-level JaccardIndex.
+Default parameters of JaccardIndex are used except for absent_score set to 1.0 and none reduction.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/callbacks/logging_callbacks.html#SingleClassIoU.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Computes intersection over union (JaccardIndex)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU.confmat">
+<span class="sig-name descname"><span class="pre">confmat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)"><span class="pre">torch.Tensor</span></a></em><a class="headerlink" href="#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU.confmat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-lidar_multiclass.callbacks">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lidar_multiclass.callbacks" title="Permalink to this headline"></a></h2>

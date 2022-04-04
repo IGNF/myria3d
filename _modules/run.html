@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Different ways to feed data from large scale point cloud to a neural network [TODO] &mdash; lidar_multiclass 1.6.13 documentation</title>
+  <title>run &mdash; lidar_multiclass 1.6.13 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -18,9 +17,7 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Scripts" href="../apidoc/scripts.html" />
-    <link rel="prev" title="KNN-Interpolation to merge multiple predictions [TODO]" href="interpolation.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -62,9 +59,9 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -117,9 +114,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Different ways to feed data from large scale point cloud to a neural network [TODO]</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>run</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/background/data_optimization.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -127,21 +124,63 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="different-ways-to-feed-data-from-large-scale-point-cloud-to-a-neural-network-todo">
-<h1>Different ways to feed data from large scale point cloud to a neural network [TODO]<a class="headerlink" href="#different-ways-to-feed-data-from-large-scale-point-cloud-to-a-neural-network-todo" title="Permalink to this headline"></a></h1>
-<p>.. warning:: Work in progress</p>
-<p>-&gt; feeding the model quickly
--&gt; reliable evaluation
--&gt; perspectives</p>
-</section>
+  <h1>Source code for run</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">comet_ml</span>
+<span class="kn">import</span> <span class="nn">dotenv</span>
+<span class="kn">import</span> <span class="nn">hydra</span>
+<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">OmegaConf</span>
 
+
+<span class="c1"># load environment variables from `.env` file if it exists</span>
+<span class="c1"># recursively searches for `.env` in all folders starting from work dir</span>
+<span class="n">dotenv</span><span class="o">.</span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../apidoc/scripts.html#run.main">[docs]</a><span class="nd">@hydra</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;configs/&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Entrypoint to training-related logic and inference code.</span>
+
+<span class="sd">    Run `python run.py -h` to print configuration and see parameters.</span>
+
+<span class="sd">    Hydra configs can be overriden in CLI with `--config-path` and `--config-name` arguments.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Imports should be nested inside @hydra.main to optimize tab completion</span>
+    <span class="c1"># Read more here: https://github.com/facebookresearch/hydra/issues/934</span>
+    <span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="kn">from</span> <span class="nn">lidar_multiclass.train</span> <span class="kn">import</span> <span class="n">train</span>
+    <span class="kn">from</span> <span class="nn">lidar_multiclass.predict</span> <span class="kn">import</span> <span class="n">predict</span>
+
+    <span class="c1"># A couple of optional utilities:</span>
+    <span class="c1"># - disabling python warnings</span>
+    <span class="c1"># - easier access to debug mode</span>
+    <span class="c1"># - forcing debug friendly configuration</span>
+    <span class="c1"># You can safely get rid of this line if you don&#39;t want those</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">extras</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Pretty print config using Rich library</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;print_config&quot;</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">print_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">task_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task_name&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;fit&quot;</span> <span class="ow">in</span> <span class="n">task_name</span> <span class="ow">or</span> <span class="s2">&quot;test&quot;</span> <span class="ow">in</span> <span class="n">task_name</span> <span class="ow">or</span> <span class="s2">&quot;finetune&quot;</span> <span class="ow">in</span> <span class="n">task_name</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Training, eval, and test of a neural network.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;predict&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Infer probabilities and automate semantic segmentation decisions on unseen data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">predict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># cf. https://github.com/facebookresearch/hydra/issues/1283</span>
+    <span class="n">OmegaConf</span><span class="o">.</span><span class="n">register_new_resolver</span><span class="p">(</span><span class="s2">&quot;get_method&quot;</span><span class="p">,</span> <span class="n">hydra</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_method</span><span class="p">)</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="interpolation.html" class="btn btn-neutral float-left" title="KNN-Interpolation to merge multiple predictions [TODO]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../apidoc/scripts.html" class="btn btn-neutral float-right" title="Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

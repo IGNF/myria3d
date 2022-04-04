@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>lidar_multiclass.models.modules &mdash; lidar_multiclass 1.6.13 documentation</title>
+  <title>lidar_multiclass.models &mdash; lidar_multiclass 1.6.13 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="lidar_multiclass.callbacks" href="lidar_multiclass.callbacks.html" />
-    <link rel="prev" title="lidar_multiclass.models" href="lidar_multiclass.model.html" /> 
+    <link rel="next" title="lidar_multiclass.models.modules" href="lidar_multiclass.models.modules.html" />
+    <link rel="prev" title="lidar_multiclass.datamodules" href="lidar_multiclass.datamodules.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -81,10 +81,10 @@
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pointnet">PointNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#randla-net">RandLA-Net</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
@@ -117,9 +117,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>lidar_multiclass.models.modules</li>
+      <li>lidar_multiclass.models</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/apidoc/lidar_multiclass.models.modules.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/apidoc/lidar_multiclass.model.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -127,49 +127,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="lidar-multiclass-models-modules">
-<h1>lidar_multiclass.models.modules<a class="headerlink" href="#lidar-multiclass-models-modules" title="Permalink to this headline"></a></h1>
-<section id="pointnet">
-<h2>PointNet<a class="headerlink" href="#pointnet" title="Permalink to this headline"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="lidar_multiclass.models.modules.point_net.PointNet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.models.modules.point_net.</span></span><span class="sig-name descname"><span class="pre">PointNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hparams_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/point_net.html#PointNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.point_net.PointNet" title="Permalink to this definition"></a></dt>
-<dd><p>Simple implementation of PointNet.</p>
-<p>PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation
-at <a class="reference external" href="https://arxiv.org/abs/1612.00593">https://arxiv.org/abs/1612.00593</a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning">
-<span class="sig-name descname"><span class="pre">change_num_class_for_finetuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/point_net.html#PointNet.change_num_class_for_finetuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning" title="Permalink to this definition"></a></dt>
-<dd><p>Change end layer output number of classes if new_num_classes is different.
-This method is used for finetuning.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning.params.new_num_classes"></span><strong>new_num_classes</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning.params.new_num_classes">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – new number of classes for finetuning pretrained model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.modules.point_net.PointNet.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/point_net.html#PointNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.point_net.PointNet.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Object batch is a PyG data.Batch, as defined in custom collate_fn.
-Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods.</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="randla-net">
-<h2>RandLA-Net<a class="headerlink" href="#randla-net" title="Permalink to this headline"></a></h2>
-</section>
+  <section id="lidar-multiclass-models">
+<h1>lidar_multiclass.models<a class="headerlink" href="#lidar-multiclass-models" title="Permalink to this headline"></a></h1>
+<p>Model————————————-</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="lidar_multiclass.model.html" class="btn btn-neutral float-left" title="lidar_multiclass.models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="lidar_multiclass.callbacks.html" class="btn btn-neutral float-right" title="lidar_multiclass.callbacks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="lidar_multiclass.datamodules.html" class="btn btn-neutral float-left" title="lidar_multiclass.datamodules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lidar_multiclass.models.modules.html" class="btn btn-neutral float-right" title="lidar_multiclass.models.modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

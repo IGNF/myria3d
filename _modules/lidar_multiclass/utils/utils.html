@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lidar_multiclass.utils.utils &mdash; lidar_multiclass 1.6.13 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> lidar_multiclass
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/setup_install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/setup_install.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#training">Training</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.data">lidar_multiclass.datamodules.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.datamodule">lidar_multiclass.datamodules.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.interpolation">lidar_multiclass.datamodules.interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">lidar_multiclass</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>lidar_multiclass.utils.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lidar_multiclass.utils.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
+<span class="kn">import</span> <span class="nn">rich.syntax</span>
+<span class="kn">import</span> <span class="nn">rich.tree</span>
+<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">OmegaConf</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning.utilities</span> <span class="kn">import</span> <span class="n">rank_zero_only</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+
+<div class="viewcode-block" id="get_logger"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.get_logger">[docs]</a><span class="k">def</span> <span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Initializes multi-GPU-friendly python logger.&quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># this ensures all logging levels get marked with the rank zero decorator</span>
+    <span class="c1"># otherwise logs would get multiplied for each GPU process in multi-GPU setup</span>
+    <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;debug&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;info&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exception&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fatal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">rank_zero_only</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">level</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">logger</span></div>
+
+
+<div class="viewcode-block" id="extras"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.extras">[docs]</a><span class="k">def</span> <span class="nf">extras</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A couple of optional utilities, controlled by main config file:</span>
+<span class="sd">    - disabling warnings</span>
+<span class="sd">    - easier access to debug mode</span>
+<span class="sd">    - forcing debug friendly configuration</span>
+
+<span class="sd">    Modifies DictConfig in place.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (DictConfig): Configuration composed by Hydra.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+    <span class="c1"># enable adding new keys to config</span>
+    <span class="n">OmegaConf</span><span class="o">.</span><span class="n">set_struct</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># disable python warnings if &lt;config.ignore_warnings=True&gt;</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ignore_warnings&quot;</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Disabling python warnings! &lt;config.ignore_warnings=True&gt;&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+    <span class="c1"># disable adding new keys to config</span>
+    <span class="n">OmegaConf</span><span class="o">.</span><span class="n">set_struct</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_config"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config">[docs]</a><span class="nd">@rank_zero_only</span>
+<span class="k">def</span> <span class="nf">print_config</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span>
+    <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;task&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;seed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;logger&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;datamodule&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;callbacks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;predict&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Prints content of DictConfig using Rich library and its tree structure.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (DictConfig): Configuration composed by Hydra.</span>
+<span class="sd">        fields (Sequence[str], optional): Determines which main fields from config will</span>
+<span class="sd">        be printed and in what order.</span>
+<span class="sd">        resolve (bool, optional): Whether to resolve reference fields of DictConfig.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;dim&quot;</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">rich</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Tree</span><span class="p">(</span><span class="s2">&quot;CONFIG&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">guide_style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">guide_style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
+
+        <span class="n">config_section</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">branch_content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_section</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config_section</span><span class="p">,</span> <span class="n">DictConfig</span><span class="p">):</span>
+            <span class="n">branch_content</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">config_section</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">)</span>
+
+        <span class="n">branch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rich</span><span class="o">.</span><span class="n">syntax</span><span class="o">.</span><span class="n">Syntax</span><span class="p">(</span><span class="n">branch_content</span><span class="p">,</span> <span class="s2">&quot;yaml&quot;</span><span class="p">))</span>
+
+    <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;config_tree.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="log_hyperparameters"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.log_hyperparameters">[docs]</a><span class="nd">@rank_zero_only</span>
+<span class="k">def</span> <span class="nf">log_hyperparameters</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">,</span>
+    <span class="n">datamodule</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">,</span>
+    <span class="n">trainer</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Callback</span><span class="p">],</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">loggers</span><span class="o">.</span><span class="n">LightningLoggerBase</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This method controls which parameters from Hydra config are saved by Lightning loggers.</span>
+
+<span class="sd">    Additionaly saves:</span>
+<span class="sd">        - number of trainable model parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hparams</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># choose which parts of hydra config will be saved to loggers</span>
+    <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;trainer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;trainer&quot;</span><span class="p">]</span>
+    <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+    <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;datamodule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;datamodule&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;seed&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;callbacks&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;callbacks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;callbacks&quot;</span><span class="p">]</span>
+
+    <span class="c1"># save number of model parameters</span>
+    <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;model/params_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+    <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;model/params_trainable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span>
+    <span class="p">)</span>
+    <span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;model/params_not_trainable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span>
+    <span class="p">)</span>
+
+    <span class="c1"># send hparams to all loggers</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_hyperparams</span><span class="p">(</span><span class="n">hparams</span><span class="p">)</span>
+
+    <span class="c1"># disable logging any more hyperparameters for all loggers</span>
+    <span class="c1"># this is just a trick to prevent trainer from logging hparams of model,</span>
+    <span class="c1"># since we already did that above</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_hyperparams</span> <span class="o">=</span> <span class="n">empty</span></div>
+
+
+<div class="viewcode-block" id="eval_time"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.eval_time">[docs]</a><span class="k">def</span> <span class="nf">eval_time</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorator to log the duration of the decorated method&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">timed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+        <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">time_elapsed</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Runtime of </span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">time_elapsed</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">timed</span></div>
+
+
+<div class="viewcode-block" id="define_device_from_config_param"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.define_device_from_config_param">[docs]</a><span class="k">def</span> <span class="nf">define_device_from_config_param</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Param can be an in specifying a number of GPU to use (0 or 1) or an int in</span>
+<span class="sd">    a list specifying which GPU to use (cuda:0, cuda:1, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gpus_param</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">else</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">gpus_param</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;cuda:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">device</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

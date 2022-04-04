@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation &mdash; lidar_multiclass 1.6.13 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -40,21 +41,25 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-virtual-environment">Setting up a virtual environment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#environment-installation">Environment Installation</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#training">Training</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
@@ -63,14 +68,39 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/run.html">run</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.train.html">lidar_multiclass.train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.predict.html">lidar_multiclass.predict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.html">lidar_multiclass.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html">lidar_multiclass.datamodules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.data">lidar_multiclass.datamodules.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.datamodule">lidar_multiclass.datamodules.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.interpolation">lidar_multiclass.datamodules.interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils">Module contents</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
