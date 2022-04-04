@@ -148,8 +148,13 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="lidar_multiclass.train.train">
 <span class="sig-prename descclassname"><span class="pre">lidar_multiclass.train.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/lidar_multiclass/train.html#train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.train.train" title="Permalink to this definition"></a></dt>
-<dd><p>Contains training pipeline.
-Instantiates all PyTorch Lightning objects from config.</p>
+<dd><p>Training pipeline (+ Test, + Finetuning)</p>
+<p>Instantiates all PyTorch Lightning objects from config, then perform one of the following
+task based on parameter <cite>task.task_name</cite>:</p>
+<p><cite>fit</cite>: fit a neural network - train on a prepared training set and validate on a prepared validation set.
+<cite>test</cite>: test a trained neural network on a test dataset (i.e. a folder of LAS files)
+<cite>finetune</cite>: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and
+fitting it again with altered fit conditions (e.g. different number of classes to predict…).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><span class="target" id="lidar_multiclass.train.train.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.train.train.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
@@ -173,17 +178,22 @@ Instantiates all PyTorch Lightning objects from config.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lidar_multiclass.predict.predict">
-<span class="sig-prename descclassname"><span class="pre">lidar_multiclass.predict.</span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/lidar_multiclass/predict.html#predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.predict.predict" title="Permalink to this definition"></a></dt>
-<dd><p>Inference pipeline,</p>
+<span class="sig-prename descclassname"><span class="pre">lidar_multiclass.predict.</span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/predict.html#predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.predict.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Inference pipeline.</p>
+<p>A lightning datamodule splits a single point cloud of arbitrary size (typically: 1km * 1km) into subtiles
+(typically 50m * 50m), which are grouped into batches that are fed to a trained neural network embedded into a lightning Module.</p>
+<p>Predictions happen on a subsampled version of each subtile, which needs to be propagated back to the complete
+point cloud via an Interpolator. This Interpolator also includes the creation of a new LAS file with additional
+dimensions, including predicted classification, entropy, and (optionnaly) predicted probability for each class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><span class="target" id="lidar_multiclass.predict.predict.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.predict.predict.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Metric score for hyperparameter optimization.</p>
+<dd class="field-even"><p>path to ouptut LAS.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>

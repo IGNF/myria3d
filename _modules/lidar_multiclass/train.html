@@ -152,14 +152,22 @@
 
 
 <div class="viewcode-block" id="train"><a class="viewcode-back" href="../../apidoc/scripts.html#lidar_multiclass.train.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Contains training pipeline.</span>
-<span class="sd">    Instantiates all PyTorch Lightning objects from config.</span>
+    <span class="sd">&quot;&quot;&quot;Training pipeline (+ Test, + Finetuning)</span>
+
+<span class="sd">    Instantiates all PyTorch Lightning objects from config, then perform one of the following</span>
+<span class="sd">    task based on parameter `task.task_name`:</span>
+
+<span class="sd">    `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.</span>
+<span class="sd">    `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)</span>
+<span class="sd">    `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and</span>
+<span class="sd">    fitting it again with altered fit conditions (e.g. different number of classes to predict...).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        config (DictConfig): Configuration composed by Hydra.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Optional[float]: Metric score for hyperparameter optimization.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Set seed for random number generators in pytorch, numpy and python.random</span>

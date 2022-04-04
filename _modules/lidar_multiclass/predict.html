@@ -144,31 +144,23 @@
 <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../apidoc/scripts.html#lidar_multiclass.predict.main">[docs]</a><span class="nd">@hydra</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../configs/&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">):</span>
-    <span class="c1"># Imports should be nested inside @hydra.main to optimize tab completion</span>
-    <span class="c1"># Read more here: https://github.com/facebookresearch/hydra/issues/934</span>
-    <span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
-    <span class="kn">from</span> <span class="nn">lidar_multiclass.predict</span> <span class="kn">import</span> <span class="n">predict</span>
-
-    <span class="c1"># You can safely get rid of this line if you don&#39;t want those</span>
-    <span class="n">utils</span><span class="o">.</span><span class="n">extras</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;print_config&quot;</span><span class="p">):</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">print_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">predict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../apidoc/scripts.html#lidar_multiclass.predict.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../apidoc/scripts.html#lidar_multiclass.predict.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Inference pipeline,</span>
+<span class="sd">    Inference pipeline.</span>
+
+<span class="sd">    A lightning datamodule splits a single point cloud of arbitrary size (typically: 1km * 1km) into subtiles</span>
+<span class="sd">    (typically 50m * 50m), which are grouped into batches that are fed to a trained neural network embedded into a lightning Module.</span>
+
+<span class="sd">    Predictions happen on a subsampled version of each subtile, which needs to be propagated back to the complete</span>
+<span class="sd">    point cloud via an Interpolator. This Interpolator also includes the creation of a new LAS file with additional</span>
+<span class="sd">    dimensions, including predicted classification, entropy, and (optionnaly) predicted probability for each class.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        config (DictConfig): Configuration composed by Hydra.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Optional[float]: Metric score for hyperparameter optimization.</span>
+<span class="sd">        str: path to ouptut LAS.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Those are the 2 needed inputs, in addition to the hydra config.</span>
@@ -197,6 +189,27 @@
 
     <span class="n">out_f</span> <span class="o">=</span> <span class="n">itp</span><span class="o">.</span><span class="n">interpolate_and_save</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">out_f</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../apidoc/scripts.html#lidar_multiclass.predict.main">[docs]</a><span class="nd">@hydra</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../configs/&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">):</span>
+    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;See function </span><span class="si">{</span><span class="n">predict</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.</span>
+
+<span class="s2">    :meta private:</span>
+
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="c1"># Imports should be nested inside @hydra.main to optimize tab completion</span>
+    <span class="c1"># Read more here: https://github.com/facebookresearch/hydra/issues/934</span>
+    <span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="kn">from</span> <span class="nn">lidar_multiclass.predict</span> <span class="kn">import</span> <span class="n">predict</span>
+
+    <span class="c1"># You can safely get rid of this line if you don&#39;t want those</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">extras</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;print_config&quot;</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">print_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">predict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
