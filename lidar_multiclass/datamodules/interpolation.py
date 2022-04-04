@@ -116,6 +116,7 @@ class Interpolator:
         logits_b = outputs["logits"].detach()
         some_targets_to_interpolate = "y_copy" in batch
         if some_targets_to_interpolate:
+            # TODO: it seems that this is always done due to data transforms.
             targets_b = batch.y_copy.detach()
 
         for batch_idx, las_filepath in enumerate(batch.las_filepath):

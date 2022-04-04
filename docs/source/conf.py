@@ -158,7 +158,7 @@ else:
     HAS_TORCH = True
 
 autodoc_mock_imports = []
-for m in ["numpy", "pdal", "pdal", "dotenv", "laspy"]:
+for m in ["numpy", "pdal", "pdal", "dotenv", "laspy", "torch_points_kernels"]:
     autodoc_mock_imports.append(m)
 
 mock_directives = ["testcode"]
