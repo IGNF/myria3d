@@ -4,25 +4,18 @@ setuptools
 numpy
 numpydoc
 
-
 sphinx==4.5.*
 sphinx_rtd_theme==1.0.*
 myst_parser==0.17.*
 sphinx_paramlinks==0.5.*
 recommonmark==0.7.*
-# sphinx-panels
-# sphinx-tabs
-# nbsphinx
-docutils==0.17
 sphinxnotes-mock==1.0.0b0  # still a beta
+
+docutils==0.17
 hydra-core
 rich
+comet_ml
 
 torch==1.10.1
-torchmetrics
-pytorch-lightning==1.5.9
-torch_geometric==2.0.3
-torch_sparse
-torch_scatter
-
-comet_ml
+# packages that depend on torch need need to be installed
+# afterwards, hence the "requirements_torch_deps.txt file.

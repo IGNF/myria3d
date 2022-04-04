@@ -28,11 +28,14 @@ jobs:
         with:
           python-version: 3.9.12
 
+      # Packages that depend on torch need need to be installed afterwards, 
+      # hence the "requirements_torch_deps.txt file.
       - name: "Install Python dependencies"
         working-directory: ./docs/
         run: |
           python3 -m pip install --upgrade pip
           pip3 install -r requirements.txt
+          pip3 install -r requirements_torch_deps.txt
 
 
       - name: "Build Sphinx Doc"
