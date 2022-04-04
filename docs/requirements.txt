@@ -14,7 +14,7 @@ recommonmark==0.7.*
 # sphinx-tabs
 # nbsphinx
 docutils==0.17
-sphinxnotes-mock==1.*
+sphinxnotes-mock==1.0.0b0  # still a beta
 hydra-core
 rich
 
