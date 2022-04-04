@@ -8,6 +8,13 @@ from torch_geometric.nn.glob.glob import global_max_pool
 
 
 class PointNet(nn.Module):
+    """Simple implementation of PointNet.
+
+    PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation
+    at https://arxiv.org/abs/1612.00593
+
+    """
+
     def __init__(self, hparams_net: dict):
         super().__init__()
 

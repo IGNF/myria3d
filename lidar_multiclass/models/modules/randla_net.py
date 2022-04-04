@@ -7,15 +7,19 @@ from torch_points_kernels import knn
 
 
 class RandLANet(nn.Module):
-    def __init__(self, hparams_net: dict):
-        """
-        Implementation follows original paper: RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
-        https://arxiv.org/abs/1911.11236
+    """
+    Implementation of randLa-Net which follows the original paper.
+    
+    RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
+    at https://arxiv.org/abs/1911.11236
 
-        Our modifications:
-        - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
-        information bottleneck in cases where d_in is above 8.
-        """
+    Our modifications:
+    - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
+    information bottleneck in cases where d_in is above 8.
+
+    """
+
+    def __init__(self, hparams_net: dict):
         super(RandLANet, self).__init__()
         self.d_in = hparams_net.get("d_in", 6)  # xyz + features
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
@@ -70,8 +74,7 @@ class RandLANet(nn.Module):
         self.fc_end = nn.Sequential(*parts)
 
     def forward(self, batch):
-        """, shape
-
+        """Forward pass.
 
         Args:
             batch (pytorch_geometric.Data): Subtile information with shape (B*N, 3+F).
@@ -79,6 +82,7 @@ class RandLANet(nn.Module):
 
         Returns:
             torch.Tensor: classification logits for each point, with shape (B*num_classes,C)
+
         """
 
         input = torch.cat([batch.pos, batch.x], axis=1)
@@ -145,12 +149,12 @@ class RandLANet(nn.Module):
         return scores  # B*N, C
 
     def change_num_class_for_finetuning(self, new_num_classes: int):
-        """
-        Change end layer output number of classes if new_num_classes is different.
+        """Change end layer output number of classes if new_num_classes is different.
         This method is used for finetuning.
 
         Args:
             new_num_classes (int): new number of classes for finetuning pretrained model.
+
         """
         if new_num_classes != self.num_classes:
             self.fc_end[-1] = SharedMLP(32, new_num_classes)
@@ -187,13 +191,13 @@ class SharedMLP(nn.Module):
 
     def forward(self, input):
         r"""
-        Forward pass of the network
+        Forward pass of the MLP
         Parameters
-        ----------
-        input: torch.Tensor, shape (B, d_in, N, K)
-        Returns
-        -------
-        torch.Tensor, shape (B, d_out, N, K)
+        Args:
+            input: torch.Tensor, shape (B, d_in, N, K)
+        Returns:
+            torch.Tensor: with shape (B, d_out, N, K)
+
         """
         x = self.conv(input)
         if self.batch_norm:

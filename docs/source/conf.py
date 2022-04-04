@@ -21,7 +21,7 @@ import yaml
 
 with open(os.path.join(root_path, "package_metadata.yaml"), "r") as f:
     pm = yaml.safe_load(f)
-print(pm)
+
 # -- Project information -----------------------------------------------------
 
 release = pm["__version__"]
@@ -36,16 +36,22 @@ copyright = "2021, Institut National de l'Information Géographique et Forestiè
 # for a list of supported languages.
 language = "en"
 
+# generate autosummary pages
+autosummary_generate = True
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+needs_sphinx = "4.0"
 extensions = [
     "sphinx.ext.napoleon",  # Supports google-style docstrings
     "sphinx.ext.autodoc",  # auto-generates doc fgrom docstrings
-    "sphinx.ext.doctest",  # tests code in docstrings - used by pytorch lightning
+    "sphinx.ext.intersphinx",  # link to other docs
     "sphinx.ext.viewcode",  # creates links to view code sources in a new web page
     "sphinx.ext.githubpages",  # creates .nojekyll file to publish the doc on GitHub Pages.
     "myst_parser",  # supports markdown syntax for doc pages
+    "sphinx_paramlinks",  # allow to reference params, which is done in pytorch_lightning
+    "sphinxnotes.mock",  # ignore third-parties directive suche as "testcode" - see "mock_directive" args below
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -64,57 +70,95 @@ exclude_patterns = []
 #
 html_theme = "sphinx_rtd_theme"
 
+html_theme_options = {
+    "collapse_navigation": False,
+    "display_version": True,
+    "navigation_depth": 2,
+}
+
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/", None),
+    # TODO "unknown or unsupported inventory version" error for numpy doc.
+    # 'numpy': ('http://docs.scipy.org/doc/numpy', None),
+    "pandas": ("http://pandas.pydata.org/pandas-docs/dev", None),
+    "torch": ("https://pytorch.org/docs/master", None),
+}
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+modindex_common_prefix = ["lidar_multiclass."]
+
+to_mock = [
+    # "torch",
+    "comet_ml",
+    # "numpy",
+    # "pytorch_lightning",
+    # "pytorch_lightning.callbacks",
+    # "pytorch_lightning.loggers",
+    # "pytorch_lightning.utilities",
+    # "pytorch_lightning.utilities.types",
+    "tqdm",
+    "pdal",
+    "python-pdal",
+    "hydra",
+    "laspy",
+    "torch_geometric",
+    # "omegaconf",
+    "dotenv",
+    "torch_points_kernels",
+    # "rich",
+    # "rich.tree",
+    # "rich.syntax",
+    # "torch_points_kernels",
+    # "torch_geometric",
+    # "torch_geometric.nn",
+    # "torch_geometric.nn.pool",
+    # "torch_geometric.nn.unpool",
+    # "torch_geometric.nn.glob",
+    # "torch_geometric.nn.glob.glob",
+    # "torch_geometric.data",
+    # "torch_geometric.data.data",
+    # "torch_geometric.nn.glob",
+    # "torch_geometric.transforms",
+    # "torch_geometric.transforms.center",
+    # "pandas",
+    # "torch_scatter",
+    "torchmetrics",
+    "torchmetrics.functional",
+    "torchmetrics.functional.classification",
+    "torchmetrics.functional.classification.jaccard",
+    #     "torch",
+    #     "torch.nn",
+    #     "torch.nn.functional",
+    #     "torch.nn.parallel",
+    #     "torch.distributed",
+    #     "torch.distributions",
+    #     "torch.multiprocessing",
+    #     "torch.autograd",
+    #     "torch.autograd.function",
+    #     "torch.nn.modules",
+    #     "torch.nn.modules.utils",
+    #     "torch.utils",
+    #     "torch.utils.data",
+    #     "torch.utils.data.dataset",
+]
 
 
 try:
     import torch  # noqa
 except ImportError:
-    to_mock = [
-        "torch",
-        "comet_ml",
-        "numpy",
-        "pytorch_lightning",
-        "tqdm",
-        "pdal",
-        "hydra",
-        "torch_geometric",
-        "omegaconf",
-        "dotenv",
-        "rich",
-        "rich.syntax",
-        "torch_points_kernels",
-        "torch_geometric",
-        "torch_geometric.nn",
-        "torch_geometric.data",
-        "torch_geometric.nn.glob",
-        "torch_geometric.transforms",
-        "torchmetrics",
-        "torchvision",
-        "torch.nn",
-        "torch.nn.parallel",
-        "torch.distributed",
-        "torch.multiprocessing",
-        "torch.autograd",
-        "torch.autograd.function",
-        "torch.nn.modules",
-        "torch.nn.modules.utils",
-        "torch.utils",
-        "torch.utils.data",
-        "torch.onnx",
-        "torchvision",
-        "torchvision.ops",
-    ]
     for m in to_mock:
         sys.modules[m] = mock.Mock(name=m)
     sys.modules["torch"].__version__ = "1.10"  # fake version
     HAS_TORCH = False
-
-    autodoc_mock_imports = []
-    for m in to_mock:
-        autodoc_mock_imports.append(m)
 else:
     HAS_TORCH = True
+
+autodoc_mock_imports = []
+for m in ["numpy", "pdal", "pdal", "dotenv", "laspy", "torch_points_kernels"]:
+    autodoc_mock_imports.append(m)
+
+mock_directives = ["testcode"]

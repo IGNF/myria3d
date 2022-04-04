@@ -1,0 +1,21 @@
+# from https://github.com/pyg-team/pytorch_geometric/blob/master/docs/requirements.txt
+
+setuptools
+numpy
+numpydoc
+
+sphinx==4.5.*
+sphinx_rtd_theme==1.0.*
+myst_parser==0.17.*
+sphinx_paramlinks==0.5.*
+recommonmark==0.7.*
+sphinxnotes-mock==1.0.0b0  # still a beta
+
+docutils==0.17
+hydra-core
+rich
+comet_ml
+
+torch==1.10.1
+# packages that depend on torch need need to be installed
+# afterwards, hence the "requirements_torch_deps.txt file.

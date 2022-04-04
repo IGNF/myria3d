@@ -6,7 +6,7 @@ on:
   push:         # <- trigger when we call push
     branches:
       - main  # <- but only on main branch
-      - DocumentationSetup  # <- also on this branch until documentation is up and running.
+      - FixDocAPI  # <- also on this branch until documentation is up and running.
 
 jobs:
 
@@ -26,17 +26,17 @@ jobs:
       - name: "Set up Python"
         uses: actions/setup-python@v1
         with:
-          python-version: 3.9
+          python-version: 3.9.12
 
+      # Packages that depend on torch need need to be installed afterwards, 
+      # hence the "requirements_torch_deps.txt file.
       - name: "Install Python dependencies"
+        working-directory: ./docs/
         run: |
-          pip3 install setuptools
-          pip3 install sphinx_rtd_theme
-          pip3 install sphinx-panels
-          pip3 install sphinx-tabs
-          pip3 install numpydoc
-          pip3 install nbsphinx
-          pip3 install myst_parser
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+          pip3 install -r requirements_torch_deps.txt
+
 
       - name: "Build Sphinx Doc"
         working-directory: ./docs/
