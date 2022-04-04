@@ -1,7 +1,8 @@
 lidar\_multiclass.models
 ================================
 
-Model-------------------------------------
+Model
+-------------------------------------
 
-.. automodule:: lidar_multiclass.models.model
+.. autoclass:: lidar_multiclass.models.model.Model
    :members:

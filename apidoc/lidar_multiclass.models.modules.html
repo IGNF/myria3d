@@ -70,7 +70,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
 </ul>
 </li>
@@ -81,7 +81,10 @@
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.model.html#model">Model</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.models.modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#pointnet">PointNet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#randla-net">RandLA-Net</a></li>
@@ -161,6 +164,64 @@ Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods
 </section>
 <section id="randla-net">
 <h2>RandLA-Net<a class="headerlink" href="#randla-net" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.models.modules.randla_net.RandLANet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.models.modules.randla_net.</span></span><span class="sig-name descname"><span class="pre">RandLANet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hparams_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/randla_net.html#RandLANet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.randla_net.RandLANet" title="Permalink to this definition"></a></dt>
+<dd><p>Implementation of randLa-Net which follows the original paper.</p>
+<p>RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
+at <a class="reference external" href="https://arxiv.org/abs/1911.11236">https://arxiv.org/abs/1911.11236</a></p>
+<p>Our modifications:
+- fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
+information bottleneck in cases where d_in is above 8.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning">
+<span class="sig-name descname"><span class="pre">change_num_class_for_finetuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/randla_net.html#RandLANet.change_num_class_for_finetuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning" title="Permalink to this definition"></a></dt>
+<dd><p>Change end layer output number of classes if new_num_classes is different.
+This method is used for finetuning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes"></span><strong>new_num_classes</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – new number of classes for finetuning pretrained model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.modules.randla_net.RandLANet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/randla_net.html#RandLANet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.randla_net.RandLANet.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Forward pass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.modules.randla_net.RandLANet.forward.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.randla_net.RandLANet.forward.params.batch">¶</a> (<em>pytorch_geometric.Data</em>) – Subtile information with shape (B*N, 3+F).</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.modules.randla_net.RandLANet.forward.params.Attributs"></span><strong>Attributs</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.randla_net.RandLANet.forward.params.Attributs">¶</a> – pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>classification logits for each point, with shape (B*num_classes,C)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end">
+<span class="sig-name descname"><span class="pre">set_fc_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/randla_net.html#RandLANet.set_fc_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end" title="Permalink to this definition"></a></dt>
+<dd><p>Build the final fully connected layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.d_in"></span><strong>d_in</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.d_in">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – number of input features</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.dropout"></span><strong>dropout</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.dropout">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – dropout level in final FC layer</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes"></span><strong>num_classes</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – number of output classes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

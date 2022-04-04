@@ -70,7 +70,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
 </ul>
 </li>
@@ -81,7 +81,10 @@
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.model.html#model">Model</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
@@ -140,8 +143,26 @@
 </dd></dl>
 
 </section>
-<section id="lidar-multiclass-train">
-<h2>lidar_multiclass.train<a class="headerlink" href="#lidar-multiclass-train" title="Permalink to this headline"></a></h2>
+<section id="module-lidar_multiclass.train">
+<span id="lidar-multiclass-train"></span><h2>lidar_multiclass.train<a class="headerlink" href="#module-lidar_multiclass.train" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="lidar_multiclass.train.train">
+<span class="sig-prename descclassname"><span class="pre">lidar_multiclass.train.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/lidar_multiclass/train.html#train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.train.train" title="Permalink to this definition"></a></dt>
+<dd><p>Contains training pipeline.
+Instantiates all PyTorch Lightning objects from config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="lidar_multiclass.train.train.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.train.train.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Metric score for hyperparameter optimization.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-lidar_multiclass.predict">
 <span id="lidar-multiclass-predict"></span><h2>lidar_multiclass.predict<a class="headerlink" href="#module-lidar_multiclass.predict" title="Permalink to this headline"></a></h2>

@@ -70,7 +70,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#lidar-multiclass-train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
 </ul>
 </li>
@@ -81,7 +81,10 @@
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.datamodules.html#module-lidar_multiclass.datamodules.transforms">lidar_multiclass.datamodules.transforms</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model">Model</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
@@ -129,7 +132,183 @@
              
   <section id="lidar-multiclass-models">
 <h1>lidar_multiclass.models<a class="headerlink" href="#lidar-multiclass-models" title="Permalink to this headline"></a></h1>
-<p>Model————————————-</p>
+<section id="model">
+<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model" title="Permalink to this definition"></a></dt>
+<dd><p>This LightningModule implements the logic for model trainin, validation, tests, and prediction.</p>
+<p>It is fully initialized by named parameters for maximal flexibility with hydra configs.</p>
+<p>During training and validation, IoU is calculed based on sumbsampled points only, and is therefore
+an approximation.
+At test time, IoU is calculated considering all the points. To keep this module light, a callback
+takes care of the interpolation of predictions between all points.</p>
+<dl class="simple">
+<dt>Read the Pytorch Lightning docs:</dt><dd><p><a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html">https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.configure_optimizers">
+<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.configure_optimizers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.configure_optimizers" title="Permalink to this definition"></a></dt>
+<dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An optimized, or a config which includes a scheduler and the parma to monitor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Forward pass of neural network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.forward.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.forward.params.batch">¶</a> (<em>Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.forward.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.forward.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>logits</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (B*N,C)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.on_fit_start">
+<span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.on_fit_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.on_fit_start" title="Permalink to this definition"></a></dt>
+<dd><p>On fit start: get the experiment for easier access.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.predict_step">
+<span class="sig-name descname"><span class="pre">predict_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.predict_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.predict_step" title="Permalink to this definition"></a></dt>
+<dd><p>Prediction step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.predict_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.predict_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.predict_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.predict_step.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionnary with predicted logits as well as input batch.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup stage: prepare to compute IoU and loss.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.step" title="Permalink to this definition"></a></dt>
+<dd><p>Model step, including loss computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.step.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>loss, logits, targets</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.test_step">
+<span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.test_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.test_step" title="Permalink to this definition"></a></dt>
+<dd><p>Test step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.test_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.test_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.test_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.test_step.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionnary with predicted logits as well as input batch.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.training_step">
+<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.training_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.training_step" title="Permalink to this definition"></a></dt>
+<dd><p>Training step.</p>
+<p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.training_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.training_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.training_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.training_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.training_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.training_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – batch identified (unused)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dict containing the loss, logits, and targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.validation_epoch_end">
+<span class="sig-name descname"><span class="pre">validation_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.validation_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.validation_epoch_end" title="Permalink to this definition"></a></dt>
+<dd><p>At the end of a validation epoch, compute the IoU and track if it has improved
+by updating the best one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="lidar_multiclass.models.model.Model.validation_epoch_end.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_epoch_end.params.outputs">¶</a> – output of validation_step</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.validation_step">
+<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.validation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.validation_step" title="Permalink to this definition"></a></dt>
+<dd><p>Validation step.</p>
+<p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.validation_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.validation_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="lidar_multiclass.models.model.Model.validation_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – batch identified (unused)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dict containing the loss, logits, and targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 
 
