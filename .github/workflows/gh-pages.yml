@@ -31,7 +31,6 @@ jobs:
       - name: "Install Python dependencies"
         working-directory: ./docs/
         run: |
-          pip3 install torch==1.10.1
           pip3 install -r requirements.txt
 
 
