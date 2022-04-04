@@ -22,14 +22,22 @@ log = utils.get_logger(__name__)
 
 
 def train(config: DictConfig) -> Optional[float]:
-    """Contains training pipeline.
-    Instantiates all PyTorch Lightning objects from config.
+    """Training pipeline (+ Test, + Finetuning)
+
+    Instantiates all PyTorch Lightning objects from config, then perform one of the following
+    task based on parameter `task.task_name`:
+
+    `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.
+    `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)
+    `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and
+    fitting it again with altered fit conditions (e.g. different number of classes to predict...).
 
     Args:
         config (DictConfig): Configuration composed by Hydra.
 
     Returns:
         Optional[float]: Metric score for hyperparameter optimization.
+
     """
 
     # Set seed for random number generators in pytorch, numpy and python.random
