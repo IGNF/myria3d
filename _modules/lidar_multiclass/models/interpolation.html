@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lidar_multiclass.models.interpolation &mdash; lidar_multiclass 1.7.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> lidar_multiclass
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/setup_install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/setup_install.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#training">Training</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">lidar_multiclass</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>lidar_multiclass.models.interpolation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lidar_multiclass.models.interpolation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;How we turn from prediction made on a subsampled subset of a Las to a complete point cloud.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">pdal</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn.pool</span> <span class="kn">import</span> <span class="n">knn</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn.unpool</span> <span class="kn">import</span> <span class="n">knn_interpolate</span>
+<span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Categorical</span>
+
+<span class="kn">from</span> <span class="nn">lidar_multiclass.data.transforms</span> <span class="kn">import</span> <span class="n">ChannelNames</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Interpolator"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator">[docs]</a><span class="k">class</span> <span class="nc">Interpolator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A class to load, update with classification, update with probas (optionnal), and save a LAS.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">interpolation_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">classification_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">probas_to_save</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            interpolation_k (int, optional): Number of Nearest-Neighboors to consider for inverse-distance averaging of logits. Defaults to 10.</span>
+<span class="sd">            classification_dict (Dict[int, str], optional): Mapper, from classification code to class name (e.g. {6:building}). Defaults to {}.</span>
+<span class="sd">            probas_to_save (List[str] or &quot;all&quot;, optional): Specific probabilities to save as new LAS dimensions.</span>
+<span class="sd">            Override with None for no saving of probabilitiues. Defaults to &quot;all&quot;.</span>
+<span class="sd">            output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,</span>
+<span class="sd">            and probabilities. Defaults to None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">interpolation_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span> <span class="o">=</span> <span class="n">classification_dict</span>
+
+        <span class="k">if</span> <span class="n">probas_to_save</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">probas_to_save</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">=</span> <span class="n">probas_to_save</span>
+
+        <span class="c1"># Maps ascending index (0,1,2,...) back to conventionnal LAS classification codes (6=buildings, etc.)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverse_mapper</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">class_index</span><span class="p">:</span> <span class="n">class_code</span>
+            <span class="k">for</span> <span class="n">class_index</span><span class="p">,</span> <span class="n">class_code</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Tracker for current processed file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_f</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_load_las</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads a LAS and adds necessary extradim.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): Path to LAS for which predictions are made.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_f</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="n">new_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">ChannelNames</span><span class="o">.</span><span class="n">PredictedClassification</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">ChannelNames</span><span class="o">.</span><span class="n">ProbasEntropy</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">new_dim</span> <span class="ow">in</span> <span class="n">new_dims</span><span class="p">:</span>
+            <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">ferry</span><span class="p">(</span>
+                <span class="n">dimensions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;=&gt;</span><span class="si">{</span><span class="n">new_dim</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="o">|</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_dim</span><span class="si">}</span><span class="s2">=0&quot;</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">las</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># named array</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_las</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits_sub_l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_sub_l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_l</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Interpolator.update"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.update">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Keep a list of predictions made so far.</span>
+<span class="sd">        In Test phase, interpolation and saving are trigerred when a new file is encountered.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            outputs (dict): Outputs of lightning&#39;s predict_step or test_step.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[interpolation]: list of interpolation made for these specific outputs. This is typically empty,</span>
+<span class="sd">            except when we switch from a LAS to another, at which point we need to output the result of the interpolation</span>
+<span class="sd">            for IoU logging by a callback.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_itps</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;batch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">logits_b</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">some_targets_to_interpolate</span> <span class="o">=</span> <span class="s2">&quot;y_copy&quot;</span> <span class="ow">in</span> <span class="n">batch</span>
+        <span class="k">if</span> <span class="n">some_targets_to_interpolate</span><span class="p">:</span>
+            <span class="c1"># TODO: it seems that this is always done due to data transforms.</span>
+            <span class="n">targets_b</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">y_copy</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">las_filepath</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">las_filepath</span><span class="p">):</span>
+            <span class="n">is_a_new_tile</span> <span class="o">=</span> <span class="n">las_filepath</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_f</span>
+            <span class="k">if</span> <span class="n">is_a_new_tile</span><span class="p">:</span>
+                <span class="n">close_previous_las_first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_f</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">close_previous_las_first</span><span class="p">:</span>
+                    <span class="n">interpolation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">interpolation</span><span class="p">)</span>
+                    <span class="n">_itps</span> <span class="o">+=</span> <span class="p">[</span><span class="n">interpolation</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_las</span><span class="p">(</span><span class="n">las_filepath</span><span class="p">)</span>
+
+            <span class="c1"># subsampled elements</span>
+            <span class="n">idx_x</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">batch_x</span> <span class="o">==</span> <span class="n">batch_idx</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logits_sub_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logits_b</span><span class="p">[</span><span class="n">idx_x</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos_sub_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">pos_copy_subsampled</span><span class="p">[</span><span class="n">idx_x</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">some_targets_to_interpolate</span><span class="p">:</span>
+                <span class="c1"># non-sampled elements</span>
+                <span class="n">idx_y</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">batch_y</span> <span class="o">==</span> <span class="n">batch_idx</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">pos_copy</span><span class="p">[</span><span class="n">idx_y</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">targets_b</span><span class="p">[</span><span class="n">idx_y</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">_itps</span></div>
+
+    <span class="k">def</span> <span class="nf">_interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolate logits to points without predictions using an inverse-distance weightning scheme.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor, torch.Tensor: interpolated logits and targets/original classification</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Cat</span>
+        <span class="n">pos_sub</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_sub_l</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">logits_sub</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits_sub_l</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+
+        <span class="c1"># Find nn among points with predictions for all points</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">knn_interpolate</span><span class="p">(</span>
+            <span class="n">logits_sub</span><span class="p">,</span>
+            <span class="n">pos_sub</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos_las</span><span class="p">,</span>
+            <span class="n">batch_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">batch_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># If no target, returns interpolared logits (i.e. at predict time)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_l</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># Interpolate non-sampled targets if present (i.e. at test time)</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_l</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_l</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">assign_idx</span> <span class="o">=</span> <span class="n">knn</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_las</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">x_idx</span> <span class="o">=</span> <span class="n">assign_idx</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">x_idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">targets</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interpolation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Interpolate all predicted probabilites to their original points in LAS file, and save.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            interpolation (torch.Tensor, torch.Tensor): output of _interpolate, of which we need the logits.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: path of the updated, saved LAS file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_f</span><span class="p">)</span>
+        <span class="n">out_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated LAS will be saved to </span><span class="si">{</span><span class="n">out_f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">logits</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">interpolation</span>
+
+        <span class="n">probas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)(</span><span class="n">logits</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="n">class_name</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">probas</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span>
+
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_mapper</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">preds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="n">ChannelNames</span><span class="o">.</span><span class="n">PredictedClassification</span><span class="o">.</span><span class="n">value</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">preds</span>
+
+        <span class="n">entropy</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">probas</span><span class="p">)</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="n">ChannelNames</span><span class="o">.</span><span class="n">ProbasEntropy</span><span class="o">.</span><span class="n">value</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">entropy</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving...&quot;</span><span class="p">)</span>
+
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Writer</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">out_f</span><span class="p">,</span> <span class="n">extra_dims</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">minor_version</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dataformat_id</span><span class="o">=</span><span class="mi">8</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out_f</span>
+
+<div class="viewcode-block" id="Interpolator.interpolate_and_save"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.interpolate_and_save">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolate and save in a single method, for predictions.&quot;&quot;&quot;</span>
+        <span class="n">interpolation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate</span><span class="p">()</span>
+        <span class="n">out_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">interpolation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out_f</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -68,19 +68,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/scripts.html#module-run">run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../apidoc/scripts.html#lidar-multiclass-predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../apidoc/configs.html">Default configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html#lidar-multiclass-data-datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html#lidar-multiclass-data-loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html#lidar-multiclass-data-transforms">lidar_multiclass.data.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.model.html#interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
@@ -92,7 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.callbacks.html#lidar-multiclass-callbacks-logging-callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
 </ul>
 </li>
@@ -163,10 +163,12 @@
 <span class="sd">    Instantiates all PyTorch Lightning objects from config, then perform one of the following</span>
 <span class="sd">    task based on parameter `task.task_name`:</span>
 
-<span class="sd">    `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.</span>
-<span class="sd">    `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)</span>
-<span class="sd">    `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and</span>
-<span class="sd">    fitting it again with altered fit conditions (e.g. different number of classes to predict...).</span>
+<span class="sd">        `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.</span>
+
+<span class="sd">        `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)</span>
+
+<span class="sd">        `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and</span>
+<span class="sd">        fitting it again with altered fit conditions (e.g. different number of classes to predict...).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        config (DictConfig): Configuration composed by Hydra.</span>
