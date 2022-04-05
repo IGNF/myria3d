@@ -35,7 +35,7 @@ Lidar-Deep-Segmentation > Documentation
    :caption: Package Reference
 
    apidoc/scripts
-   apidoc/lidar_multiclass.datamodules
+   apidoc/lidar_multiclass.data
    apidoc/lidar_multiclass.model
    apidoc/lidar_multiclass.models.modules
    apidoc/lidar_multiclass.callbacks

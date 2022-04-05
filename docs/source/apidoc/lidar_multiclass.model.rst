@@ -4,5 +4,5 @@ lidar\_multiclass.models
 Model
 -------------------------------------
 
-.. autoclass:: lidar_multiclass.models.model.Model
+.. automodule:: lidar_multiclass.models.model
    :members:
