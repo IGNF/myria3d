@@ -1,5 +1,6 @@
+"""How we turn from prediction made on a subsampled subset of a Las to a complete point cloud."""
+
 import os
-from tokenize import Number
 from typing import Dict, List, Optional, Literal, Union
 
 import pdal
@@ -11,7 +12,7 @@ from lidar_multiclass.utils import utils
 from lidar_multiclass.utils import utils
 from torch.distributions import Categorical
 
-from lidar_multiclass.datamodules.transforms import ChannelNames
+from lidar_multiclass.data.transforms import ChannelNames
 
 log = utils.get_logger(__name__)
 

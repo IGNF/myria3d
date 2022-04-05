@@ -2,12 +2,11 @@ import os
 import hydra
 import torch
 from omegaconf import DictConfig, OmegaConf
-from typing import Optional
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
 
 from lidar_multiclass.utils import utils
-from lidar_multiclass.datamodules.interpolation import Interpolator
+from lidar_multiclass.models.interpolation import Interpolator
 
 
 log = utils.get_logger(__name__)

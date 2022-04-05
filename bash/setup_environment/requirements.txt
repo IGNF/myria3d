@@ -1,7 +1,6 @@
 # --------- hydra --------- #
 hydra-core==1.1.0
 hydra-colorlog==1.1.0
-optuna>=2.5
 
 # --------- RST Linter --------- #
 rstcheck==3.3.*
@@ -10,5 +9,8 @@ rstcheck==3.3.*
 sphinx==4.5.*
 sphinx_rtd_theme==1.0.*
 myst_parser==0.17.*
-sphinx_paramlinks
+sphinx_paramlinks==0.5.*
 recommonmark==0.7.*
+sphinxnotes-mock==1.0.0b0  # still a beta
+sphinx-argparse==0.3.*  #  Using 
+docutils==0.17

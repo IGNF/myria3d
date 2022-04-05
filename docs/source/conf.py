@@ -12,23 +12,33 @@
 #
 import os
 import sys
+import yaml
 from unittest import mock
 
-root_path = os.path.abspath("./../../")
-sys.path.insert(0, root_path)
+from hydra.experimental import compose, initialize
+from omegaconf import OmegaConf
 
-import yaml
 
-with open(os.path.join(root_path, "package_metadata.yaml"), "r") as f:
-    pm = yaml.safe_load(f)
+rel_root_path = "./../../"
+abs_root_path = os.path.abspath(rel_root_path)
+sys.path.insert(0, abs_root_path)
+
 
 # -- Project information -----------------------------------------------------
+with open(os.path.join(abs_root_path, "package_metadata.yaml"), "r") as f:
+    pm = yaml.safe_load(f)
 
 release = pm["__version__"]
 project = pm["__name__"]
 author = pm["__author__"]
 copyright = "2021, Institut National de l'Information Géographique et Forestière"
 
+# -- YAML main to print the config into  ---------------------------------------------------
+# We need to concatenate configs into a single file using hydra
+with initialize(config_path=os.path.join(rel_root_path, "configs/"), job_name="config"):
+    cfg = compose(config_name="config")
+    print(OmegaConf.to_yaml(cfg))
+    OmegaConf.save(cfg, "./apidoc/default_config.yml", resolve=False)
 
 # -- General configuration ---------------------------------------------------
 

@@ -1,0 +1,136 @@
+seed: 12345
+work_dir: ${hydra:runtime.cwd}
+debug: false
+print_config: true
+ignore_warnings: true
+trainer:
+  _target_: pytorch_lightning.Trainer
+  gpus: 0
+  min_epochs: 1
+  max_epochs: 30
+  log_every_n_steps: 1
+  check_val_every_n_epoch: 1
+  weights_summary: null
+  progress_bar_refresh_rate: 1
+  auto_lr_find: false
+  overfit_batches: 1
+  num_sanity_val_steps: 0
+datamodule:
+  dataset_description:
+    _convert_: all
+    classification_preprocessing_dict:
+      59: 6
+      50: 1
+    classification_dict:
+      1: unclassified
+      2: ground
+      6: building
+    d_in: 12
+    num_classes: 3
+    load_las_func:
+      _target_: functools.partial
+      _args_:
+      - ${get_method:lidar_multiclass.data.loading.FrenchLidarDataLogic.load_las}
+  subsampler:
+    _target_: lidar_multiclass.data.transforms.CustomGridSampler
+    subsample_size: 12500
+    voxel_size: 0.25
+  _target_: lidar_multiclass.data.datamodule.DataModule
+  prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
+  num_workers: 1
+  batch_size: 16
+  subtile_width_meters: 50
+  subtile_overlap: ${predict.subtile_overlap}
+  augment: false
+  subsample_size: 12500
+callbacks:
+  log_code:
+    _target_: lidar_multiclass.callbacks.comet_callbacks.LogCode
+    code_dir: ${work_dir}/lidar_multiclass
+  log_logs_dir:
+    _target_: lidar_multiclass.callbacks.comet_callbacks.LogLogsPath
+  lr_monitor:
+    _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: step
+    log_momentum: true
+  log_iou_by_class:
+    _target_: lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass
+    classification_dict: ${datamodule.dataset_description.classification_dict}
+    interpolator:
+      _target_: lidar_multiclass.models.interpolation.Interpolator
+      interpolation_k: ${predict.interpolation_k}
+      classification_dict: ${datamodule.dataset_description.classification_dict}
+      probas_to_save: ${predict.probas_to_save}
+      output_dir: null
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    monitor: val/loss_epoch
+    mode: min
+    save_top_k: 1
+    save_last: true
+    verbose: true
+    dirpath: checkpoints/
+    filename: epoch_{epoch:03d}
+    auto_insert_metric_name: false
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val/loss_epoch
+    mode: min
+    patience: 6
+    min_delta: 0
+model:
+  optimizer:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:torch.optim.Adam}
+    lr: ${model.lr}
+  lr_scheduler:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
+    mode: min
+    factor: 0.5
+    patience: 5
+    cooldown: 0
+  _target_: lidar_multiclass.models.model.Model
+  d_in: ${datamodule.dataset_description.d_in}
+  num_classes: ${datamodule.dataset_description.num_classes}
+  ckpt_path: null
+  neural_net_class_name: RandLANet
+  neural_net_hparams:
+    num_classes: ${model.num_classes}
+    d_in: ${model.d_in}
+    num_neighbors: 16
+    decimation: 4
+    dropout: 0.5
+  iou:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:torchmetrics.JaccardIndex}
+    - ${model.num_classes}
+    absent_score: 1.0
+  criterion:
+    _target_: torch.nn.CrossEntropyLoss
+    label_smoothing: 0.0
+  lr: 0.004566395347136576
+  momentum: 0.9
+  monitor: val/loss_epoch
+logger:
+  comet:
+    _target_: pytorch_lightning.loggers.comet.CometLogger
+    api_key: ${oc.env:COMET_API_TOKEN}
+    workspace: ${oc.env:COMET_WORKSPACE}
+    project_name: ${oc.env:COMET_PROJECT_NAME}
+    experiment_name: RandLaNetDebug
+    auto_log_co2: false
+    disabled: false
+task:
+  task_name: fit
+predict:
+  src_las: /path/to/input.las
+  output_dir: /path/to/output_dir/
+  resume_from_checkpoint: /path/to/lightning_model.ckpt
+  gpus: 0
+  probas_to_save: all
+  subtile_overlap: 25
+  interpolation_k: 10
