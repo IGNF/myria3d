@@ -29,6 +29,7 @@ Lidar-Deep-Segmentation > Documentation
    background/interpolation
    background/data_optimization
 
+.. TODO: assure that all dosctrings are in third-personn mode.
 
 .. toctree::
    :maxdepth: 1
