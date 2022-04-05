@@ -30,18 +30,19 @@ Lidar-Deep-Segmentation > Documentation
    background/data_optimization
 
 .. TODO: assure that all dosctrings are in third-personn mode.
+.. TODO: find a way to document hydra config ; perhaps by switching to a full dataclasses mode.
 
 .. toctree::
    :maxdepth: 1
    :caption: Package Reference
 
    apidoc/scripts
+   apidoc/configs
    apidoc/lidar_multiclass.data
    apidoc/lidar_multiclass.model
    apidoc/lidar_multiclass.models.modules
    apidoc/lidar_multiclass.callbacks
    apidoc/lidar_multiclass.utils
-   apidoc/configs
 
 
 Indices and Tables

@@ -4,7 +4,8 @@ setuptools
 numpy
 numpydoc
 tqdm
-hydra-core
+hydra-core==1.1.0
+hydra-colorlog==1.1.*
 rich
 
 sphinx==4.5.*
