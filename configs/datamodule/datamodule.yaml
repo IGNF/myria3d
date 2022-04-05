@@ -1,4 +1,4 @@
-_target_: lidar_multiclass.datamodules.datamodule.DataModule
+_target_: lidar_multiclass.data.datamodule.DataModule
 
 prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 
