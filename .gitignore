@@ -145,7 +145,6 @@ dmypy.json
 .idea/
 
 # Lightning-Hydra-Template
-data/
 logs/
 wandb/
 .env
