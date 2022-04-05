@@ -41,6 +41,7 @@ Lidar-Deep-Segmentation > Documentation
    apidoc/lidar_multiclass.models.modules
    apidoc/lidar_multiclass.callbacks
    apidoc/lidar_multiclass.utils
+   apidoc/configs
 
 
 Indices and Tables

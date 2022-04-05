@@ -1,5 +1,12 @@
+# It is safer to import comet before all other imports.
+try:
+    import comet_ml
+except:
+    print(
+        "Warning: package comet_ml not found. This may break things if you use a comet callback."
+    )
+
 import os
-import comet_ml
 from pathlib import Path
 
 from pytorch_lightning import Callback, Trainer

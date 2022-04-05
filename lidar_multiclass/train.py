@@ -1,6 +1,13 @@
+# It is safer to import comet before all other imports.
+try:
+    import comet_ml
+except:
+    print(
+        "Warning: package comet_ml not found. This may break things if you use a comet callback."
+    )
+
 import copy
 import os
-import comet_ml
 from typing import List, Optional
 
 import hydra

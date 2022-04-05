@@ -52,6 +52,7 @@ extensions = [
     "myst_parser",  # supports markdown syntax for doc pages
     "sphinx_paramlinks",  # allow to reference params, which is done in pytorch_lightning
     "sphinxnotes.mock",  # ignore third-parties directive suche as "testcode" - see "mock_directive" args below
+    "sphinxcontrib.autoyaml",  # Autodocumentation of yaml files.
 ]
 
 # Add any paths that contain templates here, relative to this directory.

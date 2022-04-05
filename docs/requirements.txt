@@ -3,6 +3,9 @@
 setuptools
 numpy
 numpydoc
+tqdm
+hydra-core
+rich
 
 sphinx==4.5.*
 sphinx_rtd_theme==1.0.*
@@ -13,8 +16,6 @@ sphinxnotes-mock==1.0.0b0  # still a beta
 sphinx-argparse==0.3.*  #  Using 
 docutils==0.17
 
-hydra-core
-rich
 comet_ml
 
 torch==1.10.1
