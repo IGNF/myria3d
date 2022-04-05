@@ -71,19 +71,19 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-run">run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lidar-multiclass-predict">lidar_multiclass.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#lidar-multiclass-data-datamodule">lidar_multiclass.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#lidar-multiclass-data-loading">lidar_multiclass.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#lidar-multiclass-data-transforms">lidar_multiclass.data.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
@@ -95,7 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#lidar-multiclass-callbacks-logging-callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
 </ul>
 </li>
@@ -170,35 +170,8 @@ fitting it again with altered fit conditions (e.g. different number of classes t
 </dd></dl>
 
 </section>
-<section id="module-lidar_multiclass.predict">
-<span id="lidar-multiclass-predict"></span><h2>lidar_multiclass.predict<a class="headerlink" href="#module-lidar_multiclass.predict" title="Permalink to this headline"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="lidar_multiclass.predict.main">
-<span class="sig-prename descclassname"><span class="pre">lidar_multiclass.predict.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/predict.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.predict.main" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="lidar_multiclass.predict.predict">
-<span class="sig-prename descclassname"><span class="pre">lidar_multiclass.predict.</span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/predict.html#predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.predict.predict" title="Permalink to this definition"></a></dt>
-<dd><p>Inference pipeline.</p>
-<p>A lightning datamodule splits a single point cloud of arbitrary size (typically: 1km * 1km) into subtiles
-(typically 50m * 50m), which are grouped into batches that are fed to a trained neural network embedded into a lightning Module.</p>
-<p>Predictions happen on a subsampled version of each subtile, which needs to be propagated back to the complete
-point cloud via an Interpolator. This Interpolator also includes the creation of a new LAS file with additional
-dimensions, including predicted classification, entropy, and (optionnaly) predicted probability for each class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="lidar_multiclass.predict.predict.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.predict.predict.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>path to ouptut LAS.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="lidar-multiclass-predict">
+<h2>lidar_multiclass.predict<a class="headerlink" href="#lidar-multiclass-predict" title="Permalink to this headline"></a></h2>
 </section>
 </section>
 
