@@ -34,10 +34,12 @@ def train(config: DictConfig) -> Optional[float]:
     Instantiates all PyTorch Lightning objects from config, then perform one of the following
     task based on parameter `task.task_name`:
 
-    `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.
-    `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)
-    `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and
-    fitting it again with altered fit conditions (e.g. different number of classes to predict...).
+        `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.
+
+        `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)
+
+        `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and
+        fitting it again with altered fit conditions (e.g. different number of classes to predict...).
 
     Args:
         config (DictConfig): Configuration composed by Hydra.
