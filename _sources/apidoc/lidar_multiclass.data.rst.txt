@@ -1,19 +1,21 @@
 lidar\_multiclass.data
 =====================================
 
-lidar\_multiclass.datamodules.datamodule
+Objects relative to the preparation, loading, and transformation of Lidar data.
+
+lidar\_multiclass.data.datamodule
 -----------------------------------------------
 
 .. automodule:: lidar_multiclass.data.datamodule
    :members:
 
-lidar\_multiclass.datamodules.loading
+lidar\_multiclass.data.loading
 -----------------------------------------
 
 .. automodule:: lidar_multiclass.data.loading
    :members:
 
-lidar\_multiclass.datamodules.transforms
+lidar\_multiclass.data.transforms
 -----------------------------------------------
 
 .. automodule:: lidar_multiclass.data.transforms
