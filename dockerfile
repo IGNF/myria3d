@@ -15,8 +15,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         software-properties-common  \
         wget                        \
         git                         \
-        # postgis                     \
-        # pdal                        \
         libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6   # package needed for anaconda
 
 # install anaconda
@@ -29,7 +27,6 @@ WORKDIR /lidar
 
 # copy all the data now (because the requirements files are needed for anaconda)
 COPY . .
-# RUN git clone https://MichelDaab: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@github.com/IGNF/lidar-prod-quality-control.git
 
 # install the python packages via anaconda
 RUN conda env create -f bash/setup_environment/requirements.yml
@@ -66,5 +63,3 @@ CMD         ["python", \
             "datamodule.subtile_overlap=0", \ 
             "hydra.run.dir=/lidar"]
 
-# just there as a note to mount the necessary store
-# sudo mount -v -t cifs -o user=mdaab,domain=IGN,uid=24213,gid=10550 //store.ign.fr/store-lidarhd/projet-LHD/IA/Validation_Module/CICD_github_assets/B2V0.5 /home/MDaab/Data/CICD_github_assets/
