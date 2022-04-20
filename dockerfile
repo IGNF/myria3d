@@ -71,7 +71,7 @@ CMD         ["python", \
             "--config-name", \
             "predict_config_V1.6.3.yaml", \
             "predict.src_las=/CICD_github_assets/parametres_etape1/test/792000_6272000_subset_buildings.las", \
-            "predict.output_dir=/output", \
+            "predict.output_dir=/CICD_github_assets/output_etape1", \
             "predict.resume_from_checkpoint=/CICD_github_assets/parametres_etape1/checkpoints/epoch_033.ckpt", \
             "predict.gpus=0", \
             "datamodule.batch_size=10", \ 
