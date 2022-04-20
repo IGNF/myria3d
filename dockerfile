@@ -48,16 +48,31 @@ ENTRYPOINT ["conda",                \
             "-n",                   \
             "lidar_multiclass"]
 
+# CMD         ["python", \
+#             "-m", \
+#             "lidar_multiclass.predict", \
+#             "--config-path", \
+#             "/CICD_github_assets/.hydra", \ 
+#             "--config-name", \
+#             "predict_config_V1.6.3.yaml", \
+#             "predict.src_las=/CICD_github_assets/test/792000_6272000_subset_buildings.las", \
+#             "predict.output_dir=/output", \
+#             "predict.resume_from_checkpoint=/CICD_github_assets/checkpoints/epoch_033.ckpt", \
+#             "predict.gpus=0", \
+#             "datamodule.batch_size=10", \ 
+#             "datamodule.subtile_overlap=0", \ 
+#             "hydra.run.dir=/lidar"]
+#
 CMD         ["python", \
             "-m", \
             "lidar_multiclass.predict", \
             "--config-path", \
-            "/CICD_github_assets/.hydra", \ 
+            "/CICD_github_assets/parametres_etape1/.hydra", \ 
             "--config-name", \
             "predict_config_V1.6.3.yaml", \
-            "predict.src_las=/CICD_github_assets/test/792000_6272000_subset_buildings.las", \
+            "predict.src_las=/CICD_github_assets/parametres_etape1/test/792000_6272000_subset_buildings.las", \
             "predict.output_dir=/output", \
-            "predict.resume_from_checkpoint=/CICD_github_assets/checkpoints/epoch_033.ckpt", \
+            "predict.resume_from_checkpoint=/CICD_github_assets/parametres_etape1/checkpoints/epoch_033.ckpt", \
             "predict.gpus=0", \
             "datamodule.batch_size=10", \ 
             "datamodule.subtile_overlap=0", \ 

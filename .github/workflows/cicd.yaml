@@ -4,9 +4,7 @@ name: CICD
 #   pull_request:
 #     branches: [main]
 
-on: 
-  push:
-    branches: [test_fork]
+on: push
 
 jobs:
   lidar_on_docker:
@@ -39,6 +37,9 @@ jobs:
     #     building_validation.optimization.paths.input_las_dir=/CICD_github_assets/M8.0/20220204_building_val_V0.0_model/20211001_buiding_val_val/
     #     building_validation.optimization.paths.results_output_dir=/CICD_github_assets/opti/
     #     building_validation.optimization.paths.building_validation_thresholds_pickle=/CICD_github_assets/M8.3B2V0.0/optimized_thresholds.pickle
+
+    - name: save the docker image because everything worked
+      run: docker save lidar_deep_im > /var/data/CICD_github_assets/lidar_deep_im.tar # need writing right
 
     - name: clean the server for further uses
       if: always()  # always do it, even if something failed
