@@ -62,7 +62,7 @@ ENTRYPOINT ["conda",                \
 #             "datamodule.batch_size=10", \ 
 #             "datamodule.subtile_overlap=0", \ 
 #             "hydra.run.dir=/lidar"]
-#
+##
 CMD         ["python", \
             "-m", \
             "lidar_multiclass.predict", \
