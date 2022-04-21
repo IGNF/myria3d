@@ -38,6 +38,9 @@ jobs:
     #     building_validation.optimization.paths.results_output_dir=/CICD_github_assets/opti/
     #     building_validation.optimization.paths.building_validation_thresholds_pickle=/CICD_github_assets/M8.3B2V0.0/optimized_thresholds.pickle
 
+    - name: chekc the user
+      run: whoami
+
     - name: save the docker image because everything worked
       run: docker save lidar_deep_im > /var/data/CICD_github_assets/lidar_deep_im.tar # need writing right
 
