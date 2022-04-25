@@ -40,19 +40,19 @@ RUN conda env create -f bash/setup_environment/requirements.yml
 SHELL ["conda", "run", "-n", "lidar_multiclass", "/bin/bash", "-c"]
 
 # install all the dependencies
-RUN conda install -y pytorch=="1.10.1" torchvision=="0.11.2" -c pytorch -c conda-forge \
- && conda install pytorch-lightning==1.5.9 -c conda-forge \
- && pip install torch-scatter -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-sparse -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-geometric \
- && pip install torch-points-kernels --no-cache \
- && pip install torch torchvision \
- && conda install -y pyg==2.0.3 -c pytorch -c pyg -c conda-forge
-
 # RUN conda install -y pytorch=="1.10.1" torchvision=="0.11.2" -c pytorch -c conda-forge \
 #  && conda install pytorch-lightning==1.5.9 -c conda-forge \
-#  && conda install torch-scatter -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-sparse -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-geometric \
-#  && conda install torch-points-kernels --no-cache \
-#  && conda install torch torchvision \
+#  && pip install torch-scatter -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-sparse -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-geometric \
+#  && pip install torch-points-kernels --no-cache \
+#  && pip install torch torchvision \
 #  && conda install -y pyg==2.0.3 -c pytorch -c pyg -c conda-forge
+
+RUN conda install -y pytorch=="1.10.1" torchvision=="0.11.2" -c pytorch -c conda-forge \
+ && conda install pytorch-lightning==1.5.9 -c conda-forge \
+ && conda install torch-scatter -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-sparse -f https://data.pyg.org/whl/torch-1.10.1+cpu.html torch-geometric \
+ && conda install torch-points-kernels --no-cache \
+ && conda install torch torchvision \
+ && conda install -y pyg==2.0.3 -c pytorch -c pyg -c conda-forge
 
 # the entrypoint garanty that all command will be runned in the conda environment
 ENTRYPOINT ["conda",                \   
