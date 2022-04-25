@@ -39,4 +39,4 @@ Its structure was bootstraped from [this code template](https://github.com/ashle
 which heavily relies on [Hydra](https://hydra.cc/) and [Pytorch-Lightning](https://github.com/PyTorchLightning/pytorch-lightning) to 
 enable flexible and rapid iterations of deep learning experiments.
 
-> -> For installation and usage, please refer to full **Documentation**.
+> -> For installation and usage, please refer to full [**Documentation**](https://ignf.github.io/lidar-deep-segmentation/).
