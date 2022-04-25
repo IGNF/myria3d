@@ -11,7 +11,7 @@ ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # all the apt-get installs
-RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         software-properties-common  \
         wget                        \
         git                         \
