@@ -13,7 +13,6 @@ from torch_geometric.transforms.center import Center
 from lidar_multiclass.utils import utils
 from lidar_multiclass.data.transforms import *
 
-from lidar_multiclass.utils import utils
 
 log = utils.get_logger(__name__)
 

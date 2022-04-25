@@ -8,6 +8,7 @@ except:
 
 import os
 from pathlib import Path
+from typing import Optional
 
 from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import CometLogger, LoggerCollection
@@ -18,8 +19,9 @@ from lidar_multiclass.utils import utils
 log = utils.get_logger(__name__)
 
 
-def get_comet_logger(trainer: Trainer) -> CometLogger:
-    """Safely get logger from Trainer."""
+def get_comet_logger(trainer: Trainer) -> Optional[CometLogger]:
+    """Safely get logger from Trainer.
+    If there is no comet logger, simply returns None to deactivate comet-based callbacks."""
 
     if isinstance(trainer.logger, CometLogger):
         return trainer.logger
@@ -29,9 +31,10 @@ def get_comet_logger(trainer: Trainer) -> CometLogger:
             if isinstance(logger, CometLogger):
                 return logger
 
-    raise Exception(
+    log.warning(
         "You are using comet related callback, but CometLogger was not found for some reason..."
     )
+    return None
 
 
 class LogCode(Callback):
@@ -50,11 +53,11 @@ class LogCode(Callback):
     @rank_zero_only
     def on_train_start(self, trainer, pl_module):
         logger = get_comet_logger(trainer=trainer)
-        experiment = logger.experiment
-
-        for path in Path(self.code_dir).resolve().rglob("*.py"):
-            experiment.log_code(file_name=str(path))
-        log.info("Logging all .py files to Comet.ml!")
+        if logger:
+            experiment = logger.experiment
+            for path in Path(self.code_dir).resolve().rglob("*.py"):
+                experiment.log_code(file_name=str(path))
+            log.info("Logging all .py files to Comet.ml!")
 
 
 class LogLogsPath(Callback):
@@ -62,7 +65,9 @@ class LogLogsPath(Callback):
 
     @rank_zero_only
     def on_init_end(self, trainer):
-        experiment = get_comet_logger(trainer=trainer).experiment
-        log_path = os.getcwd()
-        log.info(f"----------------\n LOGS DIR is {log_path}\n ----------------")
-        experiment.log_parameter("experiment_logs_dirpath", log_path)
+        logger = get_comet_logger(trainer=trainer)
+        if logger:
+            experiment = logger.experiment
+            log_path = os.getcwd()
+            log.info(f"----------------\n LOGS DIR is {log_path}\n ----------------")
+            experiment.log_parameter("experiment_logs_dirpath", log_path)

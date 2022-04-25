@@ -11,7 +11,8 @@ In particular, subclasses implement a "load_las" method that is used by the data
 
 from abc import ABC, abstractmethod
 import argparse
-import os, glob
+import os
+import glob
 import os.path as osp
 from shutil import copyfile
 from tqdm import tqdm
@@ -20,6 +21,11 @@ import numpy as np
 import pandas as pd
 import torch
 from torch_geometric.data import Data
+from lidar_multiclass.utils import utils
+
+log = utils.get_logger(__name__)
+
+SPLIT_PHASES = ["val", "train", "test"]
 
 
 class LidarDataLogic(ABC):
@@ -28,18 +34,21 @@ class LidarDataLogic(ABC):
 
     """
 
-    split = ["val", "train", "test"]
-    input_tile_width_meters = 1000
-    subtile_width_meters = 50
     return_num_normalization_max_value = 7
 
-    def __init__(self, **kwargs):
-        self.input_data_dir = kwargs.get("input_data_dir")
-        self.prepared_data_dir = kwargs.get("prepared_data_dir")
-        self.split_csv = kwargs.get("split_csv")
-        self.range_by_axis = np.arange(
-            self.input_tile_width_meters // self.subtile_width_meters + 1
-        )
+    def __init__(
+        self,
+        input_data_dir: str = None,
+        prepared_data_dir: str = None,
+        split_csv: str = None,
+        input_tile_width_meters: int = 1000,
+        subtile_width_meters: int = 50,
+    ):
+        self.input_data_dir = input_data_dir
+        self.prepared_data_dir = prepared_data_dir
+        self.split_csv = split_csv
+        self.input_tile_width_meters = input_tile_width_meters
+        self.subtile_width_meters = subtile_width_meters
 
     @abstractmethod
     def load_las(self, las_filepath: str) -> Data:
@@ -57,21 +66,12 @@ class LidarDataLogic(ABC):
     def prepare(self):
         """Prepare a dataset for model training and model evaluation.
 
-        Iterates through LAS files listed in a csv metadata file. A `split` column
-        specifies the train/val/test split of the dataset to be created.
-        Depending on the set, this method will:
-
-        train/val:
-            Load LAS into memory as a Data object with selected features,
-            then iteratively extract 50m*50m subtiles by filtering along x
-            then y axis. Serialize the resulting Data object using torch.save.
-
-        test:
-            Simply copy the LAS to the new test folder.
+        Iterates through LAS files listed in a csv metadata file.
+        A `split` column specifies the train/val/test split of the dataset to be created.
 
         """
         split_df = pd.read_csv(self.split_csv)
-        for phase in tqdm(self.split, desc="Phases"):
+        for phase in tqdm(SPLIT_PHASES, desc="Phases"):
             basenames = split_df[split_df.split == phase].basename.tolist()
             print(f"Subset: {phase}")
             print("  -  ".join(basenames))
@@ -79,10 +79,14 @@ class LidarDataLogic(ABC):
                 filepath = self._find_file_in_dir(self.input_data_dir, file_basename)
                 output_subdir_path = osp.join(self.prepared_data_dir, phase)
                 if phase == "test":
+                    # Simply copy the LAS to the new test folder.
                     os.makedirs(output_subdir_path, exist_ok=True)
                     target_file = osp.join(output_subdir_path, file_basename)
                     copyfile(filepath, target_file)
                 elif phase in ["train", "val"]:
+                    # Load LAS into memory as a Data object with selected features,
+                    # then iteratively extract 50m*50m subtiles by filtering along x
+                    # then y axis. Serialize the resulting Data object using torch.save.
                     output_subdir_path = osp.join(
                         output_subdir_path, osp.basename(filepath)
                     )
@@ -97,14 +101,19 @@ class LidarDataLogic(ABC):
         Args:
             filepath (str): input LAS file
             output_subdir_path (str): output directory to save splitted `.data` objects.
+
         """
+        range_by_axis = np.arange(
+            self.input_tile_width_meters // self.subtile_width_meters + 1
+        )
+
         data = self.load_las(filepath)
         idx = 0
-        for _ in tqdm(self.range_by_axis):
+        for _ in tqdm(range_by_axis):
             if len(data.pos) == 0:
                 break
             data_x_band = self._extract_by_x(data)
-            for _ in self.range_by_axis:
+            for _ in range_by_axis:
                 if len(data_x_band.pos) == 0:
                     break
                 subtile_data = self._extract_by_y(data_x_band)
@@ -112,7 +121,7 @@ class LidarDataLogic(ABC):
                 idx += 1
 
     def _find_file_in_dir(self, input_data_dir: str, basename: str) -> str:
-        """Query files with .las extension in subfolder of input_data_dir.
+        """Query files matching a basename in input_data_dir and its subdirectories.
 
         Args:
             input_data_dir (str): data directory
@@ -121,8 +130,8 @@ class LidarDataLogic(ABC):
             [str]: first file path matching the query.
 
         """
-        query = f"{input_data_dir}*{basename}"
-        files = glob.glob(query)
+        query = f"{input_data_dir}/**/{basename}"
+        files = glob.glob(query, recursive=True)
         return files[0]
 
     def _extract_by_axis(self, data: Data, axis=0) -> Data:
@@ -377,7 +386,7 @@ def _get_data_preparation_parser():
     parser.add_argument(
         "--prepared_data_dir",
         type=str,
-        default="./prepared/",
+        default="./data/prepared/",
         help="Path to folder to save Data object train/val/test subfolders.",
     )
     parser.add_argument(
