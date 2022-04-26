@@ -1,0 +1,52 @@
+name: CICD
+
+# on:
+#   pull_request:
+#     branches: [main]
+
+on: push
+
+jobs:
+  lidar_on_docker:
+    runs-on: self-hosted
+
+    steps:
+
+    - name: Checkout branch       
+      uses: actions/checkout@v2
+
+    - name: build docker image       
+      run: docker build -t lidar_deep_im .
+
+    - name: Check code neatness (linter)
+      run: docker run lidar_deep_im flake8
+
+    # - name: unit testing
+    #   run: docker run lidar_deep_im pytest --ignore=actions-runner --ignore="notebooks"
+
+    - name: Full module run on LAS subset
+      run: docker run -v /var/data/CICD_github_assets:/CICD_github_assets lidar_deep_im 
+      # sudo mount -v -t cifs -o user=mdaab,domain=IGN,uid=24213,gid=10550 //store.ign.fr/store-lidarhd/projet-LHD/IA/Validation_Module/CICD_github_assets/B2V0.5 /var/data/CICD_github_assets
+
+    # - name: Evaluate decisions using optimization code on a single, corrected LAS 
+    #   run: >
+    #     docker run -v /var/data/cicd/CICD_github_assets:/CICD_github_assets lidar_deep_im
+    #     python lidar_prod/run.py print_config=true +task='optimize'
+    #     +building_validation.optimization.debug=true
+    #     building_validation.optimization.todo='prepare+evaluate+update'
+    #     building_validation.optimization.paths.input_las_dir=/CICD_github_assets/M8.0/20220204_building_val_V0.0_model/20211001_buiding_val_val/
+    #     building_validation.optimization.paths.results_output_dir=/CICD_github_assets/opti/
+    #     building_validation.optimization.paths.building_validation_thresholds_pickle=/CICD_github_assets/M8.3B2V0.0/optimized_thresholds.pickle
+
+    - name: chekc the user
+      run: whoami
+
+    - name: save the docker image because everything worked
+      run: docker save lidar_deep_im > /var/data/CICD_github_assets/lidar_deep_im.tar # need writing right
+
+    - name: clean the server for further uses
+      if: always()  # always do it, even if something failed
+      run: docker system prune  # remove obsolete docker images (take a HUGE amount of space)
+
+
+      

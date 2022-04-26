@@ -62,7 +62,7 @@ def predict(config: DictConfig) -> str:
 
 @hydra.main(config_path="../configs/", config_name="config.yaml")
 def main(config: DictConfig):
-    f"""See function {predict.__name__}.
+    """See function predict
 
     :meta private:
 
