@@ -1,50 +1,39 @@
-import os
-import os.path as osp
-import shutil
 import pytest
 import sh
 from typing import List
-from hydra.experimental import compose, initialize
+from hydra import compose, initialize
 
-from lidar_multiclass.data.loading import FrenchLidarDataLogic
-
-
-@pytest.fixture
-def default_hydra_cfg():
-    with initialize(config_path="./../configs/", job_name="config"):
-        return compose(config_name="config")
+from lidar_multiclass.data.loading import make_toy_dataset_from_test_file
 
 
-LAS_SUBSET = "tests/data/870000_6618000.subset.50mx100m.las"
-SPLIT_CSV = "tests/data/toy_dataset_split.csv"
+@pytest.fixture()
+def make_default_hydra_cfg():
+    def _make_default_hydra_cfg(overrides=[]):
+        with initialize(config_path="./../configs/", job_name="config"):
+            # there is no hydra:runtime.cwd when using compose, and therefore we have
+            # to specify where our working directory is i.e. where the code is.
+            workdir_override = ["work_dir=./../"]
+            return compose(config_name="config", overrides=workdir_override + overrides)
+
+    return _make_default_hydra_cfg
 
 
 @pytest.fixture(scope="session")
 def isolated_toy_dataset_tmpdir(tmpdir_factory):
     # Create session scope directory
     tmpdir = tmpdir_factory.mktemp("toy_dataset_tmpdir")
-
-    # Copy input file for full test isolation
-    td_raw = osp.join(tmpdir, "raw")
-    td_prepared = osp.join(tmpdir, "prepared")
-    os.makedirs(td_raw)
-    os.makedirs(td_prepared)
-    # Make a "raw", unporcessed dataset with six files.
-    basename = osp.basename(LAS_SUBSET)
-    for s in ["train1", "train2", "val1", "val2", "test1", "test2"]:
-        copy_path = osp.join(td_raw, basename.replace(".las", f".{s}.las"))
-        shutil.copy(LAS_SUBSET, copy_path)
-
-    # Prepare a Deep-Learning-ready dataset, using the split defined in the csv.
-    data_prepper = FrenchLidarDataLogic(
-        input_data_dir=td_raw,
-        prepared_data_dir=td_prepared,
-        split_csv=SPLIT_CSV,
-        input_tile_width_meters=110,
-        subtile_width_meters=50,
-    )
-    data_prepper.prepare()
+    td_prepared = make_toy_dataset_from_test_file(tmpdir)
     return td_prepared
+
+
+@pytest.fixture(autouse=True)  # Auto-used for every test function
+def set_logs_dir_env_variable(monkeypatch):
+    """Sets where hydra saves its logs.
+
+    See: https://docs.pytest.org/en/stable/how-to/monkeypatch.html#monkeypatching-environment-variables
+
+    """
+    monkeypatch.setenv("LOGS_DIR", "tests/logs/")
 
 
 def run_command(command: List[str]):

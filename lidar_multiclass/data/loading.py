@@ -15,6 +15,7 @@ import os
 import glob
 import os.path as osp
 from shutil import copyfile
+import shutil
 from tqdm import tqdm
 import laspy
 import numpy as np
@@ -26,6 +27,12 @@ from lidar_multiclass.utils import utils
 log = utils.get_logger(__name__)
 
 SPLIT_PHASES = ["val", "train", "test"]
+
+# Files for the creation of a toy dataset.
+LAS_SUBSET_FOR_TOY_DATASET = (
+    "tests/data/toy_dataset_src/870000_6618000.subset.50mx100m.las"
+)
+SPLIT_CSV_FOR_TOY_DATASET = "tests/data/toy_dataset_src/toy_dataset_split.csv"
 
 
 class LidarDataLogic(ABC):
@@ -43,6 +50,7 @@ class LidarDataLogic(ABC):
         split_csv: str = None,
         input_tile_width_meters: int = 1000,
         subtile_width_meters: int = 50,
+        **kwargs,
     ):
         self.input_data_dir = input_data_dir
         self.prepared_data_dir = prepared_data_dir
@@ -362,6 +370,51 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         )
 
 
+def make_toy_dataset_from_test_file(
+    prepared_data_dir: str,
+    src_las_path: str = LAS_SUBSET_FOR_TOY_DATASET,
+    split_csv: str = SPLIT_CSV_FOR_TOY_DATASET,
+):
+    """Prepare a toy dataset from a single, small LAS file.
+
+    The file is first duplicated to get 2 LAS in each split (train/val/test),
+    and then each file is splitted into .data files, resulting in a training-ready
+    dataset loacted in td_prepared
+
+    Args:
+        src_las_path (str): input, small LAS file to generate toy dataset from
+        split_csv (str): Path to csv with a `basename` (e.g. '123_456.las') and
+        a `split` (train/val/test) columns specifying the dataset split.
+        prepared_data_dir (str): where to copy files (`raw` subfolder) and to prepare
+        dataset files (`prepared` subfolder)
+
+    Returns:
+        str: path to directory containing prepared dataset.
+
+    """
+    # Copy input file for full test isolation
+    td_raw = osp.join(prepared_data_dir, "raw")
+    td_prepared = osp.join(prepared_data_dir, "prepared")
+    os.makedirs(td_raw)
+    os.makedirs(td_prepared)
+    # Make a "raw", unporcessed dataset with six files.
+    basename = osp.basename(src_las_path)
+    for s in ["train1", "train2", "val1", "val2", "test1", "test2"]:
+        copy_path = osp.join(td_raw, basename.replace(".las", f".{s}.las"))
+        shutil.copy(src_las_path, copy_path)
+
+    # Prepare a Deep-Learning-ready dataset, using the split defined in the csv.
+    data_prepper = FrenchLidarDataLogic(
+        input_data_dir=td_raw,
+        prepared_data_dir=td_prepared,
+        split_csv=split_csv,
+        input_tile_width_meters=110,
+        subtile_width_meters=50,
+    )
+    data_prepper.prepare()
+    return td_prepared
+
+
 def _get_data_preparation_parser():
     """Gets a parser with parameters for dataset preparation.
 
@@ -369,7 +422,9 @@ def _get_data_preparation_parser():
         argparse.ArgumentParser: the parser.
     """
     parser = argparse.ArgumentParser(
-        description="Prepare a Lidar dataset for deep learning."
+        description="Prepare a Lidar dataset for deep learning.",
+        epilog="If you need a toy dataset, you only need to"
+        " set --origin=FR_TOY and specify a value for --prepared_data_dir.",
     )
     parser.add_argument(
         "--split_csv",
@@ -390,9 +445,7 @@ def _get_data_preparation_parser():
         help="Path to folder to save Data object train/val/test subfolders.",
     )
     parser.add_argument(
-        "--origin",
-        type=str,
-        default="FR",
+        "--origin", type=str, default="FR", choices=["FR", "CH", "FR_TOY"]
     )
 
     return parser
@@ -422,16 +475,18 @@ def main():
 
     parser = _get_data_preparation_parser()
     args = parser.parse_args()
-    if args.origin == "FR":
+    if args.origin == "FR_TOY":
+        make_toy_dataset_from_test_file(args.prepared_data_dir)
+    elif args.origin == "FR":
         data_prepper = FrenchLidarDataLogic(**args.__dict__)
+        data_prepper.prepare()
     elif args.origin == "CH":
         data_prepper = SwissTopoLidarDataLogic(**args.__dict__)
+        data_prepper.prepare()
     else:
         raise KeyError(
-            f"Data origin must be either FR (French) or CH (Swiss) (currently: {args.origin})"
+            f"Data origin is invalid (currently: {args.origin})"
         )
-
-    data_prepper.prepare()
 
 
 if __name__ == "__main__":

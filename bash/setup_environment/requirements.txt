@@ -1,6 +1,6 @@
 # --------- hydra --------- #
-hydra-core==1.1.0
-hydra-colorlog==1.1.0
+hydra-core==1.1.*
+hydra-colorlog==1.1.*
 
 # --------- RST Linter --------- #
 rstcheck==3.3.*

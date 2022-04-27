@@ -1,4 +1,4 @@
-# Preparing data for training [TODO]
+# Preparing data for training [WIP]
 
 .. warning:: Work in progress
 
@@ -10,5 +10,15 @@ The loading function is dataset dependant, and there are currently a logic for b
 For help, run 
 
 ```
-python lidar_multiclass/datamodules/data.py -h
+python lidar_multiclass/data/loading.py -h
+```
+
+## Using a toy dataset
+
+Files used in unit tests can be turned into a small, training-ready dataset to get started with the package.
+A single file is copied 6 times, so that there are 2 copies in each split (train/val/test). Data is then prepared for training. The French Lidar data signature is used.
+
+To create a toy dataset in ./inputs/toy_dataset/, simply run :
+```
+python lidar_multiclass/data/loading.py --origin FR_TOY  --prepared_data_dir=./inputs/toy_dataset/
 ```
