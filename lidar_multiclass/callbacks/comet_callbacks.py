@@ -9,6 +9,7 @@ except:
 import os
 from pathlib import Path
 from typing import Optional
+import warnings
 
 from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import CometLogger, LoggerCollection
@@ -31,8 +32,8 @@ def get_comet_logger(trainer: Trainer) -> Optional[CometLogger]:
             if isinstance(logger, CometLogger):
                 return logger
 
-    log.warning(
-        "You are using comet related callback, but CometLogger was not found for some reason..."
+    warnings.warn(
+        "You are using comet related callback, but CometLogger was not found for some reason...", UserWarning
     )
     return None
 

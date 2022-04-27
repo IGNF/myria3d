@@ -4,18 +4,21 @@ import numpy as np
 import pandas as pd
 import pdal
 import pytest
+
+# import torch
+# import torchmetrics
 from lidar_multiclass.data.loading import LAS_SUBSET_FOR_TOY_DATASET
 from lidar_multiclass.predict import predict
 from lidar_multiclass.train import train
-from tests.conftest import run_hydra_decorated_command
-import laspy
+from tests.conftest import TRAINED_MODEL_PATH, run_hydra_decorated_command
+
+# import laspy
 
 """
 A couple of sanity checks to make sure the model doesn't crash with different running options.
 """
 
 
-@pytest.mark.slow()
 def test_FrenchLidar_default_training_fast_dev_run_as_command(
     isolated_toy_dataset_tmpdir,
 ):
@@ -36,18 +39,19 @@ def test_FrenchLidar_default_training_fast_dev_run_as_command(
 def test_RandLaNet_overfitting(make_default_hydra_cfg, isolated_toy_dataset_tmpdir):
     with TemporaryDirectory() as tmpdir:
 
-        hydra_overrides = make_hydra_overrides_for_training(
+        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
             isolated_toy_dataset_tmpdir, tmpdir
         )
         cfg = make_default_hydra_cfg(
             overrides=[
                 "experiment=RandLaNetDebug"  # Use an experiment designe for overfitting a batch
+                "datamodule.batch_size=2",  # Smaller batch size for faster overfit
             ]
             + hydra_overrides
         )
         train(cfg)
         # Not sure if version_0 is added by pytest or by lightning, but it is needed.
-        metrics = pd.read_csv(osp.join(tmpdir, "csv", "version_0", "metrics.csv"))
+        metrics = get_metrics_df_from_tmpdir(tmpdir)
         # Assert that there was a significative improvement i.e. the model learns.
         iou = metrics["train/iou_CLASS_building"].dropna()
         improvement = iou.iloc[-1] - iou.iloc[0]
@@ -72,17 +76,16 @@ def test_PointNet_overfitting(make_default_hydra_cfg, isolated_toy_dataset_tmpdi
         )
         train(cfg)
         # Not sure if version_0 is added by pytest or by lightning, but it is needed.
-        metrics = pd.read_csv(osp.join(tmpdir, "csv", "version_0", "metrics.csv"))
+        metrics = get_metrics_df_from_tmpdir(tmpdir)
         iou = metrics["train/loss_step"].dropna()
         first = iou.iloc[0]
         last = iou.iloc[-1]
-        # Assert that loss was almost divided by two
+        # Check that loss was almost divided by two
         assert pytest.approx(last, 0.15) == first / 2
-        # Note that for this toy dataset PointNet gets a null IoU for building class, which may be due
-        # to an inability to catch buildings, which are a rare class
+        # Note that for this toy dataset PointNet gets a null IoU for building class,
+        # which may be due to buildings being a rare class.
 
 
-@pytest.mark.slow()
 def test_RandLaNet_train_one_epoch_and_test(
     make_default_hydra_cfg, isolated_toy_dataset_tmpdir
 ):
@@ -94,7 +97,7 @@ def test_RandLaNet_train_one_epoch_and_test(
 
     """
     with TemporaryDirectory() as tmpdir:
-        hydra_overrides = make_hydra_overrides_for_training(
+        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
             isolated_toy_dataset_tmpdir, tmpdir
         )
 
@@ -102,6 +105,7 @@ def test_RandLaNet_train_one_epoch_and_test(
         cfg_one_epoch = make_default_hydra_cfg(
             overrides=[
                 "experiment=RandLaNetDebug",
+                "datamodule.batch_size=2",  # Smaller batch size for faster overfit
                 "trainer.min_epochs=1",  # a single epoch
                 "trainer.max_epochs=1",
             ]
@@ -149,6 +153,113 @@ def test_RandLaNet_train_one_epoch_and_test(
         check_las_invariance(LAS_SUBSET_FOR_TOY_DATASET, output_las_path)
 
 
+def test_run_test_with_trained_model_on_toy_dataset(
+    isolated_toy_dataset_tmpdir, make_default_hydra_cfg
+):
+    if not osp.isfile(TRAINED_MODEL_PATH):
+        pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
+
+    with TemporaryDirectory() as tmpdir:
+        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+            isolated_toy_dataset_tmpdir, tmpdir
+        )
+        # Use an experiment designed for testing on test set
+        cfg_test_using_trained_model = make_default_hydra_cfg(
+            overrides=[
+                "experiment=evaluate_test_data",
+                f"model.ckpt_path={TRAINED_MODEL_PATH}",
+            ]
+            + hydra_overrides
+        )
+        train(cfg_test_using_trained_model)
+        # TODO find a way to assess test logs which should be :
+        metrics = get_metrics_df_from_tmpdir(tmpdir)
+        assert metrics["test/iou_CLASS_unclassified"][0] >= 0.4
+        assert metrics["test/iou_CLASS_ground"][0] >= 0.65
+        assert metrics["test/iou_CLASS_building"][0] >= 0.60
+
+
+@pytest.mark.slow()
+def test_run_test_with_trained_model_on_large_las(
+    make_default_hydra_cfg, isolated_test_subdir_for_large_las
+):
+    if not osp.isfile(TRAINED_MODEL_PATH):
+        pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
+
+    with TemporaryDirectory() as tmpdir:
+        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+            isolated_test_subdir_for_large_las, tmpdir
+        )
+        # Use an experiment designed for testing on test set
+        cfg_test_using_trained_model = make_default_hydra_cfg(
+            overrides=[
+                "experiment=evaluate_test_data",
+                f"model.ckpt_path={TRAINED_MODEL_PATH}",
+            ]
+            + hydra_overrides
+        )
+        train(cfg_test_using_trained_model)
+        metrics = get_metrics_df_from_tmpdir(tmpdir)
+        # TODO: reference values to be defined !
+        assert metrics["test/iou_CLASS_unclassified"][0] >= 0.60
+        assert metrics["test/iou_CLASS_ground"][0] >= 0.83
+        assert metrics["test/iou_CLASS_building"][0] >= 0.85
+
+
+def test_predict_with_trained_model_on_toy_dataset(make_default_hydra_cfg):
+    """Simple check that prediction does not fail."""
+    if not osp.isfile(TRAINED_MODEL_PATH):
+        pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
+
+    with TemporaryDirectory() as tmpdir:
+        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+            "placeholder_because_no_need_for_a_dataset_here", tmpdir
+        )
+        cfg_predict_using_trained_model = make_default_hydra_cfg(
+            overrides=[
+                f"predict.resume_from_checkpoint={TRAINED_MODEL_PATH}",
+                f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
+                f"predict.output_dir={tmpdir}",
+                "predict.probas_to_save=[building,unclassified]",
+            ]
+            + hydra_overrides
+        )
+        output_las_path = predict(cfg_predict_using_trained_model)
+        assert osp.isfile(output_las_path)
+
+
+# @pytest.mark.slow()
+# def test_predict_with_trained_model_on_large_las(make_default_hydra_cfg):
+#     if not osp.isfile(TRAINED_MODEL_PATH):
+#         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
+#     if not osp.isfile(LARGE_LAS_PATH):
+#         pytest.xfail(reason=f"No access to {LARGE_LAS_PATH} in this environment.")
+
+#     with TemporaryDirectory() as tmpdir:
+#         hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+#             "placeholder_because_no_need_for_a_dataset_here", tmpdir
+#         )
+#         cfg_predict_using_trained_model = make_default_hydra_cfg(
+#             overrides=[
+#                 f"predict.resume_from_checkpoint={TRAINED_MODEL_PATH}",
+#                 f"predict.src_las={LARGE_LAS_PATH}",
+#                 f"predict.output_dir={tmpdir}",
+#                 "predict.probas_to_save=[building,unclassified]",
+#             ]
+#             + hydra_overrides
+#         )
+#         output_las_path = predict(cfg_predict_using_trained_model)
+#         assert osp.isfile(output_las_path)
+
+#         # TODO: compare result to Classification
+#         array = pdal_read_las_array(output_las_path)
+#         target = array["Classification"]
+#         preds = array["PredictedClassification"]
+#         iou = torchmetrics.JaccardIndex(num_classes=3, absent_score=1.0)
+#         assert iou(torch.Tensor(preds), torch.Tensor(target)) >= 0.8
+#         assert np.mean(target == preds) >= 0.97
+
+
 def check_las_contains_dims(las1, dims_to_check=[]):
     a1 = pdal_read_las_array(las1)
     for d in dims_to_check:
@@ -192,13 +303,18 @@ def check_las_invariance(las1, las2):
         assert pytest.approx(np.sum(a2[d]), TOLERANCE) == np.sum(a1[d])
 
 
-def make_hydra_overrides_for_training(isolated_toy_dataset_tmpdir, tmpdir):
+def make_list_of_hydra_overrides_for_logger_and_paths(
+    isolated_toy_dataset_tmpdir, tmpdir
+):
     """Get list of overrides for hydra, the ones that are always needed when calling train/test."""
 
     return [
-        "datamodule.batch_size=2",  # Smaller batch size for faster overfit
         f"datamodule.prepared_data_dir={isolated_toy_dataset_tmpdir}",
         "logger=csv",  # disables comet logging
         f"logger.csv.save_dir={tmpdir}",
         f"callbacks.model_checkpoint.dirpath={tmpdir}",
     ]
+
+
+def get_metrics_df_from_tmpdir(tmpdir):
+    return pd.read_csv(osp.join(tmpdir, "csv", "version_0", "metrics.csv"))

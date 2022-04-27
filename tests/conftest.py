@@ -1,9 +1,15 @@
+import os
+import os.path as osp
+import shutil
 import pytest
 import sh
 from typing import List
 from hydra import compose, initialize
 
 from lidar_multiclass.data.loading import make_toy_dataset_from_test_file
+
+LARGE_LAS_PATH = "tests/data/large/raw_792000_6272000.las"
+TRAINED_MODEL_PATH = "tests/data/large/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt"
 
 
 @pytest.fixture()
@@ -20,10 +26,20 @@ def make_default_hydra_cfg():
 
 @pytest.fixture(scope="session")
 def isolated_toy_dataset_tmpdir(tmpdir_factory):
-    # Create session scope directory
     tmpdir = tmpdir_factory.mktemp("toy_dataset_tmpdir")
-    td_prepared = make_toy_dataset_from_test_file(tmpdir)
-    return td_prepared
+    tmpdir_prepared = make_toy_dataset_from_test_file(tmpdir)
+    return tmpdir_prepared
+
+
+@pytest.fixture(scope="session")
+def isolated_test_subdir_for_large_las(tmpdir_factory):
+    """Copy large las in a `test` subdirectory, that can be used by datamodule."""
+    dataset_tmpdir = tmpdir_factory.mktemp("dataset_tmpdir")
+    tmpdir_test_subdir = osp.join(dataset_tmpdir, "test")
+    os.makedirs(tmpdir_test_subdir)
+    copy_path = osp.join(tmpdir_test_subdir, osp.basename(LARGE_LAS_PATH))
+    shutil.copy(LARGE_LAS_PATH, copy_path)
+    return dataset_tmpdir
 
 
 @pytest.fixture(autouse=True)  # Auto-used for every test function
