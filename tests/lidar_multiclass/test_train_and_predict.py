@@ -22,7 +22,7 @@ A couple of sanity checks to make sure the model doesn't crash with different ru
 def test_FrenchLidar_default_training_fast_dev_run_as_command(
     isolated_toy_dataset_tmpdir,
 ):
-    """Test running for 1 train, val and test batch."""
+    """Test running by CLI for 1 train, val and test batch of a toy dataset."""
 
     command = [
         "run.py",
@@ -37,21 +37,28 @@ def test_FrenchLidar_default_training_fast_dev_run_as_command(
 
 @pytest.mark.slow()
 def test_RandLaNet_overfitting(make_default_hydra_cfg, isolated_toy_dataset_tmpdir):
+    """Check ability to overfit with RandLa-Net.
+
+    Check that overfitting a single batch from a toy dataset, for 30 epochs, results
+    in significanly higher IoU.
+
+    """
+
     with TemporaryDirectory() as tmpdir:
 
-        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+        hydra_overrides = _make_list_of_hydra_overrides_for_logger_and_paths(
             isolated_toy_dataset_tmpdir, tmpdir
         )
         cfg = make_default_hydra_cfg(
             overrides=[
-                "experiment=RandLaNetDebug"  # Use an experiment designe for overfitting a batch
+                "experiment=RandLaNetDebug",  # Use an experiment designe for overfitting a batch
                 "datamodule.batch_size=2",  # Smaller batch size for faster overfit
             ]
             + hydra_overrides
         )
         train(cfg)
         # Not sure if version_0 is added by pytest or by lightning, but it is needed.
-        metrics = get_metrics_df_from_tmpdir(tmpdir)
+        metrics = _get_metrics_df_from_tmpdir(tmpdir)
         # Assert that there was a significative improvement i.e. the model learns.
         iou = metrics["train/iou_CLASS_building"].dropna()
         improvement = iou.iloc[-1] - iou.iloc[0]
@@ -60,36 +67,37 @@ def test_RandLaNet_overfitting(make_default_hydra_cfg, isolated_toy_dataset_tmpd
 
 @pytest.mark.slow()
 def test_PointNet_overfitting(make_default_hydra_cfg, isolated_toy_dataset_tmpdir):
+    """Check ability to overfit with PointNet.
+
+    Check that overfitting a single batch from a toy dataset, for 30 epochs, results
+    in significanly lower training loss.
+
+    """
     with TemporaryDirectory() as tmpdir:
+        hydra_overrides = _make_list_of_hydra_overrides_for_logger_and_paths(
+            isolated_toy_dataset_tmpdir, tmpdir
+        )
         cfg = make_default_hydra_cfg(
-            overrides=[
-                "experiment=RandLaNetDebug",  # Use an experiment designe for overfitting a batch
-                "model=point_net_model",  # but change model to PointNet
-                "model.lr=0.001",  # need higher LR for PointNet
+            overrides=hydra_overrides
+            + [
+                "experiment=PointNetDebug",  # Use an experiment designed for overfitting a batch...
                 "datamodule.batch_size=2",  # Smaller batch size for faster overfit
                 # Define the task as a classification of all (1 and 2) vs. 6=building
-                "datamodule.dataset_description.classification_preprocessing_dict={2:1}",
-                f"datamodule.prepared_data_dir={isolated_toy_dataset_tmpdir}",
-                "logger=csv",  # disables comet logging
-                f"logger.csv.save_dir={tmpdir}",
+                "++datamodule.dataset_description.classification_preprocessing_dict={2:1}",
             ]
         )
         train(cfg)
-        # Not sure if version_0 is added by pytest or by lightning, but it is needed.
-        metrics = get_metrics_df_from_tmpdir(tmpdir)
-        iou = metrics["train/loss_step"].dropna()
-        first = iou.iloc[0]
-        last = iou.iloc[-1]
-        # Check that loss was almost divided by two
-        assert pytest.approx(last, 0.15) == first / 2
-        # Note that for this toy dataset PointNet gets a null IoU for building class,
-        # which may be due to buildings being a rare class.
+        metrics = _get_metrics_df_from_tmpdir(tmpdir)
+        # Assert that there was a significative improvement i.e. the model learns.
+        iou = metrics["train/iou_CLASS_building"].dropna()
+        improvement = iou.iloc[-1] - iou.iloc[0]
+        assert improvement >= 0.45
 
 
 def test_RandLaNet_train_one_epoch_and_test(
     make_default_hydra_cfg, isolated_toy_dataset_tmpdir
 ):
-    """Train for one epoch, and run test and predict functions using the trained model.
+    """Train a model for one epoch, and run test and predict functions using the trained model.
 
     Args:
         make_default_hydra_cfg (Callable): factory to instantiate hydra config
@@ -97,7 +105,7 @@ def test_RandLaNet_train_one_epoch_and_test(
 
     """
     with TemporaryDirectory() as tmpdir:
-        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+        hydra_overrides = _make_list_of_hydra_overrides_for_logger_and_paths(
             isolated_toy_dataset_tmpdir, tmpdir
         )
 
@@ -160,7 +168,7 @@ def test_run_test_with_trained_model_on_toy_dataset(
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
     with TemporaryDirectory() as tmpdir:
-        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+        hydra_overrides = _make_list_of_hydra_overrides_for_logger_and_paths(
             isolated_toy_dataset_tmpdir, tmpdir
         )
         # Use an experiment designed for testing on test set
@@ -173,7 +181,7 @@ def test_run_test_with_trained_model_on_toy_dataset(
         )
         train(cfg_test_using_trained_model)
         # TODO find a way to assess test logs which should be :
-        metrics = get_metrics_df_from_tmpdir(tmpdir)
+        metrics = _get_metrics_df_from_tmpdir(tmpdir)
         assert metrics["test/iou_CLASS_unclassified"][0] >= 0.4
         assert metrics["test/iou_CLASS_ground"][0] >= 0.65
         assert metrics["test/iou_CLASS_building"][0] >= 0.60
@@ -187,7 +195,7 @@ def test_run_test_with_trained_model_on_large_las(
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
     with TemporaryDirectory() as tmpdir:
-        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+        hydra_overrides = _make_list_of_hydra_overrides_for_logger_and_paths(
             isolated_test_subdir_for_large_las, tmpdir
         )
         # Use an experiment designed for testing on test set
@@ -199,7 +207,7 @@ def test_run_test_with_trained_model_on_large_las(
             + hydra_overrides
         )
         train(cfg_test_using_trained_model)
-        metrics = get_metrics_df_from_tmpdir(tmpdir)
+        metrics = _get_metrics_df_from_tmpdir(tmpdir)
         # TODO: reference values to be defined !
         assert metrics["test/iou_CLASS_unclassified"][0] >= 0.60
         assert metrics["test/iou_CLASS_ground"][0] >= 0.83
@@ -212,7 +220,7 @@ def test_predict_with_trained_model_on_toy_dataset(make_default_hydra_cfg):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
     with TemporaryDirectory() as tmpdir:
-        hydra_overrides = make_list_of_hydra_overrides_for_logger_and_paths(
+        hydra_overrides = _make_list_of_hydra_overrides_for_logger_and_paths(
             "placeholder_because_no_need_for_a_dataset_here", tmpdir
         )
         cfg_predict_using_trained_model = make_default_hydra_cfg(
@@ -260,19 +268,19 @@ def test_predict_with_trained_model_on_toy_dataset(make_default_hydra_cfg):
 #         assert np.mean(target == preds) >= 0.97
 
 
-def check_las_contains_dims(las1, dims_to_check=[]):
-    a1 = pdal_read_las_array(las1)
-    for d in dims_to_check:
-        assert d in a1.dtype.fields.keys()
+def check_las_contains_dims(las_path, dims_to_check=[]):
+    a1 = pdal_read_las_array(las_path)
+    for dim in dims_to_check:
+        assert dim in a1.dtype.fields.keys()
 
 
-def check_las_does_not_contains_dims(las1, dims_to_check=[]):
-    a1 = pdal_read_las_array(las1)
-    for d in dims_to_check:
-        assert d not in a1.dtype.fields.keys()
+def check_las_does_not_contains_dims(las_path, dims_to_check=[]):
+    a1 = pdal_read_las_array(las_path)
+    for dim in dims_to_check:
+        assert dim not in a1.dtype.fields.keys()
 
 
-def pdal_read_las_array(in_f: str):
+def pdal_read_las_array(las_path: str):
     """Read LAS as a named array.
 
     Args:
@@ -281,30 +289,31 @@ def pdal_read_las_array(in_f: str):
     Returns:
         np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.
     """
-    p1 = pdal.Pipeline() | pdal.Reader.las(filename=in_f)
+    p1 = pdal.Pipeline() | pdal.Reader.las(filename=las_path)
     p1.execute()
     return p1.arrays[0]
 
 
-def check_las_invariance(las1, las2):
-    TOLERANCE = 0.0001
+def check_las_invariance(las_path_1: str, las_path_2: str):
+    """Check that key dimensions are equal between two LAS files."""
 
-    a1 = pdal_read_las_array(las1)
-    a2 = pdal_read_las_array(las2)
+    a1 = pdal_read_las_array(las_path_1)
+    a2 = pdal_read_las_array(las_path_2)
     key_dims = ["X", "Y", "Z", "Infrared", "Red", "Blue", "Green", "Intensity"]
     assert a1.shape == a2.shape  # no loss of points
     assert all(d in a2.dtype.fields.keys() for d in key_dims)  # key dims are here
 
     # order of points is allowed to change, so we assess a relaxed equality.
+    rel_tolerance = 0.0001
     for d in key_dims:
-        assert pytest.approx(np.min(a2[d]), TOLERANCE) == np.min(a1[d])
-        assert pytest.approx(np.max(a2[d]), TOLERANCE) == np.max(a1[d])
-        assert pytest.approx(np.mean(a2[d]), TOLERANCE) == np.mean(a1[d])
-        assert pytest.approx(np.sum(a2[d]), TOLERANCE) == np.sum(a1[d])
+        assert pytest.approx(np.min(a2[d]), rel_tolerance) == np.min(a1[d])
+        assert pytest.approx(np.max(a2[d]), rel_tolerance) == np.max(a1[d])
+        assert pytest.approx(np.mean(a2[d]), rel_tolerance) == np.mean(a1[d])
+        assert pytest.approx(np.sum(a2[d]), rel_tolerance) == np.sum(a1[d])
 
 
-def make_list_of_hydra_overrides_for_logger_and_paths(
-    isolated_toy_dataset_tmpdir, tmpdir
+def _make_list_of_hydra_overrides_for_logger_and_paths(
+    isolated_toy_dataset_tmpdir: str, tmpdir: str
 ):
     """Get list of overrides for hydra, the ones that are always needed when calling train/test."""
 
@@ -316,5 +325,10 @@ def make_list_of_hydra_overrides_for_logger_and_paths(
     ]
 
 
-def get_metrics_df_from_tmpdir(tmpdir):
+def _get_metrics_df_from_tmpdir(tmpdir: str) -> pd.DataFrame:
+    """Get dataframe of metrics logged by csv logger.
+
+    Not sure if version_0 is added by pytest or by lightning.
+
+    """
     return pd.read_csv(osp.join(tmpdir, "csv", "version_0", "metrics.csv"))
