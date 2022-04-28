@@ -31,7 +31,7 @@ with open(os.path.join(abs_root_path, "package_metadata.yaml"), "r") as f:
 release = pm["__version__"]
 project = pm["__name__"]
 author = pm["__author__"]
-copyright = "2021, Institut National de l'Information Géographique et Forestière"
+copyright = pm["__copyright__"]
 
 # -- YAML main to print the config into  ---------------------------------------------------
 # We need to concatenate configs into a single file using hydra
@@ -77,7 +77,7 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
+
 html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
@@ -104,56 +104,18 @@ modindex_common_prefix = ["lidar_multiclass."]
 to_mock = [
     # "torch",
     "comet_ml",
-    # "numpy",
-    # "pytorch_lightning",
-    # "pytorch_lightning.callbacks",
-    # "pytorch_lightning.loggers",
-    # "pytorch_lightning.utilities",
-    # "pytorch_lightning.utilities.types",
     "tqdm",
     "pdal",
     "python-pdal",
     "hydra",
     "laspy",
     "torch_geometric",
-    # "omegaconf",
     "dotenv",
     "torch_points_kernels",
-    # "rich",
-    # "rich.tree",
-    # "rich.syntax",
-    # "torch_points_kernels",
-    # "torch_geometric",
-    # "torch_geometric.nn",
-    # "torch_geometric.nn.pool",
-    # "torch_geometric.nn.unpool",
-    # "torch_geometric.nn.glob",
-    # "torch_geometric.nn.glob.glob",
-    # "torch_geometric.data",
-    # "torch_geometric.data.data",
-    # "torch_geometric.nn.glob",
-    # "torch_geometric.transforms",
-    # "torch_geometric.transforms.center",
-    # "pandas",
-    # "torch_scatter",
     "torchmetrics",
     "torchmetrics.functional",
     "torchmetrics.functional.classification",
     "torchmetrics.functional.classification.jaccard",
-    #     "torch",
-    #     "torch.nn",
-    #     "torch.nn.functional",
-    #     "torch.nn.parallel",
-    #     "torch.distributed",
-    #     "torch.distributions",
-    #     "torch.multiprocessing",
-    #     "torch.autograd",
-    #     "torch.autograd.function",
-    #     "torch.nn.modules",
-    #     "torch.nn.modules.utils",
-    #     "torch.utils",
-    #     "torch.utils.data",
-    #     "torch.utils.data.dataset",
 ]
 
 

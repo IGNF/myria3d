@@ -20,36 +20,6 @@ A couple of sanity checks to make sure the model doesn't crash with different ru
 """
 
 
-@pytest.fixture(scope="session")
-def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_factory):
-    """Train a RandLaNet model for one epoch, in order to run it in different other tests.
-
-    Args:
-        isolated_toy_dataset_tmpdir (bool): _description_
-        tmpdir (_type_): _description_
-
-    Returns:
-        str: path to trained model checkpoint, which persists for the whole pytest session.
-
-    """
-    tmpdir = tmpdir_factory.mktemp("training_logs_dir")
-
-    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-        isolated_toy_dataset_tmpdir, tmpdir
-    )
-    cfg_one_epoch = make_default_hydra_cfg(
-        overrides=[
-            "experiment=RandLaNetDebug",
-            "datamodule.batch_size=2",
-            "trainer.min_epochs=1",
-            "trainer.max_epochs=1",
-        ]
-        + tmp_paths_overrides
-    )
-    trainer = train(cfg_one_epoch)
-    return trainer.checkpoint_callback.best_model_path
-
-
 def test_FrenchLidar_default_training_fast_dev_run_as_command(
     isolated_toy_dataset_tmpdir,
 ):
@@ -66,25 +36,24 @@ def test_FrenchLidar_default_training_fast_dev_run_as_command(
     run_hydra_decorated_command(command)
 
 
-def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint):
+def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     """Test running inference by CLI for toyLAS."""
-    with TemporaryDirectory() as tmpdir:
-        # Hydra changes CWD, and therefore absolute paths are preferred
-        abs_path_to_toy_LAS = osp.abspath(LAS_SUBSET_FOR_TOY_DATASET)
-        command = [
-            "run.py",
-            "task.task_name=predict",
-            f"predict.resume_from_checkpoint={one_epoch_trained_RandLaNet_checkpoint}",
-            f"predict.src_las={abs_path_to_toy_LAS}",
-            f"predict.output_dir={tmpdir}",
-            "predict.probas_to_save=[building,unclassified]",
-        ]
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_toy_LAS = osp.abspath(LAS_SUBSET_FOR_TOY_DATASET)
+    command = [
+        "run.py",
+        "task.task_name=predict",
+        f"predict.resume_from_checkpoint={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.src_las={abs_path_to_toy_LAS}",
+        f"predict.output_dir={tmpdir}",
+        "predict.probas_to_save=[building,unclassified]",
+    ]
 
-        run_hydra_decorated_command(command)
+    run_hydra_decorated_command(command)
 
 
 @pytest.mark.slow()
-def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir):
+def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     """Check ability to overfit with RandLa-Net.
 
     Check that overfitting a single batch from a toy dataset, for 30 epochs, results
@@ -92,59 +61,56 @@ def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir):
 
     """
 
-    with TemporaryDirectory() as tmpdir:
-
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            isolated_toy_dataset_tmpdir, tmpdir
-        )
-        cfg = make_default_hydra_cfg(
-            overrides=[
-                "experiment=RandLaNetDebug",  # Use an experiment designe for overfitting a batch
-                "datamodule.batch_size=2",  # Smaller batch size for faster overfit
-            ]
-            + tmp_paths_overrides
-        )
-        train(cfg)
-        # Not sure if version_0 is added by pytest or by lightning, but it is needed.
-        metrics = _get_metrics_df_from_tmpdir(tmpdir)
-        # Assert that there was a significative improvement i.e. the model learns.
-        iou = metrics["train/iou_CLASS_building"].dropna()
-        improvement = iou.iloc[-1] - iou.iloc[0]
-        assert improvement >= 0.75
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_toy_dataset_tmpdir, tmpdir
+    )
+    cfg = make_default_hydra_cfg(
+        overrides=[
+            "experiment=RandLaNetDebug",  # Use an experiment designe for overfitting a batch
+            "datamodule.batch_size=2",  # Smaller batch size for faster overfit
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg)
+    # Not sure if version_0 is added by pytest or by lightning, but it is needed.
+    metrics = _get_metrics_df_from_tmpdir(tmpdir)
+    # Assert that there was a significative improvement i.e. the model learns.
+    iou = metrics["train/iou_CLASS_building"].dropna()
+    improvement = iou.iloc[-1] - iou.iloc[0]
+    assert improvement >= 0.75
 
 
 @pytest.mark.slow()
-def test_PointNet_overfitting(isolated_toy_dataset_tmpdir):
+def test_PointNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     """Check ability to overfit with PointNet.
 
     Check that overfitting a single batch from a toy dataset, for 30 epochs, results
     in significanly lower training loss.
 
     """
-    with TemporaryDirectory() as tmpdir:
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            isolated_toy_dataset_tmpdir, tmpdir
-        )
-        cfg = make_default_hydra_cfg(
-            overrides=tmp_paths_overrides
-            + [
-                "experiment=PointNetDebug",  # Use an experiment designed for overfitting a batch...
-                "datamodule.batch_size=2",  # Smaller batch size for faster overfit
-                # Define the task as a classification of all (1 and 2) vs. 6=building
-                "++datamodule.dataset_description.classification_preprocessing_dict={2:1}",
-            ]
-        )
-        train(cfg)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_toy_dataset_tmpdir, tmpdir
+    )
+    cfg = make_default_hydra_cfg(
+        overrides=tmp_paths_overrides
+        + [
+            "experiment=PointNetDebug",  # Use an experiment designed for overfitting a batch...
+            "datamodule.batch_size=2",  # Smaller batch size for faster overfit
+            # Define the task as a classification of all (1 and 2) vs. 6=building
+            "++datamodule.dataset_description.classification_preprocessing_dict={2:1}",
+        ]
+    )
+    train(cfg)
 
-        # Assert that there was a significative improvement i.e. the model learns.
-        metrics = _get_metrics_df_from_tmpdir(tmpdir)
-        iou = metrics["train/iou_CLASS_building"].dropna()
-        improvement = iou.iloc[-1] - iou.iloc[0]
-        assert improvement >= 0.45
+    # Assert that there was a significative improvement i.e. the model learns.
+    metrics = _get_metrics_df_from_tmpdir(tmpdir)
+    iou = metrics["train/iou_CLASS_building"].dropna()
+    improvement = iou.iloc[-1] - iou.iloc[0]
+    assert improvement >= 0.45
 
 
 def test_RandLaNet_test_right_after_training(
-    isolated_toy_dataset_tmpdir, one_epoch_trained_RandLaNet_checkpoint
+    isolated_toy_dataset_tmpdir, one_epoch_trained_RandLaNet_checkpoint, tmpdir
 ):
     """Run test using the model that was just trained for one epoch.
 
@@ -154,26 +120,25 @@ def test_RandLaNet_test_right_after_training(
         that was just trained for one epoch.
 
     """
-    with TemporaryDirectory() as tmpdir:
 
-        # Run testing on toy testset with trainer.test(...)
-        # function's name is train, but under the hood and thanks to configuration,
-        # trainer.test(...) is called.
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            isolated_toy_dataset_tmpdir, tmpdir
-        )
-        cfg_test_using_trained_model = make_default_hydra_cfg(
-            overrides=[
-                "experiment=evaluate_test_data",  # sets task.task_name to "test"
-                f"model.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
-            ]
-            + tmp_paths_overrides
-        )
-        train(cfg_test_using_trained_model)
+    # Run testing on toy testset with trainer.test(...)
+    # function's name is train, but under the hood and thanks to configuration,
+    # trainer.test(...) is called.
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_toy_dataset_tmpdir, tmpdir
+    )
+    cfg_test_using_trained_model = make_default_hydra_cfg(
+        overrides=[
+            "experiment=evaluate_test_data",  # sets task.task_name to "test"
+            f"model.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg_test_using_trained_model)
 
 
 def test_RandLaNet_predict_with_invariance_checks(
-    one_epoch_trained_RandLaNet_checkpoint,
+    one_epoch_trained_RandLaNet_checkpoint, tmpdir
 ):
     """Train a model for one epoch, and run test and predict functions using the trained model.
 
@@ -181,110 +146,108 @@ def test_RandLaNet_predict_with_invariance_checks(
         isolated_toy_dataset_tmpdir (str): directory to toy dataset
 
     """
-    with TemporaryDirectory() as tmpdir:
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            "placeholder", tmpdir
-        )
-        # Run prediction
-        cfg_predict_using_trained_model = make_default_hydra_cfg(
-            overrides=[
-                f"predict.resume_from_checkpoint={one_epoch_trained_RandLaNet_checkpoint}",
-                f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
-                f"predict.output_dir={tmpdir}",
-                "predict.probas_to_save=[building,unclassified]",
-            ]
-            + tmp_paths_overrides
-        )
-        path_to_output_las = predict(cfg_predict_using_trained_model)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        "placeholder_because_no_need_for_a_dataset_here", tmpdir
+    )
+    # Run prediction
+    cfg_predict_using_trained_model = make_default_hydra_cfg(
+        overrides=[
+            f"predict.resume_from_checkpoint={one_epoch_trained_RandLaNet_checkpoint}",
+            f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
+            f"predict.output_dir={tmpdir}",
+            "predict.probas_to_save=[building,unclassified]",
+        ]
+        + tmp_paths_overrides
+    )
+    path_to_output_las = predict(cfg_predict_using_trained_model)
 
-        # Check that predict function generates a predicted LAS
-        assert osp.isfile(path_to_output_las)
+    # Check that predict function generates a predicted LAS
+    assert osp.isfile(path_to_output_las)
 
-        # Check the format of the predicted las in terms of extra dimensions
-        DIMS_ALWAYS_THERE = ["PredictedClassification", "entropy"]
-        DIMS_CHOSEN_IN_CONFIG = ["building", "unclassified"]
-        check_las_contains_dims(
-            path_to_output_las,
-            dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
-        )
-        DIMS_NOT_THERE = ["ground"]
-        check_las_does_not_contains_dims(
-            path_to_output_las, dims_to_check=DIMS_NOT_THERE
-        )
+    # Check the format of the predicted las in terms of extra dimensions
+    DIMS_ALWAYS_THERE = ["PredictedClassification", "entropy"]
+    DIMS_CHOSEN_IN_CONFIG = ["building", "unclassified"]
+    check_las_contains_dims(
+        path_to_output_las,
+        dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
+    )
+    DIMS_NOT_THERE = ["ground"]
+    check_las_does_not_contains_dims(path_to_output_las, dims_to_check=DIMS_NOT_THERE)
 
-        # check that predict does not change other dimensions
-        check_las_invariance(LAS_SUBSET_FOR_TOY_DATASET, path_to_output_las)
+    # check that predict does not change other dimensions
+    check_las_invariance(LAS_SUBSET_FOR_TOY_DATASET, path_to_output_las)
 
 
-def test_run_test_with_trained_model_on_toy_dataset(isolated_toy_dataset_tmpdir):
+def test_run_test_with_trained_model_on_toy_dataset(
+    isolated_toy_dataset_tmpdir, tmpdir
+):
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
-    with TemporaryDirectory() as tmpdir:
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            isolated_toy_dataset_tmpdir, tmpdir
-        )
-        # Use an experiment designed for testing on test set
-        cfg_test_using_trained_model = make_default_hydra_cfg(
-            overrides=[
-                "experiment=evaluate_test_data",
-                f"model.ckpt_path={TRAINED_MODEL_PATH}",
-            ]
-            + tmp_paths_overrides
-        )
-        train(cfg_test_using_trained_model)
-        # TODO find a way to assess test logs which should be :
-        metrics = _get_metrics_df_from_tmpdir(tmpdir)
-        assert metrics["test/iou_CLASS_unclassified"][0] >= 0.4
-        assert metrics["test/iou_CLASS_ground"][0] >= 0.65
-        assert metrics["test/iou_CLASS_building"][0] >= 0.60
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_toy_dataset_tmpdir, tmpdir
+    )
+    # Use an experiment designed for testing on test set
+    cfg_test_using_trained_model = make_default_hydra_cfg(
+        overrides=[
+            "experiment=evaluate_test_data",
+            f"model.ckpt_path={TRAINED_MODEL_PATH}",
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg_test_using_trained_model)
+    # TODO find a way to assess test logs which should be :
+    metrics = _get_metrics_df_from_tmpdir(tmpdir)
+    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.4
+    assert metrics["test/iou_CLASS_ground"][0] >= 0.65
+    assert metrics["test/iou_CLASS_building"][0] >= 0.60
 
 
 @pytest.mark.slow()
-def test_run_test_with_trained_model_on_large_las(isolated_test_subdir_for_large_las):
+def test_run_test_with_trained_model_on_large_las(
+    isolated_test_subdir_for_large_las, tmpdir
+):
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
-    with TemporaryDirectory() as tmpdir:
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            isolated_test_subdir_for_large_las, tmpdir
-        )
-        # Use an experiment designed for testing on test set
-        cfg_test_using_trained_model = make_default_hydra_cfg(
-            overrides=[
-                "experiment=evaluate_test_data",
-                f"model.ckpt_path={TRAINED_MODEL_PATH}",
-            ]
-            + tmp_paths_overrides
-        )
-        train(cfg_test_using_trained_model)
-        metrics = _get_metrics_df_from_tmpdir(tmpdir)
-        # TODO: reference values to be defined !
-        assert metrics["test/iou_CLASS_unclassified"][0] >= 0.60
-        assert metrics["test/iou_CLASS_ground"][0] >= 0.83
-        assert metrics["test/iou_CLASS_building"][0] >= 0.85
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_test_subdir_for_large_las, tmpdir
+    )
+    # Use an experiment designed for testing on test set
+    cfg_test_using_trained_model = make_default_hydra_cfg(
+        overrides=[
+            "experiment=evaluate_test_data",
+            f"model.ckpt_path={TRAINED_MODEL_PATH}",
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg_test_using_trained_model)
+    metrics = _get_metrics_df_from_tmpdir(tmpdir)
+    # TODO: reference values to be defined !
+    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.60
+    assert metrics["test/iou_CLASS_ground"][0] >= 0.83
+    assert metrics["test/iou_CLASS_building"][0] >= 0.85
 
 
-def test_predict_with_trained_model_on_toy_dataset():
+def test_predict_with_trained_model_on_toy_dataset(tmpdir):
     """Simple check that prediction does not fail."""
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
-    with TemporaryDirectory() as tmpdir:
-        tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-            "placeholder_because_no_need_for_a_dataset_here", tmpdir
-        )
-        cfg_predict_using_trained_model = make_default_hydra_cfg(
-            overrides=[
-                f"predict.resume_from_checkpoint={TRAINED_MODEL_PATH}",
-                f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
-                f"predict.output_dir={tmpdir}",
-                "predict.probas_to_save=[building,unclassified]",
-            ]
-            + tmp_paths_overrides
-        )
-        output_las_path = predict(cfg_predict_using_trained_model)
-        assert osp.isfile(output_las_path)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        "placeholder_because_no_need_for_a_dataset_here", tmpdir
+    )
+    cfg_predict_using_trained_model = make_default_hydra_cfg(
+        overrides=[
+            f"predict.resume_from_checkpoint={TRAINED_MODEL_PATH}",
+            f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
+            f"predict.output_dir={tmpdir}",
+            "predict.probas_to_save=[building,unclassified]",
+        ]
+        + tmp_paths_overrides
+    )
+    output_las_path = predict(cfg_predict_using_trained_model)
+    assert osp.isfile(output_las_path)
 
 
 # @pytest.mark.slow()
@@ -383,3 +346,33 @@ def _get_metrics_df_from_tmpdir(tmpdir: str) -> pd.DataFrame:
 
     """
     return pd.read_csv(osp.join(tmpdir, "csv", "version_0", "metrics.csv"))
+
+
+@pytest.fixture(scope="session")
+def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_factory):
+    """Train a RandLaNet model for one epoch, in order to run it in different other tests.
+
+    Args:
+        isolated_toy_dataset_tmpdir (bool): _description_
+        tmpdir (_type_): _description_
+
+    Returns:
+        str: path to trained model checkpoint, which persists for the whole pytest session.
+
+    """
+    tmpdir = tmpdir_factory.mktemp("training_logs_dir")
+
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_toy_dataset_tmpdir, tmpdir
+    )
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=[
+            "experiment=RandLaNetDebug",
+            "datamodule.batch_size=2",
+            "trainer.min_epochs=1",
+            "trainer.max_epochs=1",
+        ]
+        + tmp_paths_overrides
+    )
+    trainer = train(cfg_one_epoch)
+    return trainer.checkpoint_callback.best_model_path

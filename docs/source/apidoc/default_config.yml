@@ -6,7 +6,7 @@ ignore_warnings: true
 trainer:
   _target_: pytorch_lightning.Trainer
   gpus: 0
-  min_epochs: 1
+  min_epochs: 30
   max_epochs: 30
   log_every_n_steps: 1
   check_val_every_n_epoch: 1
@@ -37,8 +37,8 @@ datamodule:
     voxel_size: 0.25
   _target_: lidar_multiclass.data.datamodule.DataModule
   prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
-  num_workers: 1
   batch_size: 16
+  num_workers: 1
   subtile_width_meters: 50
   subtile_overlap: ${predict.subtile_overlap}
   augment: false
@@ -112,9 +112,9 @@ model:
   criterion:
     _target_: torch.nn.CrossEntropyLoss
     label_smoothing: 0.0
-  lr: 0.004566395347136576
   momentum: 0.9
   monitor: val/loss_epoch
+  lr: 0.004566395347136576
 logger:
   comet:
     _target_: pytorch_lightning.loggers.comet.CometLogger
@@ -132,5 +132,5 @@ predict:
   resume_from_checkpoint: /path/to/lightning_model.ckpt
   gpus: 0
   probas_to_save: all
-  subtile_overlap: 25
+  subtile_overlap: 0
   interpolation_k: 10
