@@ -1,6 +1,8 @@
 defaults:
   - default.yaml
 
+lr: 0.004566395347136576  # 200-long LR-test-range betw 10^-4 and 3.0
+
 neural_net_class_name: "RandLANet"
 neural_net_hparams:
   num_classes: ${model.num_classes}
@@ -8,5 +10,3 @@ neural_net_hparams:
   num_neighbors: 16
   decimation: 4  # divide by decimation for each of the 4 local encoder.
   dropout: 0.5  # Use 0.0 of false to deactivate
-
-# not a package
