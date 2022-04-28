@@ -6,22 +6,21 @@ import sh
 from typing import List
 from hydra import compose, initialize
 
-from lidar_multiclass.data.loading import make_toy_dataset_from_test_file
+from lidar_multiclass.data.loading import (
+    LAS_SUBSET_FOR_TOY_DATASET,
+    make_toy_dataset_from_test_file,
+)
 
 LARGE_LAS_PATH = "tests/data/large/raw_792000_6272000.las"
 TRAINED_MODEL_PATH = "tests/data/large/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt"
 
 
-@pytest.fixture()
-def make_default_hydra_cfg():
-    def _make_default_hydra_cfg(overrides=[]):
-        with initialize(config_path="./../configs/", job_name="config"):
-            # there is no hydra:runtime.cwd when using compose, and therefore we have
-            # to specify where our working directory is i.e. where the code is.
-            workdir_override = ["work_dir=./../"]
-            return compose(config_name="config", overrides=workdir_override + overrides)
-
-    return _make_default_hydra_cfg
+def make_default_hydra_cfg(overrides=[]):
+    with initialize(config_path="./../configs/", job_name="config"):
+        # there is no hydra:runtime.cwd when using compose, and therefore we have
+        # to specify where our working directory is i.e. where the code is.
+        workdir_override = ["work_dir=./../"]
+        return compose(config_name="config", overrides=workdir_override + overrides)
 
 
 @pytest.fixture(scope="session")
