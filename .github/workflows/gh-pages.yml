@@ -50,6 +50,8 @@ jobs:
         run: mamba env update -n lidar_multiclass -f setup_env/requirements.yml
         if: steps.cache.outputs.cache-hit != 'true'
 
+      - name: List installed packages
+        run: mamba list
 
       - name: "Build Sphinx Doc"
         working-directory: ./docs/
