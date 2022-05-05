@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.CONDA }}/envs
-          key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles('setup_env/requirements.yml') }}
+          key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles('setup_env/requirements.yml') }}-${{ env.CACHE_NUMBER }}
         id: cache
       - name: Update environment if there was no cached env.
         run: mamba env update -n lidar_multiclass -f setup_env/requirements.yml
