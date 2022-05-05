@@ -30,18 +30,51 @@ jobs:
     - name: Check code neatness (linter)
       run: docker run lidar_deep_im flake8
 
-    - name: unit testing
-      run: docker run lidar_deep_im pytest --ignore=actions-runner --ignore="notebooks"
+    - name: Fast unit tests first
+      run: >
+        docker run lidar_deep_im
+        python -m
+        pytest -rA -v -m "not slow" 
+        --ignore=actions-runner
+        --ignore="notebooks"
+
+    - name: Slow unit tests last
+      run: >
+        docker run lidar_deep_im
+        python -m
+        pytest -rA -v -m "slow" 
+        --ignore=actions-runner
+        --ignore="notebooks"
 
     - name: Full module run on LAS subset
       run: docker run -v /var/data/CICD_github_assets:/CICD_github_assets lidar_deep_im 
 
-    - name: save the docker image because everything worked
-      run: docker save lidar_deep_im:latest > /var/data/CICD_github_assets/lidar_deep_im.tar # need writing right
+    # Everything ran so we tag the valid docker image to keep it
+    # This happens for push events, which are in particular 
+    # triggered when a pull request is merged.
+    - name: Get the branch name into an environment variable.
+      if: github.event_name == 'push'
+      uses: nelonoel/branch-name@v1.0.1
 
-    - name: clean the server for further uses
+    - name: Print the branch name
+      if: github.event_name == 'push'
+      run: echo ${BRANCH_NAME}
+
+    - name: Tag the docker image with branch name
+      if: github.event_name == 'push'
+      run: docker tag lidar_deep_im:latest lidar_deep_im:${BRANCH_NAME}
+
+    - name: Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
+      if: github.event_name == 'push'
+      run: docker run lidar_deep_im:${BRANCH_NAME} bash
+
+    # This needs writing rights to the mounted path
+    - name: Save the docker image as lidar_deep_im_${BRANCH_NAME}.tar
+      run: docker save lidar_deep_im:${BRANCH_NAME} > /var/data/CICD_github_assets/lidar_deep_im_${BRANCH_NAME}.tar
+
+    - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
-      run: docker system prune  # remove obsolete docker images (take a HUGE amount of space)
+      run: docker system prune --force # remove dangling docker images, without asking user for confirmation
 
 
       
