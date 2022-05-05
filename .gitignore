@@ -2,7 +2,6 @@
 nohup.out
 inputs/
 outputs/
-bash/schedule/*
 checkpoints/
 # large files that are not tracked
 tests/data/large

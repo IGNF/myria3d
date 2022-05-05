@@ -13,7 +13,7 @@ If you want to use a gpu to speed up model training and inference, make sure tha
 sudo apt install nvidia-cuda-toolkit
 ```
 
-The  [bash](https://github.com/IGNF/lidar-deep-segmentation/bash/) folder contains everything you need to setup a compatible pytorch virtual environement.
+The  [bash](https://github.com/IGNF/lidar-deep-segmentation/setup_env/) directory contains everything you need to setup a compatible pytorch virtual environement.
 You can get it by by cloning the entire project with:
 
 ```bash
@@ -24,13 +24,14 @@ or by manually downloading its content.
 
 ### Environment Installation
 
-To install the environment, run either on of these commands:
+To install the environment, run:
 ```bash
-source bash/setup_environment/setup_env.sh  # if you have a GPU
-source bash/setup_environment/setup_env_cpu_only.sh  # if you only have a CPU
+source setup_env/setup_env.sh
 ```
 
-Before doing so, and to enable GPU support, [check you CUDA version](https://varhowto.com/check-cuda-version/) and be sure that `TORCH_CUDA` in `bash/setup_environment/setup_env.sh` matches yours.
+If you do not have CUDA installed, you need comment out cudatoolkit in `setup_env/requirements.yml`
+
+If you do have CUDA, [check you CUDA version](https://varhowto.com/check-cuda-version/) and be sure `cudatoolkit` version in `setup_env/requirements.yml` matches yours.
 
 Finally, activate the created environmnt by running
 

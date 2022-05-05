@@ -1,9 +1,10 @@
 name: lidar_multiclass
 channels:
-  - conda-forge
-  - anaconda
   - comet_ml
   - pytorch
+  - pyg
+  - conda-forge
+  - anaconda
 dependencies:
   - python==3.9.*
   - pip
@@ -13,6 +14,13 @@ dependencies:
   - pygeos
   - laspy
   - python-pdal  # useful for data preparation
+  # --------- deep learning --------- #
+  - pytorch==1.10.1
+  - pyg==2.0.3
+  - torchvision==0.11.2
+  - cudatoolkit=11.3  # single equal sign there, not a typo
+  - pytorch-lightning==1.5.9
+  - torchmetrics==0.7.*  # Else, pytorch-lightning will install the latest
   # --------- loggers --------- #
   - comet_ml
   # --------- linters --------- #
@@ -33,4 +41,11 @@ dependencies:
   - jupyterlab # better jupyter notebooks
   - pudb # debugger
   - pip:
-      - -r requirements.txt
+      - -r requirements.txt  # 
+  - pip:
+      - torch-points-kernels --no-deps # deep learning - additional dependency we would love to get rid off
+  - pip:
+      - numba==0.55.1  # ensure the right version of numba ; can we get rid of it?
+      - numpy==1.20.0  # revert inconsistent torch-points-kernel dependency if needed
+variables:
+  FORCE_CUDA: 1 # for torch-points-kernels
