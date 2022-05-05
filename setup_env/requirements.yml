@@ -40,13 +40,11 @@ dependencies:
   - seaborn # used in some callbacks
   - jupyterlab # better jupyter notebooks
   - pudb # debugger
-  - pip:
-      - -r requirements.txt  # 
-  - pip:
-      - torch-points-kernels --no-deps # deep learning - additional dependency we would love to get rid off
   - numba==0.55.1
   - pip:
-      - numpy==1.20.0 
+      - -r requirements.txt
+      - torch-points-kernels --no-deps # deep learning - additional dependency we would love to get rid off
+      - numpy==1.20.0
       # ensure the right version of numba ; can we get rid of it? and 
       # revert inconsistent torch-points-kernel dependency if needed
 variables:
