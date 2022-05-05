@@ -20,10 +20,13 @@ dependencies:
   - black # code formatting
   - isort # import sorting
   - flake8 # code analysis
+  # --------- tests --------- #
+  - pytest==7.1.*
+  - coverage==6.3.*
+  - pytest-cov==3.0.*
   # --------- others --------- #
   - python-dotenv # loading env variables from .env file
   - rich # beautiful text formatting in terminal
-  - pytest # tests
   - sh # for running bash commands in some tests
   - scikit-learn # used in some callbacks
   - seaborn # used in some callbacks

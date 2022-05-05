@@ -153,3 +153,6 @@ def train(config: DictConfig) -> Optional[float]:
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=None)
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
         log.info("End of training and validating!")
+    
+    # Returns the trainer for access to everything that was calculated.
+    return trainer

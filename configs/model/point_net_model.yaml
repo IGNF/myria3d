@@ -1,6 +1,9 @@
 defaults:
   - default.yaml
 
+# Lower learning rate for PointNet than for RandLaNet
+lr: 0.001
+
 neural_net_class_name: "PointNet"
 neural_net_hparams:
   batch_norm: true

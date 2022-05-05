@@ -50,8 +50,6 @@ class PointNet(nn.Module):
         f3 = self.mlp3(Gf1)
         logits = self.lin(f3)
 
-        self.change_num_class_for_finetuning(5)
-
         return logits
 
     def change_num_class_for_finetuning(self, new_num_classes: int):
