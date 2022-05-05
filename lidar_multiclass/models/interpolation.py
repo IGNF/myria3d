@@ -9,7 +9,6 @@ import torch
 from torch_geometric.nn.pool import knn
 from torch_geometric.nn.unpool import knn_interpolate
 from lidar_multiclass.utils import utils
-from lidar_multiclass.utils import utils
 from torch.distributions import Categorical
 
 from lidar_multiclass.data.transforms import ChannelNames
@@ -30,8 +29,8 @@ class Interpolator:
         """Initialization method.
 
         Args:
-            interpolation_k (int, optional): Number of Nearest-Neighboors to consider for inverse-distance averaging of logits. Defaults to 10.
-            classification_dict (Dict[int, str], optional): Mapper, from classification code to class name (e.g. {6:building}). Defaults to {}.
+            interpolation_k (int, optional): Number of Nearest-Neighboors for inverse-distance averaging of logits. Defaults 10.
+            classification_dict (Dict[int, str], optional): Mapper from classification code to class name (e.g. {6:building}). Defaults {}.
             probas_to_save (List[str] or "all", optional): Specific probabilities to save as new LAS dimensions.
             Override with None for no saving of probabilitiues. Defaults to "all".
             output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,
@@ -209,13 +208,13 @@ class Interpolator:
         entropy = Categorical(probs=probas).entropy()
         self.las[ChannelNames.ProbasEntropy.value][:] = entropy
 
-        log.info(f"Saving...")
+        log.info("Saving...")
 
         pipeline = pdal.Writer.las(
-            filename=out_f, extra_dims=f"all", minor_version=4, dataformat_id=8
+            filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8
         ).pipeline(self.las)
         pipeline.execute()
-        log.info(f"Saved.")
+        log.info("Saved.")
 
         return out_f
 

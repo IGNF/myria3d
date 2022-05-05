@@ -3,7 +3,7 @@
 Country-specific definitions inherit from abstract class LidarDataLogic, which implements general logics
 to split each point cloud into subtiles, format these subtiles, and save a learning-ready dataset splitted into
 train, val. A test set is also created, which is simply a copy of the selected test point clouds. This is so
-test phase conditions are similar to "in-the-wild" prediction conditions. 
+test phase conditions are similar to "in-the-wild" prediction conditions.
 
 In particular, subclasses implement a "load_las" method that is used by the datamodule at test and inference time.
 
@@ -271,7 +271,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
         try:
             # for LAS format V1.2
             y = las.classification.array.astype(int)
-        except:
+        except:  # noqa
             # for  LAS format V1.4
             y = las.classification.astype(int)
 
@@ -357,7 +357,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         try:
             # for LAS format V1.2
             y = las.classification.array.astype(int)
-        except:
+        except:  # noqa
             # for  LAS format V1.4
             y = las.classification.astype(int)
 
@@ -484,9 +484,7 @@ def main():
         data_prepper = SwissTopoLidarDataLogic(**args.__dict__)
         data_prepper.prepare()
     else:
-        raise KeyError(
-            f"Data origin is invalid (currently: {args.origin})"
-        )
+        raise KeyError(f"Data origin is invalid (currently: {args.origin})")
 
 
 if __name__ == "__main__":

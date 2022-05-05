@@ -1,5 +1,4 @@
 import logging
-import os
 import time
 import warnings
 from typing import List, Sequence

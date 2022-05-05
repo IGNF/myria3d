@@ -13,6 +13,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # Use bash instead of sh for conda activation
+    defaults:
+      run:
+        shell: bash -l {0}
+
     # Task to do when launching the workflow
     steps:
 
@@ -40,12 +45,14 @@ jobs:
         id: get-date
         run: echo "::set-output name=today::$(/bin/date -u '+%Y%m%d')"
         shell: bash
+
       - name: Cache conda environment
         uses: actions/cache@v2
         with:
           path: ${{ env.CONDA }}/envs
           key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles('setup_env/requirements.yml') }}-${{ env.CACHE_NUMBER }}
         id: cache
+
       - name: Update environment if there was no cached env.
         run: mamba env update -n lidar_multiclass -f setup_env/requirements.yml
         if: steps.cache.outputs.cache-hit != 'true'

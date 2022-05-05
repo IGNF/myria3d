@@ -1,7 +1,7 @@
-import comet_ml
+import comet_ml  # noqa
 import dotenv
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
 
 # load environment variables from `.env` file if it exists

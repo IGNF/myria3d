@@ -9,7 +9,7 @@ from torch_points_kernels import knn
 class RandLANet(nn.Module):
     """
     Implementation of randLa-Net which follows the original paper.
-    
+
     RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
     at https://arxiv.org/abs/1911.11236
 

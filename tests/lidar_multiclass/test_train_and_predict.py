@@ -1,5 +1,4 @@
 import os.path as osp
-from tempfile import TemporaryDirectory
 import numpy as np
 import pandas as pd
 import pdal

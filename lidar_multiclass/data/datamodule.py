@@ -1,17 +1,27 @@
 import os.path as osp
 import glob
-import time
 import numpy as np
-from typing import Optional, List, AnyStr
+from typing import Optional, List
 from numbers import Number
 from pytorch_lightning import LightningDataModule
+import torch
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
 from lidar_multiclass.utils import utils
-from lidar_multiclass.data.transforms import *
+from lidar_multiclass.data.transforms import (
+    CustomCompose,
+    EmptySubtileFilter,
+    MakeCopyOfPosAndY,
+    MakeCopyOfSampledPos,
+    NormalizePos,
+    StandardizeFeatures,
+    TargetTransform,
+    ToTensor,
+    collate_fn,
+)
 
 
 log = utils.get_logger(__name__)
@@ -278,7 +288,6 @@ class LidarIterableDataset(IterableDataset):
             tile_data = self.loading_function(filepath)
             centers = self.get_all_subtiles_xy_min_corner(tile_data)
             # TODO: change to process time function
-            ts = time.time()
             for xy_min_corner in centers:
                 data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
                 if self.transform:

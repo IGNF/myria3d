@@ -1,8 +1,7 @@
-from typing import Any, Optional
+from typing import Optional
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
-import torch_geometric
 from torch_geometric.data import Batch
 from torchmetrics import MaxMetric
 from lidar_multiclass.models.modules.randla_net import RandLANet
@@ -225,7 +224,7 @@ class Model(LightningModule):
 
         try:
             lr_scheduler = self.hparams.lr_scheduler(optimizer)
-        except:
+        except:  # noqa
             # OneCycleLR needs optimizer and max_lr
             lr_scheduler = self.hparams.lr_scheduler(optimizer, self.lr)
         config = {
