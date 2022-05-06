@@ -329,5 +329,5 @@ def collate_fn(data_list: List[Data]) -> Batch:
             ]
         )
     )
-    batch.batch_size = len(data_list)
+    batch.num_batches = len(data_list)
     return batch

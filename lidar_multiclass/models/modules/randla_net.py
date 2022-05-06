@@ -89,7 +89,7 @@ class RandLANet(nn.Module):
         """
 
         input = torch.cat([batch.pos, batch.x], axis=1)
-        chunks = torch.split(input, len(batch.pos) // batch.batch_size)
+        chunks = torch.split(input, len(batch.pos) // batch.num_batches)
         input = torch.stack(chunks)  # B, N, 3+F
 
         N = input.size(1)
