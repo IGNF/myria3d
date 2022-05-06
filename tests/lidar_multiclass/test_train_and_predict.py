@@ -222,10 +222,10 @@ def test_run_test_with_trained_model_on_large_las(
     )
     train(cfg_test_using_trained_model)
     metrics = _get_metrics_df_from_tmpdir(tmpdir)
-    # TODO: reference values to be defined !
-    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.60
-    assert metrics["test/iou_CLASS_ground"][0] >= 0.83
-    assert metrics["test/iou_CLASS_building"][0] >= 0.85
+    # TODO: reference values to be better defined
+    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.55
+    assert metrics["test/iou_CLASS_ground"][0] >= 0.80
+    assert metrics["test/iou_CLASS_building"][0] >= 0.80
 
 
 def test_predict_with_trained_model_on_toy_dataset(tmpdir):

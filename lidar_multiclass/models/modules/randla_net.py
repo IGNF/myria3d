@@ -1,14 +1,15 @@
 # Adapted from https://github.com/aRI0U/RandLA-Net-pytorch/blob/master/model.py
 
+from typing import Tuple
 import torch
 import torch.nn as nn
 
-from torch_points_kernels import knn
+from torch_geometric.nn.pool import knn
 
 
 class RandLANet(nn.Module):
     """
-    Implementation of randLa-Net which follows the original paper.
+    An implementation of randLa-Net which follows the original paper.
 
     RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
     at https://arxiv.org/abs/1911.11236
@@ -16,6 +17,8 @@ class RandLANet(nn.Module):
     Our modifications:
     - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
     information bottleneck in cases where d_in is above 8.
+    - Use pytorch-geometric instead of torch_points_kernels for GPU support, and 
+    ease of installation of dependencies.
 
     """
 
@@ -92,7 +95,7 @@ class RandLANet(nn.Module):
         N = input.size(1)
         d = self.decimation
 
-        coords = input[..., :3].clone()  # .cpu()
+        pos = input[..., :3].clone()  # .cpu()
         x = self.fc_start(input).transpose(-2, -1).unsqueeze(-1)
         x = self.bn_start(x)  # shape (B, d, N, 1)
 
@@ -102,12 +105,12 @@ class RandLANet(nn.Module):
         x_stack = []
 
         permutation = torch.randperm(N)
-        coords = coords[:, permutation]
+        pos = pos[:, permutation]
         x = x[:, :, permutation]
 
         for lfa in self.encoder:
             # at iteration i, x.shape = (B, N//(d**i), d_in)
-            x = lfa(coords[:, : N // decimation_ratio], x)
+            x = lfa(pos[:, : N // decimation_ratio], x)
             x_stack.append(x.clone())
             decimation_ratio *= d
             x = x[:, :, : N // decimation_ratio]
@@ -118,12 +121,11 @@ class RandLANet(nn.Module):
 
         # <<<<<<<<<< DECODER
         for mlp in self.decoder:
-            neighbors, _ = knn(
-                coords[:, : N // decimation_ratio].cpu().contiguous(),  # original set
-                coords[:, : d * N // decimation_ratio]
-                .cpu()
-                .contiguous(),  # upsampled set
-                1,
+            SINGLE_NEIGHBOR = 1
+            _, neighbors = knn_compact(
+                pos[:, : N // decimation_ratio].cpu().contiguous(),  # original set
+                pos[:, : d * N // decimation_ratio].cpu().contiguous(),  # upsampled set
+                SINGLE_NEIGHBOR,
             )  # shape (B, N, 1)
             neighbors = neighbors.to(x.device)
             extended_neighbors = neighbors.unsqueeze(1).expand(-1, x.size(1), -1, 1)
@@ -214,12 +216,12 @@ class LocalSpatialEncoding(nn.Module):
         self.num_neighbors = num_neighbors
         self.mlp = SharedMLP(10, d, bn=True, activation_fn=nn.ReLU())
 
-    def forward(self, coords, features, knn_output):
+    def forward(self, pos, features, knn_output):
         r"""
         Forward pass
         Parameters
         ----------
-        coords: torch.Tensor, shape (B, N, 3)
+        pos: torch.Tensor, shape (B, N, 3)
             coordinates of the point cloud
         features: torch.Tensor, shape (B, d, N, 1)
             features of the point cloud
@@ -230,15 +232,15 @@ class LocalSpatialEncoding(nn.Module):
         """
         # finding neighboring points
         idx, dist = knn_output
-        idx = idx.to(coords.device)
-        dist = dist.to(coords.device)
+        idx = idx.to(pos.device)
+        dist = dist.to(pos.device)
         B, N, K = idx.size()
-        # idx(B, N, K), coords(B, N, 3)
-        # neighbors[b, i, n, k] = coords[b, idx[b, n, k], i] = extended_coords[b, i, extended_idx[b, i, n, k], k]
+        # idx(B, N, K), pos(B, N, 3)
+        # neighbors[b, i, n, k] = pos[b, idx[b, n, k], i] = extended_coords[b, i, extended_idx[b, i, n, k], k]
         extended_idx = idx.unsqueeze(1).expand(B, 3, N, K)
-        extended_coords = coords.transpose(-2, -1).unsqueeze(-1).expand(B, 3, N, K)
+        extended_coords = pos.transpose(-2, -1).unsqueeze(-1).expand(B, 3, N, K)
         neighbors = torch.gather(extended_coords, 2, extended_idx)  # shape (B, 3, N, K)
-        neighbors = neighbors.to(coords.device)
+        neighbors = neighbors.to(pos.device)
 
         # relative point position encoding
         concat = torch.cat(
@@ -250,7 +252,7 @@ class LocalSpatialEncoding(nn.Module):
             ),
             dim=-3,
         )
-        concat = concat.to(coords.device)
+        concat = concat.to(pos.device)
         return torch.cat((self.mlp(concat), features.expand(B, -1, N, K)), dim=-3)
 
 
@@ -302,12 +304,12 @@ class LocalFeatureAggregation(nn.Module):
 
         self.lrelu = nn.LeakyReLU()
 
-    def forward(self, coords, features):
+    def forward(self, pos, features):
         r"""
         Forward pass
         Parameters
         ----------
-        coords: torch.Tensor, shape (B, N, 3)
+        pos: torch.Tensor, shape (B, N, 3)
             coordinates of the point cloud
         features: torch.Tensor, shape (B, d_in, N, 1)
             features of the point cloud
@@ -315,16 +317,85 @@ class LocalFeatureAggregation(nn.Module):
         -------
         torch.Tensor, shape (B, 2*d_out, N, 1)
         """
-        # torch_geometric KNN supports CUDA but would need a batch_x and batch_y index tensor.
-        knn_output = knn(
-            coords.cpu().contiguous(), coords.cpu().contiguous(), self.num_neighbors
-        )
+
+        y_idx, x_idx = knn_compact(pos, pos, self.num_neighbors)
+        # Torch points Kernels' KNN returned squared distances, so we do the same here
+        # see https://github.com/torch-points3d/torch-points-kernels/blob/master/torch_points_kernels/knn.py
+
+        pos_x = self.gather_compact_pos_with_compact_idx(pos, x_idx)
+        pos_y = self.gather_compact_pos_with_compact_idx(pos, y_idx)
+
+        diff = pos_x - pos_y
+        squared_distance = (diff * diff).sum(dim=1)
+
+        knn_output = (x_idx, squared_distance)
+
         x = self.mlp1(features)
 
-        x = self.lse1(coords, x, knn_output)
+        x = self.lse1(pos, x, knn_output)
         x = self.pool1(x)
 
-        x = self.lse2(coords, x, knn_output)
+        x = self.lse2(pos, x, knn_output)
         x = self.pool2(x)
 
         return self.lrelu(self.mlp2(x) + self.shortcut(features))
+
+    def gather_compact_pos_with_compact_idx(
+        self, pos: torch.Tensor, idx: torch.Tensor
+    ) -> torch.Tensor:
+        """Using (B,N,K) index tensor and (B,N,3) position tensor, get extended positions (B,3,N,K)
+
+        idx(B, N, K), pos(B, N, 3)
+        neighbors[b, i, n, k] = pos[b, idx[b, n, k], i] = extended_pos[b, i, extended_idx[b, i, n, k], k]
+
+        """
+        B, N, K = idx.size()
+        extended_x_idx = idx.unsqueeze(1).expand(B, 3, N, K)
+        extended_pos = pos.transpose(-2, -1).unsqueeze(-1).expand(B, 3, N, K)
+        pos_at_idx = torch.gather(extended_pos, 2, extended_x_idx)
+        return pos_at_idx
+
+
+def knn_compact(
+    pos_x: torch.Tensor, pos_y: torch.Tensor, num_neighbors: int
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Perform KNN from and to data in compact (B,N,F) format, with pygg knn expecting long (B*N,F) format.
+
+    Args:
+        pos (torch.Tensor): positions in in compact (B,N,F) format
+
+    Returns:
+        Tuple[torch.Tensor,torch.Tensor]: y_idx, x_idx assignmenet index, in range [0, batch_size[
+
+    """
+    num_batches = len(pos_x)
+
+    pos_x_long = torch.cat([single_pos for single_pos in pos_x])  # (N, 3)
+    batch_x_long = torch.cat(
+        [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)]
+    )  # (N,)
+
+    pos_y_long = torch.cat([single_pos for single_pos in pos_y])  # (N, 3)
+    batch_y_long = torch.cat(
+        [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_y)]
+    )  # (N,)
+
+    y_idx_long, x_idx_long = knn(
+        pos_x_long,
+        pos_y_long,
+        num_neighbors,
+        batch_x=batch_x_long,
+        batch_y=batch_y_long,
+        num_workers=4,  # TODO: try with parameter
+    )
+
+    # Get back to compact shape
+    batch_size_y = len(pos_y[1])
+    compact_shape_y = (num_batches, batch_size_y, -1)
+    x_idx = x_idx_long.view(compact_shape_y)
+    y_idx = y_idx_long.view(compact_shape_y)
+
+    # Remove offset in indices (to get range [0;batch_size[ for each batch)
+    x_idx = x_idx - x_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
+    y_idx = y_idx - y_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
+    return y_idx, x_idx

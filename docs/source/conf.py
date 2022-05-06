@@ -111,7 +111,6 @@ to_mock = [
     "laspy",
     "torch_geometric",
     "dotenv",
-    "torch_points_kernels",
     "torchmetrics",
     "torchmetrics.functional",
     "torchmetrics.functional.classification",
@@ -130,7 +129,7 @@ else:
     HAS_TORCH = True
 
 autodoc_mock_imports = []
-for m in ["numpy", "pdal", "pdal", "dotenv", "laspy", "torch_points_kernels"]:
+for m in ["numpy", "pdal", "pdal", "dotenv", "laspy"]:
     autodoc_mock_imports.append(m)
 
 mock_directives = ["testcode"]

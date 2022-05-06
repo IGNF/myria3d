@@ -68,7 +68,12 @@ class Interpolator:
 
         """
         self.current_f = filepath
-        pipeline = pdal.Reader.las(filename=filepath)
+        # TODO: remove this override !
+        pipeline = pdal.Reader.las(
+            filename=filepath, 
+            # nosrs=True, 
+            # override_srs="EPSG:2154"
+        )
 
         new_dims = self.probas_to_save + [
             ChannelNames.PredictedClassification.value,
