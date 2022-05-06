@@ -19,8 +19,8 @@ Lidar-Deep-Segmentation > Documentation
    :maxdepth: 1
    :caption: Guides
 
-   how_to/add_new_data_signature
-   how_to/train_new_model
+   guides/train_new_model
+   guides/development
 
 .. toctree::
    :maxdepth: 1

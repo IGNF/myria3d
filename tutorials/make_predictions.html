@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How to train new models" href="../how_to/train_new_model.html" />
-    <link rel="prev" title="Preparing data for training [WIP]" href="prepare_dataset.html" /> 
+    <link rel="next" title="How to train new models" href="../guides/train_new_model.html" />
+    <link rel="prev" title="Preparing data for training" href="prepare_dataset.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,7 +45,7 @@
 <li class="toctree-l2"><a class="reference internal" href="setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#using-your-own-data">Using your own data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#data-preparation">Data preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
@@ -60,8 +60,12 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#code-versionning">Code versionning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
 </ul>
 </li>
 </ul>
@@ -168,7 +172,7 @@ hydra.run.dir<span class="o">={</span>path/for/hydra/logs<span class="o">}</span
 </section>
 <section id="run-inference-from-within-a-docker-image">
 <h2>Run inference from within a docker image<a class="headerlink" href="#run-inference-from-within-a-docker-image" title="Permalink to this headline"></a></h2>
-<p>Up to date docker images (named <code class="docutils literal notranslate"><span class="pre">lidar_deep_im</span></code>) are created via Github integration actions (see <span class="xref myst">Developer’s guide</span>.</p>
+<p>Up to date docker images (named <code class="docutils literal notranslate"><span class="pre">lidar_deep_im</span></code>) are created via Github integration actions (see <a class="reference internal" href="../guides/development.html"><span class="doc std std-doc">Developer’s guide</span></a>.</p>
 <p>A docker image encapsulating the virtual environment and application sources can also be built using the provided Dockerfile. This Dockerfile is not standalone and should be part of the repository (whose content is copied into the image), on the github reference you want to build from.</p>
 <p>To run, mount needed volumes and follow above syntaxes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># specify your paths here as needed</span>
@@ -182,8 +186,8 @@ docker run -v <span class="o">{</span>local_inputs<span class="o">}</span>:/inpu
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="prepare_dataset.html" class="btn btn-neutral float-left" title="Preparing data for training [WIP]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../how_to/train_new_model.html" class="btn btn-neutral float-right" title="How to train new models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="prepare_dataset.html" class="btn btn-neutral float-left" title="Preparing data for training" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../guides/train_new_model.html" class="btn btn-neutral float-right" title="How to train new models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

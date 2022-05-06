@@ -1,4 +1,4 @@
-# Preparing data for training [WIP]
+# Preparing data for training
 
 ## Using your own data 
 

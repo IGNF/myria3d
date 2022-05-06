@@ -5,8 +5,6 @@ Refer to [this other tutorial](../tutorials/prepare_dataset.md) for how to prepa
 
 Once your python environment is set up and your dataset ready for training, proceed to the next section.
 
-## Setup
-
 Some environment variable to be injected at runtime can be specified in a `.env` file. Rename `.env_example` to `.env` and fill out: 
 - `LOG PATH`, where hydra logs and config are saved.
 - `PREPARED_DATA_DIR`, which specifies where to look for your prepared dataset.
