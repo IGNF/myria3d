@@ -78,7 +78,7 @@ def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     # Assert that there was a significative improvement i.e. the model learns.
     iou = metrics["train/iou_CLASS_building"].dropna()
     improvement = iou.iloc[-1] - iou.iloc[0]
-    assert improvement >= 0.75
+    assert improvement >= 0.6
 
 
 @pytest.mark.slow()
