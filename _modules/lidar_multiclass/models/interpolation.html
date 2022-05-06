@@ -205,12 +205,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_f</span> <span class="o">=</span> <span class="n">filepath</span>
-        <span class="c1"># TODO: remove this override !</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> 
-            <span class="c1"># nosrs=True, </span>
-            <span class="c1"># override_srs=&quot;EPSG:2154&quot;</span>
-        <span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
 
         <span class="n">new_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">+</span> <span class="p">[</span>
             <span class="n">ChannelNames</span><span class="o">.</span><span class="n">PredictedClassification</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
