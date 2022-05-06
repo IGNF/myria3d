@@ -32,15 +32,18 @@ jobs:
 
     - name: Fast unit tests first
       run: >
-        docker run lidar_deep_im
+        docker run 
+        lidar_deep_im
         python -m
         pytest -rA -v -m "not slow" 
         --ignore=actions-runner
         --ignore="notebooks"
 
-    - name: Slow unit tests last
+    - name: Slow unit tests last, using large files stored in self-hosted action-runner.
       run: >
-        docker run lidar_deep_im
+        docker run
+        -v /var/data/CICD_github_assets/nebulia_B2V0.5:/lidar/tests/files/large
+        lidar_deep_im
         python -m
         pytest -rA -v -m "slow" 
         --ignore=actions-runner
