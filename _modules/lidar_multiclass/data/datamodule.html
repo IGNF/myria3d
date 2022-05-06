@@ -42,19 +42,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -129,20 +133,29 @@
   <h1>Source code for lidar_multiclass.data.datamodule</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">AnyStr</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
 <span class="kn">from</span> <span class="nn">pytorch_lightning</span> <span class="kn">import</span> <span class="n">LightningDataModule</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data.dataset</span> <span class="kn">import</span> <span class="n">IterableDataset</span>
 <span class="kn">from</span> <span class="nn">torch_geometric.transforms</span> <span class="kn">import</span> <span class="n">RandomFlip</span>
 <span class="kn">from</span> <span class="nn">torch_geometric.data.data</span> <span class="kn">import</span> <span class="n">Data</span>
 <span class="kn">from</span> <span class="nn">torch_geometric.transforms.center</span> <span class="kn">import</span> <span class="n">Center</span>
 <span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">lidar_multiclass.data.transforms</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">lidar_multiclass.data.transforms</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CustomCompose</span><span class="p">,</span>
+    <span class="n">EmptySubtileFilter</span><span class="p">,</span>
+    <span class="n">MakeCopyOfPosAndY</span><span class="p">,</span>
+    <span class="n">MakeCopyOfSampledPos</span><span class="p">,</span>
+    <span class="n">NormalizePos</span><span class="p">,</span>
+    <span class="n">StandardizeFeatures</span><span class="p">,</span>
+    <span class="n">TargetTransform</span><span class="p">,</span>
+    <span class="n">ToTensor</span><span class="p">,</span>
+    <span class="n">collate_fn</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -408,7 +421,6 @@
             <span class="n">tile_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loading_function</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
             <span class="n">centers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_subtiles_xy_min_corner</span><span class="p">(</span><span class="n">tile_data</span><span class="p">)</span>
             <span class="c1"># TODO: change to process time function</span>
-            <span class="n">ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">xy_min_corner</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_subtile_from_tile_data</span><span class="p">(</span><span class="n">tile_data</span><span class="p">,</span> <span class="n">xy_min_corner</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">:</span>
@@ -468,7 +480,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

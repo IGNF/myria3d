@@ -45,19 +45,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -159,7 +163,7 @@ takes care of the interpolation of predictions between all points.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.forward" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.forward" title="Permalink to this definition"></a></dt>
 <dd><p>Forward pass of neural network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -172,7 +176,7 @@ takes care of the interpolation of predictions between all points.</p>
 <dd class="field-even"><p>logits</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (B*N,C)</p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (B*N,C)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -224,7 +228,7 @@ takes care of the interpolation of predictions between all points.</p>
 <dd class="field-even"><p>loss, logits, targets</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -357,7 +361,7 @@ for IoU logging by a callback.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

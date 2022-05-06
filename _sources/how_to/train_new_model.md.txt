@@ -1,29 +1,31 @@
 # How to train new models
 
 Refer to [this tutorial](../tutorials/setup_install.md) for how to setup a virtual environment and install the library.
-Refer to [this other tutorial](../tutorials/prepare_dataset.md) for how to prepare a dataset.
+Refer to [this other tutorial](../tutorials/prepare_dataset.md) for how to prepare a training-ready dataset.
 
+Once your python environment is set up and your dataset ready for training, proceed to the next section.
 
 ## Setup
 
-Some environment variable are injected at runtime and need to be specified in a `.env` file. Rename `.env_example` to `.env` and fill out: 
+Some environment variable to be injected at runtime can be specified in a `.env` file. Rename `.env_example` to `.env` and fill out: 
 - `LOG PATH`, where hydra logs and config are saved.
-- `DATAMODULE` section, which specify where to look for training data.
-- `LOGGER` section, which specify credentials needed for logging to [comet.ml](https://www.comet.ml/). Alternatively, logging can be disabled by setting `logger=null` ar runtime.
+- `PREPARED_DATA_DIR`, which specifies where to look for your prepared dataset.
+- `LOGGER` section, which specifies credentials needed for logging to [comet.ml](https://www.comet.ml/). You will need to create an account first if you choose to use Comet. Alternatively, setting `logger=csv` at runtime will save results in a single, local csv file, and disable comet logging.
 
-For training, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m\*50m to be a good balance between the model's receptive field and capacity. A specific preparation is needed that is described in section Data preparation
+Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may also use one of the provided experiment file. 
 
-The expected file structure is summarized in `.env`.
+To test your setup, logging capabilities, you may want beforehand to try overfitting on a single batch of a Swiss dataset, with
 
-A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
-
-## Training
-Once you have data, define your experiment setting in an experiment file in the `configs/experiment` folder. 
-
-To try out your setting by overfitting on a single batch of a Swiss dataset, run
-
-```
+```bash
 python run.py experiment=RandLaNetDebug.yaml
 ```
 
+To run the full training and validation for e.g. French Lidar HD, run:
+
+```bash
+python run.py experiment=RandLaNet_base_run_FR.yaml
+```
+
 After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified, with an associated hydra `config.yaml`.
+
+To use the checkpointed model, refet to section [Performing inference on new data](../tutorials/make_predictions.md).

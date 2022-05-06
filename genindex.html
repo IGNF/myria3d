@@ -42,19 +42,23 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="how_to/train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="how_to/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how_to/train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -129,7 +133,8 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
+ <a href="#Symbols"><strong>Symbols</strong></a>
+ | <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
@@ -151,6 +156,14 @@
  | <a href="#Y"><strong>Y</strong></a>
  
 </div>
+<h2 id="Symbols">Symbols</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.`split`">`split` (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -266,10 +279,14 @@
 </li>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.split_and_save.params.filepath">filepath (lidar_multiclass.data.loading.LidarDataLogic.split_and_save parameter)</a>
 </li>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.files">files (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+</li>
       <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
       <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in lidar_multiclass.callbacks.finetuning_callbacks)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.forward">forward() (lidar_multiclass.models.model.Model method)</a>
 
       <ul>
@@ -278,8 +295,6 @@
         <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.forward">(lidar_multiclass.models.modules.randla_net.RandLANet method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.FPSSampler">FPSSampler (class in lidar_multiclass.data.transforms)</a>
 </li>
       <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">freeze_before_training() (lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
@@ -450,6 +465,8 @@
         <li><a href="apidoc/scripts.html#run.main">(in module run)</a>
 </li>
       </ul></li>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file">make_toy_dataset_from_test_file() (in module lidar_multiclass.data.loading)</a>
+</li>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.MakeCopyOfPosAndY">MakeCopyOfPosAndY (class in lidar_multiclass.data.transforms)</a>
 </li>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.MakeCopyOfSampledPos">MakeCopyOfSampledPos (class in lidar_multiclass.data.transforms)</a>
@@ -557,11 +574,13 @@
 </li>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule.predict_dataloader">predict_dataloader() (lidar_multiclass.data.datamodule.DataModule method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.predict_step">predict_step() (lidar_multiclass.models.model.Model method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.prepare">prepare() (lidar_multiclass.data.loading.LidarDataLogic method)</a>
+</li>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.prepared_data_dir">prepared_data_dir (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
       <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config">print_config() (in module lidar_multiclass.utils.utils)</a>
 </li>
@@ -606,9 +625,13 @@
       </ul></li>
       <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in lidar_multiclass.callbacks.logging_callbacks)</a>
 </li>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.split_and_save">split_and_save() (lidar_multiclass.data.loading.LidarDataLogic method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.split_and_save">split_and_save() (lidar_multiclass.data.loading.LidarDataLogic method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.split_csv">split_csv (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+</li>
+      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.src_las_path">src_las_path (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
       <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.StandardizeFeatures">StandardizeFeatures (class in lidar_multiclass.data.transforms)</a>
 </li>
@@ -710,7 +733,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

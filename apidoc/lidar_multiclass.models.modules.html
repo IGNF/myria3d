@@ -45,19 +45,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -166,12 +170,14 @@ Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods
 <dl class="py class">
 <dt class="sig sig-object py" id="lidar_multiclass.models.modules.randla_net.RandLANet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.models.modules.randla_net.</span></span><span class="sig-name descname"><span class="pre">RandLANet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hparams_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/randla_net.html#RandLANet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.randla_net.RandLANet" title="Permalink to this definition"></a></dt>
-<dd><p>Implementation of randLa-Net which follows the original paper.</p>
+<dd><p>An implementation of randLa-Net which follows the original paper.</p>
 <p>RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
 at <a class="reference external" href="https://arxiv.org/abs/1911.11236">https://arxiv.org/abs/1911.11236</a></p>
 <p>Our modifications:
 - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
-information bottleneck in cases where d_in is above 8.</p>
+information bottleneck in cases where d_in is above 8.
+- Use pytorch-geometric instead of torch_points_kernels for GPU support, and
+ease of installation of dependencies.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning">
 <span class="sig-name descname"><span class="pre">change_num_class_for_finetuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/modules/randla_net.html#RandLANet.change_num_class_for_finetuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning" title="Permalink to this definition"></a></dt>
@@ -199,7 +205,7 @@ This method is used for finetuning.</p>
 <dd class="field-even"><p>classification logits for each point, with shape (B*num_classes,C)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch v1.12)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -235,7 +241,7 @@ This method is used for finetuning.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

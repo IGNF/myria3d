@@ -42,19 +42,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../how_to/train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -132,7 +136,7 @@
 <span class="sd">Country-specific definitions inherit from abstract class LidarDataLogic, which implements general logics</span>
 <span class="sd">to split each point cloud into subtiles, format these subtiles, and save a learning-ready dataset splitted into</span>
 <span class="sd">train, val. A test set is also created, which is simply a copy of the selected test point clouds. This is so</span>
-<span class="sd">test phase conditions are similar to &quot;in-the-wild&quot; prediction conditions. </span>
+<span class="sd">test phase conditions are similar to &quot;in-the-wild&quot; prediction conditions.</span>
 
 <span class="sd">In particular, subclasses implement a &quot;load_las&quot; method that is used by the datamodule at test and inference time.</span>
 
@@ -140,15 +144,25 @@
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copyfile</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">laspy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
+
+<span class="n">SPLIT_PHASES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]</span>
+
+<span class="c1"># Files for the creation of a toy dataset.</span>
+<span class="n">LAS_SUBSET_FOR_TOY_DATASET</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;tests/data/toy_dataset_src/870000_6618000.subset.50mx100m.las&quot;</span>
+<span class="p">)</span>
+<span class="n">SPLIT_CSV_FOR_TOY_DATASET</span> <span class="o">=</span> <span class="s2">&quot;tests/data/toy_dataset_src/toy_dataset_split.csv&quot;</span>
 
 
 <div class="viewcode-block" id="LidarDataLogic"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">LidarDataLogic</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -157,18 +171,22 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">split</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]</span>
-    <span class="n">input_tile_width_meters</span> <span class="o">=</span> <span class="mi">1000</span>
-    <span class="n">subtile_width_meters</span> <span class="o">=</span> <span class="mi">50</span>
     <span class="n">return_num_normalization_max_value</span> <span class="o">=</span> <span class="mi">7</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_data_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;input_data_dir&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prepared_data_dir&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">split_csv</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;split_csv&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">range_by_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">input_tile_width_meters</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width_meters</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prepared_data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">split_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_tile_width_meters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">subtile_width_meters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_data_dir</span> <span class="o">=</span> <span class="n">input_data_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span> <span class="o">=</span> <span class="n">prepared_data_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_csv</span> <span class="o">=</span> <span class="n">split_csv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_tile_width_meters</span> <span class="o">=</span> <span class="n">input_tile_width_meters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width_meters</span> <span class="o">=</span> <span class="n">subtile_width_meters</span>
 
 <div class="viewcode-block" id="LidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.load_las">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
@@ -186,21 +204,12 @@
 <div class="viewcode-block" id="LidarDataLogic.prepare"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Prepare a dataset for model training and model evaluation.</span>
 
-<span class="sd">        Iterates through LAS files listed in a csv metadata file. A `split` column</span>
-<span class="sd">        specifies the train/val/test split of the dataset to be created.</span>
-<span class="sd">        Depending on the set, this method will:</span>
-
-<span class="sd">        train/val:</span>
-<span class="sd">            Load LAS into memory as a Data object with selected features,</span>
-<span class="sd">            then iteratively extract 50m*50m subtiles by filtering along x</span>
-<span class="sd">            then y axis. Serialize the resulting Data object using torch.save.</span>
-
-<span class="sd">        test:</span>
-<span class="sd">            Simply copy the LAS to the new test folder.</span>
+<span class="sd">        Iterates through LAS files listed in a csv metadata file.</span>
+<span class="sd">        A `split` column specifies the train/val/test split of the dataset to be created.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">split_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split_csv</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Phases&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">SPLIT_PHASES</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Phases&quot;</span><span class="p">):</span>
             <span class="n">basenames</span> <span class="o">=</span> <span class="n">split_df</span><span class="p">[</span><span class="n">split_df</span><span class="o">.</span><span class="n">split</span> <span class="o">==</span> <span class="n">phase</span><span class="p">]</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subset: </span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  -  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basenames</span><span class="p">))</span>
@@ -208,10 +217,14 @@
                 <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_file_in_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_data_dir</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
                 <span class="n">output_subdir_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+                    <span class="c1"># Simply copy the LAS to the new test folder.</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">target_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
                     <span class="n">copyfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">target_file</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">]:</span>
+                    <span class="c1"># Load LAS into memory as a Data object with selected features,</span>
+                    <span class="c1"># then iteratively extract 50m*50m subtiles by filtering along x</span>
+                    <span class="c1"># then y axis. Serialize the resulting Data object using torch.save.</span>
                     <span class="n">output_subdir_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
                     <span class="p">)</span>
@@ -226,14 +239,19 @@
 <span class="sd">        Args:</span>
 <span class="sd">            filepath (str): input LAS file</span>
 <span class="sd">            output_subdir_path (str): output directory to save splitted `.data` objects.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">range_by_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_tile_width_meters</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width_meters</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_las</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range_by_axis</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">range_by_axis</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">break</span>
             <span class="n">data_x_band</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_by_x</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_by_axis</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">range_by_axis</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_x_band</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">break</span>
                 <span class="n">subtile_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_by_y</span><span class="p">(</span><span class="n">data_x_band</span><span class="p">)</span>
@@ -241,7 +259,7 @@
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
     <span class="k">def</span> <span class="nf">_find_file_in_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Query files with .las extension in subfolder of input_data_dir.</span>
+        <span class="sd">&quot;&quot;&quot;Query files matching a basename in input_data_dir and its subdirectories.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            input_data_dir (str): data directory</span>
@@ -250,8 +268,8 @@
 <span class="sd">            [str]: first file path matching the query.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_data_dir</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_data_dir</span><span class="si">}</span><span class="s2">/**/</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_extract_by_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
@@ -383,7 +401,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># for LAS format V1.2</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
             <span class="c1"># for  LAS format V1.4</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
@@ -469,7 +487,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># for LAS format V1.2</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
             <span class="c1"># for  LAS format V1.4</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
@@ -482,6 +500,51 @@
         <span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="make_toy_dataset_from_test_file"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file">[docs]</a><span class="k">def</span> <span class="nf">make_toy_dataset_from_test_file</span><span class="p">(</span>
+    <span class="n">prepared_data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">src_las_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">LAS_SUBSET_FOR_TOY_DATASET</span><span class="p">,</span>
+    <span class="n">split_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SPLIT_CSV_FOR_TOY_DATASET</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prepare a toy dataset from a single, small LAS file.</span>
+
+<span class="sd">    The file is first duplicated to get 2 LAS in each split (train/val/test),</span>
+<span class="sd">    and then each file is splitted into .data files, resulting in a training-ready</span>
+<span class="sd">    dataset loacted in td_prepared</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src_las_path (str): input, small LAS file to generate toy dataset from</span>
+<span class="sd">        split_csv (str): Path to csv with a `basename` (e.g. &#39;123_456.las&#39;) and</span>
+<span class="sd">        a `split` (train/val/test) columns specifying the dataset split.</span>
+<span class="sd">        prepared_data_dir (str): where to copy files (`raw` subfolder) and to prepare</span>
+<span class="sd">        dataset files (`prepared` subfolder)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: path to directory containing prepared dataset.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Copy input file for full test isolation</span>
+    <span class="n">td_raw</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prepared_data_dir</span><span class="p">,</span> <span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+    <span class="n">td_prepared</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prepared_data_dir</span><span class="p">,</span> <span class="s2">&quot;prepared&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">td_raw</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">td_prepared</span><span class="p">)</span>
+    <span class="c1"># Make a &quot;raw&quot;, unporcessed dataset with six files.</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">src_las_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train1&quot;</span><span class="p">,</span> <span class="s2">&quot;train2&quot;</span><span class="p">,</span> <span class="s2">&quot;val1&quot;</span><span class="p">,</span> <span class="s2">&quot;val2&quot;</span><span class="p">,</span> <span class="s2">&quot;test1&quot;</span><span class="p">,</span> <span class="s2">&quot;test2&quot;</span><span class="p">]:</span>
+        <span class="n">copy_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">td_raw</span><span class="p">,</span> <span class="n">basename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.las&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">.las&quot;</span><span class="p">))</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src_las_path</span><span class="p">,</span> <span class="n">copy_path</span><span class="p">)</span>
+
+    <span class="c1"># Prepare a Deep-Learning-ready dataset, using the split defined in the csv.</span>
+    <span class="n">data_prepper</span> <span class="o">=</span> <span class="n">FrenchLidarDataLogic</span><span class="p">(</span>
+        <span class="n">input_data_dir</span><span class="o">=</span><span class="n">td_raw</span><span class="p">,</span>
+        <span class="n">prepared_data_dir</span><span class="o">=</span><span class="n">td_prepared</span><span class="p">,</span>
+        <span class="n">split_csv</span><span class="o">=</span><span class="n">split_csv</span><span class="p">,</span>
+        <span class="n">input_tile_width_meters</span><span class="o">=</span><span class="mi">110</span><span class="p">,</span>
+        <span class="n">subtile_width_meters</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data_prepper</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">td_prepared</span></div>
+
+
 <span class="k">def</span> <span class="nf">_get_data_preparation_parser</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Gets a parser with parameters for dataset preparation.</span>
 
@@ -489,7 +552,15 @@
 <span class="sd">        argparse.ArgumentParser: the parser.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Prepare a Lidar dataset for deep learning.&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Prepare a Lidar dataset for deep learning.&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;If you need a toy dataset, you only need to&quot;</span>
+        <span class="s2">&quot; set --origin=FR_TOY and specify a value for --prepared_data_dir.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--input_data_dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./data/raw/&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to directory with las files with unique basename and `.las` suffix.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--split_csv&quot;</span><span class="p">,</span>
@@ -498,21 +569,13 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to csv with a basename (e.g. &#39;123_456.las&#39;) and split (train/val/test) columns specifying the dataset split.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--input_data_dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./data/raw/&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to folder with las files stored in train/val/test subfolders.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--prepared_data_dir&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./prepared/&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./data/prepared/&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to folder to save Data object train/val/test subfolders.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--origin&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;FR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--origin&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;FR&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;FR&quot;</span><span class="p">,</span> <span class="s2">&quot;CH&quot;</span><span class="p">,</span> <span class="s2">&quot;FR_TOY&quot;</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">parser</span>
@@ -542,16 +605,16 @@
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">_get_data_preparation_parser</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">origin</span> <span class="o">==</span> <span class="s2">&quot;FR&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">origin</span> <span class="o">==</span> <span class="s2">&quot;FR_TOY&quot;</span><span class="p">:</span>
+        <span class="n">make_toy_dataset_from_test_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">prepared_data_dir</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">origin</span> <span class="o">==</span> <span class="s2">&quot;FR&quot;</span><span class="p">:</span>
         <span class="n">data_prepper</span> <span class="o">=</span> <span class="n">FrenchLidarDataLogic</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">data_prepper</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">origin</span> <span class="o">==</span> <span class="s2">&quot;CH&quot;</span><span class="p">:</span>
         <span class="n">data_prepper</span> <span class="o">=</span> <span class="n">SwissTopoLidarDataLogic</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">data_prepper</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Data origin must be either FR (French) or CH (Swiss) (currently: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">origin</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span>
-
-    <span class="n">data_prepper</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span></div>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data origin is invalid (currently: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">origin</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -565,7 +628,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="KNN-Interpolation to merge multiple predictions [TODO]" href="../background/interpolation.html" />
-    <link rel="prev" title="How to add a new data signature [TODO]" href="add_new_data_signature.html" /> 
+    <link rel="prev" title="Performing inference on new data" href="../tutorials/make_predictions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,19 +45,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -132,27 +136,27 @@
   <section id="how-to-train-new-models">
 <h1>How to train new models<a class="headerlink" href="#how-to-train-new-models" title="Permalink to this headline"></a></h1>
 <p>Refer to <a class="reference internal" href="../tutorials/setup_install.html"><span class="doc std std-doc">this tutorial</span></a> for how to setup a virtual environment and install the library.
-Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="doc std std-doc">this other tutorial</span></a> for how to prepare a dataset.</p>
+Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="doc std std-doc">this other tutorial</span></a> for how to prepare a training-ready dataset.</p>
+<p>Once your python environment is set up and your dataset ready for training, proceed to the next section.</p>
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
-<p>Some environment variable are injected at runtime and need to be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
+<p>Some environment variable to be injected at runtime can be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">LOG</span> <span class="pre">PATH</span></code>, where hydra logs and config are saved.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DATAMODULE</span></code> section, which specify where to look for training data.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">LOGGER</span></code> section, which specify credentials needed for logging to <a class="reference external" href="https://www.comet.ml/">comet.ml</a>. Alternatively, logging can be disabled by setting <code class="docutils literal notranslate"><span class="pre">logger=null</span></code> ar runtime.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PREPARED_DATA_DIR</span></code>, which specifies where to look for your prepared dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LOGGER</span></code> section, which specifies credentials needed for logging to <a class="reference external" href="https://www.comet.ml/">comet.ml</a>. You will need to create an account first if you choose to use Comet. Alternatively, setting <code class="docutils literal notranslate"><span class="pre">logger=csv</span></code> at runtime will save results in a single, local csv file, and disable comet logging.</p></li>
 </ul>
-<p>For training, input point clouds need to be splitted in chunks that can be digested by segmentation models. We found 50m*50m to be a good balance between the model’s receptive field and capacity. A specific preparation is needed that is described in section Data preparation</p>
-<p>The expected file structure is summarized in <code class="docutils literal notranslate"><span class="pre">.env</span></code>.</p>
-<p>A more detailed documentation on how to create a compatible, training-ready dataset from Swiss data is given in <a class="reference external" href="https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar">this repo</a>.</p>
-</section>
-<section id="training">
-<h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
-<p>Once you have data, define your experiment setting in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder.</p>
-<p>To try out your setting by overfitting on a single batch of a Swiss dataset, run</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">run</span><span class="o">.</span><span class="n">py</span> <span class="n">experiment</span><span class="o">=</span><span class="n">RandLaNetDebug</span><span class="o">.</span><span class="n">yaml</span>
+<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may also use one of the provided experiment file.</p>
+<p>To test your setup, logging capabilities, you may want beforehand to try overfitting on a single batch of a Swiss dataset, with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNetDebug.yaml
+</pre></div>
+</div>
+<p>To run the full training and validation for e.g. French Lidar HD, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR.yaml
 </pre></div>
 </div>
 <p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOG_PATH</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
+<p>To use the checkpointed model, refet to section <a class="reference internal" href="../tutorials/make_predictions.html"><span class="doc std std-doc">Performing inference on new data</span></a>.</p>
 </section>
 </section>
 
@@ -160,14 +164,14 @@ Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html">
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="add_new_data_signature.html" class="btn btn-neutral float-left" title="How to add a new data signature [TODO]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tutorials/make_predictions.html" class="btn btn-neutral float-left" title="Performing inference on new data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../background/interpolation.html" class="btn btn-neutral float-right" title="KNN-Interpolation to merge multiple predictions [TODO]" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

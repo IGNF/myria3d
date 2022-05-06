@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to add a new data signature [TODO] &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>Developer’s guide &mdash; lidar_multiclass 1.7.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -18,9 +18,7 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How to train new models" href="train_new_model.html" />
-    <link rel="prev" title="Performing inference on new data [TODO]" href="../tutorials/make_predictions.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,19 +43,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">How to add a new data signature [TODO]</a></li>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -119,9 +121,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>How to add a new data signature [TODO]</li>
+      <li>Developer’s guide</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/how_to/add_new_data_signature.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/how_to/development.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -129,22 +131,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="how-to-add-a-new-data-signature-todo">
-<h1>How to add a new data signature [TODO]<a class="headerlink" href="#how-to-add-a-new-data-signature-todo" title="Permalink to this headline"></a></h1>
+  <section id="developer-s-guide">
+<h1>Developer’s guide<a class="headerlink" href="#developer-s-guide" title="Permalink to this headline"></a></h1>
+<section id="code-versionning">
+<h2>Code versionning<a class="headerlink" href="#code-versionning" title="Permalink to this headline"></a></h2>
+<p>Package version follows semantic versionning conventions and is defined in <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>.</p>
+<p>Releases are generated when new high-level functionnality are implemented (e.g. a new step in the production process), with a documentation role. Production-ready code is fast-forwarded in the <code class="docutils literal notranslate"><span class="pre">prod</span></code> branch when needed to match the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch.</p>
+</section>
+<section id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline"></a></h2>
+<p>Tests can be run in an activated environment with.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate lidar_prod
+python -m pytest -rA -v --ignore<span class="o">=</span><span class="s2">&quot;notebooks&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="continuous-integration-ci">
+<h2>Continuous Integration (CI)<a class="headerlink" href="#continuous-integration-ci" title="Permalink to this headline"></a></h2>
+<p>New features are developped in ad-hoc branches (e.g. <code class="docutils literal notranslate"><span class="pre">refactor-requirements</span></code>), and merged in the <code class="docutils literal notranslate"><span class="pre">dev</span></code> branch. When ready, <code class="docutils literal notranslate"><span class="pre">dev</span></code> can be merged in <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p>
+<p>CI tests are run for pull request to merge on either <code class="docutils literal notranslate"><span class="pre">dev</span></code> or <code class="docutils literal notranslate"><span class="pre">main</span></code> branches, and on pushes to <code class="docutils literal notranslate"><span class="pre">dev</span></code>, <code class="docutils literal notranslate"><span class="pre">main</span></code>, and <code class="docutils literal notranslate"><span class="pre">prod</span></code>. The CI workflow builds a docker image, runs linting, and tests the code.</p>
+</section>
+<section id="continuous-delivery-cd">
+<h2>Continuous Delivery (CD)<a class="headerlink" href="#continuous-delivery-cd" title="Permalink to this headline"></a></h2>
+<p>When the event is a push and not a merge request, this means that there was either a direct push to <code class="docutils literal notranslate"><span class="pre">dev</span></code>|<code class="docutils literal notranslate"><span class="pre">main</span></code>|<code class="docutils literal notranslate"><span class="pre">prod</span></code> or that a merge request was accepted. In this case, if the CI workflow passes, the docker image is tagged with the branch name, resulting in e.g. a <code class="docutils literal notranslate"><span class="pre">lidar_deep_im:prod</span></code> image that is up to date with the branch content. See [../tutorials/use.md] for how to leverage such image to run the app.</p>
+<p>Additionnaly, pushes on the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch build this library documentation, which is hosted on Github pages.</p>
+</section>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../tutorials/make_predictions.html" class="btn btn-neutral float-left" title="Performing inference on new data [TODO]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="train_new_model.html" class="btn btn-neutral float-right" title="How to train new models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

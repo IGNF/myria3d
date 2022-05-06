@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training [TODO] &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>Preparing data for training [WIP] &mdash; lidar_multiclass 1.7.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Performing inference on new data [TODO]" href="make_predictions.html" />
+    <link rel="next" title="Performing inference on new data" href="make_predictions.html" />
     <link rel="prev" title="Installation" href="setup_install.html" /> 
 </head>
 
@@ -45,19 +45,23 @@
 <li class="toctree-l2"><a class="reference internal" href="setup_install.html#install-source-as-a-package">Install source as a package</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Preparing data for training [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data [TODO]</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Preparing data for training [WIP]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/add_new_data_signature.html">How to add a new data signature [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/train_new_model.html">How to train new models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/train_new_model.html#training">Training</a></li>
 </ul>
 </li>
 </ul>
@@ -119,7 +123,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Preparing data for training [TODO]</li>
+      <li>Preparing data for training [WIP]</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/prepare_dataset.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -129,15 +133,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="preparing-data-for-training-todo">
-<h1>Preparing data for training [TODO]<a class="headerlink" href="#preparing-data-for-training-todo" title="Permalink to this headline"></a></h1>
-<p>.. warning:: Work in progress</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">lidar_multiclass/datamodule/data.py</span></code> is the logic for data pre-processing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time.</p>
-<p>The loading function is dataset dependant, and there are currently a logic for both SwissTopo data (withour infrared channel) and French IGN data (with infrared channel).</p>
-<p>For help, run</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">lidar_multiclass</span><span class="o">/</span><span class="n">datamodules</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+  <section id="preparing-data-for-training-wip">
+<h1>Preparing data for training [WIP]<a class="headerlink" href="#preparing-data-for-training-wip" title="Permalink to this headline"></a></h1>
+<section id="using-your-own-data">
+<h2>Using your own data<a class="headerlink" href="#using-your-own-data" title="Permalink to this headline"></a></h2>
+<section id="data-signatures">
+<h3>Data signatures<a class="headerlink" href="#data-signatures" title="Permalink to this headline"></a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">lidar_multiclass/data/loading.py</span></code> is the logic for data preprocessing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time.</p>
+<p>The loading function is dataset dependant, and there are currently a logic for both SwissTopo data and French Lidar HD IGN data. Variations in logics may be due to the availability of specific dimensions (e.g. Infrared information) or encodings. The function returns a <code class="docutils literal notranslate"><span class="pre">pytorch_geometric.Data</span></code> object following the standard naming convention of <code class="docutils literal notranslate"><span class="pre">pytorch_geometric</span></code>, plus a description of features names and the path to the input file.</p>
+<blockquote>
+<div><p>Detailed instruction to create a compatible dataset from Swiss data is given in <a class="reference external" href="https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar">this repo</a>.</p>
+</div></blockquote>
+<p>You may want to implement your own logic, which then needs to be specified in <code class="docutils literal notranslate"><span class="pre">_get_data_preparation_parser</span></code> and <code class="docutils literal notranslate"><span class="pre">main</span></code> so that it can be used via the CLI to prepare a new dataset (see section below). The loading logic must additionnaly be referenced by the hydra config parameter <code class="docutils literal notranslate"><span class="pre">datamodule.dataset_description.load_las_func</span></code>.</p>
+</section>
+</section>
+<section id="data-preparation">
+<h2>Data preparation<a class="headerlink" href="#data-preparation" title="Permalink to this headline"></a></h2>
+<p>See the argument for data preparation in :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">lidar_multiclass</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">loading</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 </div>
+<p>Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m*50m was a good balance between context and memory intensity.</p>
+<p>For train and split sets, the subtiles turned into <code class="docutils literal notranslate"><span class="pre">Data</span></code> objects are serialized with torch so that they can be quickly loaded at training time.</p>
+<p>For test, input point clouds are simply copied so that the test logic might mirror the logic used at inference time, including the on-the-fly splitting of these large input point clouds.</p>
+<p>The prepared dataset hence have the following structure.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>prepared_dataset
+└───train
+│   │   fileA_part1.data
+│   │   ...
+│   │   fileA_partN.data
+│   │   ...
+│   │   fileB_part1.data
+│   │   ...
+│   │   fileB_partN.data
+│   │   ...
+└───val
+│   │   fileC_part1.data
+│   │   ...
+│   │   fileC_partN.data
+│   │   ...
+│   │   fileD_part1.data
+│   │   ...
+│   │   fileD_partN.data
+└───val
+│   │   fileX.las
+│   │   fileY.las
+│   │   ...
+│   │   fileZ.las
+</pre></div>
+</div>
+</section>
+<section id="getting-started-quickly-with-a-toy-dataset">
+<h2>Getting started quickly with a toy dataset<a class="headerlink" href="#getting-started-quickly-with-a-toy-dataset" title="Permalink to this headline"></a></h2>
+<p>A LAS file is provided as part of the test suite. It can be turned into a small, training-ready dataset to get started with the package.
+This single file is copied 6 times, so that there are 2 copies in each split (train/val/test). The copies are then prepared for training. The French Lidar data signature is used.</p>
+<p>To create a toy dataset in <code class="docutils literal notranslate"><span class="pre">./inputs/toy_dataset/</span></code>, simply run :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">lidar_multiclass</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">loading</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">origin</span> <span class="n">FR_TOY</span> <span class="o">--</span><span class="n">prepared_data_dir</span><span class="o">=./</span><span class="n">inputs</span><span class="o">/</span><span class="n">toy_dataset</span><span class="o">/</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -145,13 +199,13 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="setup_install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="make_predictions.html" class="btn btn-neutral float-right" title="Performing inference on new data [TODO]" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="make_predictions.html" class="btn btn-neutral float-right" title="Performing inference on new data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Institut National de l&#39;Information Géographique et Forestière.</p>
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
