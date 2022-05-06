@@ -83,5 +83,5 @@ def main(config: DictConfig):
 
 if __name__ == "__main__":
     # cf. https://github.com/facebookresearch/hydra/issues/1283
-    OmegaConf.register_new_resolver("get_method", hydra.utils.get_method)
+    OmegaConf.register_new_resolver("get_method", hydra.utils.get_method, replace=True)
     main()

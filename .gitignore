@@ -3,6 +3,7 @@ nohup.out
 inputs/
 outputs/
 checkpoints/
+runs/
 # large files that are not tracked
 tests/data/large
 
