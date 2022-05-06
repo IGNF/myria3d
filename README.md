@@ -9,6 +9,7 @@
 
 [![](https://shields.io/badge/-Lightning--Hydra--Template-017F2F?style=flat&logo=github&labelColor=303030)](https://github.com/ashleve/lightning-hydra-template)
 
+[![CICD](https://github.com/IGNF/lidar-deep-segmentation/actions/workflows/cicd.yaml/badge.svg)](https://github.com/IGNF/lidar-deep-segmentation/actions/workflows/cicd.yaml)
 [![Documentation Build](https://github.com/IGNF/lidar-deep-segmentation/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/IGNF/lidar-deep-segmentation/actions/workflows/gh-pages.yml)
 </div>
 <br><br>
