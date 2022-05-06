@@ -52,6 +52,9 @@ def set_logs_dir_env_variable(monkeypatch):
 
     """
     monkeypatch.setenv("LOGS_DIR", "tests/logs/")
+    monkeypatch.setenv(
+        "PREPARED_DATA_DIR", "placeholder"
+    )  # to ignore it when making prediction
 
 
 def run_command(command: List[str]):
