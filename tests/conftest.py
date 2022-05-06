@@ -2,6 +2,7 @@ import os
 import os.path as osp
 import shutil
 import pytest
+from pytorch_lightning import seed_everything
 import sh
 from typing import List
 from hydra import compose, initialize
@@ -56,6 +57,9 @@ def set_logs_dir_env_variable(monkeypatch):
         "PREPARED_DATA_DIR", "placeholder"
     )  # to ignore it when making prediction
 
+@pytest.fixture(autouse=True)  # Auto-used for every test function
+def seed_everything_in_tests():
+    seed_everything(12345, workers=True)
 
 def run_command(command: List[str]):
     """Default method for executing shell commands with pytest."""
