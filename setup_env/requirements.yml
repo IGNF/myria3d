@@ -43,7 +43,7 @@ dependencies:
   - numba==0.55.1
   - pip:
       - -r requirements.txt
-      - torch-points-kernels --no-deps # deep learning - additional dependency we would love to get rid off
+      - --no-deps torch-points-kernels==0.7.0 # deep learning - additional dependency we would love to get rid off
       - numpy==1.20.0
       # ensure the right version of numba ; can we get rid of it? and 
       # revert inconsistent torch-points-kernel dependency if needed
