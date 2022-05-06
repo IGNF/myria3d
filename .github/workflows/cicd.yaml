@@ -10,7 +10,6 @@ on:
   # So that we can tag the docker image appropriately.
   push:
     branches:
-      - cicd  # temporary, for development only
       - dev
       - prod
       - main
