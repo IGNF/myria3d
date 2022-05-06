@@ -22,9 +22,6 @@ import numpy as np
 import pandas as pd
 import torch
 from torch_geometric.data import Data
-from lidar_multiclass.utils import utils
-
-log = utils.get_logger(__name__)
 
 SPLIT_PHASES = ["val", "train", "test"]
 
@@ -427,16 +424,16 @@ def _get_data_preparation_parser():
         " set --origin=FR_TOY and specify a value for --prepared_data_dir.",
     )
     parser.add_argument(
+        "--input_data_dir",
+        type=str,
+        default="./data/raw/",
+        help="Path to directory with las files with unique basename and `.las` suffix.",
+    )
+    parser.add_argument(
         "--split_csv",
         type=str,
         default="./split.csv",
         help="Path to csv with a basename (e.g. '123_456.las') and split (train/val/test) columns specifying the dataset split.",
-    )
-    parser.add_argument(
-        "--input_data_dir",
-        type=str,
-        default="./data/raw/",
-        help="Path to folder with las files stored in train/val/test subfolders.",
     )
     parser.add_argument(
         "--prepared_data_dir",

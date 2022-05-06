@@ -29,9 +29,9 @@ To install the environment, run:
 source setup_env/setup_env.sh
 ```
 
-If you do not have CUDA installed, you need comment out cudatoolkit in `setup_env/requirements.yml`
-
 If you do have CUDA, [check you CUDA version](https://varhowto.com/check-cuda-version/) and be sure `cudatoolkit` version in `setup_env/requirements.yml` matches yours.
+
+If you do not have CUDA installed, you need comment out `cudatoolkit` dependency and `FORCE_CUDA: 1` environement variable in `setup_env/requirements.yml`
 
 Finally, activate the created environmnt by running
 
