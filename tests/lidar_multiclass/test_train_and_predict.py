@@ -46,6 +46,8 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "predict.probas_to_save=[building,unclassified]",
+        # We set this because pytest fails to use PREPARED_DATA_DIR given via monkeypatch
+        "datamodule.prepared_data_dir=placeholder",
     ]
 
     run_hydra_decorated_command(command)
