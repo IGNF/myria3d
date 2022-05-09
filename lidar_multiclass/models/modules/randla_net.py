@@ -123,8 +123,8 @@ class RandLANet(nn.Module):
         for mlp in self.decoder:
             SINGLE_NEIGHBOR = 1
             _, neighbors = knn_compact(
-                pos[:, : N // decimation_ratio].cpu().contiguous(),  # original set
-                pos[:, : d * N // decimation_ratio].cpu().contiguous(),  # upsampled set
+                pos[:, : N // decimation_ratio],  # original set
+                pos[:, : d * N // decimation_ratio],  # upsampled set
                 SINGLE_NEIGHBOR,
             )  # shape (B, N, 1)
             neighbors = neighbors.to(x.device)
@@ -382,10 +382,10 @@ def knn_compact(
 
     y_idx_long, x_idx_long = knn(
         pos_x_long,
-        pos_y_long,
+        pos_y_long.to(pos_x_long.device),
         num_neighbors,
-        batch_x=batch_x_long,
-        batch_y=batch_y_long,
+        batch_x=batch_x_long.to(pos_x_long.device),
+        batch_y=batch_y_long.to(pos_x_long.device),
         num_workers=4,  # TODO: try with parameter
     )
 
