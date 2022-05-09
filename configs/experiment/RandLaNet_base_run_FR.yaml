@@ -1,6 +1,6 @@
 # @package _global_
 defaults:
-  - override /datamodule/dataset_description: 20220204_BuildingValidation_and_Ground
+  - override /datamodule/dataset_description: 20220504_proto23dalles
 
 datamodule:
   augment: true

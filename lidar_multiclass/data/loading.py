@@ -202,6 +202,9 @@ class FrenchLidarDataLogic(LidarDataLogic):
     ]
     colors_normalization_max_value = 255 * 256
 
+    # Exclusion of 65: artefacts, and 66: virtual points.
+    excluded_classes = [65, 66]
+
     @classmethod
     def load_las(self, las_filepath: str):
         f"""Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
@@ -220,8 +223,11 @@ class FrenchLidarDataLogic(LidarDataLogic):
 
         """
         las = laspy.read(las_filepath)
-        pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
 
+        # Filter out unused classes
+        las.points = las.points[~np.isin(las.classification, self.excluded_classes)]
+        # Positions and base features
+        pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
         x = np.asarray(
             [
                 las[x_name]
@@ -238,6 +244,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
             dtype=np.float32,
         ).transpose()
 
+        # normalization
         return_num_idx = self.x_features_names.index("return_num")
         occluded_points = x[:, return_num_idx] > 1
 
@@ -251,6 +258,9 @@ class FrenchLidarDataLogic(LidarDataLogic):
 
         for idx, c in enumerate(self.x_features_names):
             if c in ["red", "green", "blue", "nir"]:
+                print(
+                    x[:, idx].max()
+                )  # DEBUG: just to be sure that it is the same as before
                 assert x[:, idx].max() <= self.colors_normalization_max_value
                 x[:, idx] = x[:, idx] / self.colors_normalization_max_value
                 x[occluded_points, idx] = 0
@@ -259,8 +269,11 @@ class FrenchLidarDataLogic(LidarDataLogic):
         green = x[:, self.x_features_names.index("green")]
         blue = x[:, self.x_features_names.index("blue")]
 
+        # Additional features :
+        # Average color, that will be normalized on the fly based on single-sample
         rgb_avg = np.asarray([red, green, blue], dtype=np.float32).mean(axis=0)
 
+        # NDVI
         nir = x[:, self.x_features_names.index("nir")]
         ndvi = (nir - red) / (nir + red + 10**-6)
         x = np.concatenate([x, rgb_avg[:, None], ndvi[:, None]], axis=1)
