@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pdal
 import pytest
+import torch
 
 from lidar_multiclass.data.loading import LAS_SUBSET_FOR_TOY_DATASET
 from lidar_multiclass.predict import predict
@@ -12,6 +13,7 @@ from tests.conftest import (
     make_default_hydra_cfg,
     run_hydra_decorated_command,
 )
+from tests.runif import RunIf
 
 
 """
@@ -354,8 +356,8 @@ def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_f
     """Train a RandLaNet model for one epoch, in order to run it in different other tests.
 
     Args:
-        isolated_toy_dataset_tmpdir (bool): _description_
-        tmpdir (_type_): _description_
+        isolated_toy_dataset_tmpdir (str): path to isolated toy dataset as created by fixture.
+        tmpdir_factory (fixture): factory to create a session level tempdir.
 
     Returns:
         str: path to trained model checkpoint, which persists for the whole pytest session.
@@ -377,3 +379,36 @@ def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_f
     )
     trainer = train(cfg_one_epoch)
     return trainer.checkpoint_callback.best_model_path
+
+
+@RunIf(min_gpus=1)
+def test_one_epoch_RandLaNet_training_using_gpu(
+    isolated_toy_dataset_tmpdir, tmpdir_factory
+):
+    """Train a RandLaNet model for one epoch using GPU. XFail is no GPU available.
+
+    Args:
+        isolated_toy_dataset_tmpdir (str): path to isolated toy dataset as created by fixture.
+        tmpdir_factory (fixture): factory to create a session level tempdir.
+
+    """
+    tmpdir = tmpdir_factory.mktemp("training_logs_dir")
+
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        isolated_toy_dataset_tmpdir, tmpdir
+    )
+
+    # We will always use the first GPU id for tests, because it always exists if there are some GPUs.
+    # Attention to concurrency with other processes using the GPU when running tests.
+    gpu_id = 0
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=[
+            "experiment=RandLaNetDebug",
+            "datamodule.batch_size=2",
+            "trainer.min_epochs=1",
+            "trainer.max_epochs=1",
+            f"trainer.gpus=[{gpu_id}]",
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg_one_epoch)
