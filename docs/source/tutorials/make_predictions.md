@@ -2,12 +2,12 @@
 
 Refer to [this tutorial](./setup_install.md) for how to setup a virtual environment and install the library.
 
-## Run inference from installed package
-
 To run inference, you will need:
 - A source cloud point in LAS format on which to infer classes and probabilites.
 - A checkpoint of a trained lightning module implementing model logic (class `lidar_multiclass.models.model.Model`)
 - A minimal yaml configuration specifying parameters. We use [hydra](https://hydra.cc/) to manage configurations, and this yaml results from the model training. The `datamodule` and `model` parameters groups must match datset characteristics and model training settings.  The `predict` parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal).
+
+## Run inference from installed package
 
 Fill out the {missing parameters} below and run: 
 
@@ -28,6 +28,8 @@ To show you current inference config, simply add a `--help` flag:
 ```bash
 python -m lidar_multiclass.predict --config-path {/path/to/.hydra} --config-name {config.yaml} --help
 ```
+
+Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multiple_files/*.las`), in order to **predict on multiple files successively**.
 
 ## Run inference from sources
 
