@@ -29,11 +29,20 @@ jobs:
     - name: Check code neatness (linter)
       run: docker run lidar_deep_im flake8
 
+    - name: Fast unit tests first
+      run: >
+        docker run
+        lidar_deep_im
+        python -m
+        pytest -rA -v -m "not slow"
+        --ignore=actions-runner
+        --ignore="notebooks"
+
     - name: Full module run on LAS subset
       run: >
         docker run
-        -v /var/data/CICD_github_assets/nebulia_B2V0.5/inputs/:/inputs/
-        -v /var/data/CICD_github_assets/nebulia_B2V0.5/outputs/:/outputs/
+        -v /var/data/cicd/CICD_github_assets/nebulia_B2V0.5/inputs/:/inputs/
+        -v /var/data/cicd/CICD_github_assets/nebulia_B2V0.5/outputs/:/outputs/
         lidar_deep_im
         python -m 
         lidar_multiclass.predict
@@ -45,15 +54,6 @@ jobs:
         datamodule.batch_size=25
         hydra.run.dir=/lidar
 
-    - name: Fast unit tests first
-      run: >
-        docker run
-        lidar_deep_im
-        python -m
-        pytest -rA -v -m "not slow"
-        --ignore=actions-runner
-        --ignore="notebooks"
-
     - name: Slow unit tests last, using large files stored in self-hosted action-runner.
       run: >
         docker run
@@ -63,6 +63,7 @@ jobs:
         pytest -rA -v -m "slow" 
         --ignore=actions-runner
         --ignore="notebooks"
+
 
 
     # Everything ran so we tag the valid docker image to keep it
