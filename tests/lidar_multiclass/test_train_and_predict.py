@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pdal
 import pytest
-import torch
+from typing import List
 
 from lidar_multiclass.data.loading import LAS_SUBSET_FOR_TOY_DATASET
 from lidar_multiclass.predict import predict
@@ -17,14 +17,19 @@ from tests.runif import RunIf
 
 
 """
-A couple of sanity checks to make sure the model doesn't crash with different running options.
+Sanity checks to make sure the model train/val/predict/test logics do not crash.
 """
 
 
 def test_FrenchLidar_default_training_fast_dev_run_as_command(
     isolated_toy_dataset_tmpdir,
 ):
-    """Test running by CLI for 1 train, val and test batch of a toy dataset."""
+    """Test running by CLI for 1 train, val and test batch of a toy dataset.
+
+    Args:
+        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
+
+    """
 
     command = [
         "run.py",
@@ -38,7 +43,14 @@ def test_FrenchLidar_default_training_fast_dev_run_as_command(
 
 
 def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
-    """Test running inference by CLI for toyLAS."""
+    """Test running inference by CLI for toy LAS.
+
+    Args:
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
+
+    """
     # Hydra changes CWD, and therefore absolute paths are preferred
     abs_path_to_toy_LAS = osp.abspath(LAS_SUBSET_FOR_TOY_DATASET)
     command = [
@@ -60,7 +72,11 @@ def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     """Check ability to overfit with RandLa-Net.
 
     Check that overfitting a single batch from a toy dataset, for 30 epochs, results
-    in significanly higher IoU.
+    in a significant improvement of building IoU.
+
+    Args:
+        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
+        tmpdir (fixture -> str): temporary directory.
 
     """
 
@@ -90,6 +106,10 @@ def test_PointNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     Check that overfitting a single batch from a toy dataset, for 30 epochs, results
     in significanly lower training loss.
 
+    Args:
+        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
+        tmpdir (fixture -> str): temporary directory.
+
     """
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
         isolated_toy_dataset_tmpdir, tmpdir
@@ -118,9 +138,10 @@ def test_RandLaNet_test_right_after_training(
     """Run test using the model that was just trained for one epoch.
 
     Args:
-        isolated_toy_dataset_tmpdir (str): directory to toy dataset
-        one_epoch_trained_RandLaNet_checkpoint (str): path to checkpoint of model
-        that was just trained for one epoch.
+        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
 
     """
 
@@ -146,7 +167,9 @@ def test_RandLaNet_predict_with_invariance_checks(
     """Train a model for one epoch, and run test and predict functions using the trained model.
 
     Args:
-        isolated_toy_dataset_tmpdir (str): directory to toy dataset
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
 
     """
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
@@ -184,6 +207,15 @@ def test_RandLaNet_predict_with_invariance_checks(
 def test_run_test_with_trained_model_on_toy_dataset(
     isolated_toy_dataset_tmpdir, tmpdir
 ):
+    """Test performance (IoU) from a trained model on the toy LAS.
+
+    Check that IoU for building, ground, and unclassified points is above some thresholds.
+
+    Args:
+        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
+        tmpdir (fixture -> str): temporary directory.
+
+    """
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
@@ -210,6 +242,15 @@ def test_run_test_with_trained_model_on_toy_dataset(
 def test_run_test_with_trained_model_on_large_las(
     isolated_test_subdir_for_large_las, tmpdir
 ):
+    """Test performance (IoU) from a trained model on a large LAS.
+
+    Check that IoU for building, ground, and unclassified points is above some thresholds.
+
+    Args:
+        isolated_test_subdir_for_large_las (fixture -> str): directory to dataset derived from large las
+        tmpdir (fixture -> str): temporary directory.
+
+    """
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
@@ -233,7 +274,12 @@ def test_run_test_with_trained_model_on_large_las(
 
 
 def test_predict_with_trained_model_on_toy_dataset(tmpdir):
-    """Simple check that prediction does not fail."""
+    """Simple check that prediction does not fail when running from a trained model.
+
+    Args:
+        tmpdir (fixture -> str): temporary directory.
+
+    """
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 
@@ -285,13 +331,29 @@ def test_predict_with_trained_model_on_toy_dataset(tmpdir):
 #         assert np.mean(target == preds) >= 0.97
 
 
-def check_las_contains_dims(las_path, dims_to_check=[]):
+def check_las_contains_dims(las_path: str, dims_to_check: List[str] = []):
+    """Utility: check that LAS contains some dimensions.
+
+
+    Args:
+        las_path (str): path to LAS file.
+        dims_to_check (List[str], optional): list of dimensions expected to be there. Defaults to [].
+
+    """
     a1 = pdal_read_las_array(las_path)
     for dim in dims_to_check:
         assert dim in a1.dtype.fields.keys()
 
 
 def check_las_does_not_contains_dims(las_path, dims_to_check=[]):
+    """Utility: check that LAS does NOT contain some dimensions.
+
+
+    Args:
+        las_path (str): path to LAS file.
+        dims_to_check (List[str], optional): list of dimensions expected not to be there. Defaults to [].
+
+    """
     a1 = pdal_read_las_array(las_path)
     for dim in dims_to_check:
         assert dim not in a1.dtype.fields.keys()
@@ -301,10 +363,11 @@ def pdal_read_las_array(las_path: str):
     """Read LAS as a named array.
 
     Args:
-        in_f (str): input LAS path
+        las_path (str): input LAS path
 
     Returns:
         np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.
+
     """
     p1 = pdal.Pipeline() | pdal.Reader.las(filename=las_path)
     p1.execute()
@@ -312,8 +375,13 @@ def pdal_read_las_array(las_path: str):
 
 
 def check_las_invariance(las_path_1: str, las_path_2: str):
-    """Check that key dimensions are equal between two LAS files."""
+    """Check that key dimensions are equal between two LAS files
 
+    Args:
+        las_path_1 (str): path to first LAS file.
+        las_path_2 (str): path to second LAS file.
+
+    """
     a1 = pdal_read_las_array(las_path_1)
     a2 = pdal_read_las_array(las_path_2)
     key_dims = ["X", "Y", "Z", "Infrared", "Red", "Blue", "Green", "Intensity"]
@@ -332,7 +400,13 @@ def check_las_invariance(las_path_1: str, las_path_2: str):
 def _make_list_of_necesary_hydra_overrides_with_tmp_paths(
     isolated_toy_dataset_tmpdir: str, tmpdir: str
 ):
-    """Get list of overrides for hydra, the ones that are always needed when calling train/test."""
+    """Get list of overrides for hydra, the ones that are always needed when calling train/test.
+
+    Args:
+        isolated_test_subdir_for_large_las (str): path to directory to dataset derived from large las
+        tmpdir (str): path to temporary directory.
+
+    """
 
     return [
         f"datamodule.prepared_data_dir={isolated_toy_dataset_tmpdir}",
@@ -389,7 +463,7 @@ def test_one_epoch_RandLaNet_training_using_gpu(
 
     Args:
         isolated_toy_dataset_tmpdir (str): path to isolated toy dataset as created by fixture.
-        tmpdir_factory (fixture): factory to create a session level tempdir.
+        tmpdir_factory (fixture): factory to create a session-level tempdir.
 
     """
     tmpdir = tmpdir_factory.mktemp("training_logs_dir")
