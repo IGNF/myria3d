@@ -8,7 +8,7 @@ except ImportError:
 
 import copy
 import os
-from typing import List, Optional
+from typing import List
 
 import hydra
 from omegaconf import DictConfig
@@ -27,24 +27,34 @@ from lidar_multiclass.utils import utils
 log = utils.get_logger(__name__)
 
 
-def train(config: DictConfig) -> Optional[float]:
+def train(config: DictConfig) -> Trainer:
     """Training pipeline (+ Test, + Finetuning)
 
     Instantiates all PyTorch Lightning objects from config, then perform one of the following
     task based on parameter `task.task_name`:
 
-        `fit`: fit a neural network - train on a prepared training set and validate on a prepared validation set.
+        fit: fit a neural network - train on a prepared training set and validate on a prepared validation set.
+            Optionnaly, resume a checkpointed training by specifying config.model.ckpt_path.
 
-        `test`: test a trained neural network on a test dataset (i.e. a folder of LAS files)
+        test: test a trained neural network on the test dataset of a prepared dataset (i.e. the `test` subdir
+        which contains LAS files with a classification).
 
-        `finetune`: finetune a trained neural network on a new prepared dataset (train+val sets), by loading a trained model and
-        fitting it again with altered fit conditions (e.g. different number of classes to predict...).
+        finetune: finetune a checkpointed neural network on a prepared dataset, which muste be specified
+        in config.model.ckpt_path.
+        In contrast to using fit, finetuning resumes training with altered conditions. This leads to a new,
+        distinct training, and training state is reset (e.g. epoch starts from 0).
+        Typical use case are:
+            - a different learning rate (config.model.lr) or a different scheduler (e.g. stronger config.model.lr_scheduler.patience
+            - a different number of classes to predict, in order to e.g. specialize a base model. This is done by
+            specifying a new config.datamodule.dataset_description as well as the corresponding config.model.num_classes.
+            for RecudeLROnPlateau scheduler). Additionnaly, a specific callback must be activated to change neural net output layer
+            after loading its weights. See configs/experiment/RandLaNetDebugFineTune.yaml for an example.
 
     Args:
         config (DictConfig): Configuration composed by Hydra.
 
     Returns:
-        Optional[float]: Metric score for hyperparameter optimization.
+        Trainer: lightning trainer.
 
     """
 
@@ -141,12 +151,14 @@ def train(config: DictConfig) -> Optional[float]:
 
     if "finetune" in task_name:
         log.info("Starting finetuning pretrained model on new data!")
-        # here rebuild model but overwrite everything except module related params
+        # Instantiates the Model but overwrites everything with current config,
+        # except module related params (nnet architecture)
         kwargs_to_override = copy.deepcopy(model.hparams)
+        NEURAL_NET_ARCHITECTURE_CONFIG_GROUP = "neural_net"
         kwargs_to_override = {
             key: value
             for key, value in kwargs_to_override.items()
-            if "neural_net" not in key
+            if NEURAL_NET_ARCHITECTURE_CONFIG_GROUP not in key
         }
         model = Model.load_from_checkpoint(config.model.ckpt_path, **kwargs_to_override)
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=None)

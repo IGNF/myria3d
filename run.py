@@ -38,7 +38,7 @@ def main(config: DictConfig):
 
     task_name = config.task.get("task_name")
     if "fit" in task_name or "test" in task_name or "finetune" in task_name:
-        """Training, eval, and test of a neural network."""
+        """Training, evaluation, testing, or finetuning of a neural network."""
         return train(config)
     elif config.task.get("task_name") == "predict":
         """Infer probabilities and automate semantic segmentation decisions on unseen data."""
