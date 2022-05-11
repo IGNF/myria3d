@@ -64,8 +64,6 @@ jobs:
         --ignore=actions-runner
         --ignore="notebooks"
 
-
-
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 
     # triggered when a pull request is merged.
@@ -87,6 +85,7 @@ jobs:
 
     # This needs writing rights to the mounted path
     - name: Save the docker image as lidar_deep_im_${BRANCH_NAME}.tar
+      if: github.event_name == 'push'
       run: docker save lidar_deep_im:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/lidar_deep_im_${BRANCH_NAME}.tar
 
     - name: Clean dangling docker images
