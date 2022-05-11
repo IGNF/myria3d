@@ -1,7 +1,8 @@
+from glob import glob
 import os
 import hydra
 import torch
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
 
@@ -62,9 +63,15 @@ def predict(config: DictConfig) -> str:
 
 @hydra.main(config_path="../configs/", config_name="config.yaml")
 def main(config: DictConfig):
-    """See function predict
+    """This wrapper allows to specify a hydra configuration from command line.
 
-    :meta private:
+    The config file logged during training should be used for prediction. It should
+    be edited so that it does not rely on unnecessary environment variables (`oc.env:` prefix).
+    Parameters in configuration group `predict` can be specified directly in the config file
+    or overriden via CLI at runtime.
+
+    This wrapper supports running predictions for all files specified
+    by a glob pattern as specified via config parameter predict.src_las.
 
     """
     # Imports should be nested inside @hydra.main to optimize tab completion
@@ -78,10 +85,21 @@ def main(config: DictConfig):
     if config.get("print_config"):
         utils.print_config(config, resolve=False)
 
-    return predict(config)
+    # Parameter predict.src_las can be a path or a glob pattern
+    # e.g. /path/to/files_*.las
+    src_las_iterable = glob(config.predict.src_las)
+
+    if not src_las_iterable:
+        raise FileNotFoundError(
+            f"Globing pattern {config.predict.src_las} (param predict.src_las) did not return any file."
+        )
+
+    # Iterate over the files and predict.
+    for config.predict.src_las in tqdm(src_las_iterable):
+        predict(config)
 
 
 if __name__ == "__main__":
     # cf. https://github.com/facebookresearch/hydra/issues/1283
-    OmegaConf.register_new_resolver("get_method", hydra.utils.get_method, replace=True)
+    # OmegaConf.register_new_resolver("get_method", hydra.utils.get_method, replace=True)
     main()
