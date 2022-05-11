@@ -51,7 +51,7 @@ jobs:
         --config-name predict_config_V1.7.1.yaml
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
-        predict.resume_from_checkpoint=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
+        predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         datamodule.batch_size=25
         hydra.run.dir=/lidar
 

@@ -27,8 +27,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6   # package needed for anaconda
 
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
- && /bin/bash ~/miniconda.sh -b -p /opt/conda \
- && rm ~/miniconda.sh
+        && /bin/bash ~/miniconda.sh -b -p /opt/conda \
+        && rm ~/miniconda.sh
 
 ENV PATH /opt/conda/bin:$PATH
 
@@ -51,23 +51,23 @@ SHELL ["conda", "run", "-n", "lidar_multiclass", "/bin/bash", "-c"]
 
 # the entrypoint garanty that all command will be runned in the conda environment
 ENTRYPOINT ["conda",  \   
-            "run", \
-            "-n", \
-            "lidar_multiclass"]
+        "run", \
+        "-n", \
+        "lidar_multiclass"]
 
 # Example usage
 CMD         ["python", \
-            "-m", \
-            "lidar_multiclass.predict", \
-            "--config-path", \
-            "/CICD_github_assets/parametres_etape1/.hydra", \ 
-            "--config-name", \
-            "predict_config_V1.6.3.yaml", \
-            "predict.src_las=/CICD_github_assets/parametres_etape1/test/792000_6272000_subset_buildings.las", \
-            "predict.output_dir=/CICD_github_assets/output_etape1", \
-            "predict.resume_from_checkpoint=/CICD_github_assets/parametres_etape1/checkpoints/epoch_033.ckpt", \
-            "predict.gpus=0", \
-            "datamodule.batch_size=10", \ 
-            "datamodule.subtile_overlap=0", \ 
-            "hydra.run.dir=/lidar"]
+        "-m", \
+        "lidar_multiclass.predict", \
+        "--config-path", \
+        "/CICD_github_assets/parametres_etape1/.hydra", \ 
+        "--config-name", \
+        "predict_config_V1.6.3.yaml", \
+        "predict.src_las=/CICD_github_assets/parametres_etape1/test/792000_6272000_subset_buildings.las", \
+        "predict.output_dir=/CICD_github_assets/output_etape1", \
+        "predict.ckpt_path=/CICD_github_assets/parametres_etape1/checkpoints/epoch_033.ckpt", \
+        "predict.gpus=0", \
+        "datamodule.batch_size=10", \ 
+        "datamodule.subtile_overlap=0", \ 
+        "hydra.run.dir=/lidar"]
 

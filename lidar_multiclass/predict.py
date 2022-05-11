@@ -34,14 +34,14 @@ def predict(config: DictConfig) -> str:
     """
 
     # Those are the 2 needed inputs, in addition to the hydra config.
-    assert os.path.exists(config.predict.resume_from_checkpoint)
+    assert os.path.exists(config.predict.ckpt_path)
     assert os.path.exists(config.predict.src_las)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_predict_data([config.predict.src_las])
 
     model: LightningModule = hydra.utils.instantiate(config.model)
-    model = model.load_from_checkpoint(config.predict.resume_from_checkpoint)
+    model = model.load_from_checkpoint(config.predict.ckpt_path)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()

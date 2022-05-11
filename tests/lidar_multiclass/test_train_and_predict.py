@@ -56,7 +56,7 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     command = [
         "run.py",
         "task.task_name=predict",
-        f"predict.resume_from_checkpoint={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "predict.probas_to_save=[building,unclassified]",
@@ -178,7 +178,7 @@ def test_RandLaNet_predict_with_invariance_checks(
     # Run prediction
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
-            f"predict.resume_from_checkpoint={one_epoch_trained_RandLaNet_checkpoint}",
+            f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
             f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
             f"predict.output_dir={tmpdir}",
             "predict.probas_to_save=[building,unclassified]",
@@ -288,7 +288,7 @@ def test_predict_with_trained_model_on_toy_dataset(tmpdir):
     )
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
-            f"predict.resume_from_checkpoint={TRAINED_MODEL_PATH}",
+            f"predict.ckpt_path={TRAINED_MODEL_PATH}",
             f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
             f"predict.output_dir={tmpdir}",
             "predict.probas_to_save=[building,unclassified]",
@@ -312,7 +312,7 @@ def test_predict_with_trained_model_on_toy_dataset(tmpdir):
 #         )
 #         cfg_predict_using_trained_model = make_default_hydra_cfg(
 #             overrides=[
-#                 f"predict.resume_from_checkpoint={TRAINED_MODEL_PATH}",
+#                 f"predict.ckpt_path={TRAINED_MODEL_PATH}",
 #                 f"predict.src_las={LARGE_LAS_PATH}",
 #                 f"predict.output_dir={tmpdir}",
 #                 "predict.probas_to_save=[building,unclassified]",

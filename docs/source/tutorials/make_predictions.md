@@ -17,7 +17,7 @@ python -m lidar_multiclass.predict \
 --config-name {config.yaml} \
 predict.src_las={/path/to/cloud.las} \
 predict.output_dir={/path/to/out/dir/} \
-predict.resume_from_checkpoint={/path/to/checkpoint.ckpt} \
+predict.ckpt_path={/path/to/checkpoint.ckpt} \
 predict.gpus={0 for none, [i] to use GPU number i} \
 datamodule.batch_size={N} \
 hydra.run.dir={path/for/hydra/logs}
