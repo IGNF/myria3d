@@ -12,7 +12,7 @@ Tests can be run in an activated environment with.
 
 ```bash
 conda activate lidar_prod
-python -m pytest -rA -v --ignore="notebooks"
+python -m pytest -rA -v
 ```
 
 ## Continuous Integration (CI)

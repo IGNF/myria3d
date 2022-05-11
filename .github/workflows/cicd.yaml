@@ -37,7 +37,6 @@ jobs:
         python -m
         pytest -rA -v -m "not slow"
         --ignore=actions-runner
-        --ignore="notebooks"
 
     - name: Full module run on LAS subset
       run: >
@@ -63,7 +62,6 @@ jobs:
         python -m
         pytest -rA -v -m "slow" 
         --ignore=actions-runner
-        --ignore="notebooks"
 
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 
