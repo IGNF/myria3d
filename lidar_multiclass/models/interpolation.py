@@ -205,8 +205,9 @@ class Interpolator:
         preds = np.vectorize(self.reverse_mapper.get)(preds)
         self.las[ChannelNames.PredictedClassification.value][:] = preds
 
-        entropy = Categorical(probs=probas).entropy()
-        self.las[ChannelNames.ProbasEntropy.value][:] = entropy
+        self.las[ChannelNames.ProbasEntropy.value][:] = Categorical(
+            probs=probas
+        ).entropy()
 
         log.info("Saving...")
 

@@ -75,6 +75,8 @@ class MakeCopyOfPosAndY(BaseTransform):
 
     def __call__(self, data: Data):
         data["pos_copy"] = data["pos"].clone()
+        # TODO: evaluate if Copy of Y can be restricte to Test setting only.
+        # This should then be repercuted in Interpolation.
         data["y_copy"] = data["y"].clone()
         return data
 
@@ -288,7 +290,8 @@ class TargetTransform(BaseTransform):
                 "This usually happens when an unknown classification code was encounterd."
                 "Check that all classification codes in your data are either"
                 "specified via the classification_dict"
-                "or transformed into a specified code via the preprocessing_mapper.\n")
+                "or transformed into a specified code via the preprocessing_mapper.\n"
+            )
             log.error(
                 f"Current classification_dict: {self.classification_dict}"
                 f"Current preprocessing_mapper: {self.preprocessing_mapper}"
