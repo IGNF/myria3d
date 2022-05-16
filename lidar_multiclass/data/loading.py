@@ -281,7 +281,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
         try:
             # for LAS format V1.2
             y = las.classification.array.astype(int)
-        except:  # noqa
+        except Exception:
             # for  LAS format V1.4
             y = las.classification.astype(int)
 
@@ -367,7 +367,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
         try:
             # for LAS format V1.2
             y = las.classification.array.astype(int)
-        except:  # noqa
+        except Exception:
             # for  LAS format V1.4
             y = las.classification.astype(int)
 

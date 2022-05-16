@@ -224,7 +224,7 @@ class Model(LightningModule):
 
         try:
             lr_scheduler = self.hparams.lr_scheduler(optimizer)
-        except:  # noqa
+        except Exception:
             # OneCycleLR needs optimizer and max_lr
             lr_scheduler = self.hparams.lr_scheduler(optimizer, self.lr)
         config = {
