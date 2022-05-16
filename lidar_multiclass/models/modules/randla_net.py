@@ -120,12 +120,12 @@ class RandLANet(nn.Module):
         x = self.mlp(x)
 
         # <<<<<<<<<< DECODER
+        single_neighbor = 1
         for mlp in self.decoder:
-            SINGLE_NEIGHBOR = 1
             _, neighbors = knn_compact(
                 pos[:, : N // decimation_ratio],  # original set
                 pos[:, : d * N // decimation_ratio],  # upsampled set
-                SINGLE_NEIGHBOR,
+                single_neighbor,
             )  # shape (B, N, 1)
             neighbors = neighbors.to(x.device)
             extended_neighbors = neighbors.unsqueeze(1).expand(-1, x.size(1), -1, 1)
@@ -362,10 +362,10 @@ def knn_compact(
     """Perform KNN from and to data in compact (B,N,F) format, with pygg knn expecting long (B*N,F) format.
 
     Args:
-        pos (torch.Tensor): positions in in compact (B,N,F) format
+        pos (torch.Tensor): positions in compact (B,N,F) format
 
     Returns:
-        Tuple[torch.Tensor,torch.Tensor]: y_idx, x_idx assignmenet index, in range [0, batch_size[
+        Tuple[torch.Tensor,torch.Tensor]: y_idx, x_idx assignment index, in range [0, batch_size[
 
     """
     num_batches = len(pos_x)
