@@ -38,7 +38,7 @@ class LidarDataLogic(ABC):
 
     """
 
-    return_num_normalization_max_value = 7
+    return_number_normalization_max_value = 7
 
     def __init__(
         self,
@@ -191,8 +191,8 @@ class FrenchLidarDataLogic(LidarDataLogic):
 
     x_features_names = [
         "intensity",
-        "return_num",
-        "num_returns",
+        "return_number",
+        "number_of_returns",
         "red",
         "green",
         "blue",
@@ -233,8 +233,8 @@ class FrenchLidarDataLogic(LidarDataLogic):
                 las[x_name]
                 for x_name in [
                     "intensity",
-                    "return_num",
-                    "num_returns",
+                    "return_number",
+                    "number_of_returns",
                     "red",
                     "green",
                     "blue",
@@ -245,15 +245,15 @@ class FrenchLidarDataLogic(LidarDataLogic):
         ).transpose()
 
         # normalization
-        return_num_idx = self.x_features_names.index("return_num")
-        occluded_points = x[:, return_num_idx] > 1
+        return_number_idx = self.x_features_names.index("return_number")
+        occluded_points = x[:, return_number_idx] > 1
 
-        x[:, return_num_idx] = (x[:, return_num_idx]) / (
-            self.return_num_normalization_max_value
+        x[:, return_number_idx] = (x[:, return_number_idx]) / (
+            self.return_number_normalization_max_value
         )
-        num_return_idx = self.x_features_names.index("num_returns")
+        num_return_idx = self.x_features_names.index("number_of_returns")
         x[:, num_return_idx] = (x[:, num_return_idx]) / (
-            self.return_num_normalization_max_value
+            self.return_number_normalization_max_value
         )
 
         for idx, c in enumerate(self.x_features_names):
@@ -297,8 +297,8 @@ class FrenchLidarDataLogic(LidarDataLogic):
 class SwissTopoLidarDataLogic(LidarDataLogic):
     x_features_names = [
         "intensity",
-        "return_num",
-        "num_returns",
+        "return_number",
+        "number_of_returns",
         "red",
         "green",
         "blue",
@@ -327,8 +327,8 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
                 las[x_name]
                 for x_name in [
                     "intensity",
-                    "return_num",
-                    "num_returns",
+                    "return_number",
+                    "number_of_returns",
                     "red",
                     "green",
                     "blue",
@@ -337,15 +337,15 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             dtype=np.float32,
         ).transpose()
 
-        return_num_idx = self.x_features_names.index("return_num")
-        occluded_points = x[:, return_num_idx] > 1
+        return_number_idx = self.x_features_names.index("return_number")
+        occluded_points = x[:, return_number_idx] > 1
 
-        x[:, return_num_idx] = (x[:, return_num_idx]) / (
-            self.return_num_normalization_max_value
+        x[:, return_number_idx] = (x[:, return_number_idx]) / (
+            self.return_number_normalization_max_value
         )
-        num_return_idx = self.x_features_names.index("num_returns")
+        num_return_idx = self.x_features_names.index("number_of_returns")
         x[:, num_return_idx] = (x[:, num_return_idx]) / (
-            self.return_num_normalization_max_value
+            self.return_number_normalization_max_value
         )
 
         for idx, c in enumerate(self.x_features_names):
