@@ -268,6 +268,10 @@ class TargetTransform(BaseTransform):
         self._set_preprocessing_mapper(classification_preprocessing_dict)
         self._set_mapper(classification_dict)
 
+        # Set to attribute to log potential type errors
+        self.classification_dict = classification_dict
+        self.classification_preprocessing_dict = classification_preprocessing_dict
+
     def __call__(self, data: Data):
         data.y = self.transform(data.y)
         data.y_copy = self.transform(data.y_copy)
@@ -275,7 +279,22 @@ class TargetTransform(BaseTransform):
 
     def transform(self, y):
         y = self.preprocessing_mapper(y)
-        y = self.mapper(y)
+        try:
+            y = self.mapper(y)
+        except TypeError as e:
+            log.error(
+                "A TypeError occured when mapping target from arbitrary integers"
+                "to consecutive integers (0-(n-1)) using the provided classification_dict"
+                "This usually happens when an unknown classification code was encounterd."
+                "Check that all classification codes in your data are either"
+                "specified via the classification_dict"
+                "or transformed into a specified code via the preprocessing_mapper.\n")
+            log.error(
+                f"Current classification_dict: {self.classification_dict}"
+                f"Current preprocessing_mapper: {self.preprocessing_mapper}"
+                f"Current unique values in preprocessed target array: {np.unique(y)}"
+            )
+            raise e
         return torch.LongTensor(y)
 
     def _set_preprocessing_mapper(self, classification_preprocessing_dict):
