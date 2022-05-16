@@ -115,11 +115,13 @@ class LidarDataLogic(ABC):
         data = self.load_las(filepath)
         idx = 0
         for _ in tqdm(range_by_axis):
-            if len(data.pos) == 0:
+            if not len(data.pos):
+                # Ignore if empty
                 break
             data_x_band = self._extract_by_x(data)
             for _ in range_by_axis:
-                if len(data_x_band.pos) == 0:
+                if not len(data_x_band.pos):
+                    # Ignore if empty
                     break
                 subtile_data = self._extract_by_y(data_x_band)
                 self._save(subtile_data, output_subdir_path, idx)
