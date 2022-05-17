@@ -56,9 +56,8 @@ class LogCode(Callback):
     def on_train_start(self, trainer, pl_module):
         logger = get_comet_logger(trainer=trainer)
         if logger:
-            experiment = logger.experiment
             for path in Path(self.code_dir).resolve().rglob("*.py"):
-                experiment.log_code(file_name=str(path))
+                logger.experiment.log_code(file_name=str(path))
             log.info("Logging all .py files to Comet.ml!")
 
 
@@ -69,7 +68,6 @@ class LogLogsPath(Callback):
     def on_init_end(self, trainer):
         logger = get_comet_logger(trainer=trainer)
         if logger:
-            experiment = logger.experiment
             log_path = os.getcwd()
             log.info(f"----------------\n LOGS DIR is {log_path}\n ----------------")
-            experiment.log_parameter("experiment_logs_dirpath", log_path)
+            logger.experiment.log_parameter("experiment_logs_dirpath", log_path)

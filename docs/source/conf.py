@@ -101,35 +101,4 @@ intersphinx_mapping = {
 html_static_path = ["_static"]
 modindex_common_prefix = ["lidar_multiclass."]
 
-# to_mock = [
-#     # "torch",
-#     "comet_ml",
-#     "tqdm",
-#     "pdal",
-#     "python-pdal",
-#     "hydra",
-#     "laspy",
-#     "torch_geometric",
-#     "dotenv",
-#     "torchmetrics",
-#     "torchmetrics.functional",
-#     "torchmetrics.functional.classification",
-#     "torchmetrics.functional.classification.jaccard",
-# ]
-
-
-# try:
-#     import torch  # noqa
-# except ImportError:
-#     for m in to_mock:
-#         sys.modules[m] = mock.Mock(name=m)
-#     sys.modules["torch"].__version__ = "1.10"  # fake version
-#     HAS_TORCH = False
-# else:
-#     HAS_TORCH = True
-
-# autodoc_mock_imports = []
-# for m in ["numpy", "pdal", "pdal", "dotenv", "laspy"]:
-#     autodoc_mock_imports.append(m)
-
 mock_directives = ["testcode"]
