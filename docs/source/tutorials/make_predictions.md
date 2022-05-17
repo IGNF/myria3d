@@ -41,9 +41,11 @@ In case you want to swicth to package-based inference, you will need to comment 
 
 Up to date docker images (named `lidar_deep_im`) are created via Github integration actions (see [Developer's guide](../guides/development.md).
 
-A docker image encapsulating the virtual environment and application sources can also be built using the provided Dockerfile. This Dockerfile is not standalone and should be part of the repository (whose content is copied into the image), on the github reference you want to build from.
+A docker image encapsulating the virtual environment and application sources can also be built using the provided Dockerfile. At built time, the Dockerfile is not standalone and should be part of the repository - whose content is copied into the image - at the github reference you want to build from.
 
-To run, mount needed volumes and follow above syntaxes:
+To run, mount needed volumes and follow this syntax. 
+Always specify option `--ipc=host` to allow multithreading in pytorch dataloader (as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images))
+
 ```bash
 # specify your paths here as needed
 docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ lidar_deep_im {...}
