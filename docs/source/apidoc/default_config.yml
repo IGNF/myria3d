@@ -92,6 +92,7 @@ model:
     factor: 0.5
     patience: 5
     cooldown: 0
+    verbose: true
   _target_: lidar_multiclass.models.model.Model
   d_in: ${datamodule.dataset_description.d_in}
   num_classes: ${datamodule.dataset_description.num_classes}

@@ -1,5 +1,5 @@
-# It is safer to import comet before all other imports.
 try:
+    # It is safer to import comet before all other imports.
     import comet_ml  # noqa
 except ImportError:
     print(
@@ -33,22 +33,28 @@ def train(config: DictConfig) -> Trainer:
     Instantiates all PyTorch Lightning objects from config, then perform one of the following
     task based on parameter `task.task_name`:
 
-        fit: fit a neural network - train on a prepared training set and validate on a prepared validation set.
-            Optionnaly, resume a checkpointed training by specifying config.model.ckpt_path.
+    fit:
+        Fits a neural network - train on a prepared training set and validate on a prepared validation set.
+        Optionnaly, resume a checkpointed training by specifying config.model.ckpt_path.
 
-        test: test a trained neural network on the test dataset of a prepared dataset (i.e. the `test` subdir
+    test:
+        Tests a trained neural network on the test dataset of a prepared dataset (i.e. the `test` subdir
         which contains LAS files with a classification).
 
-        finetune: finetune a checkpointed neural network on a prepared dataset, which muste be specified
+    finetune:
+        Finetunes a checkpointed neural network on a prepared dataset, which muste be specified
         in config.model.ckpt_path.
         In contrast to using fit, finetuning resumes training with altered conditions. This leads to a new,
         distinct training, and training state is reset (e.g. epoch starts from 0).
-        Typical use case are:
-            - a different learning rate (config.model.lr) or a different scheduler (e.g. stronger config.model.lr_scheduler.patience
-            - a different number of classes to predict, in order to e.g. specialize a base model. This is done by
-            specifying a new config.datamodule.dataset_description as well as the corresponding config.model.num_classes.
-            for RecudeLROnPlateau scheduler). Additionnaly, a specific callback must be activated to change neural net output layer
-            after loading its weights. See configs/experiment/RandLaNetDebugFineTune.yaml for an example.
+
+    Typical use case are
+    
+        - a different learning rate (config.model.lr) or a different scheduler (e.g. stronger config.model.lr_scheduler.patience)
+        - a different number of classes to predict, in order to e.g. specialize a base model. \
+        This is done by specifying a new config.datamodule.dataset_description as well as the corresponding config.model.num_classes. \
+        for RecudeLROnPlateau scheduler). Additionnaly, a specific callback must be activated to change neural net output layer \
+        after loading its weights. See configs/experiment/RandLaNetDebugFineTune.yaml for an example.
+
 
     Args:
         config (DictConfig): Configuration composed by Hydra.
