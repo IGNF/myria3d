@@ -14,7 +14,6 @@ You may want to implement your own logic, which then needs to be specified in `_
 
 ## Data preparation
 
-
 See the argument for data preparation in :
 
 ```

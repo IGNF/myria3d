@@ -1,6 +1,9 @@
 _target_: lidar_multiclass.data.datamodule.DataModule
 
-prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}  # Directory with test, train, val prepared subdirs
+# Directory with test, train, val prepared subdirs
+prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
+# Possibility to override test annotated LAS data directly with any folder
+test_data_dir: ${datamodule.prepared_data_dir}/test/
 
 batch_size: 32
 num_workers: 16  # for data loaders

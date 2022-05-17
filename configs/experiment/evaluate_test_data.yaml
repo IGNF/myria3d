@@ -13,8 +13,8 @@ hydra:
   verbose: false
 
 datamodule:
+  # test_data_dir: "path/to_dir/with/annotated/files.las"  # override
   batch_size: 50
-  num_workers: 1
 
 model:
   ckpt_path: "path/to/checkpoint"  # override

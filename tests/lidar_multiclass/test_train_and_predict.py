@@ -246,11 +246,17 @@ def test_run_test_with_trained_model_on_large_las(
 
     Check that IoU for building, ground, and unclassified points is above some thresholds.
 
+    TODO: remove xfail clause when model memory-consumption allow it.
+
     Args:
         isolated_test_subdir_for_large_las (fixture -> str): directory to dataset derived from large las
         tmpdir (fixture -> str): temporary directory.
 
     """
+    pytest.xfail(
+        reason="Modle is currently too memory intensive to test on a full LAS in self-hosted action-runner."
+    )
+
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
 

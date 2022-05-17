@@ -37,6 +37,7 @@ datamodule:
     voxel_size: 0.25
   _target_: lidar_multiclass.data.datamodule.DataModule
   prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
+  test_data_dir: ${datamodule.prepared_data_dir}/test/
   batch_size: 16
   num_workers: 1
   subtile_width_meters: 50

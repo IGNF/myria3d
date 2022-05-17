@@ -13,7 +13,6 @@
 import os
 import sys
 import yaml
-from unittest import mock
 
 from hydra.experimental import compose, initialize
 from omegaconf import OmegaConf

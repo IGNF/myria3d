@@ -13,6 +13,7 @@ from torch_geometric.transforms.center import Center
 from lidar_multiclass.utils import utils
 from lidar_multiclass.data.transforms import (
     CustomCompose,
+    CustomGridSampler,
     EmptySubtileFilter,
     MakeCopyOfPosAndY,
     MakeCopyOfSampledPos,
@@ -39,14 +40,17 @@ class DataModule(LightningDataModule):
         super().__init__()
         # TODO: try to use save_hyperparameters to lightne this code.
         self.prepared_data_dir = kwargs.get("prepared_data_dir")
+        self.test_data_dir = kwargs.get("test_data_dir")
 
         self.num_workers = kwargs.get("num_workers", 0)
 
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
-        self.augment = kwargs.get("augment", True)
-        self.subsampler = kwargs.get("subsampler")
+        self.augment = kwargs.get("augment", False)
+        self.subsampler = kwargs.get(
+            "subsampler", CustomGridSampler()
+        )
 
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")
@@ -109,9 +113,7 @@ class DataModule(LightningDataModule):
     def _set_test_data(self):
         """Sets the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
 
-        files = glob.glob(
-            osp.join(self.prepared_data_dir, "test", "**", "*.las"), recursive=True
-        )
+        files = glob.glob(osp.join(self.test_data_dir, "**", "*.las"), recursive=True)
         self.test_data = LidarIterableDataset(
             files,
             loading_function=self.load_las,

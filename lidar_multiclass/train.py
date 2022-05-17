@@ -48,7 +48,7 @@ def train(config: DictConfig) -> Trainer:
         distinct training, and training state is reset (e.g. epoch starts from 0).
 
     Typical use case are
-    
+
         - a different learning rate (config.model.lr) or a different scheduler (e.g. stronger config.model.lr_scheduler.patience)
         - a different number of classes to predict, in order to e.g. specialize a base model. \
         This is done by specifying a new config.datamodule.dataset_description as well as the corresponding config.model.num_classes. \
