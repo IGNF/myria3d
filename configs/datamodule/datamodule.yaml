@@ -1,13 +1,16 @@
-_target_: lidar_multiclass.data.datamodule.DataModule
+_target_: myria3d.data.datamodule.DataModule
 
+# Directory with test, train, val prepared subdirs
 prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
+# Possibility to override test annotated LAS data directly with any folder
+test_data_dir: ${datamodule.prepared_data_dir}/test/
 
-num_workers: 1
 batch_size: 32
-subtile_width_meters: 50
+num_workers: 16  # for data loaders
+subtile_width_meters: 50  # size of receptive fields : 50mx50m
 subtile_overlap: ${predict.subtile_overlap}  # Used for test and predict phases only
 
-augment: false
+augment: false  # activate data augmentation
 
 defaults:
   - dataset_description: 20220204_BuildingValidation_and_Ground.yaml

@@ -1,14 +1,14 @@
-lidar\_multiclass.models.modules
+myria3d.models.modules
 ========================================
 
 PointNet
 -------------
 
-.. autoclass:: lidar_multiclass.models.modules.point_net.PointNet
+.. autoclass:: myria3d.models.modules.point_net.PointNet
    :members:
 
 RandLA-Net
 -------------
 
-.. autoclass:: lidar_multiclass.models.modules.randla_net.RandLANet
+.. autoclass:: myria3d.models.modules.randla_net.RandLANet
    :members:

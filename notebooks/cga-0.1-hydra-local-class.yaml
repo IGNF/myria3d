@@ -1,3 +1,0 @@
-# config/base.yaml
-foo:
-  _target_: __main__.foo

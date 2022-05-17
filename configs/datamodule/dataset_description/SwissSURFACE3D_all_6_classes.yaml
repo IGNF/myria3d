@@ -8,8 +8,8 @@ classification_dict: {1: "unclassified", 2: "ground", 3: "vegetation", 6: "build
 d_in: 10
 num_classes: 6
 
-# loading functions for data object prepared via lidar_multiclass/datamodule/data.py
+# loading functions for data object prepared via myria3d/datamodule/data.py
 load_las_func:
   _target_: functools.partial
   _args_:
-    - "${get_method:lidar_multiclass.data.loading.SwissTopoLidarDataLogic.load_las}"
+    - "${get_method:myria3d.data.loading.SwissTopoLidarDataLogic.load_las}"

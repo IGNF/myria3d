@@ -13,7 +13,6 @@
 import os
 import sys
 import yaml
-from unittest import mock
 
 from hydra.experimental import compose, initialize
 from omegaconf import OmegaConf
@@ -31,7 +30,7 @@ with open(os.path.join(abs_root_path, "package_metadata.yaml"), "r") as f:
 release = pm["__version__"]
 project = pm["__name__"]
 author = pm["__author__"]
-copyright = "2021, Institut National de l'Information Géographique et Forestière"
+copyright = pm["__copyright__"]
 
 # -- YAML main to print the config into  ---------------------------------------------------
 # We need to concatenate configs into a single file using hydra
@@ -77,7 +76,7 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
+
 html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
@@ -99,76 +98,6 @@ intersphinx_mapping = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-modindex_common_prefix = ["lidar_multiclass."]
-
-to_mock = [
-    # "torch",
-    "comet_ml",
-    # "numpy",
-    # "pytorch_lightning",
-    # "pytorch_lightning.callbacks",
-    # "pytorch_lightning.loggers",
-    # "pytorch_lightning.utilities",
-    # "pytorch_lightning.utilities.types",
-    "tqdm",
-    "pdal",
-    "python-pdal",
-    "hydra",
-    "laspy",
-    "torch_geometric",
-    # "omegaconf",
-    "dotenv",
-    "torch_points_kernels",
-    # "rich",
-    # "rich.tree",
-    # "rich.syntax",
-    # "torch_points_kernels",
-    # "torch_geometric",
-    # "torch_geometric.nn",
-    # "torch_geometric.nn.pool",
-    # "torch_geometric.nn.unpool",
-    # "torch_geometric.nn.glob",
-    # "torch_geometric.nn.glob.glob",
-    # "torch_geometric.data",
-    # "torch_geometric.data.data",
-    # "torch_geometric.nn.glob",
-    # "torch_geometric.transforms",
-    # "torch_geometric.transforms.center",
-    # "pandas",
-    # "torch_scatter",
-    "torchmetrics",
-    "torchmetrics.functional",
-    "torchmetrics.functional.classification",
-    "torchmetrics.functional.classification.jaccard",
-    #     "torch",
-    #     "torch.nn",
-    #     "torch.nn.functional",
-    #     "torch.nn.parallel",
-    #     "torch.distributed",
-    #     "torch.distributions",
-    #     "torch.multiprocessing",
-    #     "torch.autograd",
-    #     "torch.autograd.function",
-    #     "torch.nn.modules",
-    #     "torch.nn.modules.utils",
-    #     "torch.utils",
-    #     "torch.utils.data",
-    #     "torch.utils.data.dataset",
-]
-
-
-try:
-    import torch  # noqa
-except ImportError:
-    for m in to_mock:
-        sys.modules[m] = mock.Mock(name=m)
-    sys.modules["torch"].__version__ = "1.10"  # fake version
-    HAS_TORCH = False
-else:
-    HAS_TORCH = True
-
-autodoc_mock_imports = []
-for m in ["numpy", "pdal", "pdal", "dotenv", "laspy", "torch_points_kernels"]:
-    autodoc_mock_imports.append(m)
+modindex_common_prefix = ["myria3d."]
 
 mock_directives = ["testcode"]

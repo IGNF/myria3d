@@ -1,2 +1,2 @@
-_target_: lidar_multiclass.data.transforms.RandomSampler
+_target_: myria3d.data.transforms.RandomSampler
 subsample_size: 12500

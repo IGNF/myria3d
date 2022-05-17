@@ -1,0 +1,45 @@
+name: myria3d
+channels:
+  - comet_ml
+  - pytorch
+  - pyg
+  - conda-forge
+  - anaconda
+dependencies:
+  - python==3.9.*
+  - pip
+  # --------- numpy --------- #
+  - numpy==1.20
+  # --------- geo --------- #
+  - pygeos
+  - laspy
+  - python-pdal  # useful for data preparation
+  # --------- deep learning --------- #
+  - pytorch==1.10.1
+  - pyg==2.0.3
+  - torchvision==0.11.2
+  - cudatoolkit=11.3  # single equal sign there, not a typo
+  - pytorch-lightning==1.5.9
+  - torchmetrics==0.7.*  # Else, pytorch-lightning will install the latest
+  # --------- loggers --------- #
+  - comet_ml
+  # --------- linters --------- #
+  - pre-commit # hooks for applying linters on commit
+  - black # code formatting
+  - isort # import sorting
+  - flake8 # code analysis
+  # --------- tests --------- #
+  - pytest==7.1.*
+  - coverage==6.3.*
+  - pytest-cov==3.0.*
+  # --------- others --------- #
+  - python-dotenv # loading env variables from .env file
+  - rich # beautiful text formatting in terminal
+  - sh # for running bash commands in some tests
+  - scikit-learn # used in some callbacks
+  - seaborn # used in some callbacks
+  - jupyterlab # better jupyter notebooks
+  - pudb # debugger
+  - numba==0.55.1
+  - pip:
+      - -r requirements.txt

@@ -1,7 +1,7 @@
-import comet_ml
+import comet_ml  # noqa
 import dotenv
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
 
 # load environment variables from `.env` file if it exists
@@ -21,9 +21,9 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
-    from lidar_multiclass.utils import utils
-    from lidar_multiclass.train import train
-    from lidar_multiclass.predict import predict
+    from myria3d.utils import utils
+    from myria3d.train import train
+    from myria3d.predict import predict
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -38,7 +38,7 @@ def main(config: DictConfig):
 
     task_name = config.task.get("task_name")
     if "fit" in task_name or "test" in task_name or "finetune" in task_name:
-        """Training, eval, and test of a neural network."""
+        """Training, evaluation, testing, or finetuning of a neural network."""
         return train(config)
     elif config.task.get("task_name") == "predict":
         """Infer probabilities and automate semantic segmentation decisions on unseen data."""
@@ -46,6 +46,4 @@ def main(config: DictConfig):
 
 
 if __name__ == "__main__":
-    # cf. https://github.com/facebookresearch/hydra/issues/1283
-    OmegaConf.register_new_resolver("get_method", hydra.utils.get_method)
     main()

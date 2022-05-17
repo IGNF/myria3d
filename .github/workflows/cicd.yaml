@@ -1,52 +1,99 @@
 name: CICD
 
-# on:
-#   pull_request:
-#     branches: [main]
-
-on: push
+on:
+  # Run CICD for non-draft pull request
+  pull_request:
+    branches:
+      - dev
+      - main
+  # Also run when the pull request merges (which generates a push)
+  # So that we can tag the docker image appropriately.
+  push:
+    branches:
+      - dev
+      - prod
+      - main
 
 jobs:
-  lidar_on_docker:
+  CICD:
     runs-on: self-hosted
 
     steps:
 
-    - name: Checkout branch       
+    - name: Checkout branch
       uses: actions/checkout@v2
 
-    - name: build docker image       
-      run: docker build -t lidar_deep_im .
+    - name: Build docker image
+      run: docker build -t myria3d .
 
     - name: Check code neatness (linter)
-      run: docker run lidar_deep_im flake8
+      run: docker run myria3d flake8
 
-    # - name: unit testing
-    #   run: docker run lidar_deep_im pytest --ignore=actions-runner --ignore="notebooks"
+    - name: Fast unit tests first
+      run: >
+        docker run
+        -v /var/data/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/files/large/
+        --ipc=host
+        myria3d
+        python -m
+        pytest -rA -v -m "not slow"
+        --ignore=actions-runner
 
     - name: Full module run on LAS subset
-      run: docker run -v /var/data/CICD_github_assets:/CICD_github_assets lidar_deep_im 
-      # sudo mount -v -t cifs -o user=mdaab,domain=IGN,uid=24213,gid=10550 //store.ign.fr/store-lidarhd/projet-LHD/IA/Validation_Module/CICD_github_assets/B2V0.5 /var/data/CICD_github_assets
+      run: >
+        docker run
+        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/inputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/outputs/:/outputs/
+        --ipc=host
+        myria3d
+        python -m 
+        myria3d.predict
+        --config-path /inputs/
+        --config-name predict_config_V2.0.0.yaml
+        predict.src_las=/inputs/792000_6272000_subset_buildings.las
+        predict.output_dir=/outputs/
+        predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
+        datamodule.batch_size=25
+        hydra.run.dir=/myria3d
 
-    # - name: Evaluate decisions using optimization code on a single, corrected LAS 
-    #   run: >
-    #     docker run -v /var/data/cicd/CICD_github_assets:/CICD_github_assets lidar_deep_im
-    #     python lidar_prod/run.py print_config=true +task='optimize'
-    #     +building_validation.optimization.debug=true
-    #     building_validation.optimization.todo='prepare+evaluate+update'
-    #     building_validation.optimization.paths.input_las_dir=/CICD_github_assets/M8.0/20220204_building_val_V0.0_model/20211001_buiding_val_val/
-    #     building_validation.optimization.paths.results_output_dir=/CICD_github_assets/opti/
-    #     building_validation.optimization.paths.building_validation_thresholds_pickle=/CICD_github_assets/M8.3B2V0.0/optimized_thresholds.pickle
+    # Always run with --ipc=host to enable sufficient shared memory when predicting on large data
+    - name: Slow unit tests last, using large files stored in self-hosted action-runner.
+      run: >
+        docker run
+        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
+        --ipc=host
+        myria3d
+        python -m
+        pytest -rA -v -m "slow" 
+        --ignore=actions-runner
 
-    - name: chekc the user
-      run: whoami
+    # Everything ran so we tag the valid docker image to keep it
+    # This happens for push events, which are in particular 
+    # triggered when a pull request is merged.
+    - name: Get the branch name into an environment variable.
+      if: github.event_name == 'push'
+      uses: nelonoel/branch-name@v1.0.1
 
-    - name: save the docker image because everything worked
-      run: docker save lidar_deep_im > /var/data/CICD_github_assets/lidar_deep_im.tar # need writing right
+    - name: Print the branch name
+      if: github.event_name == 'push'
+      run: echo ${BRANCH_NAME}
 
-    - name: clean the server for further uses
+    - name: Tag the docker image with branch name
+      if: github.event_name == 'push'
+      run: docker tag myria3d:latest myria3d:${BRANCH_NAME}
+
+    - name: Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
+      if: github.event_name == 'push'
+      run: docker run myria3d:${BRANCH_NAME} bash
+
+    # This needs writing rights to the mounted path
+    - name: Save the docker image as myria3d_${BRANCH_NAME}.tar
+      if: github.event_name == 'push'
+      run: docker save myria3d:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${BRANCH_NAME}.tar
+
+    - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
-      run: docker system prune  # remove obsolete docker images (take a HUGE amount of space)
+      run: docker system prune --force # remove dangling docker images, without asking user for confirmation
 
 
       

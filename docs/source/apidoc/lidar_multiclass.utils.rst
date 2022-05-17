@@ -1,11 +1,11 @@
-lidar\_multiclass.utils
+myria3d.utils
 ===============================
 
 
-lidar\_multiclass.utils.utils
+myria3d.utils.utils
 ------------------------------------
 
-.. automodule:: lidar_multiclass.utils.utils
+.. automodule:: myria3d.utils.utils
    :members:
    :show-inheritance:
 

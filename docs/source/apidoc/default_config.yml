@@ -6,7 +6,7 @@ ignore_warnings: true
 trainer:
   _target_: pytorch_lightning.Trainer
   gpus: 0
-  min_epochs: 1
+  min_epochs: 30
   max_epochs: 30
   log_every_n_steps: 1
   check_val_every_n_epoch: 1
@@ -30,34 +30,35 @@ datamodule:
     load_las_func:
       _target_: functools.partial
       _args_:
-      - ${get_method:lidar_multiclass.data.loading.FrenchLidarDataLogic.load_las}
+      - ${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}
   subsampler:
-    _target_: lidar_multiclass.data.transforms.CustomGridSampler
+    _target_: myria3d.data.transforms.CustomGridSampler
     subsample_size: 12500
     voxel_size: 0.25
-  _target_: lidar_multiclass.data.datamodule.DataModule
+  _target_: myria3d.data.datamodule.DataModule
   prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
-  num_workers: 1
+  test_data_dir: ${datamodule.prepared_data_dir}/test/
   batch_size: 16
+  num_workers: 1
   subtile_width_meters: 50
   subtile_overlap: ${predict.subtile_overlap}
   augment: false
   subsample_size: 12500
 callbacks:
   log_code:
-    _target_: lidar_multiclass.callbacks.comet_callbacks.LogCode
-    code_dir: ${work_dir}/lidar_multiclass
+    _target_: myria3d.callbacks.comet_callbacks.LogCode
+    code_dir: ${work_dir}/myria3d
   log_logs_dir:
-    _target_: lidar_multiclass.callbacks.comet_callbacks.LogLogsPath
+    _target_: myria3d.callbacks.comet_callbacks.LogLogsPath
   lr_monitor:
     _target_: pytorch_lightning.callbacks.LearningRateMonitor
     logging_interval: step
     log_momentum: true
   log_iou_by_class:
-    _target_: lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass
+    _target_: myria3d.callbacks.logging_callbacks.LogIoUByClass
     classification_dict: ${datamodule.dataset_description.classification_dict}
     interpolator:
-      _target_: lidar_multiclass.models.interpolation.Interpolator
+      _target_: myria3d.models.interpolation.Interpolator
       interpolation_k: ${predict.interpolation_k}
       classification_dict: ${datamodule.dataset_description.classification_dict}
       probas_to_save: ${predict.probas_to_save}
@@ -92,7 +93,8 @@ model:
     factor: 0.5
     patience: 5
     cooldown: 0
-  _target_: lidar_multiclass.models.model.Model
+    verbose: true
+  _target_: myria3d.models.model.Model
   d_in: ${datamodule.dataset_description.d_in}
   num_classes: ${datamodule.dataset_description.num_classes}
   ckpt_path: null
@@ -112,9 +114,9 @@ model:
   criterion:
     _target_: torch.nn.CrossEntropyLoss
     label_smoothing: 0.0
-  lr: 0.004566395347136576
   momentum: 0.9
   monitor: val/loss_epoch
+  lr: 0.004566395347136576
 logger:
   comet:
     _target_: pytorch_lightning.loggers.comet.CometLogger
@@ -129,8 +131,8 @@ task:
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
-  resume_from_checkpoint: /path/to/lightning_model.ckpt
+  ckpt_path: /path/to/lightning_model.ckpt
   gpus: 0
   probas_to_save: all
-  subtile_overlap: 25
+  subtile_overlap: 0
   interpolation_k: 10

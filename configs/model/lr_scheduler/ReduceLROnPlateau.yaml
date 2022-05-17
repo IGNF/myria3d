@@ -5,3 +5,4 @@ mode: "min"
 factor: 0.5  # halving
 patience: 5  # val epochs
 cooldown: 0  # val epochs
+verbose: true  # print when reducing LR
