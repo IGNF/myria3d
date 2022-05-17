@@ -476,9 +476,9 @@ def main():
 
     To show help relative to data preparation, run:
 
-        cd lidar_multiclass/datamodules/
+        cd myria3d/datamodules/
 
-        conda activate lidar_multiclass
+        conda activate myria3d
 
         python loading.py -h
 

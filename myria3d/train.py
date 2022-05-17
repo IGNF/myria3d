@@ -20,9 +20,9 @@ from pytorch_lightning import (
     seed_everything,
 )
 from pytorch_lightning.loggers import LightningLoggerBase
-from lidar_multiclass.models.model import Model
+from myria3d.models.model import Model
 
-from lidar_multiclass.utils import utils
+from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 

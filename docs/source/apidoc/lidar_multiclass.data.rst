@@ -1,22 +1,22 @@
-lidar\_multiclass.data
+myria3d.data
 =====================================
 
 Objects relative to the preparation, loading, and transformation of Lidar data.
 
-lidar\_multiclass.data.datamodule
+myria3d.data.datamodule
 -----------------------------------------------
 
-.. automodule:: lidar_multiclass.data.datamodule
+.. automodule:: myria3d.data.datamodule
    :members:
 
-lidar\_multiclass.data.loading
+myria3d.data.loading
 -----------------------------------------
 
-.. automodule:: lidar_multiclass.data.loading
+.. automodule:: myria3d.data.loading
    :members:
 
-lidar\_multiclass.data.transforms
+myria3d.data.transforms
 -----------------------------------------------
 
-.. automodule:: lidar_multiclass.data.transforms
+.. automodule:: myria3d.data.transforms
    :members:

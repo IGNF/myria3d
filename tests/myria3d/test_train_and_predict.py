@@ -5,9 +5,9 @@ import pdal
 import pytest
 from typing import List
 
-from lidar_multiclass.data.loading import LAS_SUBSET_FOR_TOY_DATASET
-from lidar_multiclass.predict import predict
-from lidar_multiclass.train import train
+from myria3d.data.loading import LAS_SUBSET_FOR_TOY_DATASET
+from myria3d.predict import predict
+from myria3d.train import train
 from tests.conftest import (
     TRAINED_MODEL_PATH,
     make_default_hydra_cfg,

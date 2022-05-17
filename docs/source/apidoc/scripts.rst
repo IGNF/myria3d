@@ -10,19 +10,19 @@ run
    :show-inheritance:
 
 
-lidar\_multiclass.train
+myria3d.train
 ------------------------------
 
-.. automodule:: lidar_multiclass.train
+.. automodule:: myria3d.train
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-lidar\_multiclass.predict
+myria3d.predict
 --------------------------------
 
-.. automodule:: lidar_multiclass.predict
+.. automodule:: myria3d.predict
    :members:
    :undoc-members:
    :show-inheritance:

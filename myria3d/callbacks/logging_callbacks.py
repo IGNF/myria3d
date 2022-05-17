@@ -6,8 +6,8 @@ from pytorch_lightning.utilities.types import STEP_OUTPUT
 import torch
 from torchmetrics import JaccardIndex
 from torchmetrics.functional.classification.jaccard import _jaccard_from_confmat
-from lidar_multiclass.models.interpolation import Interpolator
-from lidar_multiclass.utils import utils
+from myria3d.models.interpolation import Interpolator
+from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 

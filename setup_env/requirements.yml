@@ -1,4 +1,4 @@
-name: lidar_multiclass
+name: myria3d
 channels:
   - comet_ml
   - pytorch
@@ -43,5 +43,3 @@ dependencies:
   - numba==0.55.1
   - pip:
       - -r requirements.txt
-variables:
-  FORCE_CUDA: 1 # for torch-points-kernels

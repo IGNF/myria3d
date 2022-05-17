@@ -4,7 +4,7 @@
 
 ### Data signatures
 
-In `lidar_multiclass/data/loading.py` is the logic for data preprocessing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time.
+In `myria3d/data/loading.py` is the logic for data preprocessing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time.
 
 The loading function is dataset dependant, and there are currently a logic for both SwissTopo data and French Lidar HD IGN data. Variations in logics may be due to the availability of specific dimensions (e.g. Infrared information) or encodings. The function returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a description of features names and the path to the input file.
 
@@ -17,7 +17,7 @@ You may want to implement your own logic, which then needs to be specified in `_
 See the argument for data preparation in :
 
 ```
-python lidar_multiclass/data/loading.py -h
+python myria3d/data/loading.py -h
 ```
 
 Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m\*50m was a good balance between context and memory intensity. 
@@ -60,5 +60,5 @@ This single file is copied 6 times, so that there are 2 copies in each split (tr
 
 To create a toy dataset in `./inputs/toy_dataset/`, simply run :
 ```
-python lidar_multiclass/data/loading.py --origin FR_TOY --prepared_data_dir=./inputs/toy_dataset/
+python myria3d/data/loading.py --origin FR_TOY --prepared_data_dir=./inputs/toy_dataset/
 ```

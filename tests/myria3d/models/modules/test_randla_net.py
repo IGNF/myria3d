@@ -1,6 +1,6 @@
 import torch
 from torch_geometric.data import Batch
-from lidar_multiclass.models.modules.randla_net import RandLANet
+from myria3d.models.modules.randla_net import RandLANet
 
 
 def test_fake_run_randlanet():

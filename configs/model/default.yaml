@@ -1,4 +1,4 @@
-_target_: lidar_multiclass.models.model.Model
+_target_: myria3d.models.model.Model
 
 ## Inputs and outputs
 d_in: ${datamodule.dataset_description.d_in}  # XYZ (3) + Other features (N)

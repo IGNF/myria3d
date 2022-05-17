@@ -10,8 +10,8 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
 from torch_geometric.transforms.center import Center
-from lidar_multiclass.utils import utils
-from lidar_multiclass.data.transforms import (
+from myria3d.utils import utils
+from myria3d.data.transforms import (
     CustomCompose,
     CustomGridSampler,
     EmptySubtileFilter,
@@ -48,9 +48,7 @@ class DataModule(LightningDataModule):
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", False)
-        self.subsampler = kwargs.get(
-            "subsampler", CustomGridSampler()
-        )
+        self.subsampler = kwargs.get("subsampler", CustomGridSampler())
 
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")

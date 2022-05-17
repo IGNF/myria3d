@@ -42,23 +42,23 @@ RUN conda install -y mamba -n base -c conda-forge
 # Build the environment
 RUN mamba env create -f requirements.yml
 
-# Copy the repository content in /lidar 
-WORKDIR /lidar
+# Copy the repository content in /myria3d 
+WORKDIR /myria3d
 COPY . .
 
 # Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "lidar_multiclass", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "myria3d", "/bin/bash", "-c"]
 
 # the entrypoint garanty that all command will be runned in the conda environment
 ENTRYPOINT ["conda",  \   
         "run", \
         "-n", \
-        "lidar_multiclass"]
+        "myria3d"]
 
 # Example usage
 CMD         ["python", \
         "-m", \
-        "lidar_multiclass.predict", \
+        "myria3d.predict", \
         "--config-path", \
         "/CICD_github_assets/parametres_etape1/.hydra", \ 
         "--config-name", \
@@ -69,5 +69,5 @@ CMD         ["python", \
         "predict.gpus=0", \
         "datamodule.batch_size=10", \ 
         "datamodule.subtile_overlap=0", \ 
-        "hydra.run.dir=/lidar"]
+        "hydra.run.dir=/myria3d"]
 

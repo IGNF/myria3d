@@ -36,7 +36,7 @@ jobs:
             # For caching to work:
             use-only-tar-bz2: true
             # Environment to create and activate for next steps
-            activate-environment: lidar_multiclass
+            activate-environment: myria3d
 
       # Cache the conda environment
       # See https://github.com/conda-incubator/setup-miniconda#caching-environments
@@ -56,7 +56,7 @@ jobs:
         id: cache
 
       - name: Update environment if there was no cached env.
-        run: mamba env update -n lidar_multiclass -f setup_env/requirements.yml
+        run: mamba env update -n myria3d -f setup_env/requirements.yml
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: List installed packages

@@ -1,14 +1,14 @@
-lidar\_multiclass.models
+myria3d.models
 ================================
 
 Model
 -------------------------------------
 
-.. automodule:: lidar_multiclass.models.model
+.. automodule:: myria3d.models.model
    :members:
 
 Interpolation
 -------------------------------------
 
-.. automodule:: lidar_multiclass.models.interpolation
+.. automodule:: myria3d.models.interpolation
    :members:

@@ -8,10 +8,10 @@ import numpy as np
 import torch
 from torch_geometric.nn.pool import knn
 from torch_geometric.nn.unpool import knn_interpolate
-from lidar_multiclass.utils import utils
+from myria3d.utils import utils
 from torch.distributions import Categorical
 
-from lidar_multiclass.data.transforms import ChannelNames
+from myria3d.data.transforms import ChannelNames
 
 log = utils.get_logger(__name__)
 

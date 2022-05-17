@@ -15,7 +15,7 @@ from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import CometLogger, LoggerCollection
 from pytorch_lightning.utilities import rank_zero_only
 
-from lidar_multiclass.utils import utils
+from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 

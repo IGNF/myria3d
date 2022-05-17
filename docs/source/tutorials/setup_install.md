@@ -13,12 +13,12 @@ If you want to use a gpu to speed up model training and inference, make sure tha
 sudo apt install nvidia-cuda-toolkit
 ```
 
-The  [bash](https://github.com/IGNF/lidar-deep-segmentation/setup_env/) directory contains everything you need to setup a compatible pytorch virtual environement.
+The  [bash](https://github.com/IGNF/myria3d/setup_env/) directory contains everything you need to setup a compatible pytorch virtual environement.
 You can get it by by cloning the entire project with:
 
 ```bash
-git clone https://github.com/IGNF/lidar-deep-segmentation
-cd lidar-deep-segmentation
+git clone https://github.com/IGNF/myria3d
+cd myria3d
 ```
 or by manually downloading its content.
 
@@ -36,7 +36,7 @@ If you do not have CUDA installed, you need comment out `cudatoolkit` dependency
 Finally, activate the created environmnt by running
 
 ```bash
-conda activate lidar_multiclass
+conda activate myria3d
 ```
 
 ## Install source as a package
@@ -46,11 +46,11 @@ If you are interested in running inference from anywhere, the easiest way is to 
 Start by activating the virtual environment with
 
 ```bash
-conda activate lidar_multiclass
+conda activate myria3d
 ```
-Then install from a specific branch from github directly. Argument `branch_name` might be `main`, but could also be `prod`, or a specific release.
+Then install from a specific branch from github directly. Argument `branch_name` might be `main`, `dev`, or a specific release.
 ```
-pip install --upgrade https://github.com/IGNF/lidar-deep-segmentation/tarball/{branch_name} 
+pip install --upgrade https://github.com/IGNF/myria3d/tarball/{branch_name} 
 ```
 
 Alternatively, you can install from sources directly in editable mode with

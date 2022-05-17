@@ -7,7 +7,7 @@ import sh
 from typing import List
 from hydra import compose, initialize
 
-from lidar_multiclass.data.loading import make_toy_dataset_from_test_file
+from myria3d.data.loading import make_toy_dataset_from_test_file
 
 LARGE_LAS_PATH = "tests/data/large/raw_792000_6272000.las"
 TRAINED_MODEL_PATH = "tests/data/large/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt"

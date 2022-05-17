@@ -11,7 +11,7 @@ from torch_geometric.transforms import BaseTransform
 from torch_geometric.nn.pool import fps
 from torch_scatter import scatter_add, scatter_mean
 import torch.nn.functional as F
-from lidar_multiclass.utils import utils
+from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
