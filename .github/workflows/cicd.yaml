@@ -57,7 +57,7 @@ jobs:
     - name: Slow unit tests last, using large files stored in self-hosted action-runner.
       run: >
         docker run
-        -v /var/data/CICD_github_assets/nebulia_B2V0.5/inputs/:/lidar/tests/files/large/
+        -v /var/data/cicd/CICD_github_assets/nebulia_B2V0.5/inputs/:/lidar/tests/data/large/
         lidar_deep_im
         python -m
         pytest -rA -v -m "slow" 
