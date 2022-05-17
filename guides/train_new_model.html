@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to train new models &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>How to train new models &mdash; myria3d 2.0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -28,7 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> lidar_multiclass
+            <a href="../index.html" class="icon icon-home"> myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -60,7 +60,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">How to train new models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inference">Inference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Developer’s guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="development.html#code-versionning">Code versionning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#tests">Tests</a></li>
@@ -78,39 +85,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -119,7 +98,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">lidar_multiclass</a>
+          <a href="../index.html">myria3d</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -141,24 +120,50 @@
 <h1>How to train new models<a class="headerlink" href="#how-to-train-new-models" title="Permalink to this headline"></a></h1>
 <p>Refer to <a class="reference internal" href="../tutorials/setup_install.html"><span class="doc std std-doc">this tutorial</span></a> for how to setup a virtual environment and install the library.
 Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="doc std std-doc">this other tutorial</span></a> for how to prepare a training-ready dataset.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
 <p>Once your python environment is set up and your dataset ready for training, proceed to the next section.</p>
-<p>Some environment variable to be injected at runtime can be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
+<p>Some environment variable need to be injected at runtime can be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">LOG</span> <span class="pre">PATH</span></code>, where hydra logs and config are saved.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PREPARED_DATA_DIR</span></code>, which specifies where to look for your prepared dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PREPARED_DATA_DIR</span></code>, which specifies where to look for your prepared dataset. Alternatively, you can override the parameter  <code class="docutils literal notranslate"><span class="pre">prepared_data_dir</span></code> to the same effect via the CLI.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LOGGER</span></code> section, which specifies credentials needed for logging to <a class="reference external" href="https://www.comet.ml/">comet.ml</a>. You will need to create an account first if you choose to use Comet. Alternatively, setting <code class="docutils literal notranslate"><span class="pre">logger=csv</span></code> at runtime will save results in a single, local csv file, and disable comet logging.</p></li>
 </ul>
-<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may also use one of the provided experiment file.</p>
-<p>To test your setup, logging capabilities, you may want beforehand to try overfitting on a single batch of a Swiss dataset, with</p>
+</section>
+<section id="quick-run">
+<h2>Quick run<a class="headerlink" href="#quick-run" title="Permalink to this headline"></a></h2>
+<p>To test your setup and logging capabilities, you can try overfitting on a single batch of data from the toy dataset, created following instructions in <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="doc std std-doc">this page</span></a>).
+To overfit on a single batch for 30 epochs, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNetDebug.yaml
 </pre></div>
 </div>
-<p>To run the full training and validation for e.g. French Lidar HD, run:</p>
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
+<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define parameter <code class="docutils literal notranslate"><span class="pre">datamodule.dataset_description</span></code> to specify your classification task - see e.g. config <code class="docutils literal notranslate"><span class="pre">20220504_proto23dalles.yaml</span></code> for an example.</p>
+<p>To run the full training and validation for French Lidar HD, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR.yaml
 </pre></div>
 </div>
 <p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOG_PATH</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
-<p>To use the checkpointed model, refet to section <a class="reference internal" href="../tutorials/make_predictions.html"><span class="doc std std-doc">Performing inference on new data</span></a>.</p>
+</section>
+<section id="testing-the-model">
+<h2>Testing the model<a class="headerlink" href="#testing-the-model" title="Permalink to this headline"></a></h2>
+<p>To evaluate per-class IoU on unseen, annotated data, you need to use the aforementionned training hydra config and run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
+--config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> <span class="se">\</span>
+--config-name <span class="o">{</span>config.yaml<span class="o">}</span> <span class="se">\</span>
+task.task_name<span class="o">=</span><span class="s2">&quot;test&quot;</span> <span class="se">\</span>
+model.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">}</span> <span class="se">\</span>
+trainer.gpus<span class="o">={</span><span class="m">0</span> <span class="k">for</span> none, <span class="o">[</span>i<span class="o">]</span> to use GPU number i<span class="o">}</span> <span class="se">\</span>
+</pre></div>
+</div>
+<p>Test data is expected to be in the form of raw LAS data in a <code class="docutils literal notranslate"><span class="pre">test</span></code> subdir of the <code class="docutils literal notranslate"><span class="pre">datamodule.prepared_data_dir</span></code> path. LAS files are found via a recursive glob command and can be nested in subdirs. You may override where to look for test data by specifying a different dir path with <code class="docutils literal notranslate"><span class="pre">datamodule.test_data_dir</span></code>.</p>
+</section>
+<section id="inference">
+<h2>Inference<a class="headerlink" href="#inference" title="Permalink to this headline"></a></h2>
+<p>To use the checkpointed model to make predictions on new data, refer to section <a class="reference internal" href="../tutorials/make_predictions.html"><span class="doc std std-doc">Performing inference on new data</span></a>.</p>
+</section>
 </section>
 
 

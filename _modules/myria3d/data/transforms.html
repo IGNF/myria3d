@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>lidar_multiclass.data.transforms &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>myria3d.data.transforms &mdash; myria3d 2.0.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -25,7 +25,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> lidar_multiclass
+            <a href="../../../index.html" class="icon icon-home"> myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -57,7 +57,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/development.html">Developer’s guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#code-versionning">Code versionning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#tests">Tests</a></li>
@@ -75,39 +82,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -116,7 +95,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">lidar_multiclass</a>
+          <a href="../../../index.html">myria3d</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -125,7 +104,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>lidar_multiclass.data.transforms</li>
+      <li>myria3d.data.transforms</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -134,7 +113,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for lidar_multiclass.data.transforms</h1><div class="highlight"><pre>
+  <h1>Source code for myria3d.data.transforms</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
@@ -148,19 +127,19 @@
 <span class="kn">from</span> <span class="nn">torch_geometric.nn.pool</span> <span class="kn">import</span> <span class="n">fps</span>
 <span class="kn">from</span> <span class="nn">torch_scatter</span> <span class="kn">import</span> <span class="n">scatter_add</span><span class="p">,</span> <span class="n">scatter_mean</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
-<span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">myria3d.utils</span> <span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ChannelNames"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.ChannelNames">[docs]</a><span class="k">class</span> <span class="nc">ChannelNames</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelNames"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.ChannelNames">[docs]</a><span class="k">class</span> <span class="nc">ChannelNames</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Names of custom additional LAS channel.&quot;&quot;&quot;</span>
 
     <span class="n">PredictedClassification</span> <span class="o">=</span> <span class="s2">&quot;PredictedClassification&quot;</span>
     <span class="n">ProbasEntropy</span> <span class="o">=</span> <span class="s2">&quot;entropy&quot;</span></div>
 
 
-<div class="viewcode-block" id="CustomCompose"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.CustomCompose">[docs]</a><span class="k">class</span> <span class="nc">CustomCompose</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="CustomCompose"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CustomCompose">[docs]</a><span class="k">class</span> <span class="nc">CustomCompose</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Composes several transforms together.</span>
 <span class="sd">    Edited to bypass downstream transforms if None is returned by a transform.</span>
@@ -185,7 +164,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="EmptySubtileFilter"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.EmptySubtileFilter">[docs]</a><span class="k">class</span> <span class="nc">EmptySubtileFilter</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="EmptySubtileFilter"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.EmptySubtileFilter">[docs]</a><span class="k">class</span> <span class="nc">EmptySubtileFilter</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Filter out almost empty subtiles&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">min_num_points_subtile</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
@@ -194,7 +173,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="ToTensor"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.ToTensor">[docs]</a><span class="k">class</span> <span class="nc">ToTensor</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="ToTensor"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.ToTensor">[docs]</a><span class="k">class</span> <span class="nc">ToTensor</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Turn np.arrays specified by their keys into Tensor.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]):</span>
@@ -207,16 +186,18 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="MakeCopyOfPosAndY"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.MakeCopyOfPosAndY">[docs]</a><span class="k">class</span> <span class="nc">MakeCopyOfPosAndY</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeCopyOfPosAndY"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.MakeCopyOfPosAndY">[docs]</a><span class="k">class</span> <span class="nc">MakeCopyOfPosAndY</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make a copy of the full cloud&#39;s positions and labels, for inference interpolation.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="c1"># TODO: evaluate if Copy of Y can be restricte to Test setting only.</span>
+        <span class="c1"># This should then be repercuted in Interpolation.</span>
         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="Subsampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.Subsampler">[docs]</a><span class="k">class</span> <span class="nc">Subsampler</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="Subsampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.Subsampler">[docs]</a><span class="k">class</span> <span class="nc">Subsampler</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for custom cloud subsampler to inherit from.</span>
 
 <span class="sd">    Subsampling to a unique size is needed for batching clouds with different initial size.</span>
@@ -231,7 +212,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Use a non-abstract subsampler class instead.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="RandomSampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.RandomSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomSampler</span><span class="p">(</span><span class="n">Subsampler</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomSampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.RandomSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomSampler</span><span class="p">(</span><span class="n">Subsampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Samples a fixed number of points from a point cloud, randomly.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subsample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12500</span><span class="p">):</span>
@@ -253,7 +234,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="FPSSampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.FPSSampler">[docs]</a><span class="k">class</span> <span class="nc">FPSSampler</span><span class="p">(</span><span class="n">Subsampler</span><span class="p">):</span>
+<div class="viewcode-block" id="FPSSampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.FPSSampler">[docs]</a><span class="k">class</span> <span class="nc">FPSSampler</span><span class="p">(</span><span class="n">Subsampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Samples a fixed number of points from a point cloud, using Fartest Point Sampling.</span>
 
@@ -282,7 +263,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="CustomGridSampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.CustomGridSampler">[docs]</a><span class="k">class</span> <span class="nc">CustomGridSampler</span><span class="p">(</span><span class="n">Subsampler</span><span class="p">):</span>
+<div class="viewcode-block" id="CustomGridSampler"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CustomGridSampler">[docs]</a><span class="k">class</span> <span class="nc">CustomGridSampler</span><span class="p">(</span><span class="n">Subsampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Samples a point cloud, using a voxel grid.</span>
 
 <span class="sd">    A final random sampling is then needed to have a fixed number of points.</span>
@@ -323,7 +304,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="MakeCopyOfSampledPos"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.MakeCopyOfSampledPos">[docs]</a><span class="k">class</span> <span class="nc">MakeCopyOfSampledPos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeCopyOfSampledPos"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.MakeCopyOfSampledPos">[docs]</a><span class="k">class</span> <span class="nc">MakeCopyOfSampledPos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make a copy of the unormalized positions of subsampled points.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
@@ -331,7 +312,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="StandardizeFeatures"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.StandardizeFeatures">[docs]</a><span class="k">class</span> <span class="nc">StandardizeFeatures</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="StandardizeFeatures"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.StandardizeFeatures">[docs]</a><span class="k">class</span> <span class="nc">StandardizeFeatures</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Scale features in 0-1 range.</span>
 <span class="sd">    Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).</span>
 
@@ -358,7 +339,7 @@
         <span class="k">return</span> <span class="n">clamped</span></div>
 
 
-<div class="viewcode-block" id="NormalizePos"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.NormalizePos">[docs]</a><span class="k">class</span> <span class="nc">NormalizePos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="NormalizePos"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.NormalizePos">[docs]</a><span class="k">class</span> <span class="nc">NormalizePos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalizes positions:</span>
 <span class="sd">        - xy positions to be in the interval (-1, 1)</span>
@@ -381,7 +362,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TargetTransform"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.TargetTransform">[docs]</a><span class="k">class</span> <span class="nc">TargetTransform</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="TargetTransform"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.TargetTransform">[docs]</a><span class="k">class</span> <span class="nc">TargetTransform</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make target vector based on input classification dictionnary.</span>
 
@@ -405,6 +386,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_preprocessing_mapper</span><span class="p">(</span><span class="n">classification_preprocessing_dict</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_mapper</span><span class="p">(</span><span class="n">classification_dict</span><span class="p">)</span>
 
+        <span class="c1"># Set to attribute to log potential type errors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span> <span class="o">=</span> <span class="n">classification_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_preprocessing_dict</span> <span class="o">=</span> <span class="n">classification_preprocessing_dict</span>
+
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="n">data</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">y_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y_copy</span><span class="p">)</span>
@@ -412,7 +397,21 @@
 
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_mapper</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;A TypeError occured when mapping target from arbitrary integers &quot;</span>
+                <span class="s2">&quot;to consecutive integers (0-(n-1)) using the provided classification_dict &quot;</span>
+                <span class="s2">&quot;This usually happens when an unknown classification code was encounterd. &quot;</span>
+                <span class="s2">&quot;Check that all classification codes in your data are either &quot;</span>
+                <span class="s2">&quot;specified via the classification_dict &quot;</span>
+                <span class="s2">&quot;or transformed into a specified code via the preprocessing_mapper. </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Current classification_dict: </span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Current preprocessing_mapper: </span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_preprocessing_dict</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Current unique values in preprocessed target array: </span><span class="se">\n</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_set_preprocessing_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classification_preprocessing_dict</span><span class="p">):</span>
@@ -431,7 +430,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">class_code</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">class_code</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="collate_fn"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.collate_fn">[docs]</a><span class="k">def</span> <span class="nf">collate_fn</span><span class="p">(</span><span class="n">data_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Data</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
+<div class="viewcode-block" id="collate_fn"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.collate_fn">[docs]</a><span class="k">def</span> <span class="nf">collate_fn</span><span class="p">(</span><span class="n">data_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Data</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Batch Data objects from a list, to be used in DataLoader. Modified from:</span>
 <span class="sd">    https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn</span>

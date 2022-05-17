@@ -1,6 +1,6 @@
-:github_url: https://github.com/IGNF/lidar-deep-segmentation
+:github_url: https://github.com/IGNF/myria3d
 
-Lidar-Deep-Segmentation > Documentation
+Myria3D > Documentation
 ===================================================
 
 .. include:: introduction.md
@@ -38,11 +38,11 @@ Lidar-Deep-Segmentation > Documentation
 
    apidoc/scripts
    apidoc/configs
-   apidoc/lidar_multiclass.data
-   apidoc/lidar_multiclass.model
-   apidoc/lidar_multiclass.models.modules
-   apidoc/lidar_multiclass.callbacks
-   apidoc/lidar_multiclass.utils
+   apidoc/myria3d.data
+   apidoc/myria3d.model
+   apidoc/myria3d.models.modules
+   apidoc/myria3d.callbacks
+   apidoc/myria3d.utils
 
 
 Indices and Tables

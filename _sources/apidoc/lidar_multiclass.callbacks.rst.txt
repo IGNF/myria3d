@@ -1,29 +1,29 @@
-lidar\_multiclass.callbacks
+myria3d.callbacks
 ===================================
 
 Submodules
 ----------
 
-lidar\_multiclass.callbacks.comet\_callbacks
+myria3d.callbacks.comet\_callbacks
 ---------------------------------------------------
 
-.. automodule:: lidar_multiclass.callbacks.comet_callbacks
+.. automodule:: myria3d.callbacks.comet_callbacks
    :members:
    :undoc-members:
    :show-inheritance:
 
-lidar\_multiclass.callbacks.finetuning\_callbacks
+myria3d.callbacks.finetuning\_callbacks
 --------------------------------------------------------
 
-.. automodule:: lidar_multiclass.callbacks.finetuning_callbacks
+.. automodule:: myria3d.callbacks.finetuning_callbacks
    :members:
    :undoc-members:
    :show-inheritance:
 
-lidar\_multiclass.callbacks.logging\_callbacks
+myria3d.callbacks.logging\_callbacks
 -----------------------------------------------------
 
-.. automodule:: lidar_multiclass.callbacks.logging_callbacks
+.. automodule:: myria3d.callbacks.logging_callbacks
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ lidar\_multiclass.callbacks.logging\_callbacks
 Module contents
 ---------------
 
-.. automodule:: lidar_multiclass.callbacks
+.. automodule:: myria3d.callbacks
    :members:
    :undoc-members:
    :show-inheritance:

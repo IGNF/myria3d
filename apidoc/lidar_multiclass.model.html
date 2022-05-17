@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>lidar_multiclass.models &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>myria3d.models &mdash; myria3d 2.0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -18,9 +18,7 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="lidar_multiclass.models.modules" href="lidar_multiclass.models.modules.html" />
-    <link rel="prev" title="lidar_multiclass.data" href="lidar_multiclass.data.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -28,7 +26,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> lidar_multiclass
+            <a href="../index.html" class="icon icon-home"> myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -60,7 +58,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/development.html#code-versionning">Code versionning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/development.html#tests">Tests</a></li>
@@ -75,42 +80,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">lidar_multiclass.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -119,7 +96,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">lidar_multiclass</a>
+          <a href="../index.html">myria3d</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -127,7 +104,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>lidar_multiclass.models</li>
+      <li>myria3d.models</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/apidoc/lidar_multiclass.model.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -137,13 +114,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="lidar-multiclass-models">
-<h1>lidar_multiclass.models<a class="headerlink" href="#lidar-multiclass-models" title="Permalink to this headline"></a></h1>
-<section id="module-lidar_multiclass.models.model">
-<span id="model"></span><h2>Model<a class="headerlink" href="#module-lidar_multiclass.models.model" title="Permalink to this headline"></a></h2>
+  <section id="myria3d-models">
+<h1>myria3d.models<a class="headerlink" href="#myria3d-models" title="Permalink to this headline"></a></h1>
+<section id="module-myria3d.models.model">
+<span id="model"></span><h2>Model<a class="headerlink" href="#module-myria3d.models.model" title="Permalink to this headline"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model" title="Permalink to this definition"></a></dt>
 <dd><p>This LightningModule implements the logic for model trainin, validation, tests, and prediction.</p>
 <p>It is fully initialized by named parameters for maximal flexibility with hydra configs.</p>
 <p>During training and validation, IoU is calculed based on sumbsampled points only, and is therefore
@@ -155,8 +132,8 @@ takes care of the interpolation of predictions between all points.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.configure_optimizers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.configure_optimizers" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.configure_optimizers">
+<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.configure_optimizers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.configure_optimizers" title="Permalink to this definition"></a></dt>
 <dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -166,40 +143,40 @@ takes care of the interpolation of predictions between all points.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.forward" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git31d9f7c ))"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.forward" title="Permalink to this definition"></a></dt>
 <dd><p>Forward pass of neural network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.forward.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.forward.params.batch">¶</a> (<em>Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.forward.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.forward.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.forward.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.forward.params.batch">¶</a> (<em>Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.forward.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.forward.params.y">¶</a> (<em>and</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>logits</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (B*N,C)</p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git31d9f7c ))">torch.Tensor</a> (B*N,C)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.on_fit_start">
-<span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.on_fit_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.on_fit_start" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.on_fit_start">
+<span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_fit_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_fit_start" title="Permalink to this definition"></a></dt>
 <dd><p>On fit start: get the experiment for easier access.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.predict_step">
-<span class="sig-name descname"><span class="pre">predict_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.predict_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.predict_step" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.predict_step">
+<span class="sig-name descname"><span class="pre">predict_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.predict_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.predict_step" title="Permalink to this definition"></a></dt>
 <dd><p>Prediction step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.predict_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.predict_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.predict_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.predict_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.predict_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.predict_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.predict_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.predict_step.params.y">¶</a> (<em>and</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -212,40 +189,40 @@ takes care of the interpolation of predictions between all points.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.setup" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.setup" title="Permalink to this definition"></a></dt>
 <dd><p>Setup stage: prepare to compute IoU and loss.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.step">
-<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.step" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.step" title="Permalink to this definition"></a></dt>
 <dd><p>Model step, including loss computation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.step.params.y">¶</a> (<em>and</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>loss, logits, targets</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git849984a ))">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git31d9f7c ))">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git31d9f7c ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git31d9f7c ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+git31d9f7c ))">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.test_step">
-<span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.test_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.test_step" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.test_step">
+<span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.test_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.test_step" title="Permalink to this definition"></a></dt>
 <dd><p>Test step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.test_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.test_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.test_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.test_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.test_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.test_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.test_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.test_step.params.y">¶</a> (<em>and</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -258,16 +235,16 @@ takes care of the interpolation of predictions between all points.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.training_step">
-<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.training_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.training_step" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.training_step">
+<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.training_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.training_step" title="Permalink to this definition"></a></dt>
 <dd><p>Training step.</p>
 <p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.training_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.training_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.training_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.training_step.params.y">¶</a> (<em>and</em>) – </p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.training_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.training_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – batch identified (unused)</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.training_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.training_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.training_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.training_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.training_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.training_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – batch identified (unused)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -280,28 +257,28 @@ takes care of the interpolation of predictions between all points.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.validation_epoch_end">
-<span class="sig-name descname"><span class="pre">validation_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.validation_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.validation_epoch_end" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.validation_epoch_end">
+<span class="sig-name descname"><span class="pre">validation_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.validation_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.validation_epoch_end" title="Permalink to this definition"></a></dt>
 <dd><p>At the end of a validation epoch, compute the IoU and track if it has improved
 by updating the best one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="lidar_multiclass.models.model.Model.validation_epoch_end.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_epoch_end.params.outputs">¶</a> – output of validation_step</p>
+<dd class="field-odd"><p><span class="target" id="myria3d.models.model.Model.validation_epoch_end.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_epoch_end.params.outputs">¶</a> – output of validation_step</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.model.Model.validation_step">
-<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/lidar_multiclass/models/model.html#Model.validation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.model.Model.validation_step" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.model.Model.validation_step">
+<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.validation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.validation_step" title="Permalink to this definition"></a></dt>
 <dd><p>Validation step.</p>
 <p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.validation_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.validation_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_step.params.y">¶</a> (<em>and</em>) – </p></li>
-<li><p><span class="target" id="lidar_multiclass.models.model.Model.validation_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.model.Model.validation_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – batch identified (unused)</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.validation_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.validation_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.validation_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – batch identified (unused)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -316,27 +293,27 @@ by updating the best one.</p>
 </dd></dl>
 
 </section>
-<section id="module-lidar_multiclass.models.interpolation">
-<span id="interpolation"></span><h2>Interpolation<a class="headerlink" href="#module-lidar_multiclass.models.interpolation" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.models.interpolation">
+<span id="interpolation"></span><h2>Interpolation<a class="headerlink" href="#module-myria3d.models.interpolation" title="Permalink to this headline"></a></h2>
 <p>How we turn from prediction made on a subsampled subset of a Las to a complete point cloud.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="lidar_multiclass.models.interpolation.Interpolator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lidar_multiclass.models.interpolation.</span></span><span class="sig-name descname"><span class="pre">Interpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interpolation_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probas_to_save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'all'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/interpolation.html#Interpolator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.interpolation.Interpolator" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.interpolation.</span></span><span class="sig-name descname"><span class="pre">Interpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interpolation_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probas_to_save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'all'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator" title="Permalink to this definition"></a></dt>
 <dd><p>A class to load, update with classification, update with probas (optionnal), and save a LAS.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.interpolation.Interpolator.interpolate_and_save">
-<span class="sig-name descname"><span class="pre">interpolate_and_save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/interpolation.html#Interpolator.interpolate_and_save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.interpolation.Interpolator.interpolate_and_save" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator.interpolate_and_save">
+<span class="sig-name descname"><span class="pre">interpolate_and_save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator.interpolate_and_save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator.interpolate_and_save" title="Permalink to this definition"></a></dt>
 <dd><p>Interpolate and save in a single method, for predictions.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="lidar_multiclass.models.interpolation.Interpolator.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lidar_multiclass/models/interpolation.html#Interpolator.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lidar_multiclass.models.interpolation.Interpolator.update" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator.update" title="Permalink to this definition"></a></dt>
 <dd><p>Keep a list of predictions made so far.
 In Test phase, interpolation and saving are trigerred when a new file is encountered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="lidar_multiclass.models.interpolation.Interpolator.update.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#lidar_multiclass.models.interpolation.Interpolator.update.params.outputs">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Outputs of lightning’s predict_step or test_step.</p>
+<dd class="field-odd"><p><span class="target" id="myria3d.models.interpolation.Interpolator.update.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.interpolation.Interpolator.update.params.outputs">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Outputs of lightning’s predict_step or test_step.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of interpolation made for these specific outputs. This is typically empty,
@@ -357,10 +334,7 @@ for IoU logging by a callback.</p>
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="lidar_multiclass.data.html" class="btn btn-neutral float-left" title="lidar_multiclass.data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="lidar_multiclass.models.modules.html" class="btn btn-neutral float-right" title="lidar_multiclass.models.modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

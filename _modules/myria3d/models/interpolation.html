@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>lidar_multiclass.models.interpolation &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>myria3d.models.interpolation &mdash; myria3d 2.0.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -25,7 +25,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> lidar_multiclass
+            <a href="../../../index.html" class="icon icon-home"> myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -57,7 +57,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides/development.html">Developer’s guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#code-versionning">Code versionning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#tests">Tests</a></li>
@@ -75,39 +82,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -116,7 +95,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">lidar_multiclass</a>
+          <a href="../../../index.html">myria3d</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -125,7 +104,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>lidar_multiclass.models.interpolation</li>
+      <li>myria3d.models.interpolation</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -134,7 +113,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for lidar_multiclass.models.interpolation</h1><div class="highlight"><pre>
+  <h1>Source code for myria3d.models.interpolation</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;How we turn from prediction made on a subsampled subset of a Las to a complete point cloud.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -145,15 +124,15 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch_geometric.nn.pool</span> <span class="kn">import</span> <span class="n">knn</span>
 <span class="kn">from</span> <span class="nn">torch_geometric.nn.unpool</span> <span class="kn">import</span> <span class="n">knn_interpolate</span>
-<span class="kn">from</span> <span class="nn">lidar_multiclass.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">myria3d.utils</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Categorical</span>
 
-<span class="kn">from</span> <span class="nn">lidar_multiclass.data.transforms</span> <span class="kn">import</span> <span class="n">ChannelNames</span>
+<span class="kn">from</span> <span class="nn">myria3d.data.transforms</span> <span class="kn">import</span> <span class="n">ChannelNames</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Interpolator"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator">[docs]</a><span class="k">class</span> <span class="nc">Interpolator</span><span class="p">:</span>
+<div class="viewcode-block" id="Interpolator"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator">[docs]</a><span class="k">class</span> <span class="nc">Interpolator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;A class to load, update with classification, update with probas (optionnal), and save a LAS.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -233,7 +212,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pos_sub_l</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos_l</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Interpolator.update"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.update">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<div class="viewcode-block" id="Interpolator.update"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.update">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Keep a list of predictions made so far.</span>
 <span class="sd">        In Test phase, interpolation and saving are trigerred when a new file is encountered.</span>
@@ -342,8 +321,9 @@
         <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_mapper</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">preds</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="n">ChannelNames</span><span class="o">.</span><span class="n">PredictedClassification</span><span class="o">.</span><span class="n">value</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">preds</span>
 
-        <span class="n">entropy</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">probas</span><span class="p">)</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="n">ChannelNames</span><span class="o">.</span><span class="n">ProbasEntropy</span><span class="o">.</span><span class="n">value</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">entropy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">las</span><span class="p">[</span><span class="n">ChannelNames</span><span class="o">.</span><span class="n">ProbasEntropy</span><span class="o">.</span><span class="n">value</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span>
+            <span class="n">probs</span><span class="o">=</span><span class="n">probas</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span>
 
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving...&quot;</span><span class="p">)</span>
 
@@ -355,7 +335,7 @@
 
         <span class="k">return</span> <span class="n">out_f</span>
 
-<div class="viewcode-block" id="Interpolator.interpolate_and_save"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.interpolate_and_save">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Interpolator.interpolate_and_save"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.interpolate_and_save">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Interpolate and save in a single method, for predictions.&quot;&quot;&quot;</span>
         <span class="n">interpolation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate</span><span class="p">()</span>
         <span class="n">out_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">interpolation</span><span class="p">)</span>

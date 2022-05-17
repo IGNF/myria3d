@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; lidar_multiclass 1.7.1 documentation</title>
+  <title>Index &mdash; myria3d 2.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -25,7 +25,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> lidar_multiclass
+            <a href="index.html" class="icon icon-home"> myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -57,7 +57,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="guides/development.html">Developer’s guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="guides/development.html#code-versionning">Code versionning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/development.html#tests">Tests</a></li>
@@ -75,39 +82,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.data.html">lidar_multiclass.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.model.html">lidar_multiclass.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html">lidar_multiclass.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html#pointnet">PointNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.models.modules.html#randla-net">RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html">lidar_multiclass.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html">lidar_multiclass.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -116,7 +95,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">lidar_multiclass</a>
+          <a href="index.html">myria3d</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -163,7 +142,7 @@
 <h2 id="Symbols">Symbols</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.`split`">`split` (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.`split`">`split` (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -171,7 +150,7 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.forward.params.Attributs">Attributs (lidar_multiclass.models.modules.randla_net.RandLANet.forward parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward.params.Attributs">Attributs (myria3d.models.modules.randla_net.RandLANet.forward parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -179,28 +158,28 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.forward.params.batch">batch (lidar_multiclass.models.model.Model.forward parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.forward.params.batch">batch (myria3d.models.model.Model.forward parameter)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.predict_step.params.batch">(lidar_multiclass.models.model.Model.predict_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.predict_step.params.batch">(myria3d.models.model.Model.predict_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.step.params.batch">(lidar_multiclass.models.model.Model.step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.step.params.batch">(myria3d.models.model.Model.step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.test_step.params.batch">(lidar_multiclass.models.model.Model.test_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.test_step.params.batch">(myria3d.models.model.Model.test_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.training_step.params.batch">(lidar_multiclass.models.model.Model.training_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.training_step.params.batch">(myria3d.models.model.Model.training_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.validation_step.params.batch">(lidar_multiclass.models.model.Model.validation_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.validation_step.params.batch">(myria3d.models.model.Model.validation_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.forward.params.batch">(lidar_multiclass.models.modules.randla_net.RandLANet.forward parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward.params.batch">(myria3d.models.modules.randla_net.RandLANet.forward parameter)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.training_step.params.batch_idx">batch_idx (lidar_multiclass.models.model.Model.training_step parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.training_step.params.batch_idx">batch_idx (myria3d.models.model.Model.training_step parameter)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.validation_step.params.batch_idx">(lidar_multiclass.models.model.Model.validation_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.validation_step.params.batch_idx">(myria3d.models.model.Model.validation_step parameter)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -209,37 +188,37 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning">change_num_class_for_finetuning() (lidar_multiclass.models.modules.point_net.PointNet method)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning">change_num_class_for_finetuning() (myria3d.models.modules.point_net.PointNet method)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning">(lidar_multiclass.models.modules.randla_net.RandLANet method)</a>
+        <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning">(myria3d.models.modules.randla_net.RandLANet method)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.ChannelNames">ChannelNames (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.ChannelNames">ChannelNames (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.collate_fn">collate_fn() (in module lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.collate_fn">collate_fn() (in module myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU.compute">compute() (lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.compute">compute() (myria3d.callbacks.logging_callbacks.SingleClassIoU method)</a>
 </li>
-      <li><a href="apidoc/scripts.html#lidar_multiclass.predict.predict.params.config">config (lidar_multiclass.predict.predict parameter)</a>
+      <li><a href="apidoc/scripts.html#myria3d.predict.predict.params.config">config (myria3d.predict.predict parameter)</a>
 
       <ul>
-        <li><a href="apidoc/scripts.html#lidar_multiclass.train.train.params.config">(lidar_multiclass.train.train parameter)</a>
+        <li><a href="apidoc/scripts.html#myria3d.train.train.params.config">(myria3d.train.train parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.extras.params.config">(lidar_multiclass.utils.utils.extras parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.extras.params.config">(myria3d.utils.utils.extras parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config.params.config">(lidar_multiclass.utils.utils.print_config parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.print_config.params.config">(myria3d.utils.utils.print_config parameter)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.configure_optimizers">configure_optimizers() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.configure_optimizers">configure_optimizers() (myria3d.models.model.Model method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU.confmat">confmat (lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU attribute)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.confmat">confmat (myria3d.callbacks.logging_callbacks.SingleClassIoU attribute)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.CustomCompose">CustomCompose (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CustomCompose">CustomCompose (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.CustomGridSampler">CustomGridSampler (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CustomGridSampler">CustomGridSampler (class in myria3d.data.transforms)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -247,15 +226,15 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.d_in">d_in (lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.d_in">d_in (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule">DataModule (class in lidar_multiclass.data.datamodule)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule">DataModule (class in myria3d.data.datamodule)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.define_device_from_config_param">define_device_from_config_param() (in module lidar_multiclass.utils.utils)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.define_device_from_config_param">define_device_from_config_param() (in module myria3d.utils.utils)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.dropout">dropout (lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.dropout">dropout (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -263,15 +242,15 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.EmptySubtileFilter">EmptySubtileFilter (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.EmptySubtileFilter">EmptySubtileFilter (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.eval_time">eval_time() (in module lidar_multiclass.utils.utils)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.eval_time">eval_time() (in module myria3d.utils.utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data">extract_subtile_from_tile_data() (lidar_multiclass.data.datamodule.LidarIterableDataset method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data">extract_subtile_from_tile_data() (myria3d.data.datamodule.LidarIterableDataset method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.extras">extras() (in module lidar_multiclass.utils.utils)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.extras">extras() (in module myria3d.utils.utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -279,31 +258,31 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config.params.fields">fields (lidar_multiclass.utils.utils.print_config parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.print_config.params.fields">fields (myria3d.utils.utils.print_config parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.split_and_save.params.filepath">filepath (lidar_multiclass.data.loading.LidarDataLogic.split_and_save parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.split_and_save.params.filepath">filepath (myria3d.data.loading.LidarDataLogic.split_and_save parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.files">files (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.files">files (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in lidar_multiclass.callbacks.finetuning_callbacks)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in myria3d.callbacks.finetuning_callbacks)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.forward">forward() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.forward">forward() (myria3d.models.model.Model method)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.point_net.PointNet.forward">(lidar_multiclass.models.modules.point_net.PointNet method)</a>
+        <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.point_net.PointNet.forward">(myria3d.models.modules.point_net.PointNet method)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.forward">(lidar_multiclass.models.modules.randla_net.RandLANet method)</a>
+        <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward">(myria3d.models.modules.randla_net.RandLANet method)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.FPSSampler">FPSSampler (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.FPSSampler">FPSSampler (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">freeze_before_training() (lidar_multiclass.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">freeze_before_training() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.FrenchLidarDataLogic">FrenchLidarDataLogic (class in lidar_multiclass.data.loading)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.FrenchLidarDataLogic">FrenchLidarDataLogic (class in myria3d.data.loading)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -311,15 +290,15 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.get_all_iou_by_class_object">get_all_iou_by_class_object() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.get_all_iou_by_class_object">get_all_iou_by_class_object() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset.get_all_subtiles_xy_min_corner">get_all_subtiles_xy_min_corner() (lidar_multiclass.data.datamodule.LidarIterableDataset method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.get_all_subtiles_xy_min_corner">get_all_subtiles_xy_min_corner() (myria3d.data.datamodule.LidarIterableDataset method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.comet_callbacks.get_comet_logger">get_comet_logger() (in module lidar_multiclass.callbacks.comet_callbacks)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.get_comet_logger">get_comet_logger() (in module myria3d.callbacks.comet_callbacks)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.get_logger">get_logger() (in module lidar_multiclass.utils.utils)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.get_logger">get_logger() (in module myria3d.utils.utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -327,11 +306,11 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.interpolate_and_save">interpolate_and_save() (lidar_multiclass.models.interpolation.Interpolator method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.interpolate_and_save">interpolate_and_save() (myria3d.models.interpolation.Interpolator method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator">Interpolator (class in lidar_multiclass.models.interpolation)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator">Interpolator (class in myria3d.models.interpolation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -339,123 +318,39 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.FrenchLidarDataLogic.load_las.params.las_filepath">las_filepath (lidar_multiclass.data.loading.FrenchLidarDataLogic.load_las parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las.params.las_filepath">las_filepath (myria3d.data.loading.FrenchLidarDataLogic.load_las parameter)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.load_las.params.las_filepath">(lidar_multiclass.data.loading.LidarDataLogic.load_las parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.load_las.params.las_filepath">(myria3d.data.loading.LidarDataLogic.load_las parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.SwissTopoLidarDataLogic.load_las.params.las_filepath">(lidar_multiclass.data.loading.SwissTopoLidarDataLogic.load_las parameter)</a>
-</li>
-      </ul></li>
-      <li>
-    lidar_multiclass.callbacks
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">module</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las.params.las_filepath">(myria3d.data.loading.SwissTopoLidarDataLogic.load_las parameter)</a>
 </li>
       </ul></li>
-      <li>
-    lidar_multiclass.callbacks.comet_callbacks
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">module</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic">LidarDataLogic (class in myria3d.data.loading)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.callbacks.finetuning_callbacks
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">module</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset">LidarIterableDataset (class in myria3d.data.datamodule)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.callbacks.logging_callbacks
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">module</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarMapDataset">LidarMapDataset (class in myria3d.data.datamodule)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.data.datamodule
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las">load_las() (myria3d.data.loading.FrenchLidarDataLogic class method)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">module</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.load_las">(myria3d.data.loading.LidarDataLogic method)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.data.loading
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">module</a>
-</li>
-      </ul></li>
-      <li>
-    lidar_multiclass.data.transforms
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">module</a>
-</li>
-      </ul></li>
-      <li>
-    lidar_multiclass.models.interpolation
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">module</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las">(myria3d.data.loading.SwissTopoLidarDataLogic class method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    lidar_multiclass.models.model
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">module</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.log_hyperparameters">log_hyperparameters() (in module myria3d.utils.utils)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.predict
-
-      <ul>
-        <li><a href="apidoc/scripts.html#module-lidar_multiclass.predict">module</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.log_iou">log_iou() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.train
-
-      <ul>
-        <li><a href="apidoc/scripts.html#module-lidar_multiclass.train">module</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode">LogCode (class in myria3d.callbacks.comet_callbacks)</a>
 </li>
-      </ul></li>
-      <li>
-    lidar_multiclass.utils.utils
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">module</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass">LogIoUByClass (class in myria3d.callbacks.logging_callbacks)</a>
 </li>
-      </ul></li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic">LidarDataLogic (class in lidar_multiclass.data.loading)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset">LidarIterableDataset (class in lidar_multiclass.data.datamodule)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarMapDataset">LidarMapDataset (class in lidar_multiclass.data.datamodule)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.FrenchLidarDataLogic.load_las">load_las() (lidar_multiclass.data.loading.FrenchLidarDataLogic class method)</a>
-
-      <ul>
-        <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.load_las">(lidar_multiclass.data.loading.LidarDataLogic method)</a>
-</li>
-        <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.SwissTopoLidarDataLogic.load_las">(lidar_multiclass.data.loading.SwissTopoLidarDataLogic class method)</a>
-</li>
-      </ul></li>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.log_hyperparameters">log_hyperparameters() (in module lidar_multiclass.utils.utils)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.log_iou">log_iou() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.comet_callbacks.LogCode">LogCode (class in lidar_multiclass.callbacks.comet_callbacks)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass">LogIoUByClass (class in lidar_multiclass.callbacks.logging_callbacks)</a>
-</li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.comet_callbacks.LogLogsPath">LogLogsPath (class in lidar_multiclass.callbacks.comet_callbacks)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath">LogLogsPath (class in myria3d.callbacks.comet_callbacks)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -463,49 +358,137 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.main">main() (in module lidar_multiclass.data.loading)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.main">main() (in module myria3d.data.loading)</a>
 
       <ul>
+        <li><a href="apidoc/scripts.html#myria3d.predict.main">(in module myria3d.predict)</a>
+</li>
         <li><a href="apidoc/scripts.html#run.main">(in module run)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file">make_toy_dataset_from_test_file() (in module lidar_multiclass.data.loading)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file">make_toy_dataset_from_test_file() (in module myria3d.data.loading)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.MakeCopyOfPosAndY">MakeCopyOfPosAndY (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.MakeCopyOfPosAndY">MakeCopyOfPosAndY (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.MakeCopyOfSampledPos">MakeCopyOfSampledPos (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.MakeCopyOfSampledPos">MakeCopyOfSampledPos (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model">Model (class in lidar_multiclass.models.model)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model">Model (class in myria3d.models.model)</a>
 </li>
       <li>
     module
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks">lidar_multiclass.callbacks</a>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks">myria3d.callbacks</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.comet_callbacks">lidar_multiclass.callbacks.comet_callbacks</a>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.finetuning_callbacks">lidar_multiclass.callbacks.finetuning_callbacks</a>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-lidar_multiclass.callbacks.logging_callbacks">lidar_multiclass.callbacks.logging_callbacks</a>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.datamodule">lidar_multiclass.data.datamodule</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.loading">lidar_multiclass.data.loading</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#module-myria3d.data.loading">myria3d.data.loading</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.data.html#module-lidar_multiclass.data.transforms">lidar_multiclass.data.transforms</a>
+        <li><a href="apidoc/lidar_multiclass.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.interpolation">lidar_multiclass.models.interpolation</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#module-myria3d.models.interpolation">myria3d.models.interpolation</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#module-lidar_multiclass.models.model">lidar_multiclass.models.model</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#module-myria3d.models.model">myria3d.models.model</a>
 </li>
-        <li><a href="apidoc/scripts.html#module-lidar_multiclass.predict">lidar_multiclass.predict</a>
+        <li><a href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a>
 </li>
-        <li><a href="apidoc/scripts.html#module-lidar_multiclass.train">lidar_multiclass.train</a>
+        <li><a href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.utils.html#module-lidar_multiclass.utils.utils">lidar_multiclass.utils.utils</a>
+        <li><a href="apidoc/lidar_multiclass.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a>
 </li>
         <li><a href="apidoc/scripts.html#module-run">run</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.callbacks
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    myria3d.callbacks.comet_callbacks
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks.comet_callbacks">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.callbacks.finetuning_callbacks
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.callbacks.logging_callbacks
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#module-myria3d.callbacks.logging_callbacks">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.data.datamodule
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.data.html#module-myria3d.data.datamodule">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.data.loading
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.data.html#module-myria3d.data.loading">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.data.transforms
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.data.html#module-myria3d.data.transforms">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.models.interpolation
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.model.html#module-myria3d.models.interpolation">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.models.model
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.model.html#module-myria3d.models.model">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.predict
+
+      <ul>
+        <li><a href="apidoc/scripts.html#module-myria3d.predict">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.train
+
+      <ul>
+        <li><a href="apidoc/scripts.html#module-myria3d.train">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.utils.utils
+
+      <ul>
+        <li><a href="apidoc/lidar_multiclass.utils.html#module-myria3d.utils.utils">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -514,17 +497,17 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning.params.new_num_classes">new_num_classes (lidar_multiclass.models.modules.point_net.PointNet.change_num_class_for_finetuning parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning.params.new_num_classes">new_num_classes (myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning parameter)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes">(lidar_multiclass.models.modules.randla_net.RandLANet.change_num_class_for_finetuning parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes">(myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning parameter)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.NormalizePos">NormalizePos (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.NormalizePos">NormalizePos (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes">num_classes (lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes">num_classes (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -532,38 +515,38 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_fit_start">on_fit_start() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_fit_start">on_fit_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.on_fit_start">(lidar_multiclass.models.model.Model method)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.on_fit_start">(myria3d.models.model.Model method)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.comet_callbacks.LogLogsPath.on_init_end">on_init_end() (lidar_multiclass.callbacks.comet_callbacks.LogLogsPath method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath.on_init_end">on_init_end() (myria3d.callbacks.comet_callbacks.LogLogsPath method)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_init_end">(lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+        <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_init_end">(myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end">on_test_batch_end() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end">on_test_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_epoch_end">on_test_epoch_end() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_epoch_end">on_test_epoch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_test_start">on_test_start() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_start">on_test_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_train_batch_end">on_train_batch_end() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_train_batch_end">on_train_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.comet_callbacks.LogCode.on_train_start">on_train_start() (lidar_multiclass.callbacks.comet_callbacks.LogCode method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode.on_train_start">on_train_start() (myria3d.callbacks.comet_callbacks.LogCode method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">on_validation_batch_end() (lidar_multiclass.callbacks.logging_callbacks.LogIoUByClass method)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">on_validation_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.split_and_save.params.output_subdir_path">output_subdir_path (lidar_multiclass.data.loading.LidarDataLogic.split_and_save parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.split_and_save.params.output_subdir_path">output_subdir_path (myria3d.data.loading.LidarDataLogic.split_and_save parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.update.params.outputs">outputs (lidar_multiclass.models.interpolation.Interpolator.update parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.update.params.outputs">outputs (myria3d.models.interpolation.Interpolator.update parameter)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.validation_epoch_end.params.outputs">(lidar_multiclass.models.model.Model.validation_epoch_end parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.validation_epoch_end.params.outputs">(myria3d.models.model.Model.validation_epoch_end parameter)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -572,23 +555,23 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.point_net.PointNet">PointNet (class in lidar_multiclass.models.modules.point_net)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.point_net.PointNet">PointNet (class in myria3d.models.modules.point_net)</a>
 </li>
-      <li><a href="apidoc/scripts.html#lidar_multiclass.predict.predict">predict() (in module lidar_multiclass.predict)</a>
+      <li><a href="apidoc/scripts.html#myria3d.predict.predict">predict() (in module myria3d.predict)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule.predict_dataloader">predict_dataloader() (lidar_multiclass.data.datamodule.DataModule method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.predict_dataloader">predict_dataloader() (myria3d.data.datamodule.DataModule method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.predict_step">predict_step() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.predict_step">predict_step() (myria3d.models.model.Model method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.prepare">prepare() (lidar_multiclass.data.loading.LidarDataLogic method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.prepare">prepare() (myria3d.data.loading.LidarDataLogic method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.prepared_data_dir">prepared_data_dir (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.prepared_data_dir">prepared_data_dir (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config">print_config() (in module lidar_multiclass.utils.utils)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.print_config">print_config() (in module myria3d.utils.utils)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config.params.printed and in what order.">printed and in what order. (lidar_multiclass.utils.utils.print_config parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.print_config.params.printed and in what order.">printed and in what order. (myria3d.utils.utils.print_config parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -596,15 +579,15 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet">RandLANet (class in lidar_multiclass.models.modules.randla_net)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet">RandLANet (class in myria3d.models.modules.randla_net)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.RandomSampler">RandomSampler (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.RandomSampler">RandomSampler (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset.reinforce_type">reinforce_type() (lidar_multiclass.data.datamodule.LidarIterableDataset method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.reinforce_type">reinforce_type() (myria3d.data.datamodule.LidarIterableDataset method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.utils.html#lidar_multiclass.utils.utils.print_config.params.resolve">resolve (lidar_multiclass.utils.utils.print_config parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.print_config.params.resolve">resolve (myria3d.utils.utils.print_config parameter)</a>
 </li>
       <li>
     run
@@ -619,31 +602,31 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.models.modules.html#lidar_multiclass.models.modules.randla_net.RandLANet.set_fc_end">set_fc_end() (lidar_multiclass.models.modules.randla_net.RandLANet method)</a>
+      <li><a href="apidoc/lidar_multiclass.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end">set_fc_end() (myria3d.models.modules.randla_net.RandLANet method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule.setup">setup() (lidar_multiclass.data.datamodule.DataModule method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.setup">setup() (myria3d.data.datamodule.DataModule method)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.setup">(lidar_multiclass.models.model.Model method)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.setup">(myria3d.models.model.Model method)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/lidar_multiclass.callbacks.html#lidar_multiclass.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in lidar_multiclass.callbacks.logging_callbacks)</a>
+      <li><a href="apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in myria3d.callbacks.logging_callbacks)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.LidarDataLogic.split_and_save">split_and_save() (lidar_multiclass.data.loading.LidarDataLogic method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.split_and_save">split_and_save() (myria3d.data.loading.LidarDataLogic method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.split_csv">split_csv (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.split_csv">split_csv (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.make_toy_dataset_from_test_file.params.src_las_path">src_las_path (lidar_multiclass.data.loading.make_toy_dataset_from_test_file parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.src_las_path">src_las_path (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.StandardizeFeatures">StandardizeFeatures (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.StandardizeFeatures">StandardizeFeatures (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.step">step() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.step">step() (myria3d.models.model.Model method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.Subsampler">Subsampler (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.Subsampler">Subsampler (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.loading.SwissTopoLidarDataLogic">SwissTopoLidarDataLogic (class in lidar_multiclass.data.loading)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.loading.SwissTopoLidarDataLogic">SwissTopoLidarDataLogic (class in myria3d.data.loading)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -651,25 +634,25 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.TargetTransform">TargetTransform (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.TargetTransform">TargetTransform (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule.test_dataloader">test_dataloader() (lidar_multiclass.data.datamodule.DataModule method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.test_dataloader">test_dataloader() (myria3d.data.datamodule.DataModule method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.test_step">test_step() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.test_step">test_step() (myria3d.models.model.Model method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data.params.tile_data">tile_data (lidar_multiclass.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data.params.tile_data">tile_data (myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data parameter)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.ToTensor">ToTensor (class in lidar_multiclass.data.transforms)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.ToTensor">ToTensor (class in myria3d.data.transforms)</a>
 </li>
-      <li><a href="apidoc/scripts.html#lidar_multiclass.train.train">train() (in module lidar_multiclass.train)</a>
+      <li><a href="apidoc/scripts.html#myria3d.train.train">train() (in module myria3d.train)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule.train_dataloader">train_dataloader() (lidar_multiclass.data.datamodule.DataModule method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.train_dataloader">train_dataloader() (myria3d.data.datamodule.DataModule method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.training_step">training_step() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.training_step">training_step() (myria3d.models.model.Model method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.transforms.CustomCompose.params.transforms">transforms (lidar_multiclass.data.transforms.CustomCompose parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CustomCompose.params.transforms">transforms (myria3d.data.transforms.CustomCompose parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -677,7 +660,7 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.interpolation.Interpolator.update">update() (lidar_multiclass.models.interpolation.Interpolator method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.update">update() (myria3d.models.interpolation.Interpolator method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -685,13 +668,13 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.DataModule.val_dataloader">val_dataloader() (lidar_multiclass.data.datamodule.DataModule method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.val_dataloader">val_dataloader() (myria3d.data.datamodule.DataModule method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.validation_epoch_end">validation_epoch_end() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.validation_epoch_end">validation_epoch_end() (myria3d.models.model.Model method)</a>
 </li>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.validation_step">validation_step() (lidar_multiclass.models.model.Model method)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.validation_step">validation_step() (myria3d.models.model.Model method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -699,7 +682,7 @@
 <h2 id="X">X</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data.params.xy_min_corner">xy_min_corner (lidar_multiclass.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data.params.xy_min_corner">xy_min_corner (myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -707,23 +690,23 @@
 <h2 id="Y">Y</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.forward.params.y">y (lidar_multiclass.models.model.Model.forward parameter)</a>
+      <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.forward.params.y">y (myria3d.models.model.Model.forward parameter)</a>
 
       <ul>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.predict_step.params.y">(lidar_multiclass.models.model.Model.predict_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.predict_step.params.y">(myria3d.models.model.Model.predict_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.step.params.y">(lidar_multiclass.models.model.Model.step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.step.params.y">(myria3d.models.model.Model.step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.test_step.params.y">(lidar_multiclass.models.model.Model.test_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.test_step.params.y">(myria3d.models.model.Model.test_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.training_step.params.y">(lidar_multiclass.models.model.Model.training_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.training_step.params.y">(myria3d.models.model.Model.training_step parameter)</a>
 </li>
-        <li><a href="apidoc/lidar_multiclass.model.html#lidar_multiclass.models.model.Model.validation_step.params.y">(lidar_multiclass.models.model.Model.validation_step parameter)</a>
+        <li><a href="apidoc/lidar_multiclass.model.html#myria3d.models.model.Model.validation_step.params.y">(myria3d.models.model.Model.validation_step parameter)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/lidar_multiclass.data.html#lidar_multiclass.data.datamodule.LidarIterableDataset.yield_transformed_subtile_data">yield_transformed_subtile_data() (lidar_multiclass.data.datamodule.LidarIterableDataset method)</a>
+      <li><a href="apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.yield_transformed_subtile_data">yield_transformed_subtile_data() (myria3d.data.datamodule.LidarIterableDataset method)</a>
 </li>
   </ul></td>
 </tr></table>
