@@ -1,7 +1,0 @@
-# Run pip install torch==1.10.1
-# Before installing these 
-pytorch-lightning==1.5.9
-torchmetrics
-torch_geometric==2.0.3
-torch_sparse
-torch_scatter
