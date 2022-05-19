@@ -369,12 +369,12 @@ def knn_compact(
     """
     num_batches = len(pos_x)
 
-    pos_x_long = torch.cat([single_pos for single_pos in pos_x])  # (N, 3)
+    pos_x_long = torch.cat([sample_pos for sample_pos in pos_x])  # (N, 3)
     batch_x_long = torch.cat(
         [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)]
     )  # (N,)
 
-    pos_y_long = torch.cat([single_pos for single_pos in pos_y])  # (N, 3)
+    pos_y_long = torch.cat([sample_pos for sample_pos in pos_y])  # (N, 3)
     batch_y_long = torch.cat(
         [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_y)]
     )  # (N,)
