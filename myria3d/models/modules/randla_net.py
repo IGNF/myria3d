@@ -93,7 +93,6 @@ class RandLANet(nn.Module):
         input = torch.stack(chunks)  # B, N, 3+F
 
         N = input.size(1)
-        d = self.decimation
 
         pos = input[..., :3].clone()  # .cpu()
         x = self.fc_start(input).transpose(-2, -1).unsqueeze(-1)
@@ -109,10 +108,10 @@ class RandLANet(nn.Module):
         x = x[:, :, permutation]
 
         for lfa in self.encoder:
-            # at iteration i, x.shape = (B, N//(d**i), d_in)
+            # at iteration i, x.shape = (B, N//(self.decimation**i), d_in)
             x = lfa(pos[:, : N // decimation_ratio], x)
             x_stack.append(x.clone())
-            decimation_ratio *= d
+            decimation_ratio *= self.decimation
             x = x[:, :, : N // decimation_ratio]
 
         # # >>>>>>>>>> ENCODER
@@ -124,7 +123,7 @@ class RandLANet(nn.Module):
         for mlp in self.decoder:
             _, neighbors = knn_compact(
                 pos[:, : N // decimation_ratio],  # original set
-                pos[:, : d * N // decimation_ratio],  # upsampled set
+                pos[:, : self.decimation * N // decimation_ratio],  # upsampled set
                 single_neighbor,
             )  # shape (B, N, 1)
             neighbors = neighbors.to(x.device)
@@ -136,7 +135,7 @@ class RandLANet(nn.Module):
 
             x = mlp(x)
 
-            decimation_ratio //= d
+            decimation_ratio //= self.decimation
 
         # >>>>>>>>>> DECODER
         # inverse permutation
