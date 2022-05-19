@@ -208,14 +208,14 @@ class FrenchLidarDataLogic(LidarDataLogic):
     excluded_classes = [65, 66]
 
     @classmethod
-    def load_las(self, las_filepath: str):
+    def load_las(cls, las_filepath: str):
         f"""Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
 
         Builds a composite (average) color channel on the fly.
 
         Calculate NDVI on the fly.
 
-        x_features_names are {' - '.join(self.x_features_names)}
+        x_features_names are {' - '.join(cls.x_features_names)}
 
         Args:
             las_filepath (str): path to the LAS file.
@@ -227,7 +227,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
         las = laspy.read(las_filepath)
 
         # Filter out unused classes
-        las.points = las.points[~np.isin(las.classification, self.excluded_classes)]
+        las.points = las.points[~np.isin(las.classification, cls.excluded_classes)]
         # Positions and base features
         pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
         x = np.asarray(
@@ -247,36 +247,36 @@ class FrenchLidarDataLogic(LidarDataLogic):
         ).transpose()
 
         # normalization
-        return_number_idx = self.x_features_names.index("return_number")
+        return_number_idx = cls.x_features_names.index("return_number")
         occluded_points = x[:, return_number_idx] > 1
 
         x[:, return_number_idx] = (x[:, return_number_idx]) / (
-            self.return_number_normalization_max_value
+            cls.return_number_normalization_max_value
         )
-        num_return_idx = self.x_features_names.index("number_of_returns")
+        num_return_idx = cls.x_features_names.index("number_of_returns")
         x[:, num_return_idx] = (x[:, num_return_idx]) / (
-            self.return_number_normalization_max_value
+            cls.return_number_normalization_max_value
         )
 
-        for idx, c in enumerate(self.x_features_names):
+        for idx, c in enumerate(cls.x_features_names):
             if c in ["red", "green", "blue", "nir"]:
                 print(
                     x[:, idx].max()
                 )  # DEBUG: just to be sure that it is the same as before
-                assert x[:, idx].max() <= self.colors_normalization_max_value
-                x[:, idx] = x[:, idx] / self.colors_normalization_max_value
+                assert x[:, idx].max() <= cls.colors_normalization_max_value
+                x[:, idx] = x[:, idx] / cls.colors_normalization_max_value
                 x[occluded_points, idx] = 0
 
-        red = x[:, self.x_features_names.index("red")]
-        green = x[:, self.x_features_names.index("green")]
-        blue = x[:, self.x_features_names.index("blue")]
+        red = x[:, cls.x_features_names.index("red")]
+        green = x[:, cls.x_features_names.index("green")]
+        blue = x[:, cls.x_features_names.index("blue")]
 
         # Additional features :
         # Average color, that will be normalized on the fly based on single-sample
         rgb_avg = np.asarray([red, green, blue], dtype=np.float32).mean(axis=0)
 
         # NDVI
-        nir = x[:, self.x_features_names.index("nir")]
+        nir = x[:, cls.x_features_names.index("nir")]
         ndvi = (nir - red) / (nir + red + 10**-6)
         x = np.concatenate([x, rgb_avg[:, None], ndvi[:, None]], axis=1)
 
@@ -292,7 +292,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
             x=x,
             y=y,
             las_filepath=las_filepath,
-            x_features_names=self.x_features_names,
+            x_features_names=cls.x_features_names,
         )
 
 
@@ -309,7 +309,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
     colors_normalization_max_value = 256
 
     @classmethod
-    def load_las(self, las_filepath: str) -> Data:
+    def load_las(cls, las_filepath: str) -> Data:
         """Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
 
         Builds a composite (average) color channel on the fly.
@@ -339,21 +339,21 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             dtype=np.float32,
         ).transpose()
 
-        return_number_idx = self.x_features_names.index("return_number")
+        return_number_idx = cls.x_features_names.index("return_number")
         occluded_points = x[:, return_number_idx] > 1
 
         x[:, return_number_idx] = (x[:, return_number_idx]) / (
-            self.return_number_normalization_max_value
+            cls.return_number_normalization_max_value
         )
-        num_return_idx = self.x_features_names.index("number_of_returns")
+        num_return_idx = cls.x_features_names.index("number_of_returns")
         x[:, num_return_idx] = (x[:, num_return_idx]) / (
-            self.return_number_normalization_max_value
+            cls.return_number_normalization_max_value
         )
 
-        for idx, c in enumerate(self.x_features_names):
+        for idx, c in enumerate(cls.x_features_names):
             if c in ["red", "green", "blue"]:
-                assert x[:, idx].max() <= self.colors_normalization_max_value
-                x[:, idx] = x[:, idx] / self.colors_normalization_max_value
+                assert x[:, idx].max() <= cls.colors_normalization_max_value
+                x[:, idx] = x[:, idx] / cls.colors_normalization_max_value
                 x[occluded_points, idx] = 0
 
         rgb_avg = (
@@ -378,7 +378,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             x=x,
             y=y,
             las_filepath=las_filepath,
-            x_features_names=self.x_features_names,
+            x_features_names=cls.x_features_names,
         )
 
 
