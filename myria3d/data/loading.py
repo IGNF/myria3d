@@ -81,22 +81,22 @@ class LidarDataLogic(ABC):
             print(f"Subset: {phase}")
             print("  -  ".join(basenames))
             for file_basename in tqdm(basenames, desc="Files"):
-                filepath = self._find_file_in_dir(self.input_data_dir, file_basename)
-                output_subdir_path = osp.join(self.prepared_data_dir, phase)
+                las_path = self._find_file_in_dir(self.input_data_dir, file_basename)
                 if phase == "test":
                     # Simply copy the LAS to the new test folder.
-                    os.makedirs(output_subdir_path, exist_ok=True)
-                    target_file = osp.join(output_subdir_path, file_basename)
-                    copyfile(filepath, target_file)
+                    test_subdir_path = osp.join(self.prepared_data_dir, phase)
+                    os.makedirs(test_subdir_path, exist_ok=True)
+                    copy_path = osp.join(test_subdir_path, file_basename)
+                    copyfile(las_path, copy_path)
                 elif phase in ["train", "val"]:
                     # Load LAS into memory as a Data object with selected features,
                     # then iteratively extract 50m*50m subtiles by filtering along x
                     # then y axis. Serialize the resulting Data object using torch.save.
-                    output_subdir_path = osp.join(
-                        output_subdir_path, osp.basename(filepath)
+                    subdir_path = osp.join(
+                        self.prepared_data_dir, phase, osp.basename(las_path)
                     )
-                    os.makedirs(output_subdir_path, exist_ok=True)
-                    self.split_and_save(filepath, output_subdir_path)
+                    os.makedirs(subdir_path, exist_ok=True)
+                    self.split_and_save(las_path, subdir_path)
                 else:
                     raise KeyError("Phase should be one of train/val/test.")
 
