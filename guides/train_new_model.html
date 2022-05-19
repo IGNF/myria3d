@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to train new models &mdash; myria3d 2.0.0 documentation</title>
+  <title>How to train new models &mdash; myria3d 2.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -134,7 +134,7 @@ Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html">
 <h2>Quick run<a class="headerlink" href="#quick-run" title="Permalink to this headline"></a></h2>
 <p>To test your setup and logging capabilities, you can try overfitting on a single batch of data from the toy dataset, created following instructions in <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="doc std std-doc">this page</span></a>).
 To overfit on a single batch for 30 epochs, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNetDebug.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNetDebug
 </pre></div>
 </div>
 </section>
@@ -142,7 +142,7 @@ To overfit on a single batch for 30 epochs, run:</p>
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
 <p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define parameter <code class="docutils literal notranslate"><span class="pre">datamodule.dataset_description</span></code> to specify your classification task - see e.g. config <code class="docutils literal notranslate"><span class="pre">20220504_proto23dalles.yaml</span></code> for an example.</p>
 <p>To run the full training and validation for French Lidar HD, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR
 </pre></div>
 </div>
 <p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOG_PATH</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>

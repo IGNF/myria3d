@@ -18,7 +18,7 @@ To test your setup and logging capabilities, you can try overfitting on a single
 To overfit on a single batch for 30 epochs, run:
 
 ```bash
-python run.py experiment=RandLaNetDebug.yaml
+python run.py experiment=RandLaNetDebug
 ```
 
 ## Training
@@ -29,7 +29,7 @@ Define your experiment hyperparameters in an experiment file in the `configs/exp
 To run the full training and validation for French Lidar HD, run:
 
 ```bash
-python run.py experiment=RandLaNet_base_run_FR.yaml
+python run.py experiment=RandLaNet_base_run_FR
 ```
 
 After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified, with an associated hydra `config.yaml`.
