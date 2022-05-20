@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.data.loading &mdash; myria3d 2.0.2 documentation</title>
+  <title>myria3d.data.loading &mdash; myria3d 2.0.3 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -197,22 +197,22 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subset: </span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  -  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basenames</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">file_basename</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">basenames</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Files&quot;</span><span class="p">):</span>
-                <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_file_in_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_data_dir</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
-                <span class="n">output_subdir_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+                <span class="n">las_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_file_in_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_data_dir</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
                     <span class="c1"># Simply copy the LAS to the new test folder.</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">target_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
-                    <span class="n">copyfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">target_file</span><span class="p">)</span>
+                    <span class="n">test_subdir_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">test_subdir_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">copy_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_subdir_path</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
+                    <span class="n">copyfile</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">copy_path</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">]:</span>
                     <span class="c1"># Load LAS into memory as a Data object with selected features,</span>
                     <span class="c1"># then iteratively extract 50m*50m subtiles by filtering along x</span>
                     <span class="c1"># then y axis. Serialize the resulting Data object using torch.save.</span>
-                    <span class="n">output_subdir_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                        <span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                    <span class="n">subdir_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">split_and_save</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">output_subdir_path</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">subdir_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">split_and_save</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">subdir_path</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Phase should be one of train/val/test.&quot;</span><span class="p">)</span></div>
 
@@ -324,14 +324,14 @@
     <span class="n">excluded_classes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">65</span><span class="p">,</span> <span class="mi">66</span><span class="p">]</span>
 
 <div class="viewcode-block" id="FrenchLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.</span>
 
 <span class="s2">        Builds a composite (average) color channel on the fly.</span>
 
 <span class="s2">        Calculate NDVI on the fly.</span>
 
-<span class="s2">        x_features_names are </span><span class="si">{</span><span class="s1">&#39; - &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        x_features_names are </span><span class="si">{</span><span class="s1">&#39; - &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 
 <span class="s2">        Args:</span>
 <span class="s2">            las_filepath (str): path to the LAS file.</span>
@@ -343,7 +343,7 @@
         <span class="n">las</span> <span class="o">=</span> <span class="n">laspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">las_filepath</span><span class="p">)</span>
 
         <span class="c1"># Filter out unused classes</span>
-        <span class="n">las</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">excluded_classes</span><span class="p">)]</span>
+        <span class="n">las</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">excluded_classes</span><span class="p">)]</span>
         <span class="c1"># Positions and base features</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">las</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">las</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">las</span><span class="o">.</span><span class="n">z</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
@@ -363,36 +363,36 @@
         <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
 
         <span class="c1"># normalization</span>
-        <span class="n">return_number_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;return_number&quot;</span><span class="p">)</span>
+        <span class="n">return_number_idx</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;return_number&quot;</span><span class="p">)</span>
         <span class="n">occluded_points</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">return_number_idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
 
         <span class="n">x</span><span class="p">[:,</span> <span class="n">return_number_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">return_number_idx</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
         <span class="p">)</span>
-        <span class="n">num_return_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;number_of_returns&quot;</span><span class="p">)</span>
+        <span class="n">num_return_idx</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;number_of_returns&quot;</span><span class="p">)</span>
         <span class="n">x</span><span class="p">[:,</span> <span class="n">num_return_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">num_return_idx</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
         <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;nir&quot;</span><span class="p">]:</span>
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
                 <span class="p">)</span>  <span class="c1"># DEBUG: just to be sure that it is the same as before</span>
-                <span class="k">assert</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
-                <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
+                <span class="k">assert</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
+                <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="bp">cls</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
                 <span class="n">x</span><span class="p">[</span><span class="n">occluded_points</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="n">red</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">)]</span>
-        <span class="n">green</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">)]</span>
-        <span class="n">blue</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)]</span>
+        <span class="n">red</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">)]</span>
+        <span class="n">green</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">)]</span>
+        <span class="n">blue</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)]</span>
 
         <span class="c1"># Additional features :</span>
         <span class="c1"># Average color, that will be normalized on the fly based on single-sample</span>
         <span class="n">rgb_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># NDVI</span>
-        <span class="n">nir</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;nir&quot;</span><span class="p">)]</span>
+        <span class="n">nir</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;nir&quot;</span><span class="p">)]</span>
         <span class="n">ndvi</span> <span class="o">=</span> <span class="p">(</span><span class="n">nir</span> <span class="o">-</span> <span class="n">red</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">nir</span> <span class="o">+</span> <span class="n">red</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">6</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">rgb_avg</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">ndvi</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -408,7 +408,7 @@
             <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
             <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
             <span class="n">las_filepath</span><span class="o">=</span><span class="n">las_filepath</span><span class="p">,</span>
-            <span class="n">x_features_names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">,</span>
+            <span class="n">x_features_names</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 
 
@@ -425,7 +425,7 @@
     <span class="n">colors_normalization_max_value</span> <span class="o">=</span> <span class="mi">256</span>
 
 <div class="viewcode-block" id="SwissTopoLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.</span>
 
 <span class="sd">        Builds a composite (average) color channel on the fly.</span>
@@ -455,21 +455,21 @@
             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
 
-        <span class="n">return_number_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;return_number&quot;</span><span class="p">)</span>
+        <span class="n">return_number_idx</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;return_number&quot;</span><span class="p">)</span>
         <span class="n">occluded_points</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">return_number_idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
 
         <span class="n">x</span><span class="p">[:,</span> <span class="n">return_number_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">return_number_idx</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
         <span class="p">)</span>
-        <span class="n">num_return_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;number_of_returns&quot;</span><span class="p">)</span>
+        <span class="n">num_return_idx</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;number_of_returns&quot;</span><span class="p">)</span>
         <span class="n">x</span><span class="p">[:,</span> <span class="n">num_return_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">num_return_idx</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">return_number_normalization_max_value</span>
         <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">]:</span>
-                <span class="k">assert</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
-                <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
+                <span class="k">assert</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
+                <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="bp">cls</span><span class="o">.</span><span class="n">colors_normalization_max_value</span>
                 <span class="n">x</span><span class="p">[</span><span class="n">occluded_points</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">rgb_avg</span> <span class="o">=</span> <span class="p">(</span>
@@ -494,7 +494,7 @@
             <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
             <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
             <span class="n">las_filepath</span><span class="o">=</span><span class="n">las_filepath</span><span class="p">,</span>
-            <span class="n">x_features_names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">,</span>
+            <span class="n">x_features_names</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 
 
