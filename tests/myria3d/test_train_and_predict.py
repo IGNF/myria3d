@@ -253,9 +253,9 @@ def test_run_test_with_trained_model_on_large_las(
         tmpdir (fixture -> str): temporary directory.
 
     """
-    pytest.xfail(
-        reason="Modle is currently too memory intensive to test on a full LAS in self-hosted action-runner."
-    )
+    # pytest.xfail(
+    #     reason="Model is currently too memory intensive to test on a full LAS in self-hosted action-runner."
+    # )
 
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
@@ -273,10 +273,16 @@ def test_run_test_with_trained_model_on_large_las(
     )
     train(cfg_test_using_trained_model)
     metrics = _get_metrics_df_from_tmpdir(tmpdir)
-    # TODO: reference values to be better defined
-    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.55
-    assert metrics["test/iou_CLASS_ground"][0] >= 0.80
-    assert metrics["test/iou_CLASS_building"][0] >= 0.80
+
+    # Reference value of IoU of subsampled cloud point (current method)
+    assert metrics["test/iou_CLASS_building"][0] >= 0.74
+    assert metrics["test/iou_CLASS_ground"][0] >= 0.77
+    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.49
+
+    # Reference value with full interpolation would be
+    # assert metrics["test/iou_CLASS_unclassified"][0] >= 0.55
+    # assert metrics["test/iou_CLASS_ground"][0] >= 0.80
+    # assert metrics["test/iou_CLASS_building"][0] >= 0.80
 
 
 def test_predict_with_trained_model_on_toy_dataset(tmpdir):
