@@ -187,7 +187,7 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        return {"logits": logits, "batch": batch}
+        return logits
 
     def get_neural_net_class(self, class_name: str) -> nn.Module:
         """A Class Factory to class of neural net based on class name.

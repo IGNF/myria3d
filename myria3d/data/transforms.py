@@ -70,129 +70,19 @@ class ToTensor(BaseTransform):
         return data
 
 
-class MakeCopyOfPosAndY(BaseTransform):
-    """Make a copy of the full cloud's positions and labels, for inference interpolation."""
+# class CopyTargets(BaseTransform):
+#     """Make a copy of the full cloud's positions and labels, for inference interpolation."""
 
-    def __call__(self, data: Data):
-        data["pos_copy"] = data["pos"].clone()
-        # TODO: evaluate if Copy of Y can be restricte to Test setting only.
-        # This should then be repercuted in Interpolation.
-        data["y_copy"] = data["y"].clone()
-        return data
+#     def __call__(self, data: Data):
+#         data["y_copy"] = data["y"].clone()
+#         return data
 
 
-class Subsampler(BaseTransform):
-    """Base class for custom cloud subsampler to inherit from.
-
-    Subsampling to a unique size is needed for batching clouds with different initial size.
-    Subclasses are modified from https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/,
-    to preserve specific attributes of the data for inference interpolation
-
-    """
-
-    sampling_keys: Tuple[str] = ("x", "pos", "y")
-
-    def _call_(self, data: Data):
-        raise NotImplementedError("Use a non-abstract subsampler class instead.")
-
-
-class RandomSampler(Subsampler):
-    """Samples a fixed number of points from a point cloud, randomly."""
-
-    def __init__(self, subsample_size: int = 12500):
-        self.subsample_size = subsample_size
-
-    def __call__(self, data: Data):
-        num_nodes = data.num_nodes
-        choice = torch.cat(
-            [
-                torch.randperm(num_nodes)
-                for _ in range(math.ceil(self.subsample_size / num_nodes))
-            ],
-            dim=0,
-        )[: self.subsample_size]
-
-        for key in self.sampling_keys:
-            data[key] = data[key][choice]
-
-        return data
-
-
-class FPSSampler(Subsampler):
-    """
-    Samples a fixed number of points from a point cloud, using Fartest Point Sampling.
-
-    In our experiments, FPS is slower by an order of magnitude than Random/Grid sampling, and yields worst results.
-
-    See https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps
-
-    """
-
-    def __init__(self, subsample_size: int = 12500):
-        self.subsample_size = subsample_size
-        self.rs = RandomSampler(subsample_size=subsample_size)
-
-    def __call__(self, data: Data):
-        num_nodes = data.num_nodes
-        # Random sampling if we are short in points
-        if num_nodes < self.subsample_size:
-            return self.rs(data)
-
-        # Else, use Farthest Point Sampling
-        ratio = (self.subsample_size / num_nodes) + 0.01
-        choice = fps(data.pos, ratio=ratio, random_start=False)
-        choice = choice[: self.subsample_size]
-        for key in self.sampling_keys:
-            data[key] = data[key][choice]
-        return data
-
-
-class CustomGridSampler(Subsampler):
-    """Samples a point cloud, using a voxel grid.
-
-    A final random sampling is then needed to have a fixed number of points.
-    See https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling
-
-    """
-
-    def __init__(self, subsample_size: int = 12500, voxel_size: Number = 0.25):
-        self.subsample_size = subsample_size
-        self.rs = RandomSampler(subsample_size=subsample_size)
-        self.voxel_size = voxel_size
-
-    def __call__(self, data: Data) -> Data:
-        num_nodes = data.num_nodes
-
-        # Random sampling if we are short in points
-        if num_nodes < self.subsample_size:
-            return self.rs(data)
-
-        batch = data.get("batch", None)
-
-        c = torch_geometric.nn.voxel_grid(data.pos, self.voxel_size, batch, None, None)
-        c, perm = torch_geometric.nn.pool.consecutive.consecutive_cluster(c)
-
-        for key in self.sampling_keys:
-            item = data[key]
-            if torch.is_tensor(item) and item.size(0) == num_nodes:
-                if key == "y":
-                    item = F.one_hot(item)
-                    item = scatter_add(item, c, dim=0)
-                    data[key] = item.argmax(dim=-1)
-                elif key == "batch":
-                    data[key] = item[perm]
-                else:
-                    data[key] = scatter_mean(item, c, dim=0)
-        # Up or downsample to get to subsample_size
-        data = self.rs(data)
-        return data
-
-
-class MakeCopyOfSampledPos(BaseTransform):
+class CopySampledPos(BaseTransform):
     """Make a copy of the unormalized positions of subsampled points."""
 
     def __call__(self, data: Data):
-        data["pos_copy_subsampled"] = data["pos"].clone()
+        data["pos_sampled_copy"] = data["pos"].clone()
         return data
 
 
@@ -276,7 +166,6 @@ class TargetTransform(BaseTransform):
 
     def __call__(self, data: Data):
         data.y = self.transform(data.y)
-        data.y_copy = self.transform(data.y_copy)
         return data
 
     def transform(self, y):
@@ -312,42 +201,3 @@ class TargetTransform(BaseTransform):
             for class_index, class_code in enumerate(classification_dict.keys())
         }
         self.mapper = np.vectorize(lambda class_code: d.get(class_code))
-
-
-def collate_fn(data_list: List[Data]) -> Batch:
-    """
-    Batch Data objects from a list, to be used in DataLoader. Modified from:
-    https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn
-
-    """
-    batch = Batch()
-    data_list = list(filter(lambda x: x is not None, data_list))
-
-    # 1: add everything as list of non-Tensor object to facilitate adding new attributes.
-    for key in data_list[0].keys:
-        batch[key] = [data[key] for data in data_list]
-
-    # 2: define relevant Tensor in long PyG format.
-    keys_to_long_format = ["pos", "x", "y", "pos_copy", "pos_copy_subsampled", "y_copy"]
-    for key in keys_to_long_format:
-        batch[key] = torch.cat([data[key] for data in data_list])
-
-    # 3. Create a batch index
-    batch.batch_x = torch.from_numpy(
-        np.concatenate(
-            [
-                np.full(shape=len(data["y"]), fill_value=i)
-                for i, data in enumerate(data_list)
-            ]
-        )
-    )
-    batch.batch_y = torch.from_numpy(
-        np.concatenate(
-            [
-                np.full(shape=len(data["pos_copy"]), fill_value=i)
-                for i, data in enumerate(data_list)
-            ]
-        )
-    )
-    batch.num_batches = len(data_list)
-    return batch

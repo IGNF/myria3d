@@ -47,17 +47,29 @@ def predict(config: DictConfig) -> str:
     model.eval()
 
     itp = Interpolator(
-        output_dir=config.predict.output_dir,
+        interpolation_k=10,
         classification_dict=datamodule.dataset_description.get("classification_dict"),
         probas_to_save=config.predict.probas_to_save,
     )
 
     for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
-        outputs = model.predict_step(batch)
-        itp.update(outputs)
+        # logits = model.predict_step(batch)
+        # PErfect for test
+        logits = (
+            torch.nn.functional.one_hot(
+                batch.y,
+                num_classes=len(
+                    datamodule.dataset_description.get("classification_dict")
+                ),
+            )
+            * 10
+        )
+        itp.store_predictions(
+            logits, batch.pos_sampled_copy, batch.batch, batch.idx_in_original_cloud
+        )
 
-    out_f = itp.interpolate_and_save()
+    out_f = itp.write(config.predict.src_las, config.predict.output_dir)
     return out_f
 
 

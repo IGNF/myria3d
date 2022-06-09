@@ -31,8 +31,9 @@ class PointNet(nn.Module):
 
     def forward(self, batch):
         """
-        Object batch is a PyG data.Batch, as defined in custom collate_fn.
+        Object batch is a PyG data.Batch
         Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods.
+        
         """
         features = torch.cat([batch.pos, batch.x], axis=1)
         input_size = features.shape[0]

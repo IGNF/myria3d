@@ -1,3 +1,0 @@
-_target_: myria3d.data.transforms.CustomGridSampler
-subsample_size: 12500
-voxel_size: 0.25

@@ -89,7 +89,7 @@ class RandLANet(nn.Module):
         """
 
         input = torch.cat([batch.pos, batch.x], axis=1)
-        chunks = torch.split(input, len(batch.pos) // batch.num_batches)
+        chunks = torch.split(input, len(batch.pos) // batch.num_graphs)
         input = torch.stack(chunks)  # B, N, 3+F
 
         N = input.size(1)
@@ -367,7 +367,7 @@ def knn_compact(
         Tuple[torch.Tensor,torch.Tensor]: y_idx, x_idx assignment index, in range [0, batch_size[
 
     """
-    num_batches = len(pos_x)
+    num_graphs = len(pos_x)
 
     pos_x_long = torch.cat([sample_pos for sample_pos in pos_x])  # (N, 3)
     batch_x_long = torch.cat(
@@ -390,7 +390,7 @@ def knn_compact(
 
     # Get back to compact shape
     batch_size_y = len(pos_y[1])
-    compact_shape_y = (num_batches, batch_size_y, -1)
+    compact_shape_y = (num_graphs, batch_size_y, -1)
     x_idx = x_idx_long.view(compact_shape_y)
     y_idx = y_idx_long.view(compact_shape_y)
 

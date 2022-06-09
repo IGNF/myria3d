@@ -5,23 +5,21 @@ from typing import Optional, List
 from numbers import Number
 from pytorch_lightning import LightningDataModule
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
+from torch_geometric.loader import DataLoader
 from torch.utils.data.dataset import IterableDataset
 from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
-from torch_geometric.transforms.center import Center
+import torch_geometric.transforms as T
 from myria3d.utils import utils
 from myria3d.data.transforms import (
     CustomCompose,
-    CustomGridSampler,
     EmptySubtileFilter,
-    MakeCopyOfPosAndY,
-    MakeCopyOfSampledPos,
+    CopySampledPos,
     NormalizePos,
     StandardizeFeatures,
     TargetTransform,
     ToTensor,
-    collate_fn,
 )
 
 
@@ -48,7 +46,6 @@ class DataModule(LightningDataModule):
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
         self.augment = kwargs.get("augment", False)
-        self.subsampler = kwargs.get("subsampler", CustomGridSampler())
 
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")
@@ -56,10 +53,10 @@ class DataModule(LightningDataModule):
             "classification_preprocessing_dict"
         )
 
-        self.train_data: Optional[Dataset] = None
-        self.val_data: Optional[Dataset] = None
-        self.test_data: Optional[Dataset] = None
-        self.predict_data: Optional[Dataset] = None
+        # self.train_data= None
+        # self.val_data= None
+        # self.test_data= None
+        # self.predict_data= None
 
         self.load_las = self.dataset_description.get("load_las_func")
         self._set_all_transforms()
@@ -82,13 +79,7 @@ class DataModule(LightningDataModule):
             osp.join(self.prepared_data_dir, "train", "**", "*.data"), recursive=True
         )
         self.train_data = LidarMapDataset(
-            files,
-            loading_function=torch.load,
-            transform=self._get_train_transforms(),
-            target_transform=TargetTransform(
-                self.classification_preprocessing_dict,
-                self.classification_dict,
-            ),
+            files, loading_function=torch.load, transform=self._get_train_transforms()
         )
 
     def _set_val_data(self):
@@ -99,13 +90,7 @@ class DataModule(LightningDataModule):
         )
         log.info(f"Validation on {len(files)} subtiles.")
         self.val_data = LidarMapDataset(
-            files,
-            loading_function=torch.load,
-            transform=self._get_val_transforms(),
-            target_transform=TargetTransform(
-                self.classification_preprocessing_dict,
-                self.classification_dict,
-            ),
+            files, loading_function=torch.load, transform=self._get_val_transforms()
         )
 
     def _set_test_data(self):
@@ -116,9 +101,6 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las,
             transform=self._get_test_transforms(),
-            target_transform=TargetTransform(
-                self.classification_preprocessing_dict, self.classification_dict
-            ),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
@@ -133,7 +115,6 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las,
             transform=self._get_predict_transforms(),
-            target_transform=None,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
@@ -145,7 +126,6 @@ class DataModule(LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
-            collate_fn=collate_fn,
             prefetch_factor=1,
         )
 
@@ -154,9 +134,7 @@ class DataModule(LightningDataModule):
         return DataLoader(
             dataset=self.val_data,
             batch_size=self.batch_size,
-            shuffle=False,
             num_workers=self.num_workers,
-            collate_fn=collate_fn,
             prefetch_factor=1,
         )
 
@@ -170,8 +148,7 @@ class DataModule(LightningDataModule):
             dataset=self.test_data,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=1,
-            collate_fn=collate_fn,
+            num_workers=1,  # b/c terable dataloader
             prefetch_factor=1,
         )
 
@@ -186,7 +163,6 @@ class DataModule(LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=1,  # b/c terable dataloader
-            collate_fn=collate_fn,
             prefetch_factor=1,
         )
 
@@ -197,12 +173,16 @@ class DataModule(LightningDataModule):
         """
 
         self.preparation = [
-            EmptySubtileFilter(),
+            EmptySubtileFilter(),  # TODO: take care of this at preparation time
             ToTensor(),
-            MakeCopyOfPosAndY(),
-            self.subsampler,
-            MakeCopyOfSampledPos(),
-            Center(),
+            TargetTransform(
+                self.classification_preprocessing_dict, self.classification_dict
+            ),
+            T.GridSampling(0.25),
+            # FixedPoints to be removed when RandLaNet will use pyg format
+            T.FixedPoints(12500, replace=False, allow_duplicates=True),
+            CopySampledPos(),
+            T.Center(),
         ]
         self.augmentation = []
         if self.augment:
@@ -234,14 +214,12 @@ class LidarMapDataset(Dataset):
         files: List[str],
         loading_function=None,
         transform=None,
-        target_transform=None,
     ):
         self.files = files
         self.num_files = len(self.files)
 
         self.loading_function = loading_function
         self.transform = transform
-        self.target_transform = target_transform
 
     def __getitem__(self, idx):
         """Loads a subtile and transforms its features and targets."""
@@ -250,10 +228,6 @@ class LidarMapDataset(Dataset):
         data = self.loading_function(filepath)
         if self.transform:
             data = self.transform(data)
-        if data is None:
-            return None
-        if self.target_transform:
-            data = self.target_transform(data)
 
         return data
 
@@ -269,14 +243,12 @@ class LidarIterableDataset(IterableDataset):
         files,
         loading_function=None,
         transform=None,
-        target_transform=None,
         subtile_width_meters: Number = 50,
         subtile_overlap: Number = 0,
     ):
         self.files = files
         self.loading_function = loading_function
         self.transform = transform
-        self.target_transform = target_transform
         self.subtile_width_meters = subtile_width_meters
         self.subtile_overlap = subtile_overlap
 
@@ -292,9 +264,7 @@ class LidarIterableDataset(IterableDataset):
                 data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
                 if self.transform:
                     data = self.transform(data)
-                if data is not None:
-                    if self.target_transform:
-                        data = self.target_transform(data)
+                if data and (len(data.pos) > 50):
                     yield data
 
     def __iter__(self):
@@ -337,4 +307,5 @@ class LidarIterableDataset(IterableDataset):
         sub.pos = sub.pos[mask]
         sub.x = sub.x[mask]
         sub.y = sub.y[mask]
+        sub.idx_in_original_cloud = sub.idx_in_original_cloud[mask]
         return sub

@@ -14,4 +14,3 @@ augment: false  # activate data augmentation
 
 defaults:
   - dataset_description: 20220204_BuildingValidation_and_Ground.yaml
-  - subsampler: grid.yaml

@@ -31,10 +31,6 @@ datamodule:
       _target_: functools.partial
       _args_:
       - ${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}
-  subsampler:
-    _target_: myria3d.data.transforms.CustomGridSampler
-    subsample_size: 12500
-    voxel_size: 0.25
   _target_: myria3d.data.datamodule.DataModule
   prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
   test_data_dir: ${datamodule.prepared_data_dir}/test/
