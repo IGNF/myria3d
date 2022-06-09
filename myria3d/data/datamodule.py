@@ -46,6 +46,7 @@ class DataModule(LightningDataModule):
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
+        self.prefetch_factor = kwargs.get("prefetch_factor", 2)
         self.augment = kwargs.get("augment", False)
 
         self.dataset_description = kwargs.get("dataset_description")
@@ -127,7 +128,7 @@ class DataModule(LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
-            prefetch_factor=1,
+            prefetch_factor=self.prefetch_factor,
         )
 
     def val_dataloader(self):
@@ -136,7 +137,7 @@ class DataModule(LightningDataModule):
             dataset=self.val_data,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            prefetch_factor=1,
+            prefetch_factor=self.prefetch_factor,
         )
 
     def test_dataloader(self):
@@ -150,7 +151,7 @@ class DataModule(LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=1,  # b/c terable dataloader
-            prefetch_factor=1,
+            prefetch_factor=self.prefetch_factor,
         )
 
     def predict_dataloader(self):
@@ -164,7 +165,7 @@ class DataModule(LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=1,  # b/c terable dataloader
-            prefetch_factor=1,
+            prefetch_factor=self.prefetch_factor,
         )
 
     def _set_all_transforms(self):
