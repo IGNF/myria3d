@@ -58,7 +58,6 @@ callbacks:
       interpolation_k: ${predict.interpolation_k}
       classification_dict: ${datamodule.dataset_description.classification_dict}
       probas_to_save: ${predict.probas_to_save}
-      output_dir: null
   model_checkpoint:
     _target_: pytorch_lightning.callbacks.ModelCheckpoint
     monitor: val/loss_epoch

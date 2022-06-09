@@ -70,12 +70,12 @@ class ToTensor(BaseTransform):
         return data
 
 
-# class CopyTargets(BaseTransform):
-#     """Make a copy of the full cloud's positions and labels, for inference interpolation."""
+class CopyTargets(BaseTransform):
+    """Make a copy of the full cloud's positions and labels, for inference interpolation."""
 
-#     def __call__(self, data: Data):
-#         data["y_copy"] = data["y"].clone()
-#         return data
+    def __call__(self, data: Data):
+        data["y_copy"] = data["y"].clone()
+        return data
 
 
 class CopySampledPos(BaseTransform):

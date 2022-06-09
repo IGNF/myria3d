@@ -54,17 +54,7 @@ def predict(config: DictConfig) -> str:
 
     for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
-        # logits = model.predict_step(batch)
-        # PErfect for test
-        logits = (
-            torch.nn.functional.one_hot(
-                batch.y,
-                num_classes=len(
-                    datamodule.dataset_description.get("classification_dict")
-                ),
-            )
-            * 10
-        )
+        logits = model.predict_step(batch)["logits"]
         itp.store_predictions(
             logits, batch.pos_sampled_copy, batch.batch, batch.idx_in_original_cloud
         )

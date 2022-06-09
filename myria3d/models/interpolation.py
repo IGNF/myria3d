@@ -53,6 +53,10 @@ class Interpolator:
             class_index: class_code
             for class_index, class_code in enumerate(classification_dict.keys())
         }
+
+        self.reset_state()
+
+    def reset_state(self):
         self.logits_sub: List[torch.Tensor] = []
         self.pos_sub: List[torch.Tensor] = []
         self.batch_sub: List[torch.Tensor] = []
@@ -138,7 +142,7 @@ class Interpolator:
 
         # Find nn among points with predictions for all points
         # Only interpolate within a model's receptive field zone
-        logits = knn_interpolate(
+        interpolated_logits = knn_interpolate(
             logits_sub,
             pos_sub,
             pos_las,
@@ -150,9 +154,14 @@ class Interpolator:
 
         # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
         # scatter_sum reorders logitsbased on index,they therefore match las order.
-        logits = scatter_sum(logits, torch.from_numpy(idx_in_full_cloud), dim=0)
-        idx_in_full_las = np.sort(np.unique(idx_in_full_cloud))
-        return logits, idx_in_full_las
+        reduced_logits = torch.zeros((len(las), interpolated_logits.size(1)))
+        scatter_sum(
+            interpolated_logits,
+            torch.from_numpy(idx_in_full_cloud),
+            out=reduced_logits,
+            dim=0,
+        )
+        return reduced_logits
 
     @torch.no_grad()
     def write(self, raw_path: str, output_dir: str) -> str:
@@ -169,20 +178,18 @@ class Interpolator:
         """
         basename = os.path.basename(raw_path)
         las = self.load_full_las_for_update(raw_path=raw_path)
-        logits, idx_in_full_las = self.interpolate_logits(las)
+        logits = self.interpolate_logits(las)
 
         probas = torch.nn.Softmax(dim=1)(logits)
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
-                las[class_name][idx_in_full_las] = probas[:, idx]
+                las[class_name] = probas[:, idx]
 
         preds = torch.argmax(logits, dim=1)
         preds = np.vectorize(self.reverse_mapper.get)(preds)
-        las[ChannelNames.PredictedClassification.value][idx_in_full_las] = preds
+        las[ChannelNames.PredictedClassification.value] = preds
 
-        las[ChannelNames.ProbasEntropy.value][idx_in_full_las] = Categorical(
-            probs=probas
-        ).entropy()
+        las[ChannelNames.ProbasEntropy.value] = Categorical(probs=probas).entropy()
 
         os.makedirs(output_dir, exist_ok=True)
         out_f = os.path.join(output_dir, basename)

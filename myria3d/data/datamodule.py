@@ -13,6 +13,7 @@ from torch_geometric.data.data import Data
 import torch_geometric.transforms as T
 from myria3d.utils import utils
 from myria3d.data.transforms import (
+    CopyTargets,
     CustomCompose,
     EmptySubtileFilter,
     CopySampledPos,
@@ -175,6 +176,7 @@ class DataModule(LightningDataModule):
         self.preparation = [
             EmptySubtileFilter(),  # TODO: take care of this at preparation time
             ToTensor(),
+            CopyTargets(),
             TargetTransform(
                 self.classification_preprocessing_dict, self.classification_dict
             ),

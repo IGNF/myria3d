@@ -18,9 +18,9 @@ def test_fake_run_randlanet():
     }
     batch = Batch()
     batch.num_graphs = 4
-    batch_size = 12500
-    batch.pos = torch.rand((batch_size * batch.num_graphs, num_euclidian_dimensions))
-    batch.x = torch.rand((batch_size * batch.num_graphs, num_features))
+    num_points = 12500
+    batch.pos = torch.rand((num_points * batch.num_graphs, num_euclidian_dimensions))
+    batch.x = torch.rand((num_points * batch.num_graphs, num_features))
     rln = RandLANet(hparams_net)
     output = rln(batch)
-    assert output.shape == torch.Size([batch_size * batch.num_graphs, num_classes])
+    assert output.shape == torch.Size([num_points * batch.num_graphs, num_classes])

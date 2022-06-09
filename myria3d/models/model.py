@@ -87,9 +87,8 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        targets = batch.y
-        loss = self.criterion(logits, targets)
-        return loss, logits, targets
+        loss = self.criterion(logits, batch.y)
+        return loss, logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -108,19 +107,15 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        loss, logits, targets = self.step(batch)
+        loss, logits = self.step(batch)
         with torch.no_grad():
             preds = torch.argmax(logits, dim=1)
-        self.train_iou(preds, targets)
+        self.train_iou(preds, batch.y)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
-        return {
-            "loss": loss,
-            "logits": logits,
-            "targets": targets,
-        }
+        return {"loss": loss, "logits": logits}
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -136,15 +131,14 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        loss, logits, targets = self.step(batch)
+        loss, logits = self.step(batch)
         preds = torch.argmax(logits, dim=1)
-        self.val_iou(preds, targets)
+        self.val_iou(preds, batch.y)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {
             "loss": loss,
             "logits": logits,
-            "targets": targets,
         }
 
     def validation_epoch_end(self, outputs) -> None:
@@ -173,7 +167,7 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        return {"logits": logits, "batch": batch}
+        return {"logits": logits}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
@@ -187,7 +181,7 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        return logits
+        return {"logits": logits}
 
     def get_neural_net_class(self, class_name: str) -> nn.Module:
         """A Class Factory to class of neural net based on class name.
