@@ -37,11 +37,11 @@ class PointNet(nn.Module):
         """
         features = torch.cat([batch.pos, batch.x], axis=1)
         input_size = features.shape[0]
-        subsampling_size = (batch.batch_x == 0).sum()
+        subsampling_size = (batch.batch == 0).sum()
 
         f1 = self.mlp1(features)
         f2 = self.mlp2(f1)
-        context_vector = global_max_pool(f2, batch.batch_x)
+        context_vector = global_max_pool(f2, batch.batch)
         expanded_context_vector = (
             context_vector.unsqueeze(1)
             .expand((-1, subsampling_size, -1))
