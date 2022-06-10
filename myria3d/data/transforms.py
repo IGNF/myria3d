@@ -10,13 +10,6 @@ from myria3d.utils import utils
 log = utils.get_logger(__name__)
 
 
-class ChannelNames(Enum):
-    """Names of custom additional LAS channel."""
-
-    PredictedClassification = "PredictedClassification"
-    ProbasEntropy = "entropy"
-
-
 class CustomCompose(BaseTransform):
     """
     Composes several transforms together.
