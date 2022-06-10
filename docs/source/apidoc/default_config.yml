@@ -79,7 +79,6 @@ datamodule:
   num_workers: 1
   subtile_width_meters: 50
   subtile_overlap: ${predict.subtile_overlap}
-  augment: false
   subsample_size: 12500
 callbacks:
   log_code:

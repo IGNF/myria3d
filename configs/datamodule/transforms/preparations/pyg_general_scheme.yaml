@@ -1,0 +1,17 @@
+EmptySubtileFilter:
+  _target_: myria3d.data.transforms.EmptySubtileFilter
+
+ToTensor:
+  _target_: myria3d.data.transforms.ToTensor
+
+TargetTransform:
+  _target_: myria3d.data.transforms.TargetTransform
+  _args_:
+    - ${datamodule.dataset_description.classification_preprocessing_dict}
+    - ${datamodule.dataset_description.classification_dict}
+
+CopySampledPos:
+  _target_: myria3d.data.transforms.CopySampledPos
+
+Center:
+  _target_: torch_geometric.transforms.Center

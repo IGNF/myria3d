@@ -1,6 +1,9 @@
 # @package _global_
 defaults:
+  - override /model: point_net_2_model
   - override /datamodule/dataset_description: 20220610_proto22dalles
+  - override /datamodule/transforms/normalizations: pyg_general_scheme.yaml
+  - override /datamodule/transforms/preparations: pyg_general_scheme.yaml
 
 logger:
   comet:
@@ -9,11 +12,14 @@ logger:
 trainer:
   log_every_n_steps: 1
   num_sanity_val_steps: 0
-  min_epochs: 30
+  min_epochs: 100
   max_epochs: 150
   check_val_every_n_epoch: 1
-  val_check_interval: 1.0
   # gpus: [1]
+
+datamodule:
+  batch_size: 4
+  prefetch_factor: 2
 
 callbacks:
   early_stopping:
