@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Callable, Dict, List
 
 import numpy as np

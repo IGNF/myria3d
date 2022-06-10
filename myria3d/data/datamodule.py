@@ -8,19 +8,9 @@ import torch
 from torch.utils.data import Dataset
 from torch_geometric.loader import DataLoader
 from torch.utils.data.dataset import IterableDataset
-from torch_geometric.transforms import RandomFlip
 from torch_geometric.data.data import Data
-import torch_geometric.transforms as T
 from myria3d.utils import utils
-from myria3d.data.transforms import (
-    CustomCompose,
-    EmptySubtileFilter,
-    CopySampledPos,
-    NormalizePos,
-    StandardizeFeatures,
-    TargetTransform,
-    ToTensor,
-)
+from myria3d.data.transforms import CustomCompose
 
 
 log = utils.get_logger(__name__)
