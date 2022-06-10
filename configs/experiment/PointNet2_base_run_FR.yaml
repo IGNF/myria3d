@@ -2,23 +2,24 @@
 defaults:
   - override /model: point_net_2_model
   - override /datamodule/dataset_description: 20220610_proto22dalles
-  - override /datamodule/transforms/normalizations: pyg_general_scheme.yaml
-  - override /datamodule/transforms/preparations: pyg_general_scheme.yaml
+  - override /datamodule/transforms/normalizations: default.yaml
+  - override /datamodule/transforms/preparations: default.yaml
+  - override /datamodule/transforms/augmentations: heavy.yaml
 
 logger:
   comet:
-    experiment_name: "RandLaNet - FR Data"
+    experiment_name: "PointNet2 - FR Data"
 
 trainer:
   log_every_n_steps: 1
   num_sanity_val_steps: 0
   min_epochs: 100
   max_epochs: 150
-  check_val_every_n_epoch: 1
+  # val_check_interval: 1.0  # should be float, not int. 1.0 by default.
   # gpus: [1]
 
 datamodule:
-  batch_size: 4
+  batch_size: 32
   prefetch_factor: 2
 
 callbacks:

@@ -1,6 +1,10 @@
 # @package _global_
 defaults:
   - override /datamodule/dataset_description: 20220610_proto22dalles
+  - override /datamodule/transforms/normalizations: default.yaml
+  - override /datamodule/transforms/preparations: default.yaml
+  - override /datamodule/transforms/augmentations: heavy.yaml
+
 
 logger:
   comet:
@@ -9,10 +13,10 @@ logger:
 trainer:
   log_every_n_steps: 1
   num_sanity_val_steps: 0
-  min_epochs: 30
+  min_epochs: 100
   max_epochs: 150
   check_val_every_n_epoch: 1
-  val_check_interval: 1.0
+  # val_check_interval: 1.0  # should be float, not int. 1.0 by default.
   # gpus: [1]
 
 callbacks:
