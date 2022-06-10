@@ -1,7 +1,7 @@
 # Positions need to be normalized between [-1;1] for current RandLaNet
 
-CenterXY_NullifyLowestZ:
-  _target_: myria3d.data.transforms.CenterXY_NullifyLowestZ
+NullifyLowestZ:
+  _target_: myria3d.data.transforms.NullifyLowestZ
 
 NormalizePos:
   _target_: myria3d.data.transforms.NormalizePos
