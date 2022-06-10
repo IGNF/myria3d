@@ -1,0 +1,27 @@
+# @package _global_
+
+defaults:
+  - override /trainer: default.yaml
+  - override /model: point_net_2_model.yaml
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+logger:
+  comet:
+    experiment_name: "PointNet2Debug"
+
+trainer:
+  log_every_n_steps: 1
+  overfit_batches: 1
+  num_sanity_val_steps: 0
+  min_epochs: 40
+  max_epochs: 40
+  check_val_every_n_epoch: 1
+  # gpus: "1"
+
+datamodule:
+  augment: false
+  batch_size: 16
+  num_workers: 1
+
