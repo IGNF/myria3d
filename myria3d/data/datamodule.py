@@ -13,7 +13,6 @@ from torch_geometric.data.data import Data
 import torch_geometric.transforms as T
 from myria3d.utils import utils
 from myria3d.data.transforms import (
-    CopyTargets,
     CustomCompose,
     EmptySubtileFilter,
     CopySampledPos,
@@ -47,21 +46,18 @@ class DataModule(LightningDataModule):
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
         self.prefetch_factor = kwargs.get("prefetch_factor", 2)
-        self.augment = kwargs.get("augment", False)
+        self.augmentation_transforms = kwargs.get("augmentation_transforms", [])
 
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")
         self.classification_preprocessing_dict = self.dataset_description.get(
             "classification_preprocessing_dict"
         )
-
-        # self.train_data= None
-        # self.val_data= None
-        # self.test_data= None
-        # self.predict_data= None
-
         self.load_las = self.dataset_description.get("load_las_func")
-        self._set_all_transforms()
+        t = kwargs.get("transforms")
+        self.preparation_transforms = t.get("preparations_list")
+        self.augmentation_transforms = t.get("augmentations_list")
+        self.normalization_transforms = t.get("normalizations_list")
 
     def setup(self, stage: Optional[str] = None):
         """Loads data. Sets variables: self.data_train, self.data_val, self.data_test.
@@ -168,37 +164,19 @@ class DataModule(LightningDataModule):
             prefetch_factor=self.prefetch_factor,
         )
 
-    def _set_all_transforms(self):
-        """Set transforms that are shared between train/val-test.
-
-        Nota: Called at initialization.
-        """
-
-        self.preparation = [
-            EmptySubtileFilter(),  # TODO: take care of this at preparation time
-            ToTensor(),
-            CopyTargets(),
-            TargetTransform(
-                self.classification_preprocessing_dict, self.classification_dict
-            ),
-            T.GridSampling(0.25),
-            # FixedPoints to be removed when RandLaNet will use pyg format
-            T.FixedPoints(12500, replace=False, allow_duplicates=True),
-            CopySampledPos(),
-            T.Center(),
-        ]
-        self.augmentation = []
-        if self.augment:
-            self.augmentation = [RandomFlip(0, p=0.5), RandomFlip(1, p=0.5)]
-        self.normalization = [NormalizePos(), StandardizeFeatures()]
-
     def _get_train_transforms(self) -> CustomCompose:
         """Creates a transform composition for train phase."""
-        return CustomCompose(self.preparation + self.augmentation + self.normalization)
+        return CustomCompose(
+            self.preparation_transforms
+            + self.augmentation_transforms
+            + self.normalization_transforms
+        )
 
     def _get_val_transforms(self) -> CustomCompose:
         """Creates a transform composition for val phase."""
-        return CustomCompose(self.preparation + self.normalization)
+        return CustomCompose(
+            self.preparation_transforms + self.normalization_transforms
+        )
 
     def _get_test_transforms(self) -> CustomCompose:
         """Creates a transform composition for test phase."""
