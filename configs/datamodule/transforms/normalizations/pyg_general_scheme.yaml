@@ -1,0 +1,7 @@
+# Do not normalize positions to keep meter-space for neural network parameters
+
+NullifyLowestZ:
+  _target_: myria3d.data.transforms.NullifyLowestZ
+
+StandardizeFeatures:
+  _target_: myria3d.data.transforms.StandardizeFeatures

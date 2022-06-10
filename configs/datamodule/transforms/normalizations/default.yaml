@@ -1,5 +1,0 @@
-NormalizePos:
-  _target_: myria3d.data.transforms.NormalizePos
-
-StandardizeFeatures:
-  _target_: myria3d.data.transforms.StandardizeFeatures

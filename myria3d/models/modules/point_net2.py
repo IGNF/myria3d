@@ -24,7 +24,7 @@ class SAModule(torch.nn.Module):
             self.r,
             batch,
             batch[idx],
-            max_num_neighbors=64,
+            max_num_neighbors=128,
             num_workers=4,
         )
         edge_index = torch.stack([col, row], dim=0)
@@ -69,8 +69,8 @@ class PointNet2(torch.nn.Module):
         d_in = hparams_net.get("d_in", 9)
         num_features = d_in - 3
         num_classes = hparams_net.get("num_classes", 2)
-        r1 = hparams_net.get("r1", 2 / 50)
-        r2 = hparams_net.get("r2", 4 / 50)
+        r1 = hparams_net.get("r1", 2)
+        r2 = hparams_net.get("r2", 4)
 
         self.sa1_module = SAModule(0.2, r1, MLP([d_in, 64, 64, 128]))
         self.sa2_module = SAModule(0.25, r2, MLP([128 + 3, 128, 128, 256]))

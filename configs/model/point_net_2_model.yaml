@@ -7,5 +7,5 @@ neural_net_class_name: "PointNet2"
 neural_net_hparams:
   d_in: ${model.d_in}  # 3 (xyz) + num of features
   num_classes: "${model.num_classes}"
-  r1: 0.04  # 2/50
-  r2: 0.08  # 4/50
+  r1: 2
+  r2: 4

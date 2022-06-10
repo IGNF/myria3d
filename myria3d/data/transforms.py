@@ -113,23 +113,27 @@ class StandardizeFeatures(BaseTransform):
         return clamped
 
 
-class NormalizePos(BaseTransform):
-    """
-    Normalizes positions:
-        - xy positions to be in the interval (-1, 1)
-        - z position to start at 0.
-        - preserve euclidian distances
-
-    XYZ are expected to be centered already.
-
-    """
+class NullifyLowestZ(BaseTransform):
+    """Center on x and y axis only. Set lowest z to 0."""
 
     def __call__(self, data):
-        xy_positive_amplitude = data.pos[:, :2].abs().max()
-        xy_scale = (1 / xy_positive_amplitude) * 0.999999
-        data.pos[:, :2] = data.pos[:, :2] * xy_scale
-        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) * xy_scale
+        data.pos[:, 2] = data.pos[:, 2] - data.pos[:, 2].min()
+        return data
 
+
+class NormalizePos(BaseTransform):
+    """
+    Normalizes xy in [-1;1] range by scaling the whole point cloud (including z dim)
+    XY are expected to be centered on zéro.
+
+    """
+
+    def __init__(self, subtile_width_meters=50):
+        half_subtile_width_meters = subtile_width_meters / 2
+        self.scaling_factor = 1 / half_subtile_width_meters
+
+    def __call__(self, data):
+        data.pos = data.pos * self.scaling_factor
         return data
 
     def __repr__(self):

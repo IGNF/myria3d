@@ -1,7 +1,7 @@
 defaults:
   - preparations: train.yaml
   - augmentations: default.yaml
-  - normalizations: default.yaml
+  - normalizations: randla_net_scheme_normalized_pos.yaml
 
 # trun these dict into ListConfig
 augmentations_list: "${oc.dict.values: datamodule.transforms.augmentations}"
