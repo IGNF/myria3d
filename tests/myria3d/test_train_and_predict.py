@@ -100,41 +100,8 @@ def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
 
 
 @pytest.mark.slow()
-def test_PointNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
-    """Check ability to overfit with PointNet.
-
-    Check that overfitting a single batch from a toy dataset, for 30 epochs, results
-    in significanly lower training loss.
-
-    Args:
-        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
-        tmpdir (fixture -> str): temporary directory.
-
-    """
-    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-        isolated_toy_dataset_tmpdir, tmpdir
-    )
-    cfg = make_default_hydra_cfg(
-        overrides=tmp_paths_overrides
-        + [
-            "experiment=PointNetDebug",  # Use an experiment designed for overfitting a batch...
-            "datamodule.batch_size=2",  # Smaller batch size for faster overfit
-            # Define the task as a classification of all (1 and 2) vs. 6=building
-            "++datamodule.dataset_description.classification_preprocessing_dict={2:1}",
-        ]
-    )
-    train(cfg)
-
-    # Assert that there was a significative improvement i.e. the model learns.
-    metrics = _get_metrics_df_from_tmpdir(tmpdir)
-    iou = metrics["train/iou_CLASS_building"].dropna()
-    improvement = iou.iloc[-1] - iou.iloc[0]
-    assert improvement >= 0.45
-
-
-@pytest.mark.slow()
 def test_PointNet2_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
-    """Check ability to overfit with PointNet.
+    """Check ability to overfit with PointNet2.
 
     Check that overfitting a single batch from a toy dataset, for 30 epochs, results
     in significanly lower training loss.

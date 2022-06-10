@@ -6,12 +6,11 @@ from torch_geometric.data import Batch
 from torchmetrics import MaxMetric
 from myria3d.models.modules.point_net2 import PointNet2
 from myria3d.models.modules.randla_net import RandLANet
-from myria3d.models.modules.point_net import PointNet
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = [PointNet, RandLANet, PointNet2]
+MODEL_ZOO = [RandLANet, PointNet2]
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
