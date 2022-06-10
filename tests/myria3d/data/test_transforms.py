@@ -12,7 +12,7 @@ def test_TargetTransform_with_valid_config():
     tt = TargetTransform(classification_preprocessing_dict, classification_dict)
 
     y = np.array([1, 1, 2, 2, 6, 6])
-    data = torch_geometric.data.Data(x=None, y=y, y_copy=y)
+    data = torch_geometric.data.Data(x=None, y=y)
     assert np.array_equal(tt(data).y, np.array([0, 0, 0, 0, 1, 1]))
 
 
