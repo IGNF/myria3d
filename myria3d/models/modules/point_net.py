@@ -30,10 +30,11 @@ class PointNet(nn.Module):
         self.lin = Linear(d3[-1], self.num_classes)
 
     def forward(self, batch):
-        """
+        """Forward pass.
+
         Object batch is a PyG data.Batch
         Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods.
-        
+
         """
         features = torch.cat([batch.pos, batch.x], axis=1)
         input_size = features.shape[0]

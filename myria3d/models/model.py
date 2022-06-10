@@ -12,6 +12,8 @@ from myria3d.utils import utils
 log = utils.get_logger(__name__)
 
 MODEL_ZOO = [PointNet, RandLANet, PointNet2]
+
+
 def get_neural_net_class(class_name: str) -> nn.Module:
     """A Class Factory to class of neural net based on class name.
 
@@ -27,6 +29,7 @@ def get_neural_net_class(class_name: str) -> nn.Module:
         if class_name in neural_net_class.__name__:
             return neural_net_class
     raise KeyError(f"Unknown class name {class_name}")
+
 
 class Model(LightningModule):
     """This LightningModule implements the logic for model trainin, validation, tests, and prediction.
@@ -201,7 +204,6 @@ class Model(LightningModule):
         logits = self.forward(batch)
         return {"logits": logits}
 
-
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
 
@@ -228,7 +230,3 @@ class Model(LightningModule):
         }
 
         return config
-
-
-
-

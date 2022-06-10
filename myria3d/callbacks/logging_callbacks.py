@@ -1,8 +1,4 @@
-from tempfile import tempdir
-import tempfile
 from typing import Any, Dict, Optional
-import numpy as np
-import pdal
 
 import pytorch_lightning as pl
 from pytorch_lightning import Callback

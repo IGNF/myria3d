@@ -1,16 +1,10 @@
-import math
 from enum import Enum
-from numbers import Number
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List
 
 import numpy as np
 import torch
-import torch_geometric
-from torch_geometric.data import Batch, Data
+from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform
-from torch_geometric.nn.pool import fps
-from torch_scatter import scatter_add, scatter_mean
-import torch.nn.functional as F
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)

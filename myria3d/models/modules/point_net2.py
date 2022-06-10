@@ -1,9 +1,12 @@
-from numbers import Number
 import torch
-from torch_geometric.nn import MLP, knn_interpolate
-import torch
-import torch.nn.functional as F
-from torch_geometric.nn import MLP, PointConv, fps, global_max_pool, radius
+from torch_geometric.nn import (
+    knn_interpolate,
+    MLP,
+    PointConv,
+    fps,
+    global_max_pool,
+    radius,
+)
 
 
 class SAModule(torch.nn.Module):
