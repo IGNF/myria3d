@@ -11,6 +11,7 @@ In particular, subclasses implement a "load_las" method that is used by the data
 
 from abc import ABC, abstractmethod
 import argparse
+import math
 import os
 import glob
 import os.path as osp
@@ -22,14 +23,19 @@ import numpy as np
 import pandas as pd
 import torch
 from torch_geometric.data import Data
+from scipy.spatial import cKDTree
 
 SPLIT_PHASES = ["val", "train", "test"]
+MIN_NUM_POINTS_IN_SAMPLE = 50
+
 
 # Files for the creation of a toy dataset.
 LAS_SUBSET_FOR_TOY_DATASET = (
     "tests/data/toy_dataset_src/870000_6618000.subset.50mx100m.las"
 )
 SPLIT_CSV_FOR_TOY_DATASET = "tests/data/toy_dataset_src/toy_dataset_split.csv"
+
+
 
 
 class LidarDataLogic(ABC):
@@ -54,6 +60,8 @@ class LidarDataLogic(ABC):
         self.split_csv = split_csv
         self.input_tile_width_meters = input_tile_width_meters
         self.subtile_width_meters = subtile_width_meters
+        # radius of a circle that contains the subtile of shape subtile_width_meters * subtile_width_meters
+        self.sample_radius = subtile_width_meters / math.sqrt(2)
 
     @abstractmethod
     def load_las(self, las_filepath: str) -> Data:
@@ -108,25 +116,24 @@ class LidarDataLogic(ABC):
             output_subdir_path (str): output directory to save splitted `.data` objects.
 
         """
+        data = self.load_las(filepath)
+        # KDTree for fast query based on x and y that starts at 0
+        kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
+
         range_by_axis = np.arange(
-            self.input_tile_width_meters // self.subtile_width_meters + 1
+            self.subtile_width_meters / 2,
+            self.input_tile_width_meters + self.subtile_width_meters / 2,
+            self.subtile_width_meters,
         )
 
-        data = self.load_las(filepath)
         idx = 0
-        for _ in tqdm(range_by_axis):
-            if not len(data.pos):
-                # Ignore if empty
-                break
-            data_x_band = self._extract_by_x(data)
-            for _ in range_by_axis:
-                if not len(data_x_band.pos):
-                    # Ignore if empty
-                    break
-                subtile_data = self._extract_by_y(data_x_band)
-                if subtile_data and subtile_data.pos.shape[0] > 50:
+        for x_center in range_by_axis:
+            for y_center in range_by_axis:
+                center = np.array([x_center, y_center])
+                subtile_data = self.extract_around_center(data, kd_tree, center)
+                if subtile_data and len(subtile_data.pos)>=MIN_NUM_POINTS_IN_SAMPLE:
                     self._save(subtile_data, output_subdir_path, idx)
-                idx += 1
+                    idx += 1
 
     def _find_file_in_dir(self, input_data_dir: str, basename: str) -> str:
         """Query files matching a basename in input_data_dir and its subdirectories.
@@ -142,7 +149,9 @@ class LidarDataLogic(ABC):
         files = glob.glob(query, recursive=True)
         return files[0]
 
-    def _extract_by_axis(self, data: Data, axis=0) -> Data:
+    def extract_around_center(
+        self, data: Data, kd_tree: cKDTree, center: np.array
+    ) -> Data:
         """Filter a data object on a chosen axis, using a relative position .
         Modifies the original data object so that extracted future filters are faster.
 
@@ -153,32 +162,26 @@ class LidarDataLogic(ABC):
 
         Returns:
             Data: the data that is at most subtile_width_meters above relative_pos on the chosen axis.
+
         """
-        sub_tile_data = data.clone()
-        pos_axis = sub_tile_data.pos[:, axis]
-        absolute_low = pos_axis.min(0)
-        absolute_high = absolute_low + self.subtile_width_meters
-        mask = (absolute_low <= pos_axis) & (pos_axis <= absolute_high)
+        # query
+        circular_sample_idx = np.array(
+            kd_tree.query_ball_point(center, r=self.sample_radius)
+        )
+
+        if len(circular_sample_idx) == 0:
+            return None
 
         # select
-        sub_tile_data.pos = sub_tile_data.pos[mask]
-        sub_tile_data.x = sub_tile_data.x[mask]
-        sub_tile_data.y = sub_tile_data.y[mask]
-        sub_tile_data.idx_in_original_cloud = sub_tile_data.idx_in_original_cloud[mask]
+        sample_data = Data()
+        sample_data.pos = data.pos[circular_sample_idx]
+        sample_data.x = data.x[circular_sample_idx]
+        sample_data.y = data.y[circular_sample_idx]
+        sample_data.idx_in_original_cloud = data.idx_in_original_cloud[
+            circular_sample_idx
+        ]
 
-        data.pos = data.pos[~mask]
-        data.x = data.x[~mask]
-        data.y = data.y[~mask]
-        data.idx_in_original_cloud = data.idx_in_original_cloud[~mask]
-        return sub_tile_data
-
-    def _extract_by_x(self, data: Data) -> Data:
-        """extract_by_axis applied on first axis x"""
-        return self._extract_by_axis(data, axis=0)
-
-    def _extract_by_y(self, data: Data) -> Data:
-        """extract_by_axis applied on second axis y"""
-        return self._extract_by_axis(data, axis=1)
+        return sample_data
 
     def _save(self, subtile_data: Data, output_subdir_path: str, idx: int) -> None:
         """Save the subtile data object with torch.
