@@ -5,6 +5,7 @@ from typing import Optional, List
 from numbers import Number
 from pytorch_lightning import LightningDataModule
 import torch
+from scipy.spatial import cKDTree
 from torch.utils.data import Dataset
 from torch_geometric.loader import DataLoader
 from torch.utils.data.dataset import IterableDataset
@@ -224,62 +225,31 @@ class LidarIterableDataset(IterableDataset):
         self.subtile_width_meters = subtile_width_meters
         self.subtile_overlap = subtile_overlap
 
-    def yield_transformed_subtile_data(self):
+    def __iter__(self):
+        return self.iterate_over_tile()
+
+    def iterate_over_tile(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
         for idx, filepath in enumerate(self.files):
             log.info(f"Parsing file {idx+1}/{len(self.files)} [{filepath}]")
-            tile_data = self.loading_function(filepath)
-            centers = self.get_all_subtiles_xy_min_corner(tile_data)
-            # TODO: change to process time function
-            for xy_min_corner in centers:
-                data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
-                if len(data.pos) < 50:
-                    continue
-                if self.transform:
-                    data = self.transform(data)
-                if data and (len(data.pos) > 50):
-                    yield data
+            data = self.loading_function(filepath)
+            kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
 
-    def __iter__(self):
-        return self.yield_transformed_subtile_data()
-
-    def get_all_subtiles_xy_min_corner(self, data: Data):
-        """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
-
-        low = data.pos[:, :2].min(0)
-        high = data.pos[:, :2].max(0)
-        xy_min_corners = [
-            np.array([x, y])
-            for x in np.arange(
-                start=low[0],
-                stop=high[0] + 1,
-                step=self.subtile_width_meters - self.subtile_overlap,
+            range_by_axis = np.arange(
+                self.subtile_width_meters / 2,
+                self.input_tile_width_meters + self.subtile_width_meters / 2,
+                self.subtile_width_meters,
             )
-            for y in np.arange(
-                start=low[1],
-                stop=high[1] + 1,
-                step=self.subtile_width_meters - self.subtile_overlap,
-            )
-        ]
-        # random.shuffle(centers)
-        return xy_min_corners
 
-    def extract_subtile_from_tile_data(self, data: Data, low_xy):
-        """Extract the subset from xy_min_corner to xy_min_corner + self.subtile_width_meters
-
-        Args:
-            tile_data (Data): The full tile data.
-            xy_min_corner (np.array): Coordonates of xy min corner of subtile to extract.
-        """
-        high_xy = low_xy + self.subtile_width_meters
-        mask_x = (low_xy[0] <= data.pos[:, 0]) & (data.pos[:, 0] <= high_xy[0])
-        mask_y = (low_xy[1] <= data.pos[:, 1]) & (data.pos[:, 1] <= high_xy[1])
-        mask = mask_x & mask_y
-
-        sub = data.clone()
-        sub.pos = sub.pos[mask]
-        sub.x = sub.x[mask]
-        sub.y = sub.y[mask]
-        sub.idx_in_original_cloud = sub.idx_in_original_cloud[mask]
-        return sub
+            idx = 0
+            for x_center in range_by_axis:
+                for y_center in range_by_axis:
+                    center = np.array([x_center, y_center])
+                    subtile_data = self.extract_around_center(data, kd_tree, center)
+                    if len(subtile_data.pos) < 50:
+                        continue
+                    if self.transform:
+                        data_sample = self.transform(data_sample)
+                    if data_sample and (len(data_sample.pos) >= 50):
+                        yield data_sample
