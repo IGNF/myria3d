@@ -57,15 +57,16 @@ jobs:
         hydra.run.dir=/myria3d
 
     # Always run with --ipc=host to enable sufficient shared memory when predicting on large data
-    - name: Slow unit tests last, using large files stored in self-hosted action-runner.
-      run: >
-        docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
-        --ipc=host
-        myria3d
-        python -m
-        pytest -rA -v -m "slow" 
-        --ignore=actions-runner
+    # These time-consuming operations are performed locally when needed.
+    # - name: Slow unit tests last, using large files stored in self-hosted action-runner.
+    #   run: >
+    #     docker run
+    #     -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
+    #     --ipc=host
+    #     myria3d
+    #     python -m
+    #     pytest -rA -v -m "slow" 
+    #     --ignore=actions-runner
 
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 
