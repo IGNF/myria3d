@@ -37,8 +37,6 @@ LAS_SUBSET_FOR_TOY_DATASET = (
 SPLIT_CSV_FOR_TOY_DATASET = "tests/data/toy_dataset_src/toy_dataset_split.csv"
 
 
-
-
 class LidarDataLogic(ABC):
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
@@ -70,6 +68,17 @@ class LidarDataLogic(ABC):
 
         Args:
             las_filepath (str): path to the LAS file.
+
+        Returns:
+            Data: The point cloud formatted for later deep learning training.
+
+        """
+        raise NotImplementedError
+
+    def per_sample_standardization(self, data: Data):
+        """Standardization of the data object before feeding to the neural network.
+        Args:
+            data: The point cloud after preparation and augmentation
 
         Returns:
             Data: The point cloud formatted for later deep learning training.
@@ -132,7 +141,7 @@ class LidarDataLogic(ABC):
             for y_center in range_by_axis:
                 center = np.array([x_center, y_center])
                 subtile_data = self.extract_around_center(data, kd_tree, center)
-                if subtile_data and len(subtile_data.pos)>=MIN_NUM_POINTS_IN_SAMPLE:
+                if subtile_data and len(subtile_data.pos) >= MIN_NUM_POINTS_IN_SAMPLE:
                     self._save(subtile_data, output_subdir_path, idx)
                     idx += 1
 
@@ -197,7 +206,7 @@ class LidarDataLogic(ABC):
         torch.save(subtile_data, subtile_save_path)
 
 
-class FrenchLidarDataLogic(LidarDataLogic):
+class FrenchLidarDataSignature(LidarDataLogic):
 
     x_features_names = [
         "intensity",
@@ -299,6 +308,31 @@ class FrenchLidarDataLogic(LidarDataLogic):
             idx_in_original_cloud=np.arange(len(pos)),
         )
 
+    def _standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
+        """Sample-wise standardization y* = (y-y_mean)/y_std"""
+        mean = channel_data.mean()
+        std = channel_data.std() + 10**-6
+        standard = (channel_data - mean) / std
+        clamp = clamp_sigma * std
+        clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
+        return clamped
+
+    def per_sample_standardization(self, data: Data):
+        """Scale features in 0-1 range.
+
+        Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+
+        """
+
+        idx = data.x_features_names.index("intensity")
+        # Log transform to be less sensitive to large outliers - info is in lower values
+        data.x[:, idx] = torch.log(data.x[:, idx] + 1)
+        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+        idx = data.x_features_names.index("rgb_avg")
+        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+
+        return data
+
 
 class SwissTopoLidarDataLogic(LidarDataLogic):
     x_features_names = [
@@ -386,6 +420,31 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             idx_in_original_cloud=np.arange(len(pos)),
         )
 
+    def _standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
+        """Sample-wise standardization y* = (y-y_mean)/y_std"""
+        mean = channel_data.mean()
+        std = channel_data.std() + 10**-6
+        standard = (channel_data - mean) / std
+        clamp = clamp_sigma * std
+        clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
+        return clamped
+
+    def per_sample_standardization(self, data: Data):
+        """Scale features in 0-1 range.
+
+        Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+
+        """
+
+        idx = data.x_features_names.index("intensity")
+        # Log transform to be less sensitive to large outliers - info is in lower values
+        data.x[:, idx] = torch.log(data.x[:, idx] + 1)
+        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+        idx = data.x_features_names.index("rgb_avg")
+        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+
+        return data
+
 
 def make_toy_dataset_from_test_file(
     prepared_data_dir: str,
@@ -421,7 +480,7 @@ def make_toy_dataset_from_test_file(
         shutil.copy(src_las_path, copy_path)
 
     # Prepare a Deep-Learning-ready dataset, using the split defined in the csv.
-    data_prepper = FrenchLidarDataLogic(
+    data_prepper = FrenchLidarDataSignature(
         input_data_dir=td_raw,
         prepared_data_dir=td_prepared,
         split_csv=split_csv,
@@ -495,7 +554,7 @@ def main():
     if args.origin == "FR_TOY":
         make_toy_dataset_from_test_file(args.prepared_data_dir)
     elif args.origin == "FR":
-        data_prepper = FrenchLidarDataLogic(**args.__dict__)
+        data_prepper = FrenchLidarDataSignature(**args.__dict__)
         data_prepper.prepare()
     elif args.origin == "CH":
         data_prepper = SwissTopoLidarDataLogic(**args.__dict__)

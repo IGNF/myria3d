@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform
+from myria3d.data.loading import LidarDataLogic
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -31,15 +32,6 @@ class CustomCompose(BaseTransform):
                 data = transform(data)
                 if data is None:
                     return None
-        return data
-
-
-class EmptySubtileFilter(BaseTransform):
-    """Filter out almost empty subtiles"""
-
-    def __call__(self, data: Data, min_num_points_subtile: int = 50):
-        if len(data["x"]) < min_num_points_subtile:
-            return None
         return data
 
 
@@ -86,31 +78,15 @@ class CopySampledPos(BaseTransform):
         return data
 
 
-class StandardizeFeatures(BaseTransform):
-    """Scale features in 0-1 range.
-    Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+class NormalizedFolowingDataLogic(BaseTransform):
+    """Apply the normalization specified in the data_signature"""
 
-    """
+    def __init__(self, data_signature: LidarDataLogic):
+        self.data_signature = data_signature
 
     def __call__(self, data: Data):
-        idx = data.x_features_names.index("intensity")
-        data.x[:, idx] = self._log(data.x[:, idx], shift=1)
-        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
-        idx = data.x_features_names.index("rgb_avg")
-        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+        data = self.data_signature.per_sample_standardization(data)
         return data
-
-    def _log(self, channel_data, shift: float = 0.0):
-        return torch.log(channel_data + shift)
-
-    def _standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
-        """Sample-wise standardization y* = (y-y_mean)/y_std"""
-        mean = channel_data.mean()
-        std = channel_data.std() + 10**-6
-        standard = (channel_data - mean) / std
-        clamp = clamp_sigma * std
-        clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
-        return clamped
 
 
 class NullifyLowestZ(BaseTransform):

@@ -9,7 +9,7 @@ from scipy.spatial import cKDTree
 from torch.utils.data import Dataset
 from torch_geometric.loader import DataLoader
 from torch.utils.data.dataset import IterableDataset
-from torch_geometric.data.data import Data
+from myria3d.data.loading import FrenchLidarDataSignature
 from myria3d.utils import utils
 from myria3d.data.transforms import CustomCompose
 
@@ -44,8 +44,9 @@ class DataModule(LightningDataModule):
         self.classification_preprocessing_dict = self.dataset_description.get(
             "classification_preprocessing_dict"
         )
-        self.load_las = self.dataset_description.get("load_las_func")
-        # transforms
+        self.data_signature = self.dataset_description.get(
+            "data_signature", FrenchLidarDataSignature()
+        )
         t = kwargs.get("transforms")
         self.preparation_transforms = t.get("preparations_list")
         self.augmentation_transforms = t.get("augmentations_list")
@@ -89,7 +90,7 @@ class DataModule(LightningDataModule):
         files = glob.glob(osp.join(self.test_data_dir, "**", "*.las"), recursive=True)
         self.test_data = LidarIterableDataset(
             files,
-            loading_function=self.load_las,
+            loading_function=self.data_signature.load_las,
             transform=self._get_test_transforms(),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
@@ -103,7 +104,7 @@ class DataModule(LightningDataModule):
         """
         self.predict_data = LidarIterableDataset(
             files,
-            loading_function=self.load_las,
+            loading_function=self.data_signature.load_las,
             transform=self._get_predict_transforms(),
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,

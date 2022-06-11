@@ -8,8 +8,5 @@ classification_dict: {1: "unclassified", 2: "ground", 6: "building"}
 d_in: 12
 num_classes: 3
 
-# loading functions for data object prepared via myria3d/datamodule/data.py
-load_las_func:
-  _target_: functools.partial
-  _args_:
-    - "${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}"
+data_signature:
+  _target_: myria3d.data.loading.FrenchLidarDataSignature

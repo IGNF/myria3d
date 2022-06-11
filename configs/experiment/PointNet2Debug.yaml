@@ -3,8 +3,8 @@
 defaults:
   - override /trainer: default.yaml
   - override /model: point_net_2_model.yaml
-  - override /datamodule/transforms/normalizations: pyg_general_scheme.yaml
-  - override /datamodule/transforms/preparations: pyg_general_scheme.yaml
+  - override /datamodule/transforms/normalizations: default.yaml
+  - override /datamodule/transforms/preparations: default.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
