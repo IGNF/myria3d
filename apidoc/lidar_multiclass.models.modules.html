@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.modules &mdash; myria3d 2.0.3 documentation</title>
+  <title>myria3d.models.modules &mdash; myria3d 2.2.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -118,33 +118,6 @@
 <h1>myria3d.models.modules<a class="headerlink" href="#myria3d-models-modules" title="Permalink to this headline"></a></h1>
 <section id="pointnet">
 <h2>PointNet<a class="headerlink" href="#pointnet" title="Permalink to this headline"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.models.modules.point_net.PointNet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.modules.point_net.</span></span><span class="sig-name descname"><span class="pre">PointNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hparams_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/point_net.html#PointNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.point_net.PointNet" title="Permalink to this definition"></a></dt>
-<dd><p>Simple implementation of PointNet.</p>
-<p>PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation
-at <a class="reference external" href="https://arxiv.org/abs/1612.00593">https://arxiv.org/abs/1612.00593</a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning">
-<span class="sig-name descname"><span class="pre">change_num_class_for_finetuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/point_net.html#PointNet.change_num_class_for_finetuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning" title="Permalink to this definition"></a></dt>
-<dd><p>Change end layer output number of classes if new_num_classes is different.
-This method is used for finetuning.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning.params.new_num_classes"></span><strong>new_num_classes</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.point_net.PointNet.change_num_class_for_finetuning.params.new_num_classes">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – new number of classes for finetuning pretrained model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.modules.point_net.PointNet.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/point_net.html#PointNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.point_net.PointNet.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Object batch is a PyG data.Batch, as defined in custom collate_fn.
-Tensors pos and x (features) are in long format (B*N, M) expected by pyG methods.</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 <section id="randla-net">
 <h2>RandLA-Net<a class="headerlink" href="#randla-net" title="Permalink to this headline"></a></h2>
@@ -186,7 +159,7 @@ This method is used for finetuning.</p>
 <dd class="field-even"><p>classification logits for each point, with shape (B*num_classes,C)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.12.0a0+gite69d13b ))">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>

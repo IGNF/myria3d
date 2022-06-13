@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.data &mdash; myria3d 2.0.3 documentation</title>
+  <title>myria3d.data &mdash; myria3d 2.2.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -162,7 +162,7 @@ At test and inference time, data is loader from a raw point cloud directly for o
 
 <dl class="py class">
 <dt class="sig sig-object py" id="myria3d.data.datamodule.LidarIterableDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.datamodule.</span></span><span class="sig-name descname"><span class="pre">LidarIterableDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loading_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtile_width_meters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.10)"><span class="pre">numbers.Number</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtile_overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.10)"><span class="pre">numbers.Number</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/datamodule.html#LidarIterableDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.datamodule.LidarIterableDataset" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.datamodule.</span></span><span class="sig-name descname"><span class="pre">LidarIterableDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loading_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtile_width_meters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.10)"><span class="pre">numbers.Number</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtile_overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.10)"><span class="pre">numbers.Number</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/datamodule.html#LidarIterableDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.datamodule.LidarIterableDataset" title="Permalink to this definition"></a></dt>
 <dd><p>A Dataset to load a full point cloud, batch by batch.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data">
@@ -202,7 +202,7 @@ of DataPipe instance.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="myria3d.data.datamodule.LidarMapDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.datamodule.</span></span><span class="sig-name descname"><span class="pre">LidarMapDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loading_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/datamodule.html#LidarMapDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.datamodule.LidarMapDataset" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.datamodule.</span></span><span class="sig-name descname"><span class="pre">LidarMapDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loading_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/datamodule.html#LidarMapDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.datamodule.LidarMapDataset" title="Permalink to this definition"></a></dt>
 <dd><p>A Dataset to load prepared data as produced via loading.py.</p>
 </dd></dl>
 
@@ -354,9 +354,9 @@ dataset loacted in td_prepared</p>
 <section id="module-myria3d.data.transforms">
 <span id="myria3d-data-transforms"></span><h2>myria3d.data.transforms<a class="headerlink" href="#module-myria3d.data.transforms" title="Permalink to this headline"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.ChannelNames">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">ChannelNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#ChannelNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.ChannelNames" title="Permalink to this definition"></a></dt>
-<dd><p>Names of custom additional LAS channel.</p>
+<dt class="sig sig-object py" id="myria3d.data.transforms.CopySampledPos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">CopySampledPos</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#CopySampledPos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.CopySampledPos" title="Permalink to this definition"></a></dt>
+<dd><p>Make a copy of the unormalized positions of subsampled points.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -372,37 +372,9 @@ Edited to bypass downstream transforms if None is returned by a transform.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.CustomGridSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">CustomGridSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subsample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxel_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.10)"><span class="pre">numbers.Number</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#CustomGridSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.CustomGridSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Samples a point cloud, using a voxel grid.</p>
-<p>A final random sampling is then needed to have a fixed number of points.
-See <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling">https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/grid_sampling.html#GridSampling</a></p>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="myria3d.data.transforms.EmptySubtileFilter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">EmptySubtileFilter</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#EmptySubtileFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.EmptySubtileFilter" title="Permalink to this definition"></a></dt>
 <dd><p>Filter out almost empty subtiles</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.FPSSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">FPSSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subsample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#FPSSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.FPSSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Samples a fixed number of points from a point cloud, using Fartest Point Sampling.</p>
-<p>In our experiments, FPS is slower by an order of magnitude than Random/Grid sampling, and yields worst results.</p>
-<p>See <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps">https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html?highlight=fps#torch_geometric.nn.pool.fps</a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.MakeCopyOfPosAndY">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">MakeCopyOfPosAndY</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#MakeCopyOfPosAndY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.MakeCopyOfPosAndY" title="Permalink to this definition"></a></dt>
-<dd><p>Make a copy of the full cloud’s positions and labels, for inference interpolation.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.MakeCopyOfSampledPos">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">MakeCopyOfSampledPos</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#MakeCopyOfSampledPos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.MakeCopyOfSampledPos" title="Permalink to this definition"></a></dt>
-<dd><p>Make a copy of the unormalized positions of subsampled points.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -420,25 +392,10 @@ See <a class="reference external" href="https://pytorch-geometric.readthedocs.io
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.RandomSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subsample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#RandomSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.RandomSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Samples a fixed number of points from a point cloud, randomly.</p>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="myria3d.data.transforms.StandardizeFeatures">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">StandardizeFeatures</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#StandardizeFeatures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.StandardizeFeatures" title="Permalink to this definition"></a></dt>
 <dd><p>Scale features in 0-1 range.
 Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.data.transforms.Subsampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">Subsampler</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#Subsampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.Subsampler" title="Permalink to this definition"></a></dt>
-<dd><p>Base class for custom cloud subsampler to inherit from.</p>
-<p>Subsampling to a unique size is needed for batching clouds with different initial size.
-Subclasses are modified from <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/">https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/</a>,
-to preserve specific attributes of the data for inference interpolation</p>
 </dd></dl>
 
 <dl class="py class">
@@ -459,13 +416,6 @@ Mapped to consecutive integers:
 <dt class="sig sig-object py" id="myria3d.data.transforms.ToTensor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">ToTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['pos',</span> <span class="pre">'x',</span> <span class="pre">'y']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#ToTensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.ToTensor" title="Permalink to this definition"></a></dt>
 <dd><p>Turn np.arrays specified by their keys into Tensor.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="myria3d.data.transforms.collate_fn">
-<span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">torch_geometric.data.data.Data</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch_geometric.data.batch.Batch</span></span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#collate_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.collate_fn" title="Permalink to this definition"></a></dt>
-<dd><p>Batch Data objects from a list, to be used in DataLoader. Modified from:
-<a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn">https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/loader/dense_data_loader.html?highlight=collate_fn</a></p>
 </dd></dl>
 
 </section>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.predict &mdash; myria3d 2.0.3 documentation</title>
+  <title>myria3d.predict &mdash; myria3d 2.2.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -163,17 +163,19 @@
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
     <span class="n">itp</span> <span class="o">=</span> <span class="n">Interpolator</span><span class="p">(</span>
-        <span class="n">output_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="n">interpolation_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">classification_dict</span><span class="o">=</span><span class="n">datamodule</span><span class="o">.</span><span class="n">dataset_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classification_dict&quot;</span><span class="p">),</span>
         <span class="n">probas_to_save</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">probas_to_save</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">datamodule</span><span class="o">.</span><span class="n">predict_dataloader</span><span class="p">()):</span>
         <span class="n">batch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_step</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
-        <span class="n">itp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_step</span><span class="p">(</span><span class="n">batch</span><span class="p">)[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span>
+        <span class="n">itp</span><span class="o">.</span><span class="n">store_predictions</span><span class="p">(</span>
+            <span class="n">logits</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">pos_sampled_copy</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">batch</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">idx_in_original_cloud</span>
+        <span class="p">)</span>
 
-    <span class="n">out_f</span> <span class="o">=</span> <span class="n">itp</span><span class="o">.</span><span class="n">interpolate_and_save</span><span class="p">()</span>
+    <span class="n">out_f</span> <span class="o">=</span> <span class="n">itp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">src_las</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out_f</span></div>
 
 

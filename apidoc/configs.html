@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Default configuration &mdash; myria3d 2.0.3 documentation</title>
+  <title>Default configuration &mdash; myria3d 2.2.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -127,8 +127,8 @@
 <span class="nt">trainer</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytorch_lightning.Trainer</span><span class="w"></span>
 <span class="w">  </span><span class="nt">gpus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
-<span class="w">  </span><span class="nt">min_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"></span>
-<span class="w">  </span><span class="nt">max_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"></span>
+<span class="w">  </span><span class="nt">min_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span><span class="w"></span>
+<span class="w">  </span><span class="nt">max_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span><span class="w"></span>
 <span class="w">  </span><span class="nt">log_every_n_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">check_val_every_n_epoch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">weights_summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
@@ -152,14 +152,55 @@
 <span class="w">      </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">functools.partial</span><span class="w"></span>
 <span class="w">      </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}</span><span class="w"></span>
-<span class="w">  </span><span class="nt">subsampler</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.CustomGridSampler</span><span class="w"></span>
-<span class="w">    </span><span class="nt">subsample_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
-<span class="w">    </span><span class="nt">voxel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
+<span class="w">  </span><span class="nt">transforms</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">preparations</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">EmptySubtileFilter</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.EmptySubtileFilter</span><span class="w"></span>
+<span class="w">      </span><span class="nt">ToTensor</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.ToTensor</span><span class="w"></span>
+<span class="w">      </span><span class="nt">TargetTransform</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.TargetTransform</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_preprocessing_dict}</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_dict}</span><span class="w"></span>
+<span class="w">      </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
+<span class="w">      </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
+<span class="w">        </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">        </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">      </span><span class="nt">CopySampledPos</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.CopySampledPos</span><span class="w"></span>
+<span class="w">      </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
+<span class="w">    </span><span class="nt">augmentations</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">x_flip</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.RandomFlip</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">        </span><span class="nt">p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+<span class="w">      </span><span class="nt">y_flip</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.RandomFlip</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">        </span><span class="nt">p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">normalizations</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">NormalizePos</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.NormalizePos</span><span class="w"></span>
+<span class="w">      </span><span class="nt">StandardizeFeatures</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.StandardizeFeatures</span><span class="w"></span>
+<span class="w">    </span><span class="nt">augmentations_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.augmentations}&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">preparations_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.preparations}&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">normalizations_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.normalizations}&#39;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.datamodule.DataModule</span><span class="w"></span>
 <span class="w">  </span><span class="nt">prepared_data_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:PREPARED_DATA_DIR}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">test_data_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.prepared_data_dir}/test/</span><span class="w"></span>
 <span class="w">  </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span><span class="w"></span>
+<span class="w">  </span><span class="nt">prefetch_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
 <span class="w">  </span><span class="nt">num_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">subtile_width_meters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
 <span class="w">  </span><span class="nt">subtile_overlap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.subtile_overlap}</span><span class="w"></span>
@@ -183,7 +224,6 @@
 <span class="w">      </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.interpolation_k}</span><span class="w"></span>
 <span class="w">      </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_dict}</span><span class="w"></span>
 <span class="w">      </span><span class="nt">probas_to_save</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.probas_to_save}</span><span class="w"></span>
-<span class="w">      </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
 <span class="w">  </span><span class="nt">model_checkpoint</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytorch_lightning.callbacks.ModelCheckpoint</span><span class="w"></span>
 <span class="w">    </span><span class="nt">monitor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">val/loss_epoch</span><span class="w"></span>

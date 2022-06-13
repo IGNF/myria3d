@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.modules.randla_net &mdash; myria3d 2.0.3 documentation</title>
+  <title>myria3d.models.modules.randla_net &mdash; myria3d 2.2.0 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -205,7 +205,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">batch</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">chunks</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch</span><span class="o">.</span><span class="n">num_batches</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch</span><span class="o">.</span><span class="n">num_graphs</span><span class="p">)</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>  <span class="c1"># B, N, 3+F</span>
 
         <span class="n">N</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -483,7 +483,7 @@
 <span class="sd">        Tuple[torch.Tensor,torch.Tensor]: y_idx, x_idx assignment index, in range [0, batch_size[</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos_x</span><span class="p">)</span>
+    <span class="n">num_graphs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos_x</span><span class="p">)</span>
 
     <span class="n">pos_x_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">sample_pos</span> <span class="k">for</span> <span class="n">sample_pos</span> <span class="ow">in</span> <span class="n">pos_x</span><span class="p">])</span>  <span class="c1"># (N, 3)</span>
     <span class="n">batch_x_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
@@ -506,7 +506,7 @@
 
     <span class="c1"># Get back to compact shape</span>
     <span class="n">batch_size_y</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos_y</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">compact_shape_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_batches</span><span class="p">,</span> <span class="n">batch_size_y</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">compact_shape_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_graphs</span><span class="p">,</span> <span class="n">batch_size_y</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">x_idx</span> <span class="o">=</span> <span class="n">x_idx_long</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">compact_shape_y</span><span class="p">)</span>
     <span class="n">y_idx</span> <span class="o">=</span> <span class="n">y_idx_long</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">compact_shape_y</span><span class="p">)</span>
 
