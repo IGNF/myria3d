@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform
-from myria3d.data.loading import LidarDataLogic
+from myria3d.data.loading import LidarDataSignature
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -81,7 +81,7 @@ class CopySampledPos(BaseTransform):
 class NormalizedFolowingDataLogic(BaseTransform):
     """Apply the normalization specified in the data_signature"""
 
-    def __init__(self, data_signature: LidarDataLogic):
+    def __init__(self, data_signature: LidarDataSignature):
         self.data_signature = data_signature
 
     def __call__(self, data: Data):
