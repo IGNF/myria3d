@@ -7,5 +7,5 @@ x_flip:
 y_flip:
   _target_: torch_geometric.transforms.RandomFlip
   _args_:
-    - 2
+    - 1
   p: 0.5
