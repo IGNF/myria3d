@@ -3,7 +3,7 @@ from torch_geometric.data import Batch
 from myria3d.models.modules.randla_net import RandLANet
 
 
-def test_fake_run_randlanet():
+def test_fake_run_pointnet2():
     """Documents expected data format and make a forward pass with RandLa-Net"""
     num_euclidian_dimensions = 3
     num_features = 9
@@ -11,9 +11,8 @@ def test_fake_run_randlanet():
     num_classes = 6
     hparams_net = {
         "d_in": d_in,
-        "num_neighbors": 16,
-        "decimation": 4,
-        "dropout": 0.0,
+        "r1": 2/50,
+        "r2": 4/50,
         "num_classes": num_classes,
     }
     batch = Batch()

@@ -1,0 +1,11 @@
+x_flip:
+  _target_: torch_geometric.transforms.RandomFlip
+  _args_:
+    - 0
+  p: 0.5
+  
+y_flip:
+  _target_: torch_geometric.transforms.RandomFlip
+  _args_:
+    - 1
+  p: 0.5

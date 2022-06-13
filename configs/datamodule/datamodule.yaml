@@ -6,7 +6,8 @@ prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
 test_data_dir: ${datamodule.prepared_data_dir}/test/
 
 batch_size: 32
-num_workers: 16  # for data loaders
+prefetch_factor: 2
+num_workers: 2  # for data loaders
 subtile_width_meters: 50  # size of receptive fields : 50mx50m
 subtile_overlap: ${predict.subtile_overlap}  # Used for test and predict phases only
 
@@ -14,4 +15,4 @@ augment: false  # activate data augmentation
 
 defaults:
   - dataset_description: 20220204_BuildingValidation_and_Ground.yaml
-  - subsampler: grid.yaml
+  - transforms: default.yaml

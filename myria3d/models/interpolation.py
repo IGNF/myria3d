@@ -1,19 +1,22 @@
-"""How we turn from prediction made on a subsampled subset of a Las to a complete point cloud."""
-
+from enum import Enum
+import logging
 import os
-from typing import Dict, List, Optional, Literal, Union
-
+from typing import Dict, List, Literal, Union
 import pdal
 import numpy as np
 import torch
-from torch_geometric.nn.pool import knn
 from torch_geometric.nn.unpool import knn_interpolate
-from myria3d.utils import utils
 from torch.distributions import Categorical
+from torch_scatter import scatter_sum
 
-from myria3d.data.transforms import ChannelNames
+log = logging.getLogger(__name__)
 
-log = utils.get_logger(__name__)
+
+class ChannelNames(Enum):
+    """Names of custom additional LAS channel."""
+
+    PredictedClassification = "PredictedClassification"
+    ProbasEntropy = "entropy"
 
 
 class Interpolator:
@@ -24,22 +27,16 @@ class Interpolator:
         interpolation_k: int = 10,
         classification_dict: Dict[int, str] = {},
         probas_to_save: Union[List[str], Literal["all"]] = "all",
-        output_dir: Optional[str] = None,
     ):
         """Initialization method.
-
         Args:
             interpolation_k (int, optional): Number of Nearest-Neighboors for inverse-distance averaging of logits. Defaults 10.
             classification_dict (Dict[int, str], optional): Mapper from classification code to class name (e.g. {6:building}). Defaults {}.
             probas_to_save (List[str] or "all", optional): Specific probabilities to save as new LAS dimensions.
             Override with None for no saving of probabilitiues. Defaults to "all".
-            output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,
-            and probabilities. Defaults to None.
+
 
         """
-        self.output_dir = output_dir
-        if self.output_dir:
-            os.makedirs(self.output_dir, exist_ok=True)
 
         self.k = interpolation_k
         self.classification_dict = classification_dict
@@ -57,19 +54,22 @@ class Interpolator:
             for class_index, class_code in enumerate(classification_dict.keys())
         }
 
-        # Tracker for current processed file.
-        self.current_f = ""
+        self.reset_state()
 
-    def _load_las(self, filepath: str):
+    def reset_state(self):
+        self.logits_sub: List[torch.Tensor] = []
+        self.pos_sub: List[torch.Tensor] = []
+        self.batch_sub: List[torch.Tensor] = []
+        self.idx_in_full_cloud_list: List[np.ndarray] = []
+
+    def load_full_las_for_update(self, raw_path: str):
         """Loads a LAS and adds necessary extradim.
 
         Args:
             filepath (str): Path to LAS for which predictions are made.
-
         """
-        self.current_f = filepath
-        pipeline = pdal.Reader.las(filename=filepath)
-
+        # self.current_f = filepath
+        pipeline = pdal.Reader.las(filename=raw_path)
         new_dims = self.probas_to_save + [
             ChannelNames.PredictedClassification.value,
             ChannelNames.ProbasEntropy.value,
@@ -79,71 +79,24 @@ class Interpolator:
                 dimensions=f"=>{new_dim}"
             ) | pdal.Filter.assign(value=f"{new_dim}=0")
         pipeline.execute()
-        self.las = pipeline.arrays[0]  # named array
-
-        self.pos_las = torch.from_numpy(
-            np.asarray(
-                [
-                    self.las["X"],
-                    self.las["Y"],
-                    self.las["Z"],
-                ],
-                dtype=np.float32,
-            ).transpose()
-        )
-        self.logits_sub_l = []
-        self.targets_l = []
-        self.pos_sub_l = []
-        self.pos_l = []
+        return pipeline.arrays[0]  # named array
 
     @torch.no_grad()
-    def update(self, outputs: dict):
-        """Keep a list of predictions made so far.
-        In Test phase, interpolation and saving are trigerred when a new file is encountered.
+    def store_predictions(self, logits, pos, batch, idx_in_original_cloud):
+        """Keep a list of predictions made so far."""
+        self.logits_sub.append(logits)
+        self.pos_sub.append(pos)
+        self.idx_in_full_cloud_list += idx_in_original_cloud
+        if not self.batch_sub:
+            # starts at 0 if this is the first batch
+            self.batch_sub.append(batch)
+        else:
+            # starts from current max batch index
+            current_max_batch_idx = max(max(b) for b in self.batch_sub)
+            self.batch_sub.append(current_max_batch_idx + 1 + batch)
 
-        Args:
-            outputs (dict): Outputs of lightning's predict_step or test_step.
-
-        Returns:
-            List[interpolation]: list of interpolation made for these specific outputs. This is typically empty,
-            except when we switch from a LAS to another, at which point we need to output the result of the interpolation
-            for IoU logging by a callback.
-
-        """
-        _itps = []
-
-        batch = outputs["batch"].detach()
-        logits_b = outputs["logits"].detach()
-        some_targets_to_interpolate = "y_copy" in batch
-        if some_targets_to_interpolate:
-            # TODO: it seems that this is always done due to data transforms.
-            targets_b = batch.y_copy.detach()
-
-        for batch_idx, las_filepath in enumerate(batch.las_filepath):
-            is_a_new_tile = las_filepath != self.current_f
-            if is_a_new_tile:
-                close_previous_las_first = self.current_f != ""
-                if close_previous_las_first:
-                    interpolation = self._interpolate()
-                    if self.output_dir:
-                        self._write(interpolation)
-                    _itps += [interpolation]
-                self._load_las(las_filepath)
-
-            # subsampled elements
-            idx_x = batch.batch_x == batch_idx
-            self.logits_sub_l.append(logits_b[idx_x])
-            self.pos_sub_l.append(batch.pos_copy_subsampled[idx_x])
-
-            if some_targets_to_interpolate:
-                # non-sampled elements
-                idx_y = batch.batch_y == batch_idx
-                self.pos_l.append(batch.pos_copy[idx_y])
-                self.targets_l.append(targets_b[idx_y])
-
-        return _itps
-
-    def _interpolate(self):
+    @torch.no_grad()
+    def interpolate_logits(self, las):
         """Interpolate logits to points without predictions using an inverse-distance weightning scheme.
 
         Returns:
@@ -152,76 +105,101 @@ class Interpolator:
         """
 
         # Cat
-        pos_sub = torch.cat(self.pos_sub_l).cpu()
-        logits_sub = torch.cat(self.logits_sub_l).cpu()
+        logits_sub: torch.Tensor = torch.cat(self.logits_sub).cpu()
+        pos_sub: torch.Tensor = torch.cat(self.pos_sub).cpu()
+        batch_sub: torch.Tensor = torch.cat(self.batch_sub).cpu()
+        del self.logits_sub
+        del self.batch_sub
+
+        # create a batch for the full las
+        # concatenate
+        batch_full_cloud: torch.Tensor = torch.cat(
+            [
+                torch.full((len(a),), i)
+                for i, a in enumerate(self.idx_in_full_cloud_list)
+            ]
+        )
+        idx_in_full_cloud: np.ndarray = np.concatenate(self.idx_in_full_cloud_list)
+        del self.idx_in_full_cloud_list
+
+        # Reorganize points in original LAS to order them by batch,
+        # matching subsampled batch
+        # If required, they could be reorered back at save time by using
+        # np.argsort(current_max_batch_idx) as sorting indices.
+
+        ordered_las = las[idx_in_full_cloud]
+
+        pos_las = torch.from_numpy(
+            np.asarray(
+                [
+                    ordered_las["X"],
+                    ordered_las["Y"],
+                    ordered_las["Z"],
+                ],
+                dtype=np.float32,
+            ).transpose()
+        )
 
         # Find nn among points with predictions for all points
-        logits = knn_interpolate(
+        # Only interpolate within a model's receptive field zone
+        interpolated_logits = knn_interpolate(
             logits_sub,
             pos_sub,
-            self.pos_las,
-            batch_x=None,
-            batch_y=None,
+            pos_las,
+            batch_x=batch_sub,
+            batch_y=batch_full_cloud,
             k=self.k,
             num_workers=4,
         )
-        # If no target, returns interpolared logits (i.e. at predict time)
-        if not self.targets_l:
-            return logits, None
 
-        # Interpolate non-sampled targets if present (i.e. at test time)
-        targets = torch.cat(self.targets_l).cpu()
-        pos = torch.cat(self.pos_l).cpu()
-        assign_idx = knn(pos, self.pos_las, k=1, num_workers=4)
-        _, x_idx = assign_idx
-        targets = targets[x_idx]
-
-        return logits, targets
+        # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
+        # scatter_sum reorders logitsbased on index,they therefore match las order.
+        reduced_logits = torch.zeros((len(las), interpolated_logits.size(1)))
+        scatter_sum(
+            interpolated_logits,
+            torch.from_numpy(idx_in_full_cloud),
+            out=reduced_logits,
+            dim=0,
+        )
+        return reduced_logits
 
     @torch.no_grad()
-    def _write(self, interpolation) -> str:
+    def write(self, raw_path: str, output_dir: str) -> str:
         """Interpolate all predicted probabilites to their original points in LAS file, and save.
 
         Args:
             interpolation (torch.Tensor, torch.Tensor): output of _interpolate, of which we need the logits.
-
+            basename: str: file basename to save it with the same one
+            output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,
+            and probabilities. Defaults to None.
         Returns:
             str: path of the updated, saved LAS file.
 
         """
-
-        basename = os.path.basename(self.current_f)
-        out_f = os.path.join(self.output_dir, basename)
-        log.info(f"Updated LAS will be saved to {out_f}")
-
-        logits, _ = interpolation
+        basename = os.path.basename(raw_path)
+        las = self.load_full_las_for_update(raw_path=raw_path)
+        logits = self.interpolate_logits(las)
 
         probas = torch.nn.Softmax(dim=1)(logits)
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
-                self.las[class_name][:] = probas[:, idx]
+                las[class_name] = probas[:, idx]
 
         preds = torch.argmax(logits, dim=1)
         preds = np.vectorize(self.reverse_mapper.get)(preds)
-        self.las[ChannelNames.PredictedClassification.value][:] = preds
+        las[ChannelNames.PredictedClassification.value] = preds
 
-        self.las[ChannelNames.ProbasEntropy.value][:] = Categorical(
-            probs=probas
-        ).entropy()
+        las[ChannelNames.ProbasEntropy.value] = Categorical(probs=probas).entropy()
 
+        os.makedirs(output_dir, exist_ok=True)
+        out_f = os.path.join(output_dir, basename)
+        out_f = os.path.abspath(out_f)
+        log.info(f"Updated LAS will be saved to {out_f}.")
         log.info("Saving...")
-
         pipeline = pdal.Writer.las(
             filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8
-        ).pipeline(self.las)
+        ).pipeline(las)
         pipeline.execute()
         log.info("Saved.")
-
-        return out_f
-
-    def interpolate_and_save(self):
-        """Interpolate and save in a single method, for predictions."""
-        interpolation = self._interpolate()
-        out_f = self._write(interpolation)
 
         return out_f

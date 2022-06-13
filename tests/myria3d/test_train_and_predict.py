@@ -100,8 +100,8 @@ def test_RandLaNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
 
 
 @pytest.mark.slow()
-def test_PointNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
-    """Check ability to overfit with PointNet.
+def test_PointNet2_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
+    """Check ability to overfit with PointNet2.
 
     Check that overfitting a single batch from a toy dataset, for 30 epochs, results
     in significanly lower training loss.
@@ -117,7 +117,7 @@ def test_PointNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     cfg = make_default_hydra_cfg(
         overrides=tmp_paths_overrides
         + [
-            "experiment=PointNetDebug",  # Use an experiment designed for overfitting a batch...
+            "experiment=PointNet2Debug",  # Use an experiment designed for overfitting a batch...
             "datamodule.batch_size=2",  # Smaller batch size for faster overfit
             # Define the task as a classification of all (1 and 2) vs. 6=building
             "++datamodule.dataset_description.classification_preprocessing_dict={2:1}",
@@ -129,7 +129,7 @@ def test_PointNet_overfitting(isolated_toy_dataset_tmpdir, tmpdir):
     metrics = _get_metrics_df_from_tmpdir(tmpdir)
     iou = metrics["train/iou_CLASS_building"].dropna()
     improvement = iou.iloc[-1] - iou.iloc[0]
-    assert improvement >= 0.45
+    assert improvement >= 0.55
 
 
 def test_RandLaNet_test_right_after_training(
@@ -253,9 +253,9 @@ def test_run_test_with_trained_model_on_large_las(
         tmpdir (fixture -> str): temporary directory.
 
     """
-    pytest.xfail(
-        reason="Modle is currently too memory intensive to test on a full LAS in self-hosted action-runner."
-    )
+    # pytest.xfail(
+    #     reason="Model is currently too memory intensive to test on a full LAS in self-hosted action-runner."
+    # )
 
     if not osp.isfile(TRAINED_MODEL_PATH):
         pytest.xfail(reason=f"No access to {TRAINED_MODEL_PATH} in this environment.")
@@ -273,10 +273,16 @@ def test_run_test_with_trained_model_on_large_las(
     )
     train(cfg_test_using_trained_model)
     metrics = _get_metrics_df_from_tmpdir(tmpdir)
-    # TODO: reference values to be better defined
-    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.55
-    assert metrics["test/iou_CLASS_ground"][0] >= 0.80
-    assert metrics["test/iou_CLASS_building"][0] >= 0.80
+
+    # Reference value of IoU of subsampled cloud point (current method)
+    assert metrics["test/iou_CLASS_building"][0] >= 0.74
+    assert metrics["test/iou_CLASS_ground"][0] >= 0.77
+    assert metrics["test/iou_CLASS_unclassified"][0] >= 0.49
+
+    # Reference value with full interpolation would be
+    # assert metrics["test/iou_CLASS_unclassified"][0] >= 0.55
+    # assert metrics["test/iou_CLASS_ground"][0] >= 0.80
+    # assert metrics["test/iou_CLASS_building"][0] >= 0.80
 
 
 def test_predict_with_trained_model_on_toy_dataset(tmpdir):

@@ -60,7 +60,7 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = outputs["targets"]
+        targets = batch.y
         self.log_iou(logits, targets, "train", self.train_iou_by_class_dict)
 
     def on_validation_batch_end(
@@ -74,7 +74,7 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = outputs["targets"]
+        targets = batch.y
         self.log_iou(logits, targets, "val", self.val_iou_by_class_dict)
 
     def on_test_batch_end(
@@ -87,16 +87,9 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         """Log IoU for each class. Loop in case of multiple files in a single batch."""
-        interpolations = self.itp.update(outputs)
-        for logits, targets in interpolations:
-            self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
-
-    def on_test_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
-        interpolation = self.itp._interpolate()
-        logits, targets = interpolation
+        logits = outputs["logits"]
+        targets = batch.y
         self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
-        if self.itp.output_dir:
-            self.itp._write(interpolation)
 
     def log_iou(self, logits, targets, phase: str, iou_dict):
         device = logits.device

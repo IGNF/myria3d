@@ -4,11 +4,30 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torchmetrics import MaxMetric
+from myria3d.models.modules.point_net2 import PointNet2
 from myria3d.models.modules.randla_net import RandLANet
-from myria3d.models.modules.point_net import PointNet
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
+
+MODEL_ZOO = [RandLANet, PointNet2]
+
+
+def get_neural_net_class(class_name: str) -> nn.Module:
+    """A Class Factory to class of neural net based on class name.
+
+    :meta private:
+
+    Args:
+        class_name (str): the name of the class to get.
+
+    Returns:
+        nn.Module: CLass of requested neural network.
+    """
+    for neural_net_class in MODEL_ZOO:
+        if class_name in neural_net_class.__name__:
+            return neural_net_class
+    raise KeyError(f"Unknown class name {class_name}")
 
 
 class Model(LightningModule):
@@ -45,7 +64,7 @@ class Model(LightningModule):
         # it also allows to access params with 'self.hparams' attribute
         self.save_hyperparameters()
 
-        neural_net_class = self.get_neural_net_class(self.hparams.neural_net_class_name)
+        neural_net_class = get_neural_net_class(self.hparams.neural_net_class_name)
         self.model = neural_net_class(self.hparams.neural_net_hparams)
 
         self.softmax = nn.Softmax(dim=1)
@@ -87,9 +106,8 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        targets = batch.y
-        loss = self.criterion(logits, targets)
-        return loss, logits, targets
+        loss = self.criterion(logits, batch.y)
+        return loss, logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -108,19 +126,15 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        loss, logits, targets = self.step(batch)
-        with torch.no_grad():
-            preds = torch.argmax(logits, dim=1)
-        self.train_iou(preds, targets)
+        loss, logits = self.step(batch)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+        with torch.no_grad():
+            preds = torch.argmax(logits.detach(), dim=1)
+            self.train_iou(preds, batch.y)
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
-        return {
-            "loss": loss,
-            "logits": logits,
-            "targets": targets,
-        }
+        return {"loss": loss, "logits": logits}
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -136,15 +150,15 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        loss, logits, targets = self.step(batch)
-        preds = torch.argmax(logits, dim=1)
-        self.val_iou(preds, targets)
+        loss, logits = self.step(batch)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
+        with torch.no_grad():
+            preds = torch.argmax(logits.detach(), dim=1)
+            self.val_iou(preds, batch.y)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {
             "loss": loss,
             "logits": logits,
-            "targets": targets,
         }
 
     def validation_epoch_end(self, outputs) -> None:
@@ -173,7 +187,7 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        return {"logits": logits, "batch": batch}
+        return {"logits": logits}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
@@ -187,26 +201,7 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        return {"logits": logits, "batch": batch}
-
-    def get_neural_net_class(self, class_name: str) -> nn.Module:
-        """A Class Factory to class of neural net based on class name.
-
-        :meta private:
-
-        Args:
-            class_name (str): the name of the class to get.
-
-        Raises:
-            KeyError: If the class is unknown.
-
-        Returns:
-            nn.Module: CLass of requested neural network.
-        """
-        for neural_net_class in [PointNet, RandLANet]:
-            if class_name in neural_net_class.__name__:
-                return neural_net_class
-        raise KeyError(f"Unknown class name {class_name}")
+        return {"logits": logits}
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.

@@ -1,0 +1,9 @@
+defaults:
+  - preparations: default.yaml
+  - augmentations: default.yaml
+  - normalizations: default.yaml
+
+# trun these dict into ListConfig
+augmentations_list: "${oc.dict.values: datamodule.transforms.augmentations}"
+preparations_list: "${oc.dict.values: datamodule.transforms.preparations}"
+normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"

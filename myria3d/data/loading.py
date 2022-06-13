@@ -163,10 +163,12 @@ class LidarDataLogic(ABC):
         sub_tile_data.pos = sub_tile_data.pos[mask]
         sub_tile_data.x = sub_tile_data.x[mask]
         sub_tile_data.y = sub_tile_data.y[mask]
+        sub_tile_data.idx_in_original_cloud = sub_tile_data.idx_in_original_cloud[mask]
 
         data.pos = data.pos[~mask]
         data.x = data.x[~mask]
         data.y = data.y[~mask]
+        data.idx_in_original_cloud = data.idx_in_original_cloud[~mask]
         return sub_tile_data
 
     def _extract_by_x(self, data: Data) -> Data:
@@ -293,6 +295,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
             y=y,
             las_filepath=las_filepath,
             x_features_names=cls.x_features_names,
+            idx_in_original_cloud=np.arange(len(pos)),
         )
 
 
@@ -379,6 +382,7 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             y=y,
             las_filepath=las_filepath,
             x_features_names=cls.x_features_names,
+            idx_in_original_cloud=np.arange(len(pos)),
         )
 
 

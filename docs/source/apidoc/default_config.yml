@@ -31,10 +31,6 @@ datamodule:
       _target_: functools.partial
       _args_:
       - ${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}
-  subsampler:
-    _target_: myria3d.data.transforms.CustomGridSampler
-    subsample_size: 12500
-    voxel_size: 0.25
   _target_: myria3d.data.datamodule.DataModule
   prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
   test_data_dir: ${datamodule.prepared_data_dir}/test/
@@ -62,7 +58,6 @@ callbacks:
       interpolation_k: ${predict.interpolation_k}
       classification_dict: ${datamodule.dataset_description.classification_dict}
       probas_to_save: ${predict.probas_to_save}
-      output_dir: null
   model_checkpoint:
     _target_: pytorch_lightning.callbacks.ModelCheckpoint
     monitor: val/loss_epoch
