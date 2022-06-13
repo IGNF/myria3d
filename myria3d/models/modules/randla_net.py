@@ -65,40 +65,12 @@ class RandLANet(nn.Module):
         )
         self.set_fc_end(self.d_in, self.dropout, self.num_classes)
 
-    def set_fc_end(self, d_in, dropout, num_classes):
-        """Build the final fully connected layer.
-
-        Args:
-            d_in (int): number of input features
-            dropout (float): dropout level in final FC layer
-            num_classes (int): number of output classes
-        """
-        parts = [
-            SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
-            SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
-        ]
-        if dropout:
-            parts.append(nn.Dropout(p=dropout))
-        parts.append(SharedMLP(32, num_classes))
-        self.fc_end = nn.Sequential(*parts)
-
-    def random_sample(self, chunk, num_fixed_points):
-        num_nodes = chunk.shape[0]
-        choice = torch.cat(
-            [
-                torch.randperm(num_nodes)
-                for _ in range(math.ceil(self.num_fixed_points / num_nodes))
-            ],
-            dim=0,
-        )[: self.num_fixed_points]
-        return chunk[choice]
-
     def forward(self, batch):
         """Forward pass.
 
         Args:
             batch (pytorch_geometric.Data): Subtile information with shape (B*N, 3+F).
-            Attributs: pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.
+            Attributes: pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.
 
         Returns:
             torch.Tensor: classification logits for each point, with shape (B*num_classes,C)
@@ -185,6 +157,34 @@ class RandLANet(nn.Module):
             num_workers=self.num_workers,
         )
         return scores  # N1+N2+...+Nn, C
+
+    def set_fc_end(self, d_in, dropout, num_classes):
+        """Build the final fully connected layer.
+
+        Args:
+            d_in (int): number of input features
+            dropout (float): dropout level in final FC layer
+            num_classes (int): number of output classes
+        """
+        parts = [
+            SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
+            SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
+        ]
+        if dropout:
+            parts.append(nn.Dropout(p=dropout))
+        parts.append(SharedMLP(32, num_classes))
+        self.fc_end = nn.Sequential(*parts)
+
+    def random_sample(self, cloud):
+        num_nodes = cloud.shape[0]
+        choice = torch.cat(
+            [
+                torch.randperm(num_nodes)
+                for _ in range(math.ceil(self.num_fixed_points / num_nodes))
+            ],
+            dim=0,
+        )[: self.num_fixed_points]
+        return cloud[choice]
 
     def change_num_class_for_finetuning(self, new_num_classes: int):
         """Change end layer output number of classes if new_num_classes is different.
