@@ -27,10 +27,8 @@ datamodule:
       6: building
     d_in: 12
     num_classes: 3
-    load_las_func:
-      _target_: functools.partial
-      _args_:
-      - ${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}
+    data_signature:
+      _target_: myria3d.data.loading.FrenchLidarDataSignature
   transforms:
     preparations:
       ToTensor:
@@ -50,6 +48,8 @@ datamodule:
         - 12500
         replace: false
         allow_duplicates: true
+      CopySampledPos:
+        _target_: myria3d.data.transforms.CopySampledPos
       Center:
         _target_: torch_geometric.transforms.Center
     augmentations:
@@ -63,11 +63,22 @@ datamodule:
         _args_:
         - 1
         p: 0.5
+      RandomRotate:
+        _target_: torch_geometric.transforms.RandomRotate
+        _args_:
+        - 180
+        axis: 2
+      RandomTranslate:
+        _target_: torch_geometric.transforms.RandomTranslate
+        _args_:
+        - 0.1
     normalizations:
-      NormalizePos:
-        _target_: myria3d.data.transforms.NormalizePos
-      StandardizeFeatures:
-        _target_: myria3d.data.transforms.StandardizeFeatures
+      NullifyLowestZ:
+        _target_: myria3d.data.transforms.NullifyLowestZ
+      NormalizedFolowingDataLogic:
+        _target_: myria3d.data.transforms.NormalizedFolowingDataLogic
+        _args_:
+        - ${datamodule.dataset_description.data_signature}
     augmentations_list: '${oc.dict.values: datamodule.transforms.augmentations}'
     preparations_list: '${oc.dict.values: datamodule.transforms.preparations}'
     normalizations_list: '${oc.dict.values: datamodule.transforms.normalizations}'
@@ -79,7 +90,6 @@ datamodule:
   num_workers: 1
   subtile_width_meters: 50
   subtile_overlap: ${predict.subtile_overlap}
-  subsample_size: 12500
 callbacks:
   log_code:
     _target_: myria3d.callbacks.comet_callbacks.LogCode
@@ -138,6 +148,7 @@ model:
     num_classes: ${model.num_classes}
     d_in: ${model.d_in}
     num_neighbors: 16
+    num_fixed_points: 12500
     decimation: 4
     dropout: 0.5
   iou:
