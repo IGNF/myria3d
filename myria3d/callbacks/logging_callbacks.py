@@ -113,6 +113,7 @@ class SingleClassIoU(JaccardIndex):
     This enables good computation of epoch-level JaccardIndex.
     i.e. use the full confusion matrix instead of averaging many step-level JaccardIndex.
     Default parameters of JaccardIndex are used except for absent_score set to 1.0 and none reduction.
+
     """
 
     def __init__(
