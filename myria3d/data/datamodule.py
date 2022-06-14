@@ -178,11 +178,12 @@ class DataModule(LightningDataModule):
         Args:
             data (Data): data, usually post-transform to show their effect.
             color (Tensor, optional): array with which to color the graph.
+
         """
 
         # creating an empty canvas
 
-        fig = plt.figure(figsize=(20, 20))
+        plt.figure(figsize=(20, 20))
 
         # defining the axes with the projection
         # as 3D so as to plot 3D graphs

@@ -1,17 +1,15 @@
 import os
-from typing import Union
-from omegaconf import DictConfig, OmegaConf
 from hydra.utils import instantiate
 import hydra
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import LightningDataModule
-
-# need to import myria3d for its hydra resolver to be loaded
-import myria3d
-from torch_geometric.data import Data, Batch
-import networkx as nx
 import matplotlib.pyplot as plt
 import torch
 import math
+
+# need to import myria3d for its hydra resolver to be loaded
+import myria3d  # noqa
+
 
 # Parameter to vary sampling strength
 NUM_NODES_SAMPLING = 40000
