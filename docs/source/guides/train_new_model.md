@@ -34,6 +34,11 @@ python run.py experiment=RandLaNet_base_run_FR
 
 After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified, with an associated hydra `config.yaml`.
 
+### Optimized learning rate
+
+Pytorch Lightning support au [automated learning rate finder](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find), by means of an Learning Rate-range test (see section 3.3 in [this paper](https://arxiv.org/pdf/1506.01186.pdf) for reference). 
+You can perfom this automatically before training by setting `trainer.auto_lr_find=true` when calling training on your dataset. The best learning rate will be logged and results saved as an image, so that you do not need to perform this test more than once.
+
 ## Testing the model
 
 To evaluate per-class IoU on unseen, annotated data, you need to use the aforementionned training hydra config and run:
