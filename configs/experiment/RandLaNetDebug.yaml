@@ -22,6 +22,5 @@ trainer:
 
 datamodule:
   batch_size: 16 # Large possible for faster training.
-  num_fixed_points: 12500  # Aim for at least 10pts/m²
   num_workers: 1
 
