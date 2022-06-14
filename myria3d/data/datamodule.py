@@ -178,7 +178,6 @@ class DataModule(LightningDataModule):
         Args:
             data (Data): data, usually post-transform to show their effect.
             color (Tensor, optional): array with which to color the graph.
-
         """
 
         # creating an empty canvas

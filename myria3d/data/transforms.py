@@ -10,31 +10,6 @@ from myria3d.utils import utils
 log = utils.get_logger(__name__)
 
 
-class CustomCompose(BaseTransform):
-    """
-    Composes several transforms together.
-    Edited to bypass downstream transforms if None is returned by a transform.
-
-    Args:
-        transforms (List[Callable]): List of transforms to compose.
-
-    """
-
-    def __init__(self, transforms: List[Callable]):
-        self.transforms = transforms
-
-    def __call__(self, data):
-        for transform in self.transforms:
-            if isinstance(data, (list, tuple)):
-                data = [transform(d) for d in data]
-                data = filter(lambda x: x is not None, data)
-            else:
-                data = transform(data)
-                if data is None:
-                    return None
-        return data
-
-
 class ToTensor(BaseTransform):
     """Turn np.arrays specified by their keys into Tensor."""
 
@@ -78,8 +53,8 @@ class CopySampledPos(BaseTransform):
         return data
 
 
-class NormalizedFolowingDataLogic(BaseTransform):
-    """Apply the normalization specified in the data_signature"""
+class NormalizeFolowingDataLogic(BaseTransform):
+    """Apply the normalization specified in the data_signature."""
 
     def __init__(self, data_signature: LidarDataSignature):
         self.data_signature = data_signature

@@ -20,7 +20,6 @@ d_in: 12
 num_classes: 7
 
 # loading functions for data object prepared via myria3d/datamodule/data.py
-load_las_func:
-  _target_: functools.partial
-  _args_:
-    - "${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}"
+# Nota: In this function, artefacts as well as synthetic points (65, 66) are filtered out.
+data_signature:
+  _target_: myria3d.data.loading.FrenchLidarDataSignature
