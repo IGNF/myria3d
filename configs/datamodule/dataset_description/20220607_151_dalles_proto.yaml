@@ -10,7 +10,7 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64}
 
 # Temporary classification dict to care of abnormal classes that are to be corrected in the dataset.
-classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1, 7: 1, ,46: 1, 47: 1, 48: 1, 49: 1, 50: 1, 51: 1, 52: 1, 53: 1, 54: 1, 55: 1, 56: 1, 57: 1, 58: 1, 66: 1, 67: 1, 77: 1, 155: 1, 204: 1}
+classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1, 7: 1, 46: 1, 47: 1, 48: 1, 49: 1, 50: 1, 51: 1, 52: 1, 53: 1, 54: 1, 55: 1, 56: 1, 57: 1, 58: 1, 66: 1, 67: 1, 77: 1, 155: 1, 204: 1}
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge, 64: lasting_above}
 
