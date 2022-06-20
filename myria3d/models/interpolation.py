@@ -81,9 +81,10 @@ class Interpolator:
     def store_predictions(self, logits, pos, idx_in_original_cloud):
         """Keep a list of predictions made so far."""
         self.logits += [logits]
-        self.pos += [pos]  # TODO: check if a list already ?
+        self.pos += [pos]
         self.idx_in_full_cloud_list += idx_in_original_cloud
 
+    @torch.no_grad()
     def reduce_predicted_logits(self, las):
         """Interpolate logits to points without predictions using an inverse-distance weightning scheme.
 
@@ -109,6 +110,7 @@ class Interpolator:
         # Warning : some points may not contain any predictions if they were in small areas.
         return reduced_logits
 
+    @torch.no_grad()
     def reduce_predictions_and_save(self, raw_path: str, output_dir: str) -> str:
         """Interpolate all predicted probabilites to their original points in LAS file, and save.
 

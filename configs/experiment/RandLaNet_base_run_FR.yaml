@@ -2,9 +2,6 @@
 defaults:
   - override /datamodule/dataset_description: 20220504_proto23dalles
 
-datamodule:
-  augment: true
-
 logger:
   comet:
     experiment_name: "RandLaNet - FR Data"

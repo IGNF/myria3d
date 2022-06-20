@@ -11,7 +11,6 @@ from myria3d.models.interpolation import Interpolator
 
 
 log = utils.get_logger(__name__)
-torch.set_grad_enabled(False)
 
 
 def predict(config: DictConfig) -> str:
@@ -39,6 +38,9 @@ def predict(config: DictConfig) -> str:
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_predict_data([config.predict.src_las])
+
+    # Do not require gradient for faster
+    torch.set_grad_enabled(False)
 
     model: LightningModule = hydra.utils.instantiate(config.model)
     model = model.load_from_checkpoint(config.predict.ckpt_path)
