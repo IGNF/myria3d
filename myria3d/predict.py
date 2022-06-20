@@ -62,7 +62,9 @@ def predict(config: DictConfig) -> str:
             batch.idx_in_original_cloud,
         )
 
-    out_f = itp.write(config.predict.src_las, config.predict.output_dir)
+    out_f = itp.reduce_predictions_and_save(
+        config.predict.src_las, config.predict.output_dir
+    )
     return out_f
 
 
@@ -75,8 +77,8 @@ def main(config: DictConfig):
     Parameters in configuration group `predict` can be specified directly in the config file
     or overriden via CLI at runtime.
 
-    This wrapper supports running predictions for all files specified
-    by a glob pattern as specified via config parameter predict.src_las.
+    This wrapper supports running predictions for all files specified by a glob pattern given
+    by config parameter predict.src_las.
 
     """
     # Imports should be nested inside @hydra.main to optimize tab completion
@@ -105,6 +107,4 @@ def main(config: DictConfig):
 
 
 if __name__ == "__main__":
-    # cf. https://github.com/facebookresearch/hydra/issues/1283
-    # OmegaConf.register_new_resolver("get_method", hydra.utils.get_method, replace=True)
     main()
