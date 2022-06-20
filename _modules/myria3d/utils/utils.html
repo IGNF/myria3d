@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.utils.utils &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.utils.utils &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -76,7 +76,12 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -87,6 +92,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -127,7 +160,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="get_logger"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.get_logger">[docs]</a><span class="k">def</span> <span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+<div class="viewcode-block" id="get_logger"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.get_logger">[docs]</a><span class="k">def</span> <span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Initializes multi-GPU-friendly python logger.&quot;&quot;&quot;</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -148,7 +181,7 @@
     <span class="k">return</span> <span class="n">logger</span></div>
 
 
-<div class="viewcode-block" id="extras"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.extras">[docs]</a><span class="k">def</span> <span class="nf">extras</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="extras"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.extras">[docs]</a><span class="k">def</span> <span class="nf">extras</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;A couple of optional utilities, controlled by main config file:</span>
 <span class="sd">    - disabling warnings</span>
 <span class="sd">    - easier access to debug mode</span>
@@ -174,7 +207,7 @@
     <span class="n">OmegaConf</span><span class="o">.</span><span class="n">set_struct</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="print_config"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.print_config">[docs]</a><span class="nd">@rank_zero_only</span>
+<div class="viewcode-block" id="print_config"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">[docs]</a><span class="nd">@rank_zero_only</span>
 <span class="k">def</span> <span class="nf">print_config</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span>
     <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -221,7 +254,7 @@
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="log_hyperparameters"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.log_hyperparameters">[docs]</a><span class="nd">@rank_zero_only</span>
+<div class="viewcode-block" id="log_hyperparameters"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.log_hyperparameters">[docs]</a><span class="nd">@rank_zero_only</span>
 <span class="k">def</span> <span class="nf">log_hyperparameters</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">,</span>
@@ -265,7 +298,7 @@
     <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_hyperparams</span> <span class="o">=</span> <span class="n">empty</span></div>
 
 
-<div class="viewcode-block" id="eval_time"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.eval_time">[docs]</a><span class="k">def</span> <span class="nf">eval_time</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+<div class="viewcode-block" id="eval_time"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.eval_time">[docs]</a><span class="k">def</span> <span class="nf">eval_time</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decorator to log the duration of the decorated method&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">timed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -280,7 +313,7 @@
     <span class="k">return</span> <span class="n">timed</span></div>
 
 
-<div class="viewcode-block" id="define_device_from_config_param"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.utils.html#myria3d.utils.utils.define_device_from_config_param">[docs]</a><span class="k">def</span> <span class="nf">define_device_from_config_param</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">):</span>
+<div class="viewcode-block" id="define_device_from_config_param"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.define_device_from_config_param">[docs]</a><span class="k">def</span> <span class="nf">define_device_from_config_param</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Param can be an in specifying a number of GPU to use (0 or 1) or an int in</span>
 <span class="sd">    a list specifying which GPU to use (cuda:0, cuda:1, etc.)</span>

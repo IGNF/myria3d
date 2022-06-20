@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.data.transforms &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.data.transforms &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -76,7 +76,12 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -87,6 +92,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -125,7 +158,7 @@
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="CustomCompose"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CustomCompose">[docs]</a><span class="k">class</span> <span class="nc">CustomCompose</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="CustomCompose"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.CustomCompose">[docs]</a><span class="k">class</span> <span class="nc">CustomCompose</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Composes several transforms together.</span>
 <span class="sd">    Edited to bypass downstream transforms if None is returned by a transform.</span>
@@ -150,7 +183,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="EmptySubtileFilter"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.EmptySubtileFilter">[docs]</a><span class="k">class</span> <span class="nc">EmptySubtileFilter</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="EmptySubtileFilter"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.EmptySubtileFilter">[docs]</a><span class="k">class</span> <span class="nc">EmptySubtileFilter</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Filter out almost empty subtiles&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">min_num_points_subtile</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
@@ -159,7 +192,7 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="ToTensor"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.ToTensor">[docs]</a><span class="k">class</span> <span class="nc">ToTensor</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="ToTensor"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.ToTensor">[docs]</a><span class="k">class</span> <span class="nc">ToTensor</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Turn np.arrays specified by their keys into Tensor.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]):</span>
@@ -172,15 +205,37 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="CopySampledPos"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.CopySampledPos">[docs]</a><span class="k">class</span> <span class="nc">CopySampledPos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make a copy of the unormalized positions of subsampled points.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CopyFullPos"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.CopyFullPos">[docs]</a><span class="k">class</span> <span class="nc">CopyFullPos</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a copy of the original positions - to be used for test and inference.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos_sampled_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;copies&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">copies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="StandardizeFeatures"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.StandardizeFeatures">[docs]</a><span class="k">class</span> <span class="nc">StandardizeFeatures</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="CopyFullPreparedTargets"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.CopyFullPreparedTargets">[docs]</a><span class="k">class</span> <span class="nc">CopyFullPreparedTargets</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a copy of all, prepared targets - to be used for test.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;copies&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">copies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;transformed_y_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="CopySampledPos"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.CopySampledPos">[docs]</a><span class="k">class</span> <span class="nc">CopySampledPos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make a copy of the unormalized positions of subsampled points - to be used for test and inference.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;copies&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">copies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_sampled_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="StandardizeFeatures"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.StandardizeFeatures">[docs]</a><span class="k">class</span> <span class="nc">StandardizeFeatures</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Scale features in 0-1 range.</span>
 <span class="sd">    Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).</span>
 
@@ -207,7 +262,7 @@
         <span class="k">return</span> <span class="n">clamped</span></div>
 
 
-<div class="viewcode-block" id="NormalizePos"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.NormalizePos">[docs]</a><span class="k">class</span> <span class="nc">NormalizePos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="NormalizePos"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.NormalizePos">[docs]</a><span class="k">class</span> <span class="nc">NormalizePos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalizes positions:</span>
 <span class="sd">        - xy positions to be in the interval (-1, 1)</span>
@@ -230,7 +285,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TargetTransform"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.transforms.TargetTransform">[docs]</a><span class="k">class</span> <span class="nc">TargetTransform</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="TargetTransform"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.transforms.TargetTransform">[docs]</a><span class="k">class</span> <span class="nc">TargetTransform</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make target vector based on input classification dictionnary.</span>
 

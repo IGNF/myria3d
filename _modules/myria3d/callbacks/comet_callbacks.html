@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.callbacks.comet_callbacks &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.callbacks.comet_callbacks &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -76,7 +76,12 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -87,6 +92,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -136,7 +169,7 @@
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="get_comet_logger"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.get_comet_logger">[docs]</a><span class="k">def</span> <span class="nf">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="p">:</span> <span class="n">Trainer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CometLogger</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_comet_logger"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.get_comet_logger">[docs]</a><span class="k">def</span> <span class="nf">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="p">:</span> <span class="n">Trainer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CometLogger</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Safely get logger from Trainer.</span>
 <span class="sd">    If there is no comet logger, simply returns None to deactivate comet-based callbacks.&quot;&quot;&quot;</span>
 
@@ -155,7 +188,7 @@
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="LogCode"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode">[docs]</a><span class="k">class</span> <span class="nc">LogCode</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
+<div class="viewcode-block" id="LogCode"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode">[docs]</a><span class="k">class</span> <span class="nc">LogCode</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Upload all code files to comet, at the beginning of the run.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -168,7 +201,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">code_dir</span> <span class="o">=</span> <span class="n">code_dir</span>
 
-<div class="viewcode-block" id="LogCode.on_train_start"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode.on_train_start">[docs]</a>    <span class="nd">@rank_zero_only</span>
+<div class="viewcode-block" id="LogCode.on_train_start"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode.on_train_start">[docs]</a>    <span class="nd">@rank_zero_only</span>
     <span class="k">def</span> <span class="nf">on_train_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">pl_module</span><span class="p">):</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="n">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
@@ -177,10 +210,10 @@
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Logging all .py files to Comet.ml!&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="LogLogsPath"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath">[docs]</a><span class="k">class</span> <span class="nc">LogLogsPath</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
+<div class="viewcode-block" id="LogLogsPath"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath">[docs]</a><span class="k">class</span> <span class="nc">LogLogsPath</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Logs run working directory to comet.ml&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LogLogsPath.on_init_end"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath.on_init_end">[docs]</a>    <span class="nd">@rank_zero_only</span>
+<div class="viewcode-block" id="LogLogsPath.on_init_end"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath.on_init_end">[docs]</a>    <span class="nd">@rank_zero_only</span>
     <span class="k">def</span> <span class="nf">on_init_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainer</span><span class="p">):</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="n">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>

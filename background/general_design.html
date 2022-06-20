@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KNN-Interpolation to merge multiple predictions [TODO] &mdash; myria3d 2.3.0 documentation</title>
+  <title>General design of the package &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="General design of the package" href="general_design.html" />
-    <link rel="prev" title="Developer’s guide" href="../guides/development.html" /> 
+    <link rel="next" title="Scripts" href="../apidoc/scripts.html" />
+    <link rel="prev" title="KNN-Interpolation to merge multiple predictions [TODO]" href="interpolation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -78,11 +78,11 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="general_design.html">General design of the package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
 </ul>
 </li>
 </ul>
@@ -139,9 +139,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>KNN-Interpolation to merge multiple predictions [TODO]</li>
+      <li>General design of the package</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/background/interpolation.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/background/general_design.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -149,20 +149,52 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="knn-interpolation-to-merge-multiple-predictions-todo">
-<h1>KNN-Interpolation to merge multiple predictions [TODO]<a class="headerlink" href="#knn-interpolation-to-merge-multiple-predictions-todo" title="Permalink to this headline"></a></h1>
-<p>.. warning:: Work in progress</p>
-<p>-&gt; geometric regularity
--&gt; KNN
--&gt; test-time overlap</p>
+  <section id="general-design-of-the-package">
+<h1>General design of the package<a class="headerlink" href="#general-design-of-the-package" title="Permalink to this headline"></a></h1>
+<p>Here are a few challenges relative to training 3D segmentation models for Aerial High Density Lidar, and the strategies we adopt in Myria3D in order to face them.</p>
+<section id="subsampling-is-important-to-improve-point-cloud-structure">
+<h2>Subsampling is important to improve point cloud structure<a class="headerlink" href="#subsampling-is-important-to-improve-point-cloud-structure" title="Permalink to this headline"></a></h2>
+<p><strong>Situation</strong>:</p>
+<ul class="simple">
+<li><p>Point Cloud data, and aerial Lidar data, represent rich data with a level of detail that might hinder the detection of  objects with generally simple structures such as buildings, ground, and trees. On the other hand, smaller, more variate objects might benefit from denser point clouds.</p></li>
+<li><p>Another point to consider is that some 3D semantic segmentation architectures - including the RandLa-Net architecture we leverage - need fixed size point cloud. This means that either subsampling or padding are required. This kind of implementation reduces flexibility and is suboptimal, but to our knowledge there are no alternative RandLa-Net implementation in pytorch that can accept different-size point clouds within the same batch.</p></li>
+</ul>
+<p><strong>Strategy</strong>:</p>
+<ul class="simple">
+<li><p>We leverage torch_geometric <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/modules/transforms.html#torch_geometric.transforms.GridSampling">GridSampling</a> and <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/modules/transforms.html#torch_geometric.transforms.FixedPoints">FixedPoints</a> to (i) simplify local point structures with a 0.25m resolution, and (ii) get a fixed size point cloud that can be fed to the mmodel. Grid Sampling has the effect of reducing point cloud size by around a third, with most reductions expected to occur in vegetation.</p></li>
+</ul>
+</section>
+<section id="speed-is-of-the-essence">
+<h2>Speed is of the essence<a class="headerlink" href="#speed-is-of-the-essence" title="Permalink to this headline"></a></h2>
+<p><strong>Situation</strong>:</p>
+<ul class="simple">
+<li><p>Short training time allow for faster iterations, more frequent feedback on architecture design, less time spent on doomed solutions. As a result, we want to be parcimonious in terms of the operation performed during a train forward pass of a model.</p></li>
+</ul>
+<p><strong>Strategy</strong>:</p>
+<ul class="simple">
+<li><p>During training and validation phases, we perform supervision and back-propagation on the subsampled point cloud directly. Our hypothesis is that the gain we may expect from interpolating predicted logits to the full point cloud (usually from N’=~12500 to N~30000 on a average for a 50mx50m sample) is tiny compared to the computational cost of such operation (time of a forward pass multiplied from x5 to x10 with a batch size of 32 on CPU).</p></li>
+</ul>
+</section>
+<section id="evaluation-is-key-to-select-the-right-approach">
+<h2>Evaluation is key to select the right approach<a class="headerlink" href="#evaluation-is-key-to-select-the-right-approach" title="Permalink to this headline"></a></h2>
+<p><strong>Situation</strong>:</p>
+<ul class="simple">
+<li><p>Evaluation of models must be reliable in order to compare solutions. For semantic segmentation models on point cloud, this means that performance metrics (i.e. mean and by-class Intersection-over-Union) should be computed based on a confusion matrix that is computed from all points in all point clouds in the test dataset.</p></li>
+</ul>
+<p><strong>Strategy</strong>:</p>
+<ul class="simple">
+<li><p>During test phase, we <strong>do</strong> interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in <code class="docutils literal notranslate"><span class="pre">eval</span></code> mode only, and is also leveraged during inference.</p></li>
+<li><p>This differentiated approach between <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">eval</span></code> modes has the drawback of requiring full (non-subsampled) positions and targets as well as subsampled, non-normalized positions to be copied and saved at data preparation time to allow for the interpolation.</p></li>
+</ul>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../guides/development.html" class="btn btn-neutral float-left" title="Developer’s guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="general_design.html" class="btn btn-neutral float-right" title="General design of the package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="interpolation.html" class="btn btn-neutral float-left" title="KNN-Interpolation to merge multiple predictions [TODO]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../apidoc/scripts.html" class="btn btn-neutral float-right" title="Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

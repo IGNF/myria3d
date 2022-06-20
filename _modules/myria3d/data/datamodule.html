@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.data.datamodule &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.data.datamodule &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -76,7 +76,12 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -87,6 +92,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -132,7 +165,7 @@
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DataModule"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule">[docs]</a><span class="k">class</span> <span class="nc">DataModule</span><span class="p">(</span><span class="n">LightningDataModule</span><span class="p">):</span>
+<div class="viewcode-block" id="DataModule"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule">[docs]</a><span class="k">class</span> <span class="nc">DataModule</span><span class="p">(</span><span class="n">LightningDataModule</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Datamodule to feed train and validation data to the model.</span>
 
 <span class="sd">    At fit time (train+validate), data is loaded from a prepared dataset (see. loading.py).</span>
@@ -142,30 +175,31 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="c1"># TODO: try to use save_hyperparameters to lightne this code.</span>
+        <span class="c1"># paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prepared_data_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prepared_data_dir&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">test_data_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test_data_dir&quot;</span><span class="p">)</span>
-
+        <span class="c1"># compute</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_workers&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_factor&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># data preparation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width_meters</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subtile_width_meters&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subtile_overlap&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_factor&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transforms</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;augmentation_transforms&quot;</span><span class="p">,</span> <span class="p">[])</span>
-
+        <span class="c1"># segmentation task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_description</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_description&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classification_dict&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classification_preprocessing_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="s2">&quot;classification_preprocessing_dict&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_las</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;load_las_func&quot;</span><span class="p">)</span>
+        <span class="c1"># transforms</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transforms&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preparation_transforms</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_list&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transforms</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;augmentations_list&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transforms</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;normalizations_list&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DataModule.setup"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DataModule.setup"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Loads data. Sets variables: self.data_train, self.data_val, self.data_test.</span>
 <span class="sd">        :meta private:</span>
 
@@ -223,7 +257,7 @@
             <span class="n">subtile_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="DataModule.train_dataloader"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.train_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataModule.train_dataloader"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.train_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets train dataloader.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="p">,</span>
@@ -233,7 +267,7 @@
             <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="DataModule.val_dataloader"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.val_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataModule.val_dataloader"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.val_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets validation dataloader.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">val_data</span><span class="p">,</span>
@@ -242,7 +276,7 @@
             <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="DataModule.test_dataloader"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.test_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataModule.test_dataloader"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.test_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets test dataloader.</span>
 
 <span class="sd">        The dataloader will produces batches of prepared subtiles from a single tile (point cloud).</span>
@@ -256,7 +290,7 @@
             <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="DataModule.predict_dataloader"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.DataModule.predict_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">predict_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataModule.predict_dataloader"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.predict_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">predict_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets predict dataloader.</span>
 
 <span class="sd">        The dataloader will produces batches of prepared subtiles from a single tile (point cloud).</span>
@@ -293,7 +327,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_val_transforms</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="LidarMapDataset"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarMapDataset">[docs]</a><span class="k">class</span> <span class="nc">LidarMapDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarMapDataset"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.LidarMapDataset">[docs]</a><span class="k">class</span> <span class="nc">LidarMapDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A Dataset to load prepared data as produced via loading.py.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -322,7 +356,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_files</span></div>
 
 
-<div class="viewcode-block" id="LidarIterableDataset"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset">[docs]</a><span class="k">class</span> <span class="nc">LidarIterableDataset</span><span class="p">(</span><span class="n">IterableDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarIterableDataset"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset">[docs]</a><span class="k">class</span> <span class="nc">LidarIterableDataset</span><span class="p">(</span><span class="n">IterableDataset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A Dataset to load a full point cloud, batch by batch.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -339,7 +373,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width_meters</span> <span class="o">=</span> <span class="n">subtile_width_meters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap</span> <span class="o">=</span> <span class="n">subtile_overlap</span>
 
-<div class="viewcode-block" id="LidarIterableDataset.yield_transformed_subtile_data"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.yield_transformed_subtile_data">[docs]</a>    <span class="k">def</span> <span class="nf">yield_transformed_subtile_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarIterableDataset.yield_transformed_subtile_data"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.yield_transformed_subtile_data">[docs]</a>    <span class="k">def</span> <span class="nf">yield_transformed_subtile_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Yield subtiles from all tiles in an exhaustive fashion.&quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">):</span>
@@ -349,6 +383,8 @@
             <span class="c1"># TODO: change to process time function</span>
             <span class="k">for</span> <span class="n">xy_min_corner</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_subtile_from_tile_data</span><span class="p">(</span><span class="n">tile_data</span><span class="p">,</span> <span class="n">xy_min_corner</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+                    <span class="k">continue</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">:</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">data</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">):</span>
@@ -357,7 +393,7 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">yield_transformed_subtile_data</span><span class="p">()</span>
 
-<div class="viewcode-block" id="LidarIterableDataset.get_all_subtiles_xy_min_corner"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.get_all_subtiles_xy_min_corner">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_subtiles_xy_min_corner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarIterableDataset.get_all_subtiles_xy_min_corner"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.get_all_subtiles_xy_min_corner">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_subtiles_xy_min_corner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get centers of square subtiles of specified width, assuming rectangular form of input cloud.&quot;&quot;&quot;</span>
 
         <span class="n">low</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -378,7 +414,7 @@
         <span class="c1"># random.shuffle(centers)</span>
         <span class="k">return</span> <span class="n">xy_min_corners</span></div>
 
-<div class="viewcode-block" id="LidarIterableDataset.extract_subtile_from_tile_data"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data">[docs]</a>    <span class="k">def</span> <span class="nf">extract_subtile_from_tile_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">low_xy</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarIterableDataset.extract_subtile_from_tile_data"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data">[docs]</a>    <span class="k">def</span> <span class="nf">extract_subtile_from_tile_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">low_xy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Extract the subset from xy_min_corner to xy_min_corner + self.subtile_width_meters</span>
 
 <span class="sd">        Args:</span>

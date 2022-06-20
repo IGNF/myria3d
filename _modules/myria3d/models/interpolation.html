@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.interpolation &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.models.interpolation &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -76,7 +76,12 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -87,6 +92,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -121,21 +154,21 @@
 <span class="kn">import</span> <span class="nn">pdal</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch_geometric.nn.unpool</span> <span class="kn">import</span> <span class="n">knn_interpolate</span>
 <span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Categorical</span>
 <span class="kn">from</span> <span class="nn">torch_scatter</span> <span class="kn">import</span> <span class="n">scatter_sum</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ChannelNames"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.ChannelNames">[docs]</a><span class="k">class</span> <span class="nc">ChannelNames</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelNames"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.ChannelNames">[docs]</a><span class="k">class</span> <span class="nc">ChannelNames</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Names of custom additional LAS channel.&quot;&quot;&quot;</span>
 
     <span class="n">PredictedClassification</span> <span class="o">=</span> <span class="s2">&quot;PredictedClassification&quot;</span>
     <span class="n">ProbasEntropy</span> <span class="o">=</span> <span class="s2">&quot;entropy&quot;</span></div>
 
 
-<div class="viewcode-block" id="Interpolator"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator">[docs]</a><span class="k">class</span> <span class="nc">Interpolator</span><span class="p">:</span>
+<span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">Interpolator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;A class to load, update with classification, update with probas (optionnal), and save a LAS.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -149,7 +182,7 @@
 <span class="sd">            interpolation_k (int, optional): Number of Nearest-Neighboors for inverse-distance averaging of logits. Defaults 10.</span>
 <span class="sd">            classification_dict (Dict[int, str], optional): Mapper from classification code to class name (e.g. {6:building}). Defaults {}.</span>
 <span class="sd">            probas_to_save (List[str] or &quot;all&quot;, optional): Specific probabilities to save as new LAS dimensions.</span>
-<span class="sd">            Override with None for no saving of probabilitiues. Defaults to &quot;all&quot;.</span>
+<span class="sd">            Override with None for no saving of probabilities. Defaults to &quot;all&quot;.</span>
 
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -170,22 +203,19 @@
             <span class="k">for</span> <span class="n">class_index</span><span class="p">,</span> <span class="n">class_code</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">reset_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logits_sub</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos_sub</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Interpolator.load_full_las_for_update"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.load_full_las_for_update">[docs]</a>    <span class="k">def</span> <span class="nf">load_full_las_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_full_las_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_las</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Loads a LAS and adds necessary extradim.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filepath (str): Path to LAS for which predictions are made.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># self.current_f = filepath</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">raw_path</span><span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">src_las</span><span class="p">)</span>
         <span class="n">new_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">+</span> <span class="p">[</span>
             <span class="n">ChannelNames</span><span class="o">.</span><span class="n">PredictedClassification</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
             <span class="n">ChannelNames</span><span class="o">.</span><span class="n">ProbasEntropy</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
@@ -195,92 +225,42 @@
                 <span class="n">dimensions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;=&gt;</span><span class="si">{</span><span class="n">new_dim</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span> <span class="o">|</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_dim</span><span class="si">}</span><span class="s2">=0&quot;</span><span class="p">)</span>
         <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># named array</span></div>
+        <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># named array</span>
 
-<div class="viewcode-block" id="Interpolator.store_predictions"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.store_predictions">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">store_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">idx_in_original_cloud</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">store_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">idx_in_original_cloud</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Keep a list of predictions made so far.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logits_sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos_sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits</span> <span class="o">+=</span> <span class="p">[</span><span class="n">logits</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pos</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span> <span class="o">+=</span> <span class="n">idx_in_original_cloud</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span><span class="p">:</span>
-            <span class="c1"># starts at 0 if this is the first batch</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># starts from current max batch index</span>
-            <span class="n">current_max_batch_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_max_batch_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">batch</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Interpolator.interpolate_logits"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.interpolate_logits">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">interpolate_logits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las</span><span class="p">):</span>
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">reduce_predicted_logits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Interpolate logits to points without predictions using an inverse-distance weightning scheme.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor, torch.Tensor: interpolated logits and targets/original classification</span>
+<span class="sd">            torch.Tensor, torch.Tensor: interpolated logits classification</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># Cat</span>
-        <span class="n">logits_sub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits_sub</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-        <span class="n">pos_sub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_sub</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-        <span class="n">batch_sub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits_sub</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_sub</span>
-
-        <span class="c1"># create a batch for the full las</span>
-        <span class="c1"># concatenate</span>
-        <span class="n">batch_full_cloud</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">),),</span> <span class="n">i</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">)</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
+        <span class="c1"># Concatenate elements from different batches</span>
+        <span class="n">logits</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
         <span class="n">idx_in_full_cloud</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">)</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span>
-
-        <span class="c1"># Reorganize points in original LAS to order them by batch,</span>
-        <span class="c1"># matching subsampled batch</span>
-        <span class="c1"># If required, they could be reorered back at save time by using</span>
-        <span class="c1"># np.argsort(current_max_batch_idx) as sorting indices.</span>
-
-        <span class="n">ordered_las</span> <span class="o">=</span> <span class="n">las</span><span class="p">[</span><span class="n">idx_in_full_cloud</span><span class="p">]</span>
-
-        <span class="n">pos_las</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">ordered_las</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span>
-                    <span class="n">ordered_las</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span>
-                    <span class="n">ordered_las</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">],</span>
-                <span class="p">],</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Find nn among points with predictions for all points</span>
-        <span class="c1"># Only interpolate within a model&#39;s receptive field zone</span>
-        <span class="n">interpolated_logits</span> <span class="o">=</span> <span class="n">knn_interpolate</span><span class="p">(</span>
-            <span class="n">logits_sub</span><span class="p">,</span>
-            <span class="n">pos_sub</span><span class="p">,</span>
-            <span class="n">pos_las</span><span class="p">,</span>
-            <span class="n">batch_x</span><span class="o">=</span><span class="n">batch_sub</span><span class="p">,</span>
-            <span class="n">batch_y</span><span class="o">=</span><span class="n">batch_full_cloud</span><span class="p">,</span>
-            <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span>
-            <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-        <span class="p">)</span>
 
         <span class="c1"># We scatter_sum logits based on idx, in case there are multiple predictions for a point.</span>
         <span class="c1"># scatter_sum reorders logitsbased on index,they therefore match las order.</span>
-        <span class="n">reduced_logits</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">las</span><span class="p">),</span> <span class="n">interpolated_logits</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">reduced_logits</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">las</span><span class="p">),</span> <span class="n">logits</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
         <span class="n">scatter_sum</span><span class="p">(</span>
-            <span class="n">interpolated_logits</span><span class="p">,</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">idx_in_full_cloud</span><span class="p">),</span>
-            <span class="n">out</span><span class="o">=</span><span class="n">reduced_logits</span><span class="p">,</span>
-            <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">logits</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">idx_in_full_cloud</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">reduced_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">reduced_logits</span></div>
+        <span class="c1"># reduced_logits contains logits ordered by their idx in original cloud !</span>
+        <span class="c1"># Warning : some points may not contain any predictions if they were in small areas.</span>
+        <span class="k">return</span> <span class="n">reduced_logits</span>
 
-<div class="viewcode-block" id="Interpolator.write"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.model.html#myria3d.models.interpolation.Interpolator.write">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">reduce_predictions_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Interpolate all predicted probabilites to their original points in LAS file, and save.</span>
 
 <span class="sd">        Args:</span>
@@ -293,8 +273,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">raw_path</span><span class="p">)</span>
-        <span class="n">las</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_full_las_for_update</span><span class="p">(</span><span class="n">raw_path</span><span class="o">=</span><span class="n">raw_path</span><span class="p">)</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_logits</span><span class="p">(</span><span class="n">las</span><span class="p">)</span>
+        <span class="n">las</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_full_las_for_update</span><span class="p">(</span><span class="n">src_las</span><span class="o">=</span><span class="n">raw_path</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_predicted_logits</span><span class="p">(</span><span class="n">las</span><span class="p">)</span>
 
         <span class="n">probas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)(</span><span class="n">logits</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -310,7 +290,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">out_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
         <span class="n">out_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated LAS will be saved to </span><span class="si">{</span><span class="n">out_f</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated LAS (</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">) will be saved to </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving...&quot;</span><span class="p">)</span>
         <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Writer</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">out_f</span><span class="p">,</span> <span class="n">extra_dims</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">minor_version</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dataformat_id</span><span class="o">=</span><span class="mi">8</span>
@@ -318,7 +298,7 @@
         <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved.&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">out_f</span></div></div>
+        <span class="k">return</span> <span class="n">out_f</span>
 </pre></div>
 
            </div>

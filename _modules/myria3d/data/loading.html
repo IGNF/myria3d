@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.data.loading &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.data.loading &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -76,7 +76,12 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -87,6 +92,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -148,7 +181,7 @@
 <span class="n">SPLIT_CSV_FOR_TOY_DATASET</span> <span class="o">=</span> <span class="s2">&quot;tests/data/toy_dataset_src/toy_dataset_split.csv&quot;</span>
 
 
-<div class="viewcode-block" id="LidarDataLogic"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">LidarDataLogic</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarDataLogic"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">LidarDataLogic</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.</span>
 <span class="sd">    load_las and its needed parameters ares specified in child classes.</span>
 
@@ -171,7 +204,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_tile_width_meters</span> <span class="o">=</span> <span class="n">input_tile_width_meters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width_meters</span> <span class="o">=</span> <span class="n">subtile_width_meters</span>
 
-<div class="viewcode-block" id="LidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.load_las">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="LidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.load_las">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.</span>
 
@@ -184,7 +217,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="LidarDataLogic.prepare"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LidarDataLogic.prepare"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Prepare a dataset for model training and model evaluation.</span>
 
 <span class="sd">        Iterates through LAS files listed in a csv metadata file.</span>
@@ -216,7 +249,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Phase should be one of train/val/test.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LidarDataLogic.split_and_save"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.LidarDataLogic.split_and_save">[docs]</a>    <span class="k">def</span> <span class="nf">split_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_subdir_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="LidarDataLogic.split_and_save"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.split_and_save">[docs]</a>    <span class="k">def</span> <span class="nf">split_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_subdir_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Parse a LAS, extract and save each subtile as a Data object.</span>
 
 <span class="sd">        Args:</span>
@@ -240,7 +273,8 @@
                     <span class="c1"># Ignore if empty</span>
                     <span class="k">break</span>
                 <span class="n">subtile_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_by_y</span><span class="p">(</span><span class="n">data_x_band</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">subtile_data</span><span class="p">,</span> <span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">subtile_data</span> <span class="ow">and</span> <span class="n">subtile_data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">subtile_data</span><span class="p">,</span> <span class="n">output_subdir_path</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
                 <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
     <span class="k">def</span> <span class="nf">_find_file_in_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -307,7 +341,7 @@
         <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">subtile_data</span><span class="p">,</span> <span class="n">subtile_save_path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FrenchLidarDataLogic"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.FrenchLidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">FrenchLidarDataLogic</span><span class="p">(</span><span class="n">LidarDataLogic</span><span class="p">):</span>
+<div class="viewcode-block" id="FrenchLidarDataLogic"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.FrenchLidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">FrenchLidarDataLogic</span><span class="p">(</span><span class="n">LidarDataLogic</span><span class="p">):</span>
 
     <span class="n">x_features_names</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;intensity&quot;</span><span class="p">,</span>
@@ -325,7 +359,7 @@
     <span class="c1"># Exclusion of 65: artefacts, and 66: virtual points.</span>
     <span class="n">excluded_classes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">65</span><span class="p">,</span> <span class="mi">66</span><span class="p">]</span>
 
-<div class="viewcode-block" id="FrenchLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FrenchLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.</span>
 
@@ -415,7 +449,7 @@
         <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SwissTopoLidarDataLogic"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.SwissTopoLidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">SwissTopoLidarDataLogic</span><span class="p">(</span><span class="n">LidarDataLogic</span><span class="p">):</span>
+<div class="viewcode-block" id="SwissTopoLidarDataLogic"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.SwissTopoLidarDataLogic">[docs]</a><span class="k">class</span> <span class="nc">SwissTopoLidarDataLogic</span><span class="p">(</span><span class="n">LidarDataLogic</span><span class="p">):</span>
     <span class="n">x_features_names</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;intensity&quot;</span><span class="p">,</span>
         <span class="s2">&quot;return_number&quot;</span><span class="p">,</span>
@@ -427,7 +461,7 @@
     <span class="p">]</span>
     <span class="n">colors_normalization_max_value</span> <span class="o">=</span> <span class="mi">256</span>
 
-<div class="viewcode-block" id="SwissTopoLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SwissTopoLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.</span>
 
@@ -502,7 +536,7 @@
         <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="make_toy_dataset_from_test_file"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.make_toy_dataset_from_test_file">[docs]</a><span class="k">def</span> <span class="nf">make_toy_dataset_from_test_file</span><span class="p">(</span>
+<div class="viewcode-block" id="make_toy_dataset_from_test_file"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file">[docs]</a><span class="k">def</span> <span class="nf">make_toy_dataset_from_test_file</span><span class="p">(</span>
     <span class="n">prepared_data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">src_las_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">LAS_SUBSET_FOR_TOY_DATASET</span><span class="p">,</span>
     <span class="n">split_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SPLIT_CSV_FOR_TOY_DATASET</span><span class="p">,</span>
@@ -583,7 +617,7 @@
     <span class="k">return</span> <span class="n">parser</span>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../apidoc/lidar_multiclass.data.html#myria3d.data.loading.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Code to execute to prepare a new set of Lidar tiles for training 3D segmentaiton neural networks.</span>
 
 <span class="sd">    From a data directory containing point cloud in LAS format, and a scv specifying the dataset</span>

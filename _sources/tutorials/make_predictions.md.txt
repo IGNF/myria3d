@@ -5,7 +5,7 @@ Refer to [this tutorial](./setup_install.md) for how to setup a virtual environm
 To run inference, you will need:
 - A source cloud point in LAS format on which to infer classes and probabilites.
 - A checkpoint of a trained lightning module implementing model logic (class `myria3d.models.model.Model`)
-- A minimal yaml configuration specifying parameters. We use [hydra](https://hydra.cc/) to manage configurations, and this yaml results from the model training. The `datamodule` and `model` parameters groups must match datset characteristics and model training settings.  The `predict` parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal).
+- A minimal yaml configuration specifying parameters. We use [hydra](https://hydra.cc/) to manage configurations, and this yaml results from the model training. The `datamodule` and `model` parameters groups must match dataset characteristics and model training settings.  The `predict` parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal). For hints on what to modify, see the `experiment/predict.yaml` file.
 
 ## Run inference from installed package
 

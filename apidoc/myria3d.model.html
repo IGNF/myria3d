@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.models &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -18,7 +18,9 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="myria3d.models.modules" href="myria3d.models.modules.html" />
+    <link rel="prev" title="myria3d.data" href="myria3d.data.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -77,10 +79,15 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
@@ -88,6 +95,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.data.html">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -106,7 +141,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>myria3d.models</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/apidoc/lidar_multiclass.model.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/apidoc/myria3d.model.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -144,7 +179,7 @@ takes care of the interpolation of predictions between all points.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="myria3d.models.model.Model.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.forward" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+git9be97ea ))"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.forward" title="Permalink to this definition"></a></dt>
 <dd><p>Forward pass of neural network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -157,7 +192,7 @@ takes care of the interpolation of predictions between all points.</p>
 <dd class="field-even"><p>logits</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a> (B*N,C)</p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+git9be97ea ))">torch.Tensor</a> (B*N,C)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -209,7 +244,7 @@ takes care of the interpolation of predictions between all points.</p>
 <dd class="field-even"><p>loss, logits, targets</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+git9be97ea ))">torch.Tensor</a> (1), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+git9be97ea ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+git9be97ea ))">torch.Tensor</a> (B*N,C), <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+git9be97ea ))">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -226,7 +261,7 @@ takes care of the interpolation of predictions between all points.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionnary with predicted logits as well as input batch.</p>
+<dd class="field-even"><p>Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
@@ -301,72 +336,16 @@ by updating the best one.</p>
 <dd><p>Names of custom additional LAS channel.</p>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.interpolation.</span></span><span class="sig-name descname"><span class="pre">Interpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interpolation_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probas_to_save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'all'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator" title="Permalink to this definition"></a></dt>
-<dd><p>A class to load, update with classification, update with probas (optionnal), and save a LAS.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator.interpolate_logits">
-<span class="sig-name descname"><span class="pre">interpolate_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">las</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator.interpolate_logits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator.interpolate_logits" title="Permalink to this definition"></a></dt>
-<dd><p>Interpolate logits to points without predictions using an inverse-distance weightning scheme.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>interpolated logits and targets/original classification</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))">torch.Tensor</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator.load_full_las_for_update">
-<span class="sig-name descname"><span class="pre">load_full_las_for_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator.load_full_las_for_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator.load_full_las_for_update" title="Permalink to this definition"></a></dt>
-<dd><p>Loads a LAS and adds necessary extradim.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.models.interpolation.Interpolator.load_full_las_for_update.params.filepath"></span><strong>filepath</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.interpolation.Interpolator.load_full_las_for_update.params.filepath">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to LAS for which predictions are made.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator.store_predictions">
-<span class="sig-name descname"><span class="pre">store_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_in_original_cloud</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator.store_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator.store_predictions" title="Permalink to this definition"></a></dt>
-<dd><p>Keep a list of predictions made so far.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.interpolation.Interpolator.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/interpolation.html#Interpolator.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.interpolation.Interpolator.write" title="Permalink to this definition"></a></dt>
-<dd><p>Interpolate all predicted probabilites to their original points in LAS file, and save.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="myria3d.models.interpolation.Interpolator.write.params.interpolation"></span><strong>interpolation</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.interpolation.Interpolator.write.params.interpolation">¶</a> (<a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitbd1a35d ))"><em>torch.Tensor</em></a>) – output of _interpolate, of which we need the logits.</p></li>
-<li><p><span class="target" id="myria3d.models.interpolation.Interpolator.write.params.basename"></span><strong>basename</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.interpolation.Interpolator.write.params.basename">¶</a> – str: file basename to save it with the same one</p></li>
-<li><p><span class="target" id="myria3d.models.interpolation.Interpolator.write.params.output_dir"></span><strong>output_dir</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.interpolation.Interpolator.write.params.output_dir">¶</a> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Directory to save output LAS with new predicted classification, entropy,</p></li>
-<li><p><strong>None.</strong> (<em>and _sphinx_paramlinks_myria3d.models.interpolation.Interpolator.write.probabilities. Defaults to</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>path of the updated, saved LAS file.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="myria3d.data.html" class="btn btn-neutral float-left" title="myria3d.data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="myria3d.models.modules.html" class="btn btn-neutral float-right" title="myria3d.models.modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

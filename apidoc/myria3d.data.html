@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.data &mdash; myria3d 2.2.0 documentation</title>
+  <title>myria3d.data &mdash; myria3d 2.3.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -18,7 +18,9 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="myria3d.models" href="myria3d.model.html" />
+    <link rel="prev" title="Default configuration" href="configs.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -77,10 +79,15 @@
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../background/data_optimization.html">Different ways to feed data from large scale point cloud to a neural network [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
@@ -88,6 +95,34 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.data.loading">myria3d.data.loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#pointnet">PointNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -106,7 +141,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>myria3d.data</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/apidoc/lidar_multiclass.data.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/apidoc/myria3d.data.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -354,9 +389,21 @@ dataset loacted in td_prepared</p>
 <section id="module-myria3d.data.transforms">
 <span id="myria3d-data-transforms"></span><h2>myria3d.data.transforms<a class="headerlink" href="#module-myria3d.data.transforms" title="Permalink to this headline"></a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="myria3d.data.transforms.CopyFullPos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">CopyFullPos</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#CopyFullPos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.CopyFullPos" title="Permalink to this definition"></a></dt>
+<dd><p>Make a copy of the original positions - to be used for test and inference.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.data.transforms.CopyFullPreparedTargets">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">CopyFullPreparedTargets</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#CopyFullPreparedTargets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.CopyFullPreparedTargets" title="Permalink to this definition"></a></dt>
+<dd><p>Make a copy of all, prepared targets - to be used for test.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="myria3d.data.transforms.CopySampledPos">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.data.transforms.</span></span><span class="sig-name descname"><span class="pre">CopySampledPos</span></span><a class="reference internal" href="../_modules/myria3d/data/transforms.html#CopySampledPos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.data.transforms.CopySampledPos" title="Permalink to this definition"></a></dt>
-<dd><p>Make a copy of the unormalized positions of subsampled points.</p>
+<dd><p>Make a copy of the unormalized positions of subsampled points - to be used for test and inference.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -424,7 +471,10 @@ Mapped to consecutive integers:
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configs.html" class="btn btn-neutral float-left" title="Default configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="myria3d.model.html" class="btn btn-neutral float-right" title="myria3d.models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
