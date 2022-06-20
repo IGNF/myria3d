@@ -89,28 +89,16 @@ class Interpolator:
         self.idx_in_full_cloud_list += idx_in_original_cloud
 
     @torch.no_grad()
-    def interpolate_logits(self, las):
+    def reduce_predicted_logits(self, las):
         """Interpolate logits to points without predictions using an inverse-distance weightning scheme.
 
         Returns:
-            torch.Tensor, torch.Tensor: interpolated logits and targets/original classification
+            torch.Tensor, torch.Tensor: interpolated logits classification
 
         """
-        # # create a batch dimension (0,..,0,1,..,1,...) for the logits
-        # batch_logits: torch.Tensor = torch.cat(
-        #     [torch.full((len(a),), i) for i, a in enumerate(self.logits)]
-        # )
-        # # create a batch for the full las
-        # batch_full_cloud: torch.Tensor = torch.cat(
-        #     [
-        #         torch.full((len(a),), i)
-        #         for i, a in enumerate(self.idx_in_full_cloud_list)
-        #     ]
-        # )
 
         # Concatenate elements
         logits: torch.Tensor = torch.cat(self.logits).cpu()
-        pos: torch.Tensor = torch.cat(self.pos).cpu()
         idx_in_full_cloud: np.ndarray = np.concatenate(self.idx_in_full_cloud_list)
         del self.logits
         del self.batch
@@ -145,7 +133,7 @@ class Interpolator:
         """
         basename = os.path.basename(raw_path)
         las = self.load_full_las_for_update(raw_path=raw_path)
-        logits = self.interpolate_logits(las)
+        logits = self.reduce_predicted_logits(las)
 
         probas = torch.nn.Softmax(dim=1)(logits)
         for idx, class_name in enumerate(self.classification_dict.values()):
