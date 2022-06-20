@@ -17,4 +17,4 @@ probas_to_save: "all"
 # This comes with a computing cost as the effective predicted area is multiplied.
 subtile_overlap: 0
 # Higher interpolation_k to use more context
-interpolation_k: 10
+interpolation_k: 25
