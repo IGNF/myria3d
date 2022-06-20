@@ -4,6 +4,9 @@
 
 # all parameters below will be merged with parameters from default configurations
 
+defaults:
+  - override /datamodule/transforms/preparations: test.yaml
+
 seed: 12345
 
 task:
@@ -13,8 +16,10 @@ hydra:
   verbose: false
 
 datamodule:
-  # test_data_dir: "path/to_dir/with/annotated/files.las"  # override
-  batch_size: 50
+  # override if needed
+  # test_data_dir: "path/to_dir/with/annotated/files.las"
+  # larger batch size for speed
+  batch_size: 50 
 
 model:
   ckpt_path: "path/to/checkpoint"  # override

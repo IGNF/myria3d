@@ -124,7 +124,8 @@ class LidarDataLogic(ABC):
                     # Ignore if empty
                     break
                 subtile_data = self._extract_by_y(data_x_band)
-                self._save(subtile_data, output_subdir_path, idx)
+                if subtile_data and subtile_data.pos.shape[0] > 50:
+                    self._save(subtile_data, output_subdir_path, idx)
                 idx += 1
 
     def _find_file_in_dir(self, input_data_dir: str, basename: str) -> str:

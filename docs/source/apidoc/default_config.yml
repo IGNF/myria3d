@@ -6,8 +6,8 @@ ignore_warnings: true
 trainer:
   _target_: pytorch_lightning.Trainer
   gpus: 0
-  min_epochs: 30
-  max_epochs: 30
+  min_epochs: 40
+  max_epochs: 40
   log_every_n_steps: 1
   check_val_every_n_epoch: 1
   weights_summary: null
@@ -31,10 +31,51 @@ datamodule:
       _target_: functools.partial
       _args_:
       - ${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}
+  transforms:
+    preparations:
+      ToTensor:
+        _target_: myria3d.data.transforms.ToTensor
+      TargetTransform:
+        _target_: myria3d.data.transforms.TargetTransform
+        _args_:
+        - ${datamodule.dataset_description.classification_preprocessing_dict}
+        - ${datamodule.dataset_description.classification_dict}
+      GridSampling:
+        _target_: torch_geometric.transforms.GridSampling
+        _args_:
+        - 0.25
+      FixedPoints:
+        _target_: torch_geometric.transforms.FixedPoints
+        _args_:
+        - 12500
+        replace: false
+        allow_duplicates: true
+      Center:
+        _target_: torch_geometric.transforms.Center
+    augmentations:
+      x_flip:
+        _target_: torch_geometric.transforms.RandomFlip
+        _args_:
+        - 0
+        p: 0.5
+      y_flip:
+        _target_: torch_geometric.transforms.RandomFlip
+        _args_:
+        - 1
+        p: 0.5
+    normalizations:
+      NormalizePos:
+        _target_: myria3d.data.transforms.NormalizePos
+      StandardizeFeatures:
+        _target_: myria3d.data.transforms.StandardizeFeatures
+    augmentations_list: '${oc.dict.values: datamodule.transforms.augmentations}'
+    preparations_list: '${oc.dict.values: datamodule.transforms.preparations}'
+    normalizations_list: '${oc.dict.values: datamodule.transforms.normalizations}'
   _target_: myria3d.data.datamodule.DataModule
   prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
   test_data_dir: ${datamodule.prepared_data_dir}/test/
   batch_size: 16
+  prefetch_factor: 2
   num_workers: 1
   subtile_width_meters: 50
   subtile_overlap: ${predict.subtile_overlap}

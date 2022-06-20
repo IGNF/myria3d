@@ -11,7 +11,6 @@ from myria3d.models.interpolation import Interpolator
 
 
 log = utils.get_logger(__name__)
-torch.set_grad_enabled(False)
 
 
 def predict(config: DictConfig) -> str:
@@ -40,14 +39,18 @@ def predict(config: DictConfig) -> str:
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
     datamodule._set_predict_data([config.predict.src_las])
 
+    # Do not require gradient for faster
+    torch.set_grad_enabled(False)
+
     model: LightningModule = hydra.utils.instantiate(config.model)
     model = model.load_from_checkpoint(config.predict.ckpt_path)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()
 
+    # TODO: Interpolator could be instantiated directly via hydra.
     itp = Interpolator(
-        interpolation_k=10,
+        interpolation_k=config.predict.interpolation_k,
         classification_dict=datamodule.dataset_description.get("classification_dict"),
         probas_to_save=config.predict.probas_to_save,
     )
@@ -56,10 +59,14 @@ def predict(config: DictConfig) -> str:
         batch.to(device)
         logits = model.predict_step(batch)["logits"]
         itp.store_predictions(
-            logits, batch.pos_sampled_copy, batch.batch, batch.idx_in_original_cloud
+            logits,
+            batch.copies["pos_copy"],
+            batch.idx_in_original_cloud,
         )
 
-    out_f = itp.write(config.predict.src_las, config.predict.output_dir)
+    out_f = itp.reduce_predictions_and_save(
+        config.predict.src_las, config.predict.output_dir
+    )
     return out_f
 
 
@@ -72,8 +79,8 @@ def main(config: DictConfig):
     Parameters in configuration group `predict` can be specified directly in the config file
     or overriden via CLI at runtime.
 
-    This wrapper supports running predictions for all files specified
-    by a glob pattern as specified via config parameter predict.src_las.
+    This wrapper supports running predictions for all files specified by a glob pattern given
+    by config parameter predict.src_las.
 
     """
     # Imports should be nested inside @hydra.main to optimize tab completion
@@ -102,6 +109,4 @@ def main(config: DictConfig):
 
 
 if __name__ == "__main__":
-    # cf. https://github.com/facebookresearch/hydra/issues/1283
-    # OmegaConf.register_new_resolver("get_method", hydra.utils.get_method, replace=True)
     main()

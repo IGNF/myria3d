@@ -134,7 +134,7 @@ class Model(LightningModule):
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss, "logits": logits, "targets": batch.y}
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -156,10 +156,7 @@ class Model(LightningModule):
             preds = torch.argmax(logits.detach(), dim=1)
             self.val_iou(preds, batch.y)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
-        return {
-            "loss": loss,
-            "logits": logits,
-        }
+        return {"loss": loss, "logits": logits, "targets": batch.y}
 
     def validation_epoch_end(self, outputs) -> None:
         """At the end of a validation epoch, compute the IoU and track if it has improved
@@ -183,11 +180,12 @@ class Model(LightningModule):
             and y (targets, optionnal) in (B*N,C) format.
 
         Returns:
-            dict: Dictionnary with predicted logits as well as input batch.
+            dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
         """
         logits = self.forward(batch)
-        return {"logits": logits}
+        targets = batch.copies["transformed_y_copy"]
+        return {"logits": logits, "targets": targets}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.

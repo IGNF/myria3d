@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 
 from torch_geometric.nn.pool import knn
+from torch_geometric.nn.unpool import knn_interpolate
 
 
 class RandLANet(nn.Module):
@@ -147,7 +148,25 @@ class RandLANet(nn.Module):
         scores = torch.cat(
             [score_cloud.permute(1, 0) for score_cloud in scores]
         )  # B*N, C
-        return scores  # B*N, C
+        if self.training or "copies" not in batch:
+            # In training mode and for validation, we directly optimize on subsampled points, for
+            # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
+            # 2) data augmentation at the supervision level.
+            # 3) Validation metric that is invariant to small changes, therefore having an early stopping
+            # that should not lead to overfitting on small features
+            return scores  # B*N, C
+
+        # During evaluation on test data and inference, we interpolate predictions back to original positions
+        # TODO: pass k as a parameter
+        # TODO: remove interpolation from predict time, use knn instead.
+        scores = knn_interpolate(
+            scores,
+            batch.copies["pos_sampled_copy"],
+            batch.copies["pos_copy"],
+            k=10,
+            num_workers=4,
+        )
+        return scores  # N1+N2+...+Nn, C
 
     def change_num_class_for_finetuning(self, new_num_classes: int):
         """Change end layer output number of classes if new_num_classes is different.

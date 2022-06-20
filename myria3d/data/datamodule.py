@@ -26,24 +26,25 @@ class DataModule(LightningDataModule):
 
     def __init__(self, **kwargs):
         super().__init__()
-        # TODO: try to use save_hyperparameters to lightne this code.
+        # paths
         self.prepared_data_dir = kwargs.get("prepared_data_dir")
         self.test_data_dir = kwargs.get("test_data_dir")
-
+        # compute
         self.num_workers = kwargs.get("num_workers", 0)
-
+        self.prefetch_factor = kwargs.get("prefetch_factor", 2)
+        # data preparation
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
-        self.prefetch_factor = kwargs.get("prefetch_factor", 2)
         self.augmentation_transforms = kwargs.get("augmentation_transforms", [])
-
+        # segmentation task
         self.dataset_description = kwargs.get("dataset_description")
         self.classification_dict = self.dataset_description.get("classification_dict")
         self.classification_preprocessing_dict = self.dataset_description.get(
             "classification_preprocessing_dict"
         )
         self.load_las = self.dataset_description.get("load_las_func")
+        # transforms
         t = kwargs.get("transforms")
         self.preparation_transforms = t.get("preparations_list")
         self.augmentation_transforms = t.get("augmentations_list")
@@ -233,6 +234,8 @@ class LidarIterableDataset(IterableDataset):
             # TODO: change to process time function
             for xy_min_corner in centers:
                 data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
+                if len(data.pos) < 50:
+                    continue
                 if self.transform:
                     data = self.transform(data)
                 if data and (len(data.pos) > 50):

@@ -3,7 +3,7 @@ output_dir: "/path/to/output_dir/"  # Predictions are saved in a new file which 
 ckpt_path: "/path/to/lightning_model.ckpt"  # Checkpoint of trained model.
 gpus: 0  # 0 for none, 1 for one, [gpu_id] to specify which gpu to use e.g [1]
 
-# Speifying the ouptut:
+# Specifying the ouptut:
 # A list of string matching class names to select specific probas to save
 # OR keyword "all" to save all probabilities.
 # In addition, these dimensions are always created:

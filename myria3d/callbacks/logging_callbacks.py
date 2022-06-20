@@ -86,9 +86,9 @@ class LogIoUByClass(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ):
-        """Log IoU for each class. Loop in case of multiple files in a single batch."""
+        """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = batch.y
+        targets = outputs["targets"]
         self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
 
     def log_iou(self, logits, targets, phase: str, iou_dict):

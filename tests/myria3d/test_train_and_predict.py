@@ -21,7 +21,7 @@ Sanity checks to make sure the model train/val/predict/test logics do not crash.
 """
 
 
-def test_FrenchLidar_default_training_fast_dev_run_as_command(
+def test_FrenchLidar_default_training_on_one_batch_as_command(
     isolated_toy_dataset_tmpdir,
 ):
     """Test running by CLI for 1 train, val and test batch of a toy dataset.
@@ -36,7 +36,7 @@ def test_FrenchLidar_default_training_fast_dev_run_as_command(
         "experiment=RandLaNet_base_run_FR",  # Use the defaults for French Lidar HD
         "logger=csv",  # disables comet logging
         f"datamodule.prepared_data_dir={isolated_toy_dataset_tmpdir}",
-        "++trainer.fast_dev_run=true",  # Only one batch for train, val, and test.
+        "++trainer.fast_dev_run=1",  # Only one batch for train, val, test, predict
     ]
 
     run_hydra_decorated_command(command)
@@ -55,7 +55,8 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     abs_path_to_toy_LAS = osp.abspath(LAS_SUBSET_FOR_TOY_DATASET)
     command = [
         "run.py",
-        "task.task_name=predict",
+        "experiment=predict",
+        # "task.task_name=predict",
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
@@ -153,7 +154,7 @@ def test_RandLaNet_test_right_after_training(
     )
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
-            "experiment=evaluate_test_data",  # sets task.task_name to "test"
+            "experiment=test",  # sets task.task_name to "test"
             f"model.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         ]
         + tmp_paths_overrides
@@ -178,6 +179,7 @@ def test_RandLaNet_predict_with_invariance_checks(
     # Run prediction
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
+            "experiment=predict",
             f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
             f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
             f"predict.output_dir={tmpdir}",
@@ -225,13 +227,12 @@ def test_run_test_with_trained_model_on_toy_dataset(
     # Use an experiment designed for testing on test set
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
-            "experiment=evaluate_test_data",
+            "experiment=test",
             f"model.ckpt_path={TRAINED_MODEL_PATH}",
         ]
         + tmp_paths_overrides
     )
     train(cfg_test_using_trained_model)
-    # TODO find a way to assess test logs which should be :
     metrics = _get_metrics_df_from_tmpdir(tmpdir)
     assert metrics["test/iou_CLASS_unclassified"][0] >= 0.4
     assert metrics["test/iou_CLASS_ground"][0] >= 0.65
@@ -266,7 +267,7 @@ def test_run_test_with_trained_model_on_large_las(
     # Use an experiment designed for testing on test set
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
-            "experiment=evaluate_test_data",
+            "experiment=test",
             f"model.ckpt_path={TRAINED_MODEL_PATH}",
         ]
         + tmp_paths_overrides
@@ -300,6 +301,7 @@ def test_predict_with_trained_model_on_toy_dataset(tmpdir):
     )
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
+            "experiment=predict",
             f"predict.ckpt_path={TRAINED_MODEL_PATH}",
             f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
             f"predict.output_dir={tmpdir}",
