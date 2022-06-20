@@ -11,10 +11,10 @@ from tqdm import tqdm
 from myria3d.data.loading import (
     MIN_NUM_NODES_PER_RECEPTIVE_FIELD,
     FrenchLidarDataSignature,
-    LidarDataSignature,
+    LidarDataSignature
 )
 from myria3d.utils import utils
-from myria3d.data.transforms import CustomCompose
+from torch_geometric.transforms import Compose
 
 
 log = utils.get_logger(__name__)
@@ -150,25 +150,23 @@ class DataModule(LightningDataModule):
             prefetch_factor=self.prefetch_factor,
         )
 
-    def _get_train_transforms(self) -> CustomCompose:
+    def _get_train_transforms(self) -> Compose:
         """Creates a transform composition for train phase."""
-        return CustomCompose(
+        return Compose(
             self.preparation_transforms
             + self.augmentation_transforms
             + self.normalization_transforms
         )
 
-    def _get_val_transforms(self) -> CustomCompose:
+    def _get_val_transforms(self) -> Compose:
         """Creates a transform composition for val phase."""
-        return CustomCompose(
-            self.preparation_transforms + self.normalization_transforms
-        )
+        return Compose(self.preparation_transforms + self.normalization_transforms)
 
-    def _get_test_transforms(self) -> CustomCompose:
+    def _get_test_transforms(self) -> Compose:
         """Creates a transform composition for test phase."""
         return self._get_val_transforms()
 
-    def _get_predict_transforms(self) -> CustomCompose:
+    def _get_predict_transforms(self) -> Compose:
         """Creates a transform composition for predict phase."""
         return self._get_val_transforms()
 

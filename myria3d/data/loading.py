@@ -298,9 +298,9 @@ class FrenchLidarDataSignature(LidarDataSignature):
         idx = data.x_features_names.index("intensity")
         # Log transform to be less sensitive to large outliers - info is in lower values
         data.x[:, idx] = torch.log(data.x[:, idx] + 1)
-        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+        data.x[:, idx] = standardize_channel(data.x[:, idx])
         idx = data.x_features_names.index("rgb_avg")
-        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+        data.x[:, idx] = standardize_channel(data.x[:, idx])
 
         return data
 

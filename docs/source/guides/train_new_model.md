@@ -23,7 +23,7 @@ python run.py experiment=RandLaNetDebug
 
 ## Training
 
-Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may stem from one of the provided experiment file (e.g. `RandLaNet_base_run_FR.yaml`). In particular, you will need to define parameter `datamodule.dataset_description` to specify your classification task - see e.g. config `20220610_proto22dalles.yaml` for an example.
+Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may stem from one of the provided experiment file (e.g. `RandLaNet_base_run_FR.yaml`). In particular, you will need to define parameter `datamodule.dataset_description` to specify your classification task - see e.g. config `20220607_151_dalles_proto.yaml` for an example.
 
 
 To run the full training and validation for French Lidar HD, run:
