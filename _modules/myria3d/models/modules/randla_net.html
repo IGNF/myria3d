@@ -178,7 +178,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">num_neighbors</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_neighbors&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decimation</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decimation&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dropout&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_classes&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_classes&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolation_k</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interpolation_k&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">=</span> <span class="n">hparams_net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_workers&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fc_start</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_in</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_in</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bn_start</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
@@ -306,14 +309,12 @@
             <span class="k">return</span> <span class="n">scores</span>  <span class="c1"># B*N, C</span>
 
         <span class="c1"># During evaluation on test data and inference, we interpolate predictions back to original positions</span>
-        <span class="c1"># TODO: pass k as a parameter</span>
-        <span class="c1"># TODO: remove interpolation from predict time, use knn instead.</span>
         <span class="n">scores</span> <span class="o">=</span> <span class="n">knn_interpolate</span><span class="p">(</span>
             <span class="n">scores</span><span class="p">,</span>
             <span class="n">batch</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_sampled_copy&quot;</span><span class="p">],</span>
             <span class="n">batch</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_copy&quot;</span><span class="p">],</span>
-            <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-            <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation_k</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">scores</span>  <span class="c1"># N1+N2+...+Nn, C</span></div>
 
