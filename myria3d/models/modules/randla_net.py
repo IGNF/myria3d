@@ -28,7 +28,6 @@ class RandLANet(nn.Module):
     def __init__(self, hparams_net: dict):
         super(RandLANet, self).__init__()
         self.d_in = hparams_net.get("d_in", 6)  # xyz + features
-        self.num_fixed_points = hparams_net.get("num_fixed_points", 12500)
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
         self.decimation = hparams_net.get("decimation", 4)
         self.dropout = hparams_net.get("dropout", 0.0)

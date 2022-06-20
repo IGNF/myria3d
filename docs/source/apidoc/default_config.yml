@@ -148,7 +148,6 @@ model:
     num_classes: ${model.num_classes}
     d_in: ${model.d_in}
     num_neighbors: 16
-    num_fixed_points: 12500
     decimation: 4
     dropout: 0.5
   iou:

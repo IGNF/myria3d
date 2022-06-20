@@ -59,32 +59,9 @@ class LidarDataSignature(ABC):
         self.split_csv = split_csv
         self.input_tile_width_meters = input_tile_width_meters
         self.subtile_width_meters = subtile_width_meters
-        # radius of a circle that contains the subtile of shape subtile_width_meters * subtile_width_meters
+        # radius of a circle that contains the subtile of square shape subtile_width_meters * subtile_width_meters
+        # The aera of this circle is (pi/2) = 1.5708 times the area of the original square.
         self.sample_radius = subtile_width_meters / math.sqrt(2)
-
-    @abstractmethod
-    def load_las(self, las_filepath: str) -> Data:
-        """Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
-
-        Args:
-            las_filepath (str): path to the LAS file.
-
-        Returns:
-            Data: The point cloud formatted for later deep learning training.
-
-        """
-        raise NotImplementedError
-
-    def per_sample_standardization(self, data: Data):
-        """Standardization of the data object before feeding to the neural network.
-        Args:
-            data: The point cloud after preparation and augmentation
-
-        Returns:
-            Data: The point cloud formatted for later deep learning training.
-
-        """
-        raise NotImplementedError
 
     def prepare_full_dataset(self):
         """Prepare a dataset for model training and model evaluation.

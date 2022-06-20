@@ -8,7 +8,6 @@ neural_net_hparams:
   num_classes: ${model.num_classes}
   d_in: ${model.d_in}  # 3 (xyz) + num of features
   num_neighbors: 16
-  num_fixed_points: 12500  # to be adapted to size of receptive field
   decimation: 4  # divide by decimation for each of the 4 local encoder.
   dropout: 0.5  # Use 0.0 of false to deactivate
   interpolation_k: ${predict.interpolation_k}  # interpolation at eval time
