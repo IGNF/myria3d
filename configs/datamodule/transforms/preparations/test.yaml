@@ -21,7 +21,7 @@ GridSampling:
 FixedPoints:
   _target_: torch_geometric.transforms.FixedPoints
   _args_:
-    - 12500
+    - 20000
   replace: False
   allow_duplicates: True
 
