@@ -96,66 +96,38 @@ class Interpolator:
             torch.Tensor, torch.Tensor: interpolated logits and targets/original classification
 
         """
-        # create a batch dimension (0,..,0,1,..,1,...) for the logits
-        batch_logits: torch.Tensor = torch.cat(
-            [torch.full((len(a),), i) for i, a in enumerate(self.logits)]
-        )
-        # create a batch for the full las
-        batch_full_cloud: torch.Tensor = torch.cat(
-            [
-                torch.full((len(a),), i)
-                for i, a in enumerate(self.idx_in_full_cloud_list)
-            ]
-        )
+        # # create a batch dimension (0,..,0,1,..,1,...) for the logits
+        # batch_logits: torch.Tensor = torch.cat(
+        #     [torch.full((len(a),), i) for i, a in enumerate(self.logits)]
+        # )
+        # # create a batch for the full las
+        # batch_full_cloud: torch.Tensor = torch.cat(
+        #     [
+        #         torch.full((len(a),), i)
+        #         for i, a in enumerate(self.idx_in_full_cloud_list)
+        #     ]
+        # )
 
         # Concatenate elements
         logits: torch.Tensor = torch.cat(self.logits).cpu()
         pos: torch.Tensor = torch.cat(self.pos).cpu()
+        idx_in_full_cloud: np.ndarray = np.concatenate(self.idx_in_full_cloud_list)
         del self.logits
         del self.batch
-
-        idx_in_full_cloud: np.ndarray = np.concatenate(self.idx_in_full_cloud_list)
         del self.idx_in_full_cloud_list
-
-        # Reorganize points in original LAS to order them by batch,
-        # matching subsampled batch
-        # If required, they could be reorered back at save time by using
-        # np.argsort(current_max_batch_idx) as sorting indices.
-
-        ordered_las = las[idx_in_full_cloud]
-
-        pos_full_cloud = torch.from_numpy(
-            np.asarray(
-                [
-                    ordered_las["X"],
-                    ordered_las["Y"],
-                    ordered_las["Z"],
-                ],
-                dtype=np.float32,
-            ).transpose()
-        )
-
-        # Find nn among points with predictions for all points
-        # Only interpolate within a model's receptive field zone
-        interpolated_logits = knn_interpolate(
-            logits,
-            pos,
-            pos_full_cloud,
-            batch_x=batch_logits,
-            batch_y=batch_full_cloud,
-            k=self.k,
-            num_workers=4,
-        )
 
         # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
         # scatter_sum reorders logitsbased on index,they therefore match las order.
-        reduced_logits = torch.zeros((len(las), interpolated_logits.size(1)))
+        reduced_logits = torch.zeros((len(las), logits.size(1)))
         scatter_sum(
-            interpolated_logits,
+            logits,
             torch.from_numpy(idx_in_full_cloud),
             out=reduced_logits,
             dim=0,
         )
+        # reduced_logits contains logits ordered by their idx in original cloud !
+        # Warning : some points may not contain any predictions if they were in small areas.
+
         return reduced_logits
 
     @torch.no_grad()
