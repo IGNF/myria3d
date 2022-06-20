@@ -15,7 +15,7 @@ trainer:
   min_epochs: 30
   max_epochs: 150
   check_val_every_n_epoch: 1
-  val_check_interval: 1 
+  val_check_interval: 1.0
   # gpus: [1]
 
 callbacks:
