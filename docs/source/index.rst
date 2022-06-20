@@ -27,7 +27,7 @@ Myria3D > Documentation
    :caption: Background
 
    background/interpolation
-   background/data_optimization
+   background/general_design
 
 .. TODO: assure that all dosctrings are in third-personn mode.
 .. TODO: find a way to document hydra config ; perhaps by switching to a full dataclasses mode.
