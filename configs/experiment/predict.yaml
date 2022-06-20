@@ -1,0 +1,26 @@
+# @package _global_
+
+# Those are the parameters you need to override from a training configuration in order to perform
+# an inference.
+# This file should not be used directly if the trained model's config is different than the default config.
+
+defaults:
+  - override /datamodule/transforms/preparations: predict.yaml
+
+seed: 12345
+
+task:
+  task_name: "predict"
+
+predict:
+  src_las: "/path/to/input.las"  # Any glob pattern can be used to predict on multiple files.
+  output_dir: "/path/to/output_dir/"  # Predictions are saved in a new file which shares src_las basename.
+  ckpt_path: "/path/to/lightning_model.ckpt"  # Checkpoint of trained model.
+  # + other params in configs/predict/default.yaml
+
+hydra:
+  verbose: false
+
+datamodule:
+  # larger batch size for speed
+  batch_size: 50 

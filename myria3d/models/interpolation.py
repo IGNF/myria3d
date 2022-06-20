@@ -57,9 +57,9 @@ class Interpolator:
         self.reset_state()
 
     def reset_state(self):
-        self.logits_sub: List[torch.Tensor] = []
-        self.pos_sub: List[torch.Tensor] = []
-        self.batch_sub: List[torch.Tensor] = []
+        self.logits: List[torch.Tensor] = []
+        self.pos: List[torch.Tensor] = []
+        self.batch: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
 
     def load_full_las_for_update(self, raw_path: str):
@@ -82,18 +82,11 @@ class Interpolator:
         return pipeline.arrays[0]  # named array
 
     @torch.no_grad()
-    def store_predictions(self, logits, pos, batch, idx_in_original_cloud):
+    def store_predictions(self, logits, pos, idx_in_original_cloud):
         """Keep a list of predictions made so far."""
-        self.logits_sub.append(logits)
-        self.pos_sub.append(pos)
+        self.logits += [logits]
+        self.pos += [pos]  # TODO: check if a list already ?
         self.idx_in_full_cloud_list += idx_in_original_cloud
-        if not self.batch_sub:
-            # starts at 0 if this is the first batch
-            self.batch_sub.append(batch)
-        else:
-            # starts from current max batch index
-            current_max_batch_idx = max(max(b) for b in self.batch_sub)
-            self.batch_sub.append(current_max_batch_idx + 1 + batch)
 
     @torch.no_grad()
     def interpolate_logits(self, las):
@@ -103,22 +96,24 @@ class Interpolator:
             torch.Tensor, torch.Tensor: interpolated logits and targets/original classification
 
         """
-
-        # Cat
-        logits_sub: torch.Tensor = torch.cat(self.logits_sub).cpu()
-        pos_sub: torch.Tensor = torch.cat(self.pos_sub).cpu()
-        batch_sub: torch.Tensor = torch.cat(self.batch_sub).cpu()
-        del self.logits_sub
-        del self.batch_sub
-
+        # create a batch dimension (0,..,0,1,..,1,...) for the logits
+        batch_logits: torch.Tensor = torch.cat(
+            [torch.full((len(a),), i) for i, a in enumerate(self.logits)]
+        )
         # create a batch for the full las
-        # concatenate
         batch_full_cloud: torch.Tensor = torch.cat(
             [
                 torch.full((len(a),), i)
                 for i, a in enumerate(self.idx_in_full_cloud_list)
             ]
         )
+
+        # Concatenate elements
+        logits: torch.Tensor = torch.cat(self.logits).cpu()
+        pos: torch.Tensor = torch.cat(self.pos).cpu()
+        del self.logits
+        del self.batch
+
         idx_in_full_cloud: np.ndarray = np.concatenate(self.idx_in_full_cloud_list)
         del self.idx_in_full_cloud_list
 
@@ -129,7 +124,7 @@ class Interpolator:
 
         ordered_las = las[idx_in_full_cloud]
 
-        pos_las = torch.from_numpy(
+        pos_full_cloud = torch.from_numpy(
             np.asarray(
                 [
                     ordered_las["X"],
@@ -143,10 +138,10 @@ class Interpolator:
         # Find nn among points with predictions for all points
         # Only interpolate within a model's receptive field zone
         interpolated_logits = knn_interpolate(
-            logits_sub,
-            pos_sub,
-            pos_las,
-            batch_x=batch_sub,
+            logits,
+            pos,
+            pos_full_cloud,
+            batch_x=batch_logits,
             batch_y=batch_full_cloud,
             k=self.k,
             num_workers=4,

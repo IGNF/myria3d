@@ -56,11 +56,33 @@ class ToTensor(BaseTransform):
         return data
 
 
-class CopySampledPos(BaseTransform):
-    """Make a copy of the unormalized positions of subsampled points."""
+class CopyFullPos:
+    """Make a copy of the original positions - to be used for test and inference."""
 
     def __call__(self, data: Data):
-        data["pos_sampled_copy"] = data["pos"].clone()
+        if "copies" not in data:
+            data.copies = dict()
+        data.copies["pos_copy"] = data["pos"].clone()
+        return data
+
+
+class CopyFullPreparedTargets:
+    """Make a copy of all, prepared targets - to be used for test."""
+
+    def __call__(self, data: Data):
+        if "copies" not in data:
+            data.copies = dict()
+        data.copies["transformed_y_copy"] = data["y"].clone()
+        return data
+
+
+class CopySampledPos(BaseTransform):
+    """Make a copy of the unormalized positions of subsampled points - to be used for test and inference."""
+
+    def __call__(self, data: Data):
+        if "copies" not in data:
+            data.copies = dict()
+        data.copies["pos_sampled_copy"] = data["pos"].clone()
         return data
 
 

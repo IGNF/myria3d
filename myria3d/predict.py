@@ -46,8 +46,9 @@ def predict(config: DictConfig) -> str:
     model.to(device)
     model.eval()
 
+    # TODO: Interpolator could be instantiated directly via hydra.
     itp = Interpolator(
-        interpolation_k=10,
+        interpolation_k=config.predict.interpolation_k,
         classification_dict=datamodule.dataset_description.get("classification_dict"),
         probas_to_save=config.predict.probas_to_save,
     )
@@ -56,7 +57,9 @@ def predict(config: DictConfig) -> str:
         batch.to(device)
         logits = model.predict_step(batch)["logits"]
         itp.store_predictions(
-            logits, batch.pos_sampled_copy, batch.batch, batch.idx_in_original_cloud
+            logits,
+            batch.copies["pos_copy"],
+            batch.idx_in_original_cloud,
         )
 
     out_f = itp.write(config.predict.src_las, config.predict.output_dir)

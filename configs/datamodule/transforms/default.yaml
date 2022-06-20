@@ -1,5 +1,5 @@
 defaults:
-  - preparations: default.yaml
+  - preparations: train.yaml
   - augmentations: default.yaml
   - normalizations: default.yaml
 

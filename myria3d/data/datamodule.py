@@ -233,6 +233,8 @@ class LidarIterableDataset(IterableDataset):
             # TODO: change to process time function
             for xy_min_corner in centers:
                 data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
+                if len(data.pos) < 50:
+                    continue
                 if self.transform:
                     data = self.transform(data)
                 if data and (len(data.pos) > 50):
