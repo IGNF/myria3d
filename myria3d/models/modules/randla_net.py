@@ -29,7 +29,10 @@ class RandLANet(nn.Module):
         self.num_neighbors = hparams_net.get("num_neighbors", 16)
         self.decimation = hparams_net.get("decimation", 4)
         self.dropout = hparams_net.get("dropout", 0.0)
-        self.num_classes = hparams_net.get("num_classes", 6)
+        self.num_classes = hparams_net.get("num_classes", 7)
+        self.interpolation_k = hparams_net.get("interpolation_k", 25)
+
+        self.num_workers = hparams_net.get("num_workers", 4)
 
         self.fc_start = nn.Linear(self.d_in, self.d_in * 2)
         self.bn_start = nn.Sequential(
@@ -157,14 +160,12 @@ class RandLANet(nn.Module):
             return scores  # B*N, C
 
         # During evaluation on test data and inference, we interpolate predictions back to original positions
-        # TODO: pass k as a parameter
-        # TODO: remove interpolation from predict time, use knn instead.
         scores = knn_interpolate(
             scores,
             batch.copies["pos_sampled_copy"],
             batch.copies["pos_copy"],
-            k=10,
-            num_workers=4,
+            k=self.interpolation_k,
+            num_workers=self.num_workers,
         )
         return scores  # N1+N2+...+Nn, C
 
