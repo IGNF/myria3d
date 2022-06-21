@@ -46,10 +46,7 @@ class Model(LightningModule):
 
     """
 
-    def __init__(
-        self,
-        **kwargs,
-    ):
+    def __init__(self, **kwargs):
         """Initialization method of the Model lightning module.
 
         Everything needed to train/test/predict with a neural architecture, including
@@ -158,7 +155,7 @@ class Model(LightningModule):
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": batch.y}
 
-    def validation_epoch_end(self, outputs) -> None:
+    def on_validation_epoch_end(self) -> None:
         """At the end of a validation epoch, compute the IoU and track if it has improved
         by updating the best one.
 
@@ -183,8 +180,13 @@ class Model(LightningModule):
             dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
         """
-        logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"]
+        logits = self.forward(batch).detach().cpu()
+        targets = batch.copies["transformed_y_copy"].detach().cpu()
+
+        preds = torch.argmax(logits, dim=1)
+        self.test_iou(preds, targets)
+        self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
+
         return {"logits": logits, "targets": targets}
 
     def predict_step(self, batch: Batch) -> dict:
@@ -198,7 +200,7 @@ class Model(LightningModule):
             dict: Dictionnary with predicted logits as well as input batch.
 
         """
-        logits = self.forward(batch)
+        logits = self.forward(batch).detach().cpu()
         return {"logits": logits}
 
     def configure_optimizers(self):

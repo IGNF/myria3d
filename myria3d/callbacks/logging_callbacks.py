@@ -59,8 +59,8 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         """Log IoU for each class."""
-        logits = outputs["logits"].cpu()
-        targets = batch.y.cpu()
+        logits = outputs["logits"]
+        targets = batch.y
         self.log_iou(logits, targets, "train", self.train_iou_by_class_dict)
 
     def on_validation_batch_end(
@@ -73,8 +73,8 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         """Log IoU for each class."""
-        logits = outputs["logits"].cpu()
-        targets = batch.y.cpu()
+        logits = outputs["logits"]
+        targets = batch.y
         self.log_iou(logits, targets, "val", self.val_iou_by_class_dict)
 
     def on_test_batch_end(
@@ -87,8 +87,8 @@ class LogIoUByClass(Callback):
         dataloader_idx: int,
     ):
         """Log IoU for each class."""
-        logits = outputs["logits"].cpu()
-        targets = outputs["targets"].cpu()
+        logits = outputs["logits"]
+        targets = outputs["targets"]
         self.log_iou(logits, targets, "test", self.test_iou_by_class_dict)
 
     def log_iou(self, logits, targets, phase: str, iou_dict):
