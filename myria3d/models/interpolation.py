@@ -55,7 +55,6 @@ class Interpolator:
         }
 
         self.logits: List[torch.Tensor] = []
-        self.batch: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
 
     def load_full_las_for_update(self, src_las: str):
@@ -95,7 +94,6 @@ class Interpolator:
         logits: torch.Tensor = torch.cat(self.logits).cpu()
         idx_in_full_cloud: np.ndarray = np.concatenate(self.idx_in_full_cloud_list)
         del self.logits
-        del self.batch
         del self.idx_in_full_cloud_list
 
         # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
