@@ -55,7 +55,6 @@ class Interpolator:
         }
 
         self.logits: List[torch.Tensor] = []
-        self.pos: List[torch.Tensor] = []
         self.batch: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
 
@@ -78,10 +77,9 @@ class Interpolator:
         pipeline.execute()
         return pipeline.arrays[0]  # named array
 
-    def store_predictions(self, logits, pos, idx_in_original_cloud):
+    def store_predictions(self, logits, idx_in_original_cloud):
         """Keep a list of predictions made so far."""
         self.logits += [logits]
-        self.pos += [pos]
         self.idx_in_full_cloud_list += idx_in_original_cloud
 
     @torch.no_grad()

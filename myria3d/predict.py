@@ -58,11 +58,7 @@ def predict(config: DictConfig) -> str:
     for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
         logits = model.predict_step(batch)["logits"]
-        itp.store_predictions(
-            logits,
-            batch.copies["pos_copy"],
-            batch.idx_in_original_cloud,
-        )
+        itp.store_predictions(logits, batch.idx_in_original_cloud)
 
     out_f = itp.reduce_predictions_and_save(
         config.predict.src_las, config.predict.output_dir
