@@ -204,7 +204,6 @@
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="nf">load_full_las_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_las</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -244,7 +243,6 @@
         <span class="n">logits</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
         <span class="n">idx_in_full_cloud</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span>
 
         <span class="c1"># We scatter_sum logits based on idx, in case there are multiple predictions for a point.</span>
