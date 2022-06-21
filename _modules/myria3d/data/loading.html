@@ -356,9 +356,6 @@
     <span class="p">]</span>
     <span class="n">colors_normalization_max_value</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">*</span> <span class="mi">256</span>
 
-    <span class="c1"># Exclusion of 65: artefacts, and 66: virtual points.</span>
-    <span class="n">excluded_classes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">65</span><span class="p">,</span> <span class="mi">66</span><span class="p">]</span>
-
 <div class="viewcode-block" id="FrenchLidarDataLogic.load_las"><a class="viewcode-back" href="../../../apidoc/myria3d.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load_las</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">las_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.</span>
@@ -378,8 +375,6 @@
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">las</span> <span class="o">=</span> <span class="n">laspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">las_filepath</span><span class="p">)</span>
 
-        <span class="c1"># Filter out unused classes</span>
-        <span class="n">las</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">las</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">las</span><span class="o">.</span><span class="n">classification</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">excluded_classes</span><span class="p">)]</span>
         <span class="c1"># Positions and base features</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">las</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">las</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">las</span><span class="o">.</span><span class="n">z</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
