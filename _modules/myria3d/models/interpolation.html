@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.interpolation &mdash; myria3d 2.3.0 documentation</title>
+  <title>myria3d.models.interpolation &mdash; myria3d 2.3.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -204,7 +204,6 @@
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -227,10 +226,9 @@
         <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># named array</span>
 
-    <span class="k">def</span> <span class="nf">store_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">idx_in_original_cloud</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">store_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">idx_in_original_cloud</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Keep a list of predictions made so far.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logits</span> <span class="o">+=</span> <span class="p">[</span><span class="n">logits</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pos</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span> <span class="o">+=</span> <span class="n">idx_in_original_cloud</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
