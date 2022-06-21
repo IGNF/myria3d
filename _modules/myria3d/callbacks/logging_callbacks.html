@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.callbacks.logging_callbacks &mdash; myria3d 2.3.2 documentation</title>
+  <title>myria3d.callbacks.logging_callbacks &mdash; myria3d 2.3.3 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -208,8 +208,8 @@
         <span class="n">dataloader_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Log IoU for each class.&quot;&quot;&quot;</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-        <span class="n">targets</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">y</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_iou</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_iou_by_class_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LogIoUByClass.on_validation_batch_end"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">[docs]</a>    <span class="k">def</span> <span class="nf">on_validation_batch_end</span><span class="p">(</span>
@@ -222,8 +222,8 @@
         <span class="n">dataloader_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Log IoU for each class.&quot;&quot;&quot;</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-        <span class="n">targets</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">y</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_iou</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_iou_by_class_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LogIoUByClass.on_test_batch_end"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end">[docs]</a>    <span class="k">def</span> <span class="nf">on_test_batch_end</span><span class="p">(</span>
@@ -236,8 +236,8 @@
         <span class="n">dataloader_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Log IoU for each class.&quot;&quot;&quot;</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-        <span class="n">targets</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">]</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_iou</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_iou_by_class_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LogIoUByClass.log_iou"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.log_iou">[docs]</a>    <span class="k">def</span> <span class="nf">log_iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iou_dict</span><span class="p">):</span>
