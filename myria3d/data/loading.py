@@ -207,9 +207,6 @@ class FrenchLidarDataLogic(LidarDataLogic):
     ]
     colors_normalization_max_value = 255 * 256
 
-    # Exclusion of 65: artefacts, and 66: virtual points.
-    excluded_classes = [65, 66]
-
     @classmethod
     def load_las(cls, las_filepath: str):
         f"""Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
@@ -229,8 +226,6 @@ class FrenchLidarDataLogic(LidarDataLogic):
         """
         las = laspy.read(las_filepath)
 
-        # Filter out unused classes
-        las.points = las.points[~np.isin(las.classification, cls.excluded_classes)]
         # Positions and base features
         pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
         x = np.asarray(
