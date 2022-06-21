@@ -180,14 +180,14 @@ class Model(LightningModule):
             dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
         """
-        logits = self.forward(batch).detach().cpu()
-        targets = batch.copies["transformed_y_copy"].detach().cpu()
+        logits = self.forward(batch)
+        targets = batch.copies["transformed_y_copy"]
 
         preds = torch.argmax(logits, dim=1)
         self.test_iou(preds, targets)
         self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
-        return {"logits": logits, "targets": targets}
+        return {"logits": logits.detach().cpu(), "targets": targets.detach().cpu()}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
@@ -200,8 +200,8 @@ class Model(LightningModule):
             dict: Dictionnary with predicted logits as well as input batch.
 
         """
-        logits = self.forward(batch).detach().cpu()
-        return {"logits": logits}
+        logits = self.forward(batch)
+        return {"logits": logits.detach().cpu()}
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
