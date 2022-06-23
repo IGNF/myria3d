@@ -11,7 +11,7 @@ from tqdm import tqdm
 from myria3d.data.loading import (
     MIN_NUM_NODES_PER_RECEPTIVE_FIELD,
     FrenchLidarDataSignature,
-    LidarDataSignature
+    LidarDataSignature,
 )
 from myria3d.utils import utils
 from torch_geometric.transforms import Compose
@@ -51,7 +51,9 @@ class DataModule(LightningDataModule):
             "data_signature", FrenchLidarDataSignature()
         )
         t = kwargs.get("transforms")
-        self.preparation_transforms = t.get("preparations_list")
+        self.preparation_train_transforms = t.get("preparations_train_list")
+        self.preparation_eval_transforms = t.get("preparations_eval_list")
+        self.preparation_predict_transforms = t.get("preparations_predict_list")
         self.augmentation_transforms = t.get("augmentations_list")
         self.normalization_transforms = t.get("normalizations_list")
 
@@ -72,7 +74,18 @@ class DataModule(LightningDataModule):
         files = glob.glob(
             osp.join(self.prepared_data_dir, "train", "**", "*.data"), recursive=True
         )
-        self.train_data = LidarMapDataset(files, transform=self._get_train_transforms())
+        self.train_data = LidarMapDataset(
+            files,
+            transform=Compose(
+                self.preparation_train_transforms
+                + self.augmentation_transforms
+                + self.normalization_transforms
+            ),
+        )
+
+    def _get_eval_transforms(self) -> Compose:
+        """Creates a transform composition for val phase."""
+        return Compose(self.preparation_eval_transforms + self.normalization_transforms)
 
     def _set_val_data(self):
         """Sets the validation dataset from a directory."""
@@ -81,7 +94,7 @@ class DataModule(LightningDataModule):
             osp.join(self.prepared_data_dir, "val", "**", "*.data"), recursive=True
         )
         log.info(f"Validation on {len(files)} subtiles.")
-        self.val_data = LidarMapDataset(files, transform=self._get_val_transforms())
+        self.val_data = LidarMapDataset(files, transform=self._get_eval_transforms())
 
     def _set_test_data(self):
         """Sets the test dataset."""
@@ -89,7 +102,7 @@ class DataModule(LightningDataModule):
         files = glob.glob(osp.join(self.test_data_dir, "**", "*.las"), recursive=True)
         self.test_data = LidarIterableDataset(
             files,
-            transform=self._get_test_transforms(),
+            transform=self._get_eval_transforms(),
             data_signature=self.data_signature,
         )
 
@@ -101,7 +114,9 @@ class DataModule(LightningDataModule):
         """
         self.predict_data = LidarIterableDataset(
             [src_file],
-            transform=self._get_predict_transforms(),
+            transform=Compose(
+                self.preparation_predict_transforms + self.normalization_transforms
+            ),
             data_signature=self.data_signature,
         )
 
@@ -149,26 +164,6 @@ class DataModule(LightningDataModule):
             num_workers=1,  # b/c iterable dataset
             prefetch_factor=self.prefetch_factor,
         )
-
-    def _get_train_transforms(self) -> Compose:
-        """Creates a transform composition for train phase."""
-        return Compose(
-            self.preparation_transforms
-            + self.augmentation_transforms
-            + self.normalization_transforms
-        )
-
-    def _get_val_transforms(self) -> Compose:
-        """Creates a transform composition for val phase."""
-        return Compose(self.preparation_transforms + self.normalization_transforms)
-
-    def _get_test_transforms(self) -> Compose:
-        """Creates a transform composition for test phase."""
-        return self._get_val_transforms()
-
-    def _get_predict_transforms(self) -> Compose:
-        """Creates a transform composition for predict phase."""
-        return self._get_val_transforms()
 
     def _visualize_graph(self, data, color=None):
         """Helpful function to plot the graph, colored by class if not specified.

@@ -1,9 +1,16 @@
 defaults:
-  - preparations: train.yaml
+  - preparations: default.yaml
   - augmentations: heavy.yaml
   - normalizations: default.yaml
 
-# trun these dict into ListConfig
+# turn the config dict into ListConfig that will be fed directly to a Compose object
+
 augmentations_list: "${oc.dict.values: datamodule.transforms.augmentations}"
-preparations_list: "${oc.dict.values: datamodule.transforms.preparations}"
+
+# Multiple different preparations list based on the situtation : train, eval/test, or predict.
+# The difference lies in the copie of some positions and in the targets processing.
+preparations_train_list: "${oc.dict.values: datamodule.transforms.preparations.train}"
+preparations_eval_list: "${oc.dict.values: datamodule.transforms.preparations.eval}"
+preparations_predict_list: "${oc.dict.values: datamodule.transforms.preparations.predict}"
+
 normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"
