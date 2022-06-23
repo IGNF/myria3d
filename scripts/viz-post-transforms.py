@@ -1,9 +1,8 @@
 """
 A simple loop to visualize transformed Data object right before they are fed into the model.
-Random Sampling can be performed to evaluate the level of data-degradation that occurs in models that 
+Random Sampling can be performed to evaluate the level of data-degradation that occurs in models that
 need fixed size input point clouds (i.e. RandLa-Net).
 TODO: use an argparser to avoid hardcoded paths.
-
 """
 
 import os

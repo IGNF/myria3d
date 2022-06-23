@@ -9,7 +9,6 @@ In particular, subclasses implement a "load_las" method that is used by the data
 
 """
 
-from abc import ABC, abstractmethod
 import argparse
 import copy
 import math
@@ -37,7 +36,7 @@ LAS_SUBSET_FOR_TOY_DATASET = (
 SPLIT_CSV_FOR_TOY_DATASET = "tests/data/toy_dataset_src/toy_dataset_split.csv"
 
 
-class LidarDataSignature(ABC):
+class LidarDataSignature:
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
 
@@ -195,13 +194,6 @@ class FrenchLidarDataSignature(LidarDataSignature):
     ]
     colors_normalization_max_value = 255 * 256
 
-<<<<<<< HEAD
-    @classmethod
-=======
-    # Exclusion of 65: artefacts, and 66: virtual points.
-    excluded_classes = [65, 66]
-
->>>>>>> 810599b... Add a visulization script to find the right sampling strategy
     def load_las(cls, las_filepath: str):
         f"""Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
 
@@ -418,7 +410,7 @@ def standardize_channel(channel_data: torch.Tensor, clamp_sigma: int = 3):
     return clamped
 
 
-### Scripts for data preparation and preparation of a toy dataset for tests
+# Scripts for data preparation and preparation of a toy dataset for tests
 
 
 def make_toy_dataset_from_test_file(

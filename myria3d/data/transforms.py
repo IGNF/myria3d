@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Dict, List
 
 import numpy as np
 import torch
@@ -13,7 +13,7 @@ log = utils.get_logger(__name__)
 class ToTensor(BaseTransform):
     """Turn np.arrays specified by their keys into Tensor."""
 
-    def __init__(self, keys=["pos", "x", "y"]):
+    def __init__(self, keys: List[str] = ["pos", "x", "y"]):
         self.keys = keys
 
     def __call__(self, data: Data):
