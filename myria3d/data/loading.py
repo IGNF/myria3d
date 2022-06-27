@@ -12,6 +12,7 @@ In particular, subclasses implement a "load_las" method that is used by the data
 from abc import ABC, abstractmethod
 import argparse
 import math
+from numbers import Number
 import os
 import glob
 import os.path as osp
@@ -51,6 +52,7 @@ class LidarDataLogic(ABC):
         split_csv: str = None,
         input_tile_width_meters: int = 1000,
         subtile_width_meters: int = 50,
+        subtile_overlap: Number = 0,
         use_circular_receptive_field: bool = False,
         **kwargs,
     ):
@@ -59,6 +61,7 @@ class LidarDataLogic(ABC):
         self.split_csv = split_csv
         self.input_tile_width_meters = input_tile_width_meters
         self.subtile_width_meters = subtile_width_meters
+        self.subtile_overlap = subtile_overlap
         # radius of a circle that contains the subtile of shape subtile_width_meters * subtile_width_meters
         self.use_circular_receptive_field = use_circular_receptive_field
         if use_circular_receptive_field:
@@ -124,7 +127,7 @@ class LidarDataLogic(ABC):
         range_by_axis = np.arange(
             self.subtile_width_meters / 2,
             self.input_tile_width_meters + self.subtile_width_meters / 2,
-            self.subtile_width_meters,
+            self.subtile_width_meters - self.subtile_overlap,
         )
 
         idx = 0
@@ -460,6 +463,12 @@ def _get_data_preparation_parser():
         type=bool,
         default=False,
         help="Set to True to use circular receptive fields instead of square ones.",
+    )
+    parser.add_argument(
+        "--subtile_overlap",
+        type=Number,
+        default=0,
+        help="Level of overlap - in meters - between adjacent subtiles.",
     )
     parser.add_argument(
         "--prepared_data_dir",
