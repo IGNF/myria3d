@@ -1,52 +1,19 @@
-from typing import Callable, Dict, List
+from typing import Dict, List
 
 import numpy as np
 import torch
 from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform
+from myria3d.data.loading import LidarDataSignature
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
 
-class CustomCompose(BaseTransform):
-    """
-    Composes several transforms together.
-    Edited to bypass downstream transforms if None is returned by a transform.
-
-    Args:
-        transforms (List[Callable]): List of transforms to compose.
-
-    """
-
-    def __init__(self, transforms: List[Callable]):
-        self.transforms = transforms
-
-    def __call__(self, data):
-        for transform in self.transforms:
-            if isinstance(data, (list, tuple)):
-                data = [transform(d) for d in data]
-                data = filter(lambda x: x is not None, data)
-            else:
-                data = transform(data)
-                if data is None:
-                    return None
-        return data
-
-
-class EmptySubtileFilter(BaseTransform):
-    """Filter out almost empty subtiles"""
-
-    def __call__(self, data: Data, min_num_points_subtile: int = 50):
-        if len(data["x"]) < min_num_points_subtile:
-            return None
-        return data
-
-
 class ToTensor(BaseTransform):
     """Turn np.arrays specified by their keys into Tensor."""
 
-    def __init__(self, keys=["pos", "x", "y"]):
+    def __init__(self, keys: List[str] = ["pos", "x", "y"]):
         self.keys = keys
 
     def __call__(self, data: Data):
@@ -86,50 +53,38 @@ class CopySampledPos(BaseTransform):
         return data
 
 
-class StandardizeFeatures(BaseTransform):
-    """Scale features in 0-1 range.
-    Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+class NormalizeFolowingDataLogic(BaseTransform):
+    """Apply the normalization specified in the data_signature."""
 
-    """
+    def __init__(self, data_signature: LidarDataSignature):
+        self.data_signature = data_signature
 
     def __call__(self, data: Data):
-        idx = data.x_features_names.index("intensity")
-        data.x[:, idx] = self._log(data.x[:, idx], shift=1)
-        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
-        idx = data.x_features_names.index("rgb_avg")
-        data.x[:, idx] = self._standardize_channel(data.x[:, idx])
+        data = self.data_signature.per_sample_standardization(data)
         return data
 
-    def _log(self, channel_data, shift: float = 0.0):
-        return torch.log(channel_data + shift)
 
-    def _standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
-        """Sample-wise standardization y* = (y-y_mean)/y_std"""
-        mean = channel_data.mean()
-        std = channel_data.std() + 10**-6
-        standard = (channel_data - mean) / std
-        clamp = clamp_sigma * std
-        clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
-        return clamped
+class NullifyLowestZ(BaseTransform):
+    """Center on x and y axis only. Set lowest z to 0."""
+
+    def __call__(self, data):
+        data.pos[:, 2] = data.pos[:, 2] - data.pos[:, 2].min()
+        return data
 
 
 class NormalizePos(BaseTransform):
     """
-    Normalizes positions:
-        - xy positions to be in the interval (-1, 1)
-        - z position to start at 0.
-        - preserve euclidian distances
-
-    XYZ are expected to be centered already.
+    Normalizes xy in [-1;1] range by scaling the whole point cloud (including z dim)
+    XY are expected to be centered on zéro.
 
     """
 
-    def __call__(self, data):
-        xy_positive_amplitude = data.pos[:, :2].abs().max()
-        xy_scale = (1 / xy_positive_amplitude) * 0.999999
-        data.pos[:, :2] = data.pos[:, :2] * xy_scale
-        data.pos[:, 2] = (data.pos[:, 2] - data.pos[:, 2].min()) * xy_scale
+    def __init__(self, subtile_width_meters=50):
+        half_subtile_width_meters = subtile_width_meters / 2
+        self.scaling_factor = 1 / half_subtile_width_meters
 
+    def __call__(self, data):
+        data.pos = data.pos * self.scaling_factor
         return data
 
     def __repr__(self):

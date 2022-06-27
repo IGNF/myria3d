@@ -1,16 +1,20 @@
 import os.path as osp
 import glob
-import numpy as np
 from typing import Optional, List
-from numbers import Number
+from matplotlib import pyplot as plt
 from pytorch_lightning import LightningDataModule
 import torch
 from torch.utils.data import Dataset
 from torch_geometric.loader import DataLoader
 from torch.utils.data.dataset import IterableDataset
-from torch_geometric.data.data import Data
+from tqdm import tqdm
+from myria3d.data.loading import (
+    MIN_NUM_NODES_PER_RECEPTIVE_FIELD,
+    FrenchLidarDataSignature,
+    LidarDataSignature,
+)
 from myria3d.utils import utils
-from myria3d.data.transforms import CustomCompose
+from torch_geometric.transforms import Compose
 
 
 log = utils.get_logger(__name__)
@@ -43,10 +47,13 @@ class DataModule(LightningDataModule):
         self.classification_preprocessing_dict = self.dataset_description.get(
             "classification_preprocessing_dict"
         )
-        self.load_las = self.dataset_description.get("load_las_func")
-        # transforms
+        self.data_signature = self.dataset_description.get(
+            "data_signature", FrenchLidarDataSignature()
+        )
         t = kwargs.get("transforms")
-        self.preparation_transforms = t.get("preparations_list")
+        self.preparation_train_transforms = t.get("preparations_train_list")
+        self.preparation_eval_transforms = t.get("preparations_eval_list")
+        self.preparation_predict_transforms = t.get("preparations_predict_list")
         self.augmentation_transforms = t.get("augmentations_list")
         self.normalization_transforms = t.get("normalizations_list")
 
@@ -68,8 +75,17 @@ class DataModule(LightningDataModule):
             osp.join(self.prepared_data_dir, "train", "**", "*.data"), recursive=True
         )
         self.train_data = LidarMapDataset(
-            files, loading_function=torch.load, transform=self._get_train_transforms()
+            files,
+            transform=Compose(
+                self.preparation_train_transforms
+                + self.augmentation_transforms
+                + self.normalization_transforms
+            ),
         )
+
+    def _get_eval_transforms(self) -> Compose:
+        """Creates a transform composition for val phase."""
+        return Compose(self.preparation_eval_transforms + self.normalization_transforms)
 
     def _set_val_data(self):
         """Sets the validation dataset from a directory."""
@@ -78,34 +94,30 @@ class DataModule(LightningDataModule):
             osp.join(self.prepared_data_dir, "val", "**", "*.data"), recursive=True
         )
         log.info(f"Validation on {len(files)} subtiles.")
-        self.val_data = LidarMapDataset(
-            files, loading_function=torch.load, transform=self._get_val_transforms()
-        )
+        self.val_data = LidarMapDataset(files, transform=self._get_eval_transforms())
 
     def _set_test_data(self):
-        """Sets the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
+        """Sets the test dataset."""
 
         files = glob.glob(osp.join(self.test_data_dir, "**", "*.las"), recursive=True)
         self.test_data = LidarIterableDataset(
             files,
-            loading_function=self.load_las,
-            transform=self._get_test_transforms(),
-            subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
+            transform=self._get_eval_transforms(),
+            data_signature=self.data_signature,
         )
 
-    def _set_predict_data(self, files: List[str]):
+    def _set_predict_data(self, src_file: str):
         """Sets predict data from a single file. To be used in predict.py.
 
         NB: the single fgile should be in a list.
 
         """
         self.predict_data = LidarIterableDataset(
-            files,
-            loading_function=self.load_las,
-            transform=self._get_predict_transforms(),
-            subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
+            [src_file],
+            transform=Compose(
+                self.preparation_predict_transforms + self.normalization_transforms
+            ),
+            data_signature=self.data_signature,
         )
 
     def train_dataloader(self):
@@ -136,8 +148,7 @@ class DataModule(LightningDataModule):
         return DataLoader(
             dataset=self.test_data,
             batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=1,  # b/c terable dataloader
+            num_workers=1,  # b/c iterable dataset
             prefetch_factor=self.prefetch_factor,
         )
 
@@ -150,54 +161,62 @@ class DataModule(LightningDataModule):
         return DataLoader(
             dataset=self.predict_data,
             batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=1,  # b/c terable dataloader
+            num_workers=1,  # b/c iterable dataset
             prefetch_factor=self.prefetch_factor,
         )
 
-    def _get_train_transforms(self) -> CustomCompose:
-        """Creates a transform composition for train phase."""
-        return CustomCompose(
-            self.preparation_transforms
-            + self.augmentation_transforms
-            + self.normalization_transforms
+    def _visualize_graph(self, data, color=None):
+        """Helpful function to plot the graph, colored by class if not specified.
+
+        Args:
+            data (Data): data, usually post-transform to show their effect.
+            color (Tensor, optional): array with which to color the graph.
+        """
+
+        # creating an empty canvas
+
+        plt.figure(figsize=(20, 20))
+
+        # defining the axes with the projection
+        # as 3D so as to plot 3D graphs
+        ax = plt.axes(projection="3d")
+        ax.set_xlim([-self.subtile_width_meters / 2, self.subtile_width_meters / 2])
+        ax.set_ylim([-self.subtile_width_meters / 2, self.subtile_width_meters / 2])
+        ax.set_zlim([0, 25])
+
+        # plotting a scatter plot with X-coordinate,
+        # Y-coordinate and Z-coordinate respectively
+        # and defining the points color as cividis
+        # and defining c as z which basically is a
+        # defination of 2D array in which rows are RGB
+        # or RGBA
+        if not color:
+            color = data.y
+        ax.scatter3D(
+            data.pos[:, 0],
+            data.pos[:, 1],
+            data.pos[:, 2],
+            c=color,
+            cmap="cividis",
         )
 
-    def _get_val_transforms(self) -> CustomCompose:
-        """Creates a transform composition for val phase."""
-        return CustomCompose(
-            self.preparation_transforms + self.normalization_transforms
-        )
-
-    def _get_test_transforms(self) -> CustomCompose:
-        """Creates a transform composition for test phase."""
-        return self._get_val_transforms()
-
-    def _get_predict_transforms(self) -> CustomCompose:
-        """Creates a transform composition for predict phase."""
-        return self._get_val_transforms()
+        # Showing the above plot
+        plt.show()
 
 
 class LidarMapDataset(Dataset):
-    """A Dataset to load prepared data as produced via loading.py."""
+    """A Dataset to load prepared data produced via loading.py."""
 
-    def __init__(
-        self,
-        files: List[str],
-        loading_function=None,
-        transform=None,
-    ):
+    def __init__(self, files: List[str], transform=None):
         self.files = files
         self.num_files = len(self.files)
-
-        self.loading_function = loading_function
         self.transform = transform
 
     def __getitem__(self, idx):
         """Loads a subtile and transforms its features and targets."""
         filepath = self.files[idx]
 
-        data = self.loading_function(filepath)
+        data = torch.load(filepath)
         if self.transform:
             data = self.transform(data)
 
@@ -213,73 +232,24 @@ class LidarIterableDataset(IterableDataset):
     def __init__(
         self,
         files,
-        loading_function=None,
         transform=None,
-        subtile_width_meters: Number = 50,
-        subtile_overlap: Number = 0,
+        data_signature: LidarDataSignature = FrenchLidarDataSignature,
     ):
         self.files = files
-        self.loading_function = loading_function
         self.transform = transform
-        self.subtile_width_meters = subtile_width_meters
-        self.subtile_overlap = subtile_overlap
-
-    def yield_transformed_subtile_data(self):
-        """Yield subtiles from all tiles in an exhaustive fashion."""
-
-        for idx, filepath in enumerate(self.files):
-            log.info(f"Parsing file {idx+1}/{len(self.files)} [{filepath}]")
-            tile_data = self.loading_function(filepath)
-            centers = self.get_all_subtiles_xy_min_corner(tile_data)
-            # TODO: change to process time function
-            for xy_min_corner in centers:
-                data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
-                if len(data.pos) < 50:
-                    continue
-                if self.transform:
-                    data = self.transform(data)
-                if data and (len(data.pos) > 50):
-                    yield data
+        self.data_signature = data_signature
 
     def __iter__(self):
-        return self.yield_transformed_subtile_data()
+        return self.get_iterator()
 
-    def get_all_subtiles_xy_min_corner(self, data: Data):
-        """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
-
-        low = data.pos[:, :2].min(0)
-        high = data.pos[:, :2].max(0)
-        xy_min_corners = [
-            np.array([x, y])
-            for x in np.arange(
-                start=low[0],
-                stop=high[0] + 1,
-                step=self.subtile_width_meters - self.subtile_overlap,
-            )
-            for y in np.arange(
-                start=low[1],
-                stop=high[1] + 1,
-                step=self.subtile_width_meters - self.subtile_overlap,
-            )
-        ]
-        # random.shuffle(centers)
-        return xy_min_corners
-
-    def extract_subtile_from_tile_data(self, data: Data, low_xy):
-        """Extract the subset from xy_min_corner to xy_min_corner + self.subtile_width_meters
-
-        Args:
-            tile_data (Data): The full tile data.
-            xy_min_corner (np.array): Coordonates of xy min corner of subtile to extract.
-        """
-        high_xy = low_xy + self.subtile_width_meters
-        mask_x = (low_xy[0] <= data.pos[:, 0]) & (data.pos[:, 0] <= high_xy[0])
-        mask_y = (low_xy[1] <= data.pos[:, 1]) & (data.pos[:, 1] <= high_xy[1])
-        mask = mask_x & mask_y
-
-        sub = data.clone()
-        sub.pos = sub.pos[mask]
-        sub.x = sub.x[mask]
-        sub.y = sub.y[mask]
-        sub.idx_in_original_cloud = sub.idx_in_original_cloud[mask]
-        return sub
+    def get_iterator(self):
+        """Yield subtiles from all tiles in an exhaustive fashion."""
+        for f in tqdm(self.files):
+            log.info(f"Parsing file: {f}")
+            for data_sample in self.data_signature.split_cloud_into_receptive_fields(f):
+                if self.transform:
+                    data_sample = self.transform(data_sample)
+                if data_sample and (
+                    len(data_sample.pos) >= MIN_NUM_NODES_PER_RECEPTIVE_FIELD
+                ):
+                    yield data_sample

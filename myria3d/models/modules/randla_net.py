@@ -1,5 +1,7 @@
 # Adapted from https://github.com/aRI0U/RandLA-Net-pytorch/blob/master/model.py
 
+import math
+from numbers import Number
 from typing import Tuple
 import torch
 import torch.nn as nn
@@ -63,37 +65,20 @@ class RandLANet(nn.Module):
         )
         self.set_fc_end(self.d_in, self.dropout, self.num_classes)
 
-    def set_fc_end(self, d_in, dropout, num_classes):
-        """Build the final fully connected layer.
-
-        Args:
-            d_in (int): number of input features
-            dropout (float): dropout level in final FC layer
-            num_classes (int): number of output classes
-        """
-        parts = [
-            SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
-            SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
-        ]
-        if dropout:
-            parts.append(nn.Dropout(p=dropout))
-        parts.append(SharedMLP(32, num_classes))
-        self.fc_end = nn.Sequential(*parts)
-
     def forward(self, batch):
         """Forward pass.
 
         Args:
             batch (pytorch_geometric.Data): Subtile information with shape (B*N, 3+F).
-            Attributs: pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.
+            Attributes: pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.
 
         Returns:
             torch.Tensor: classification logits for each point, with shape (B*num_classes,C)
 
         """
-
-        input = torch.cat([batch.pos, batch.x], axis=1)
-        chunks = torch.split(input, len(batch.pos) // batch.num_graphs)
+        # to to transform to standard batch-like format
+        long_input = torch.cat([batch.pos, batch.x], axis=1)
+        chunks = torch.split(long_input, len(batch.pos) // batch.num_graphs)
         input = torch.stack(chunks)  # B, N, 3+F
 
         N = input.size(1)
@@ -112,7 +97,7 @@ class RandLANet(nn.Module):
         x = x[:, :, permutation]
 
         for lfa in self.encoder:
-            # at iteration i, x.shape = (B, N//(self.decimation**i), d_in)
+            # at iteration i, x.shape = (B', N//(self.decimation**i), d_in)
             x = lfa(pos[:, : N // decimation_ratio], x)
             x_stack.append(x.clone())
             decimation_ratio *= self.decimation
@@ -129,7 +114,7 @@ class RandLANet(nn.Module):
                 pos[:, : N // decimation_ratio],  # original set
                 pos[:, : self.decimation * N // decimation_ratio],  # upsampled set
                 single_neighbor,
-            )  # shape (B, N, 1)
+            )  # shape (B, N', 1)
             neighbors = neighbors.to(x.device)
             extended_neighbors = neighbors.unsqueeze(1).expand(-1, x.size(1), -1, 1)
 
@@ -147,7 +132,8 @@ class RandLANet(nn.Module):
 
         scores = self.fc_end(x)
 
-        scores = scores.squeeze(-1)  # B, C, N
+        # Go back to long pyg format and to the full point cloud by interpolating the predictions.
+        scores = scores.squeeze(-1)  # B, C, N'
         scores = torch.cat(
             [score_cloud.permute(1, 0) for score_cloud in scores]
         )  # B*N, C
@@ -155,8 +141,6 @@ class RandLANet(nn.Module):
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
             # 2) data augmentation at the supervision level.
-            # 3) Validation metric that is invariant to small changes, therefore having an early stopping
-            # that should not lead to overfitting on small features
             return scores  # B*N, C
 
         # During evaluation on test data and inference, we interpolate predictions back to original positions
@@ -168,6 +152,23 @@ class RandLANet(nn.Module):
             num_workers=self.num_workers,
         )
         return scores  # N1+N2+...+Nn, C
+
+    def set_fc_end(self, d_in, dropout, num_classes):
+        """Build the final fully connected layer.
+
+        Args:
+            d_in (int): number of input features
+            dropout (float): dropout level in final FC layer
+            num_classes (int): number of output classes
+        """
+        parts = [
+            SharedMLP(d_in * 2, 64, bn=True, activation_fn=nn.ReLU()),
+            SharedMLP(64, 32, bn=True, activation_fn=nn.ReLU()),
+        ]
+        if dropout:
+            parts.append(nn.Dropout(p=dropout))
+        parts.append(SharedMLP(32, num_classes))
+        self.fc_end = nn.Sequential(*parts)
 
     def change_num_class_for_finetuning(self, new_num_classes: int):
         """Change end layer output number of classes if new_num_classes is different.
@@ -405,7 +406,7 @@ def knn_compact(
         num_neighbors,
         batch_x=batch_x_long.to(pos_x_long.device),
         batch_y=batch_y_long.to(pos_x_long.device),
-        num_workers=4,  # TODO: try with parameter
+        num_workers=4,
     )
 
     # Get back to compact shape
@@ -418,3 +419,16 @@ def knn_compact(
     x_idx = x_idx - x_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
     y_idx = y_idx - y_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
     return y_idx, x_idx
+
+
+def random_sample(cloud: torch.Tensor, num_fixed_points: Number):
+    """Randomly subsample the cloud (x||pos)."""
+    num_nodes = cloud.shape[0]
+    choice = torch.cat(
+        [
+            torch.randperm(num_nodes)
+            for _ in range(math.ceil(num_fixed_points / num_nodes))
+        ],
+        dim=0,
+    )[:num_fixed_points]
+    return cloud[choice]

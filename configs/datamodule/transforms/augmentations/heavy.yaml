@@ -1,0 +1,19 @@
+# XY flips
+
+defaults:
+  - light.yaml
+
+
+# Rotation around axis - sample should be centered for this.
+RandomRotate:
+  _target_: torch_geometric.transforms.RandomRotate
+  _args_:
+    - 180
+  axis: 2
+
+# Random translation of each point individually by at most translate
+# Cloud positions should be in meters unit for this
+RandomTranslate:
+  _target_: torch_geometric.transforms.RandomTranslate
+  _args_:
+    - 0.05

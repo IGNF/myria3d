@@ -3,6 +3,8 @@
 defaults:
   - override /trainer: default.yaml
   - override /model: point_net_2_model.yaml
+  - override /datamodule/transforms/normalizations: default.yaml
+  - override /datamodule/transforms/preparations: default.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
@@ -21,7 +23,6 @@ trainer:
   # gpus: "1"
 
 datamodule:
-  augment: false
   batch_size: 16
   num_workers: 1
 

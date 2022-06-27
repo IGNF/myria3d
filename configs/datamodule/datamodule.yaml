@@ -11,8 +11,6 @@ num_workers: 2  # for data loaders
 subtile_width_meters: 50  # size of receptive fields : 50mx50m
 subtile_overlap: ${predict.subtile_overlap}  # Used for test and predict phases only
 
-augment: false  # activate data augmentation
-
 defaults:
   - dataset_description: 20220204_BuildingValidation_and_Ground.yaml
   - transforms: default.yaml

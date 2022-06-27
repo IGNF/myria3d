@@ -37,9 +37,9 @@ def predict(config: DictConfig) -> str:
     assert os.path.exists(config.predict.src_las)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
-    datamodule._set_predict_data([config.predict.src_las])
+    datamodule._set_predict_data(config.predict.src_las)
 
-    # Do not require gradient for faster
+    # Do not require gradient for faster predictions
     torch.set_grad_enabled(False)
 
     model: LightningModule = hydra.utils.instantiate(config.model)

@@ -23,7 +23,7 @@ python run.py experiment=RandLaNetDebug
 
 ## Training
 
-Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may stem from one of the provided experiment file (e.g. `RandLaNet_base_run_FR.yaml`). In particular, you will need to define parameter `datamodule.dataset_description` to specify your classification task - see e.g. config `20220504_proto23dalles.yaml` for an example.
+Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may stem from one of the provided experiment file (e.g. `RandLaNet_base_run_FR.yaml`). In particular, you will need to define parameter `datamodule.dataset_description` to specify your classification task - see e.g. config `20220607_151_dalles_proto.yaml` for an example.
 
 
 To run the full training and validation for French Lidar HD, run:
@@ -33,6 +33,11 @@ python run.py experiment=RandLaNet_base_run_FR
 ```
 
 After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOG_PATH` you specified, with an associated hydra `config.yaml`.
+
+### Optimized learning rate
+
+Pytorch Lightning support au [automated learning rate finder](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find), by means of an Learning Rate-range test (see section 3.3 in [this paper](https://arxiv.org/pdf/1506.01186.pdf) for reference). 
+You can perfom this automatically before training by setting `trainer.auto_lr_find=true` when calling training on your dataset. The best learning rate will be logged and results saved as an image, so that you do not need to perform this test more than once.
 
 ## Testing the model
 

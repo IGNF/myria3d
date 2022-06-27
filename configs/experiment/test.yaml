@@ -3,10 +3,6 @@
 # Use a specified model to infer on the full validation set (i.e. test dataloader)
 
 # all parameters below will be merged with parameters from default configurations
-
-defaults:
-  - override /datamodule/transforms/preparations: test.yaml
-
 seed: 12345
 
 task:

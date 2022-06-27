@@ -9,8 +9,9 @@ In particular, subclasses implement a "load_las" method that is used by the data
 
 """
 
-from abc import ABC, abstractmethod
 import argparse
+import copy
+import math
 import os
 import glob
 import os.path as osp
@@ -22,8 +23,11 @@ import numpy as np
 import pandas as pd
 import torch
 from torch_geometric.data import Data
+from scipy.spatial import cKDTree
 
 SPLIT_PHASES = ["val", "train", "test"]
+# Min num of nodes per sub-cloud to be considered
+MIN_NUM_NODES_PER_RECEPTIVE_FIELD = 50
 
 # Files for the creation of a toy dataset.
 LAS_SUBSET_FOR_TOY_DATASET = (
@@ -32,7 +36,7 @@ LAS_SUBSET_FOR_TOY_DATASET = (
 SPLIT_CSV_FOR_TOY_DATASET = "tests/data/toy_dataset_src/toy_dataset_split.csv"
 
 
-class LidarDataLogic(ABC):
+class LidarDataSignature:
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
 
@@ -54,21 +58,11 @@ class LidarDataLogic(ABC):
         self.split_csv = split_csv
         self.input_tile_width_meters = input_tile_width_meters
         self.subtile_width_meters = subtile_width_meters
+        # radius of a circle that contains the subtile of square shape subtile_width_meters * subtile_width_meters
+        # The aera of this circle is (pi/2) = 1.5708 times the area of the original square.
+        self.sample_radius = subtile_width_meters / math.sqrt(2)
 
-    @abstractmethod
-    def load_las(self, las_filepath: str) -> Data:
-        """Load a point cloud in LAS format to memory and turn it into torch-geometric Data object.
-
-        Args:
-            las_filepath (str): path to the LAS file.
-
-        Returns:
-            Data: The point cloud formatted for later deep learning training.
-
-        """
-        raise NotImplementedError
-
-    def prepare(self):
+    def prepare_full_dataset(self):
         """Prepare a dataset for model training and model evaluation.
 
         Iterates through LAS files listed in a csv metadata file.
@@ -101,32 +95,74 @@ class LidarDataLogic(ABC):
                     raise KeyError("Phase should be one of train/val/test.")
 
     def split_and_save(self, filepath: str, output_subdir_path: str) -> None:
-        """Parse a LAS, extract and save each subtile as a Data object.
+        for idx, data_sample in enumerate(
+            self.split_cloud_into_receptive_fields(filepath)
+        ):
+            out_path = osp.join(output_subdir_path, f"{str(idx).zfill(4)}.data")
+            torch.save(data_sample, out_path)
+
+    def split_cloud_into_receptive_fields(self, filepath: str):
+        """Iterator that parses a LAS, extract receptive fields as Data objects.
 
         Args:
             filepath (str): input LAS file
             output_subdir_path (str): output directory to save splitted `.data` objects.
 
         """
+        data = self.load_las(filepath)
+        # KDTree for fast query based on x and y that starts at 0
+        kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
+
         range_by_axis = np.arange(
-            self.input_tile_width_meters // self.subtile_width_meters + 1
+            self.subtile_width_meters / 2,
+            self.input_tile_width_meters + self.subtile_width_meters / 2,
+            self.subtile_width_meters,
         )
 
-        data = self.load_las(filepath)
-        idx = 0
-        for _ in tqdm(range_by_axis):
-            if not len(data.pos):
-                # Ignore if empty
-                break
-            data_x_band = self._extract_by_x(data)
-            for _ in range_by_axis:
-                if not len(data_x_band.pos):
-                    # Ignore if empty
-                    break
-                subtile_data = self._extract_by_y(data_x_band)
-                if subtile_data and subtile_data.pos.shape[0] > 50:
-                    self._save(subtile_data, output_subdir_path, idx)
-                idx += 1
+        for x_center in range_by_axis:
+            for y_center in range_by_axis:
+                center = np.array([x_center, y_center])
+                data_sample = self.extract_around_center(data, kd_tree, center)
+                if (
+                    data_sample
+                    and len(data_sample.pos) >= MIN_NUM_NODES_PER_RECEPTIVE_FIELD
+                ):
+                    yield data_sample
+
+    def extract_around_center(
+        self, data: Data, kd_tree: cKDTree, center: np.array
+    ) -> Data:
+        """Filter a data object on a chosen axis, using a relative position .
+        Modifies the original data object so that extracted future filters are faster.
+
+        Args:
+            data (Data): a pyg Data object with pos, x, and y attributes.
+            relative_pos (int): where the data to extract start on chosen axis (typically in range 0-1000)
+            axis (int, optional): 0 for x and 1 for y axis. Defaults to 0.
+
+        Returns:
+            Data: the data that is at most subtile_width_meters above relative_pos on the chosen axis.
+
+        """
+        # query
+        circular_sample_idx = np.array(
+            kd_tree.query_ball_point(center, r=self.sample_radius)
+        )
+
+        if len(circular_sample_idx) == 0:
+            return None
+
+        sample_data = Data()
+        sample_data.x_features_names = copy.deepcopy(data.x_features_names)
+        sample_data.las_filepath = copy.deepcopy(data.las_filepath)
+        sample_data.pos = data.pos[circular_sample_idx]
+        sample_data.x = data.x[circular_sample_idx]
+        sample_data.y = data.y[circular_sample_idx]
+        sample_data.idx_in_original_cloud = data.idx_in_original_cloud[
+            circular_sample_idx
+        ]
+
+        return sample_data
 
     def _find_file_in_dir(self, input_data_dir: str, basename: str) -> str:
         """Query files matching a basename in input_data_dir and its subdirectories.
@@ -142,57 +178,8 @@ class LidarDataLogic(ABC):
         files = glob.glob(query, recursive=True)
         return files[0]
 
-    def _extract_by_axis(self, data: Data, axis=0) -> Data:
-        """Filter a data object on a chosen axis, using a relative position .
-        Modifies the original data object so that extracted future filters are faster.
 
-        Args:
-            data (Data): a pyg Data object with pos, x, and y attributes.
-            relative_pos (int): where the data to extract start on chosen axis (typically in range 0-1000)
-            axis (int, optional): 0 for x and 1 for y axis. Defaults to 0.
-
-        Returns:
-            Data: the data that is at most subtile_width_meters above relative_pos on the chosen axis.
-        """
-        sub_tile_data = data.clone()
-        pos_axis = sub_tile_data.pos[:, axis]
-        absolute_low = pos_axis.min(0)
-        absolute_high = absolute_low + self.subtile_width_meters
-        mask = (absolute_low <= pos_axis) & (pos_axis <= absolute_high)
-
-        # select
-        sub_tile_data.pos = sub_tile_data.pos[mask]
-        sub_tile_data.x = sub_tile_data.x[mask]
-        sub_tile_data.y = sub_tile_data.y[mask]
-        sub_tile_data.idx_in_original_cloud = sub_tile_data.idx_in_original_cloud[mask]
-
-        data.pos = data.pos[~mask]
-        data.x = data.x[~mask]
-        data.y = data.y[~mask]
-        data.idx_in_original_cloud = data.idx_in_original_cloud[~mask]
-        return sub_tile_data
-
-    def _extract_by_x(self, data: Data) -> Data:
-        """extract_by_axis applied on first axis x"""
-        return self._extract_by_axis(data, axis=0)
-
-    def _extract_by_y(self, data: Data) -> Data:
-        """extract_by_axis applied on second axis y"""
-        return self._extract_by_axis(data, axis=1)
-
-    def _save(self, subtile_data: Data, output_subdir_path: str, idx: int) -> None:
-        """Save the subtile data object with torch.
-
-        Args:
-            subtile_data (Data): the object to save.
-            output_subdir_path (str): the subfolder to save it.
-            idx (int): an arbitrary but unique subtile identifier.
-        """
-        subtile_save_path = osp.join(output_subdir_path, f"{str(idx).zfill(4)}.data")
-        torch.save(subtile_data, subtile_save_path)
-
-
-class FrenchLidarDataLogic(LidarDataLogic):
+class FrenchLidarDataSignature(LidarDataSignature):
 
     x_features_names = [
         "intensity",
@@ -207,7 +194,6 @@ class FrenchLidarDataLogic(LidarDataLogic):
     ]
     colors_normalization_max_value = 255 * 256
 
-    @classmethod
     def load_las(cls, las_filepath: str):
         f"""Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
 
@@ -294,8 +280,24 @@ class FrenchLidarDataLogic(LidarDataLogic):
             idx_in_original_cloud=np.arange(len(pos)),
         )
 
+    def per_sample_standardization(self, data: Data):
+        """Scale features in 0-1 range.
 
-class SwissTopoLidarDataLogic(LidarDataLogic):
+        Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+
+        """
+
+        idx = data.x_features_names.index("intensity")
+        # Log transform to be less sensitive to large outliers - info is in lower values
+        data.x[:, idx] = torch.log(data.x[:, idx] + 1)
+        data.x[:, idx] = standardize_channel(data.x[:, idx])
+        idx = data.x_features_names.index("rgb_avg")
+        data.x[:, idx] = standardize_channel(data.x[:, idx])
+
+        return data
+
+
+class SwissTopoLidarDataLogic(LidarDataSignature):
     x_features_names = [
         "intensity",
         "return_number",
@@ -381,6 +383,35 @@ class SwissTopoLidarDataLogic(LidarDataLogic):
             idx_in_original_cloud=np.arange(len(pos)),
         )
 
+    def per_sample_standardization(self, data: Data):
+        """Scale features in 0-1 range.
+
+        Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
+
+        """
+
+        idx = data.x_features_names.index("intensity")
+        # Log transform to be less sensitive to large outliers - info is in lower values
+        data.x[:, idx] = torch.log(data.x[:, idx] + 1)
+        data.x[:, idx] = standardize_channel(data.x[:, idx])
+        idx = data.x_features_names.index("rgb_avg")
+        data.x[:, idx] = standardize_channel(data.x[:, idx])
+
+        return data
+
+
+def standardize_channel(channel_data: torch.Tensor, clamp_sigma: int = 3):
+    """Sample-wise standardization y* = (y-y_mean)/y_std"""
+    mean = channel_data.mean()
+    std = channel_data.std() + 10**-6
+    standard = (channel_data - mean) / std
+    clamp = clamp_sigma * std
+    clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
+    return clamped
+
+
+# Scripts for data preparation and preparation of a toy dataset for tests
+
 
 def make_toy_dataset_from_test_file(
     prepared_data_dir: str,
@@ -416,14 +447,14 @@ def make_toy_dataset_from_test_file(
         shutil.copy(src_las_path, copy_path)
 
     # Prepare a Deep-Learning-ready dataset, using the split defined in the csv.
-    data_prepper = FrenchLidarDataLogic(
+    data_prepper = FrenchLidarDataSignature(
         input_data_dir=td_raw,
         prepared_data_dir=td_prepared,
         split_csv=split_csv,
         input_tile_width_meters=110,
         subtile_width_meters=50,
     )
-    data_prepper.prepare()
+    data_prepper.prepare_full_dataset()
     return td_prepared
 
 
@@ -490,11 +521,11 @@ def main():
     if args.origin == "FR_TOY":
         make_toy_dataset_from_test_file(args.prepared_data_dir)
     elif args.origin == "FR":
-        data_prepper = FrenchLidarDataLogic(**args.__dict__)
-        data_prepper.prepare()
+        data_prepper = FrenchLidarDataSignature(**args.__dict__)
+        data_prepper.prepare_full_dataset()
     elif args.origin == "CH":
         data_prepper = SwissTopoLidarDataLogic(**args.__dict__)
-        data_prepper.prepare()
+        data_prepper.prepare_full_dataset()
     else:
         raise KeyError(f"Data origin is invalid (currently: {args.origin})")
 
