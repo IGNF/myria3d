@@ -456,6 +456,12 @@ def _get_data_preparation_parser():
         help="Path to csv with a basename (e.g. '123_456.las') and split (train/val/test) columns specifying the dataset split.",
     )
     parser.add_argument(
+        "--use_circular_receptive_field",
+        type=bool,
+        default=False,
+        help="Set to True to use circular receptive fields instead of square ones.",
+    )
+    parser.add_argument(
         "--prepared_data_dir",
         type=str,
         default="./data/prepared/",
