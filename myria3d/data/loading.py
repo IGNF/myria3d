@@ -180,7 +180,7 @@ class LidarDataLogic(ABC):
             return None
 
         # select
-        sample_data = Data()
+        sample_data = Data(x_features_names = data.x_features_names)
         sample_data.pos = data.pos[sample_idx]
         sample_data.x = data.x[sample_idx]
         sample_data.y = data.y[sample_idx]
