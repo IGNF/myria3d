@@ -126,7 +126,7 @@ class LidarDataLogic(ABC):
 
         range_by_axis = np.arange(
             self.subtile_width_meters / 2,
-            self.input_tile_width_meters + self.subtile_width_meters / 2,
+            self.input_tile_width_meters - self.subtile_width_meters / 2 + 1,
             self.subtile_width_meters - self.subtile_overlap,
         )
 
@@ -180,7 +180,7 @@ class LidarDataLogic(ABC):
             return None
 
         # select
-        sample_data = Data(x_features_names = data.x_features_names)
+        sample_data = Data(x_features_names=data.x_features_names)
         sample_data.pos = data.pos[sample_idx]
         sample_data.x = data.x[sample_idx]
         sample_data.y = data.y[sample_idx]
@@ -469,6 +469,12 @@ def _get_data_preparation_parser():
         type=int,
         default=0,
         help="Level of overlap - in meters - between adjacent subtiles.",
+    )
+    parser.add_argument(
+        "--input_tile_width_meters",
+        type=int,
+        default=1000,
+        help="Width of input tile (set to max in case of non-square tile).",
     )
     parser.add_argument(
         "--prepared_data_dir",
