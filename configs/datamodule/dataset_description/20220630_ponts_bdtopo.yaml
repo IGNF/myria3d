@@ -1,13 +1,9 @@
 _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # classification_preprocessing_dict = {source_class_code_int: target_class_code_int},
-# 3: medium vegetation -> vegetation
-# 4: high vegetation -> vegetation
-# 160: antenna -> lasting_above
-# 161: wind_turbines -> lasting_above
-# 162: pylon -> lasting_above
 
 # Deal with artefacts and synthetic points (65, 66) are set to "unclassified"
-classification_preprocessing_dict: {65: 1, 66: 1, 204: 2}
+# 204 and 109 ; 204 is for "candidate ground", 109 is a  leftovers anomaly.
+classification_preprocessing_dict: {65: 1, 66: 1, 204: 2, 109: 1, 201: 1}
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 17: bridge}
 

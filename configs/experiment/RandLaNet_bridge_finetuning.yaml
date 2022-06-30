@@ -1,0 +1,36 @@
+# @package _global_
+
+defaults:
+  - override /callbacks: finetuning.yaml
+  - override /datamodule/dataset_description: 20220630_ponts_bdtopo
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+task:
+  task_name: finetune
+
+logger:
+  comet:
+    experiment_name: "RandLaNet - Bridge specialization"
+
+callbacks:
+  finetune:
+    unfreeze_fc_end_epoch: 1
+    unfreeze_decoder_train_epoch: 3
+
+# Uncomment to give more weight to bridge class.
+# model:
+#   criterion:
+#     weight:
+#       _target_: torch.FloatTensor
+#       _args_:
+#         - [1.0, 1.0, 5.0]
+
+trainer:
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 10
+  max_epochs: 50
+  val_check_interval: 1.0
+  # gpus: [1]
+
