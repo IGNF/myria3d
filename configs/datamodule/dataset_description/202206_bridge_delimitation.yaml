@@ -7,7 +7,7 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # 162: pylon -> lasting_above
 
 # Deal with artefacts and synthetic points (65, 66) are set to "unclassified"
-classification_preprocessing_dict: {65: 1, 66: 1}
+classification_preprocessing_dict: {65: 1, 66: 1, 204: 2}
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 17: bridge}
 

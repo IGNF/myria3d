@@ -466,7 +466,7 @@ def _get_data_preparation_parser():
     )
     parser.add_argument(
         "--subtile_overlap",
-        type=Number,
+        type=int,
         default=0,
         help="Level of overlap - in meters - between adjacent subtiles.",
     )
