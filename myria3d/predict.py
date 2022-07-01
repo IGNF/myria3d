@@ -44,7 +44,7 @@ def predict(config: DictConfig) -> str:
     torch.set_grad_enabled(False)
 
     model: LightningModule = hydra.utils.instantiate(config.model)
-    model = model.load_from_checkpoint(config.predict.ckpt_path)
+    model = model.load_from_checkpoint(config.predict.ckpt_path, **model.hparams)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()

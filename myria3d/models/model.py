@@ -65,6 +65,7 @@ class Model(LightningModule):
         self.model = neural_net_class(self.hparams.neural_net_hparams)
 
         self.softmax = nn.Softmax(dim=1)
+        self.criterion = self.hparams.criterion
 
     def setup(self, stage: Optional[str]) -> None:
         """Setup stage: prepare to compute IoU and loss."""
@@ -73,9 +74,8 @@ class Model(LightningModule):
             self.val_iou = self.hparams.iou()
             self.val_iou_best = MaxMetric()
         if stage == "test":
-            self.test_iou = self.hparams.iou().cpu()
-        if stage != "predict":
-            self.criterion = self.hparams.criterion
+            self.test_iou = self.hparams.iou()
+        # if stage != "predict":
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
