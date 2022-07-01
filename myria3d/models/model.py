@@ -65,6 +65,7 @@ class Model(LightningModule):
         self.model = neural_net_class(self.hparams.neural_net_hparams)
 
         self.softmax = nn.Softmax(dim=1)
+        self.criterion = self.hparams.criterion
 
     def setup(self, stage: Optional[str]) -> None:
         """Setup stage: prepare to compute IoU and loss."""

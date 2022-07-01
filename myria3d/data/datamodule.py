@@ -1,3 +1,5 @@
+import copy
+import math
 import os.path as osp
 import glob
 import numpy as np
@@ -9,8 +11,10 @@ from torch.utils.data import Dataset
 from torch_geometric.loader import DataLoader
 from torch.utils.data.dataset import IterableDataset
 from torch_geometric.data.data import Data
+from myria3d.data.loading import MIN_NUM_POINTS_IN_SAMPLE
 from myria3d.utils import utils
 from myria3d.data.transforms import CustomCompose
+from scipy.spatial import cKDTree
 
 
 log = utils.get_logger(__name__)
@@ -33,6 +37,7 @@ class DataModule(LightningDataModule):
         self.num_workers = kwargs.get("num_workers", 0)
         self.prefetch_factor = kwargs.get("prefetch_factor", 2)
         # data preparation
+        self.input_tile_width_meters = kwargs.get("input_tile_width_meters", 1000)
         self.subtile_width_meters = kwargs.get("subtile_width_meters", 50)
         self.subtile_overlap = kwargs.get("subtile_overlap", 0)
         self.batch_size = kwargs.get("batch_size", 32)
@@ -90,6 +95,7 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las,
             transform=self._get_test_transforms(),
+            input_tile_width_meters=self.input_tile_width_meters,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
@@ -104,6 +110,7 @@ class DataModule(LightningDataModule):
             files,
             loading_function=self.load_las,
             transform=self._get_predict_transforms(),
+            input_tile_width_meters=self.input_tile_width_meters,
             subtile_width_meters=self.subtile_width_meters,
             subtile_overlap=self.subtile_overlap,
         )
@@ -216,70 +223,85 @@ class LidarIterableDataset(IterableDataset):
         loading_function=None,
         transform=None,
         subtile_width_meters: Number = 50,
+        input_tile_width_meters: Number = 1000,
         subtile_overlap: Number = 0,
     ):
         self.files = files
         self.loading_function = loading_function
         self.transform = transform
+        self.input_tile_width_meters = input_tile_width_meters
         self.subtile_width_meters = subtile_width_meters
         self.subtile_overlap = subtile_overlap
+        self.use_circular_receptive_field = (
+            False  # This is ugly, this branch should not last...
+        )
+        if self.use_circular_receptive_field:
+            self.sample_radius = subtile_width_meters / math.sqrt(2)
 
     def yield_transformed_subtile_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
 
         for idx, filepath in enumerate(self.files):
             log.info(f"Parsing file {idx+1}/{len(self.files)} [{filepath}]")
-            tile_data = self.loading_function(filepath)
-            centers = self.get_all_subtiles_xy_min_corner(tile_data)
-            # TODO: change to process time function
-            for xy_min_corner in centers:
-                data = self.extract_subtile_from_tile_data(tile_data, xy_min_corner)
-                if len(data.pos) < 50:
-                    continue
-                if self.transform:
-                    data = self.transform(data)
-                if data and (len(data.pos) > 50):
-                    yield data
+            data = self.loading_function(filepath)
+            kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
+
+            range_by_axis = np.arange(
+                self.subtile_width_meters / 2,
+                self.input_tile_width_meters - self.subtile_width_meters / 2 + 1,
+                self.subtile_width_meters - self.subtile_overlap,
+            )
+
+            idx = 0
+            for x_center in range_by_axis:
+                for y_center in range_by_axis:
+                    center = np.array([x_center, y_center])
+                    subtile_data = self.extract_around_center(data, kd_tree, center)
+                    if (
+                        subtile_data
+                        and len(subtile_data.pos) >= MIN_NUM_POINTS_IN_SAMPLE
+                    ):
+                        if self.transform:
+                            subtile_data = self.transform(subtile_data)
+                        if data and (len(subtile_data.pos) >= MIN_NUM_POINTS_IN_SAMPLE):
+                            yield subtile_data
+
+    def extract_around_center(
+        self, data: Data, kd_tree: cKDTree, center: np.array
+    ) -> Data:
+        """Filter a data object on a chosen axis, using a relative position .
+        Modifies the original data object so that extracted future filters are faster.
+
+        Args:
+            data (Data): a pyg Data object with pos, x, and y attributes.
+            relative_pos (int): where the data to extract start on chosen axis (typically in range 0-1000)
+            axis (int, optional): 0 for x and 1 for y axis. Defaults to 0.
+
+        Returns:
+            Data: the data that is at most subtile_width_meters above relative_pos on the chosen axis.
+
+        """
+        # square query with infinite norm
+        query_params = {"r": self.subtile_width_meters / 2.0, "p": np.inf}
+        if self.use_circular_receptive_field:
+            # circular query with euclidian norm
+            query_params = {"r": self.sample_radius / 2.0, "p": 2}
+
+        sample_idx = np.array(kd_tree.query_ball_point(center, **query_params))
+
+        if len(sample_idx) == 0:
+            return None
+
+        # select
+        sample_data = Data()
+        sample_data.x_features_names = copy.deepcopy(data.x_features_names)
+        sample_data.las_filepath = copy.deepcopy(data.las_filepath)
+        sample_data.pos = data.pos[sample_idx]
+        sample_data.x = data.x[sample_idx]
+        sample_data.y = data.y[sample_idx]
+        sample_data.idx_in_original_cloud = data.idx_in_original_cloud[sample_idx]
+
+        return sample_data
 
     def __iter__(self):
         return self.yield_transformed_subtile_data()
-
-    def get_all_subtiles_xy_min_corner(self, data: Data):
-        """Get centers of square subtiles of specified width, assuming rectangular form of input cloud."""
-
-        low = data.pos[:, :2].min(0)
-        high = data.pos[:, :2].max(0)
-        xy_min_corners = [
-            np.array([x, y])
-            for x in np.arange(
-                start=low[0],
-                stop=high[0] + 1,
-                step=self.subtile_width_meters - self.subtile_overlap,
-            )
-            for y in np.arange(
-                start=low[1],
-                stop=high[1] + 1,
-                step=self.subtile_width_meters - self.subtile_overlap,
-            )
-        ]
-        # random.shuffle(centers)
-        return xy_min_corners
-
-    def extract_subtile_from_tile_data(self, data: Data, low_xy):
-        """Extract the subset from xy_min_corner to xy_min_corner + self.subtile_width_meters
-
-        Args:
-            tile_data (Data): The full tile data.
-            xy_min_corner (np.array): Coordonates of xy min corner of subtile to extract.
-        """
-        high_xy = low_xy + self.subtile_width_meters
-        mask_x = (low_xy[0] <= data.pos[:, 0]) & (data.pos[:, 0] <= high_xy[0])
-        mask_y = (low_xy[1] <= data.pos[:, 1]) & (data.pos[:, 1] <= high_xy[1])
-        mask = mask_x & mask_y
-
-        sub = data.clone()
-        sub.pos = sub.pos[mask]
-        sub.x = sub.x[mask]
-        sub.y = sub.y[mask]
-        sub.idx_in_original_cloud = sub.idx_in_original_cloud[mask]
-        return sub
