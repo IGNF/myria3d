@@ -124,11 +124,14 @@ class LidarDataLogic(ABC):
         # KDTree for fast query based on x and y that starts at 0
         kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
 
-        range_by_axis = np.arange(
-            self.subtile_width_meters / 2,
-            self.input_tile_width_meters - self.subtile_width_meters / 2 + 1,
-            self.subtile_width_meters - self.subtile_overlap,
-        )
+        # range_by_axis = np.arange(
+        #     self.subtile_width_meters / 2,
+        #     self.input_tile_width_meters - self.subtile_width_meters / 2 + 1,
+        #     self.subtile_width_meters - self.subtile_overlap,
+        # )
+        # CENTERING BRIDGE DATA !
+        # Four times predictions on same area !
+        range_by_axis = [50]
 
         idx = 0
         for x_center in range_by_axis:
