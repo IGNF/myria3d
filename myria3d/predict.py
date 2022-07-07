@@ -13,6 +13,7 @@ from myria3d.models.interpolation import Interpolator
 log = utils.get_logger(__name__)
 
 
+@utils.eval_time
 def predict(config: DictConfig) -> str:
     """
     Inference pipeline.
@@ -66,6 +67,7 @@ def predict(config: DictConfig) -> str:
     return out_f
 
 
+@utils.eval_time
 @hydra.main(config_path="../configs/", config_name="config.yaml")
 def main(config: DictConfig):
     """This wrapper allows to specify a hydra configuration from command line.
