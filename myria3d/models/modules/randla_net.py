@@ -409,7 +409,7 @@ def knn_compact(
     )
 
     # Get back to compact shape
-    batch_size_y = len(pos_y[1])
+    batch_size_y = pos_y.size(1)
     compact_shape_y = (num_graphs, batch_size_y, -1)
     x_idx = x_idx_long.view(compact_shape_y)
     y_idx = y_idx_long.view(compact_shape_y)
