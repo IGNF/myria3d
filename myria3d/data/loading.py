@@ -37,6 +37,20 @@ LAS_SUBSET_FOR_TOY_DATASET = (
 SPLIT_CSV_FOR_TOY_DATASET = "tests/data/toy_dataset_src/toy_dataset_split.csv"
 
 
+def _find_file_in_dir(input_data_dir: str, basename: str) -> str:
+    """Query files matching a basename in input_data_dir and its subdirectories.
+
+    Args:
+        input_data_dir (str): data directory
+
+    Returns:
+        [str]: first file path matching the query.
+
+    """
+    query = f"{input_data_dir}/**/{basename}"
+    files = glob.glob(query, recursive=True)
+    return files[0]
+
 class LidarDataLogic(ABC):
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
@@ -93,7 +107,7 @@ class LidarDataLogic(ABC):
             print(f"Subset: {phase}")
             print("  -  ".join(basenames))
             for file_basename in tqdm(basenames, desc="Files"):
-                las_path = self._find_file_in_dir(self.input_data_dir, file_basename)
+                las_path = _find_file_in_dir(self.input_data_dir, file_basename)
                 if phase == "test":
                     # Simply copy the LAS to the new test folder.
                     test_subdir_path = osp.join(self.prepared_data_dir, phase)
@@ -142,20 +156,6 @@ class LidarDataLogic(ABC):
                     self._save(subtile_data, output_subdir_path, idx)
                     idx += 1
 
-    def _find_file_in_dir(self, input_data_dir: str, basename: str) -> str:
-        """Query files matching a basename in input_data_dir and its subdirectories.
-
-        Args:
-            input_data_dir (str): data directory
-
-        Returns:
-            [str]: first file path matching the query.
-
-        """
-        query = f"{input_data_dir}/**/{basename}"
-        files = glob.glob(query, recursive=True)
-        return files[0]
-
     def extract_around_center(
         self, data: Data, kd_tree: cKDTree, center: np.array
     ) -> Data:
@@ -201,6 +201,8 @@ class LidarDataLogic(ABC):
         """
         subtile_save_path = osp.join(output_subdir_path, f"{str(idx).zfill(4)}.data")
         torch.save(subtile_data, subtile_save_path)
+
+
 
 
 class FrenchLidarDataLogic(LidarDataLogic):
