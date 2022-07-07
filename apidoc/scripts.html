@@ -206,40 +206,6 @@ distinct training, and training state is reset (e.g. epoch starts from 0).</p>
 </section>
 <section id="module-myria3d.predict">
 <span id="myria3d-predict"></span><h2>myria3d.predict<a class="headerlink" href="#module-myria3d.predict" title="Permalink to this headline"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="myria3d.predict.main">
-<span class="sig-prename descclassname"><span class="pre">myria3d.predict.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/predict.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.predict.main" title="Permalink to this definition"></a></dt>
-<dd><p>This wrapper allows to specify a hydra configuration from command line.</p>
-<p>The config file logged during training should be used for prediction. It should
-be edited so that it does not rely on unnecessary environment variables (<cite>oc.env:</cite> prefix).
-Parameters in configuration group <cite>predict</cite> can be specified directly in the config file
-or overriden via CLI at runtime.</p>
-<p>This wrapper supports running predictions for all files specified by a glob pattern given
-by config parameter predict.src_las.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="myria3d.predict.predict">
-<span class="sig-prename descclassname"><span class="pre">myria3d.predict.</span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/myria3d/predict.html#predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.predict.predict" title="Permalink to this definition"></a></dt>
-<dd><p>Inference pipeline.</p>
-<p>A lightning datamodule splits a single point cloud of arbitrary size (typically: 1km * 1km) into subtiles
-(typically 50m * 50m), which are grouped into batches that are fed to a trained neural network embedded into a lightning Module.</p>
-<p>Predictions happen on a subsampled version of each subtile, which needs to be propagated back to the complete
-point cloud via an Interpolator. This Interpolator also includes the creation of a new LAS file with additional
-dimensions, including predicted classification, entropy, and (optionnaly) predicted probability for each class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.predict.predict.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#myria3d.predict.predict.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>path to ouptut LAS.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 </section>
 
