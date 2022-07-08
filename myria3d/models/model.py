@@ -106,7 +106,10 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        loss = self.criterion(logits, batch.y)
+        loss_no_reduction = self.criterion(logits, batch.y)
+        # weights occur in addition to weighting of bridge class
+        weights = 5 * (0.5 + batch.rupture)
+        loss = (loss_no_reduction * weights).mean()
         return loss, logits
 
     def on_fit_start(self) -> None:

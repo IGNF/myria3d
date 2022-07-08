@@ -51,6 +51,7 @@ def _find_file_in_dir(input_data_dir: str, basename: str) -> str:
     files = glob.glob(query, recursive=True)
     return files[0]
 
+
 class LidarDataLogic(ABC):
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
@@ -203,8 +204,6 @@ class LidarDataLogic(ABC):
         torch.save(subtile_data, subtile_save_path)
 
 
-
-
 class FrenchLidarDataLogic(LidarDataLogic):
 
     x_features_names = [
@@ -305,6 +304,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
             las_filepath=las_filepath,
             x_features_names=cls.x_features_names,
             idx_in_original_cloud=np.arange(len(pos)),
+            rupture=las["rupture"],
         )
 
 

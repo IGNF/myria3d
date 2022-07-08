@@ -19,7 +19,13 @@ callbacks:
     unfreeze_decoder_train_epoch: 2
 
 # Uncomment to give more weight to bridge class.
-# model:
+# no reduction to weight bridge rupture poins more !
+model:
+  criterion: 
+    _target_: torch.nn.CrossEntropyLoss
+    label_smoothing: 0.0
+    reduction: "none"
+
 #   criterion:
 #     weight:
 #       _target_: torch.FloatTensor
