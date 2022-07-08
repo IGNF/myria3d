@@ -46,7 +46,7 @@ class EmptySubtileFilter(BaseTransform):
 class ToTensor(BaseTransform):
     """Turn np.arrays specified by their keys into Tensor."""
 
-    def __init__(self, keys=["pos", "x", "y"]):
+    def __init__(self, keys=["pos", "x", "y", "rupture_k150"]):
         self.keys = keys
 
     def __call__(self, data: Data):
