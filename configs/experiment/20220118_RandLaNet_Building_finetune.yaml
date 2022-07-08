@@ -19,9 +19,9 @@ model:
 
 callbacks:
   finetune:
-    unfreeze_fc_end_epoch: 1
-    unfreeze_decoder_train_epoch: 3
-
+    unfreeze_fc_end_epoch: 3
+    unfreeze_decoder_train_epoch: 10
+    unfreeze_encoder_epoch: 20
 trainer:
   log_every_n_steps: 1
   num_sanity_val_steps: 0
