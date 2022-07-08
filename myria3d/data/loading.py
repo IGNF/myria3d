@@ -305,7 +305,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
             las_filepath=las_filepath,
             x_features_names=cls.x_features_names,
             idx_in_original_cloud=np.arange(len(pos)),
-            rupture=las["rupture"],
+            rupture_k150=las["rupture_k150"],
         )
 
 
