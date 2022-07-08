@@ -25,6 +25,8 @@ model:
     _target_: torch.nn.CrossEntropyLoss
     label_smoothing: 0.0
     reduction: "none"
+  lr: 0.1
+  lr_scheduler: null
 
 #   criterion:
 #     weight:

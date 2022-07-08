@@ -188,6 +188,7 @@ class LidarDataLogic(ABC):
         sample_data.pos = data.pos[sample_idx]
         sample_data.x = data.x[sample_idx]
         sample_data.y = data.y[sample_idx]
+        sample_data.rupture = data.rupture[sample_idx]
         sample_data.idx_in_original_cloud = data.idx_in_original_cloud[sample_idx]
 
         return sample_data
