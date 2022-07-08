@@ -1,0 +1,41 @@
+# @package _global_
+
+defaults:
+  - override /callbacks: finetuning.yaml
+  - override /datamodule/dataset_description: 20220630_ponts_bdtopo_ruptures
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+task:
+  task_name: finetune
+
+logger:
+  comet:
+    experiment_name: "V0.0-20220630_ponts_bdtopo-centered-Finetuning-imp_leq_3-train-encoder-ruture-0_03"
+
+callbacks:
+  finetune:
+    unfreeze_fc_end_epoch: 3
+    unfreeze_decoder_train_epoch: 10
+    unfreeze_encoder_epoch: 60
+
+# Uncomment to give more weight to bridge class.
+# model:
+#   criterion:
+#     weight:
+#       _target_: torch.FloatTensor
+#       _args_:
+#         - [1.0, 1.0, 5.0]
+
+trainer:
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  min_epochs: 300
+  max_epochs: 400
+  # val_check_interval needs to be lower than 1.0 due to how ReduceLROnPlateau works.
+  # see: https://github.com/Lightning-AI/lightning/issues/1156#issuecomment-603913447
+  # Another way would be to hardcode frequency of eval and frequency of reduction
+  # see https://github.com/Lightning-AI/lightning/issues/2316#issuecomment-647601969
+  # val_check_interval: 0.5
+  # gpus: [1]
+

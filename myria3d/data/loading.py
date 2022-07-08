@@ -51,6 +51,7 @@ def _find_file_in_dir(input_data_dir: str, basename: str) -> str:
     files = glob.glob(query, recursive=True)
     return files[0]
 
+
 class LidarDataLogic(ABC):
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
@@ -203,8 +204,6 @@ class LidarDataLogic(ABC):
         torch.save(subtile_data, subtile_save_path)
 
 
-
-
 class FrenchLidarDataLogic(LidarDataLogic):
 
     x_features_names = [
@@ -291,12 +290,15 @@ class FrenchLidarDataLogic(LidarDataLogic):
         ndvi = (nir - red) / (nir + red + 10**-6)
         x = np.concatenate([x, rgb_avg[:, None], ndvi[:, None]], axis=1)
 
-        try:
-            # for LAS format V1.2
-            y = las.classification.array.astype(int)
-        except Exception:
-            # for  LAS format V1.4
-            y = las.classification.astype(int)
+        # try:
+        #     # for LAS format V1.2
+        #     y = las.classification.array.astype(int)
+        # except Exception:
+        #     # for  LAS format V1.4
+        #     y = las.classification.astype(int)
+
+        # binary rupture flag
+        y = las["rupture_heq_0_03"].astype(int)
 
         return Data(
             pos=pos,
