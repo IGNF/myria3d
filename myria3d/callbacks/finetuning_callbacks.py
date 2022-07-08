@@ -7,7 +7,8 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
         d_in: int = 9,
         num_classes: int = 6,
         unfreeze_fc_end_epoch: int = 3,
-        unfreeze_decoder_train_epoch: int = 6,
+        unfreeze_decoder_train_epoch: int = 10,
+        unfreeze_encoder_epoch: int = 20,
     ):
         super().__init__()
 
@@ -15,6 +16,7 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
         self._num_classes = num_classes
         self._unfreeze_decoder_epoch = unfreeze_decoder_train_epoch
         self._unfreeze_fc_end_epoch = unfreeze_fc_end_epoch
+        self._unfreeze_encoder_epoch = unfreeze_encoder_epoch
 
     def freeze_before_training(self, pl_module):
         """Update in and out dimensions, and freeze everything at start."""
@@ -40,6 +42,13 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
                 initial_denom_lr=100,
             )
         if current_epoch == self._unfreeze_decoder_epoch:
+            self.unfreeze_and_add_param_group(
+                modules=pl_module.model.decoder,
+                optimizer=optimizer,
+                train_bn=True,
+                initial_denom_lr=100,
+            )
+        if current_epoch == self._unfreeze_encoder_epoch:
             self.unfreeze_and_add_param_group(
                 modules=pl_module.model.decoder,
                 optimizer=optimizer,
