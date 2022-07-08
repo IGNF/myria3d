@@ -109,7 +109,9 @@ class Model(LightningModule):
         loss_no_reduction = self.criterion(logits, batch.y)
         # weights occur in addition to weighting of bridge class
         with torch.no_grad():
-            weights = 1.0 + (batch.rupture_k150 >= 0.01) * torch.exp(batch.rupture_k150)
+            weights = 1.0 + (batch.rupture_k150 >= 0.01) * 10 * torch.exp(
+                batch.rupture_k150
+            )
         loss = (weights * loss_no_reduction).mean()
         return loss, logits
 
