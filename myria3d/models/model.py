@@ -111,7 +111,7 @@ class Model(LightningModule):
         with torch.no_grad():
             weights = 1.0 + (batch.rupture_k150 >= 0.01) * 5 * torch.exp(
                 batch.rupture_k150
-            ) / torch.exp(0)
+            )
         loss = (weights * loss_no_reduction).mean()
         return loss, logits
 
