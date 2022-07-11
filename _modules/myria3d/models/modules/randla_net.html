@@ -304,15 +304,18 @@
             <span class="c1"># In training mode and for validation, we directly optimize on subsampled points, for</span>
             <span class="c1"># 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!</span>
             <span class="c1"># 2) data augmentation at the supervision level.</span>
-            <span class="c1"># 3) Validation metric that is invariant to small changes, therefore having an early stopping</span>
-            <span class="c1"># that should not lead to overfitting on small features</span>
             <span class="k">return</span> <span class="n">scores</span>  <span class="c1"># B*N, C</span>
 
         <span class="c1"># During evaluation on test data and inference, we interpolate predictions back to original positions</span>
+        <span class="c1"># KNN is way faster on CPU than on GPU by a 3 to 4 factor.</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">scores</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">batch_y</span> <span class="o">=</span> <span class="n">get_batch_tensor_by_enumeration</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">idx_in_original_cloud</span><span class="p">)</span>
         <span class="n">scores</span> <span class="o">=</span> <span class="n">knn_interpolate</span><span class="p">(</span>
-            <span class="n">scores</span><span class="p">,</span>
-            <span class="n">batch</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_sampled_copy&quot;</span><span class="p">],</span>
-            <span class="n">batch</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_copy&quot;</span><span class="p">],</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
+            <span class="n">batch</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_sampled_copy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
+            <span class="n">batch</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_copy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
+            <span class="n">batch_x</span><span class="o">=</span><span class="n">batch</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
+            <span class="n">batch_y</span><span class="o">=</span><span class="n">batch_y</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
             <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation_k</span><span class="p">,</span>
             <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
         <span class="p">)</span>
@@ -539,14 +542,10 @@
     <span class="n">num_graphs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos_x</span><span class="p">)</span>
 
     <span class="n">pos_x_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">sample_pos</span> <span class="k">for</span> <span class="n">sample_pos</span> <span class="ow">in</span> <span class="n">pos_x</span><span class="p">])</span>  <span class="c1"># (N, 3)</span>
-    <span class="n">batch_x_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_pos</span><span class="p">),),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sample_pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pos_x</span><span class="p">)]</span>
-    <span class="p">)</span>  <span class="c1"># (N,)</span>
+    <span class="n">batch_x_long</span> <span class="o">=</span> <span class="n">get_batch_tensor_by_enumeration</span><span class="p">(</span><span class="n">pos_x</span><span class="p">)</span>
 
     <span class="n">pos_y_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">sample_pos</span> <span class="k">for</span> <span class="n">sample_pos</span> <span class="ow">in</span> <span class="n">pos_y</span><span class="p">])</span>  <span class="c1"># (N, 3)</span>
-    <span class="n">batch_y_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_pos</span><span class="p">),),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sample_pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pos_y</span><span class="p">)]</span>
-    <span class="p">)</span>  <span class="c1"># (N,)</span>
+    <span class="n">batch_y_long</span> <span class="o">=</span> <span class="n">get_batch_tensor_by_enumeration</span><span class="p">(</span><span class="n">pos_y</span><span class="p">)</span>
 
     <span class="n">y_idx_long</span><span class="p">,</span> <span class="n">x_idx_long</span> <span class="o">=</span> <span class="n">knn</span><span class="p">(</span>
         <span class="n">pos_x_long</span><span class="p">,</span>
@@ -567,6 +566,13 @@
     <span class="n">x_idx</span> <span class="o">=</span> <span class="n">x_idx</span> <span class="o">-</span> <span class="n">x_idx</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">y_idx</span> <span class="o">=</span> <span class="n">y_idx</span> <span class="o">-</span> <span class="n">y_idx</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">y_idx</span><span class="p">,</span> <span class="n">x_idx</span>
+
+
+<span class="k">def</span> <span class="nf">get_batch_tensor_by_enumeration</span><span class="p">(</span><span class="n">pos_x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get pyg batch tensor (e.g. [0,0,1,1,2,2,...,B-1,B-1] )shape B,N,... to (N,...).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_pos</span><span class="p">),),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sample_pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pos_x</span><span class="p">)]</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>
