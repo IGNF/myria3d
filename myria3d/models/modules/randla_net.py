@@ -155,15 +155,18 @@ class RandLANet(nn.Module):
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
             # 2) data augmentation at the supervision level.
-            # 3) Validation metric that is invariant to small changes, therefore having an early stopping
-            # that should not lead to overfitting on small features
             return scores  # B*N, C
 
         # During evaluation on test data and inference, we interpolate predictions back to original positions
+        # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
+        scores = scores.cpu()
+        batch_y = get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
         scores = knn_interpolate(
-            scores,
-            batch.copies["pos_sampled_copy"],
-            batch.copies["pos_copy"],
+            scores.cpu(),
+            batch.copies["pos_sampled_copy"].cpu(),
+            batch.copies["pos_copy"].cpu(),
+            batch_x=batch.batch.cpu(),
+            batch_y=batch_y.cpu(),
             k=self.interpolation_k,
             num_workers=self.num_workers,
         )
@@ -390,14 +393,10 @@ def knn_compact(
     num_graphs = len(pos_x)
 
     pos_x_long = torch.cat([sample_pos for sample_pos in pos_x])  # (N, 3)
-    batch_x_long = torch.cat(
-        [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)]
-    )  # (N,)
+    batch_x_long = get_batch_tensor_by_enumeration(pos_x)
 
     pos_y_long = torch.cat([sample_pos for sample_pos in pos_y])  # (N, 3)
-    batch_y_long = torch.cat(
-        [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_y)]
-    )  # (N,)
+    batch_y_long = get_batch_tensor_by_enumeration(pos_y)
 
     y_idx_long, x_idx_long = knn(
         pos_x_long,
@@ -418,3 +417,10 @@ def knn_compact(
     x_idx = x_idx - x_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
     y_idx = y_idx - y_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
     return y_idx, x_idx
+
+
+def get_batch_tensor_by_enumeration(pos_x):
+    """Get pyg batch tensor (e.g. [0,0,1,1,2,2,...,B-1,B-1] )shape B,N,... to (N,...)."""
+    return torch.cat(
+        [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)]
+    )

@@ -73,7 +73,7 @@ class Model(LightningModule):
             self.val_iou = self.hparams.iou()
             self.val_iou_best = MaxMetric()
         if stage == "test":
-            self.test_iou = self.hparams.iou()
+            self.test_iou = self.hparams.iou().cpu()
         if stage != "predict":
             self.criterion = self.hparams.criterion
 
@@ -181,13 +181,14 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"]
+        targets = batch.copies["transformed_y_copy"].cpu()
 
         preds = torch.argmax(logits, dim=1)
+        self.test_iou = self.test_iou.cpu()
         self.test_iou(preds, targets)
         self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
-        return {"logits": logits.detach().cpu(), "targets": targets.detach().cpu()}
+        return {"logits": logits, "targets": targets}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.

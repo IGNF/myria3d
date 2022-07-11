@@ -206,8 +206,25 @@ def test_RandLaNet_predict_with_invariance_checks(
     check_las_invariance(LAS_SUBSET_FOR_TOY_DATASET, path_to_output_las)
 
 
-def test_run_test_with_trained_model_on_toy_dataset(
+def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
     isolated_toy_dataset_tmpdir, tmpdir
+):
+    _run_test_with_trained_model_on_toy_dataset(
+        isolated_toy_dataset_tmpdir, tmpdir, "null"
+    )
+
+
+@RunIf(min_gpus=1)
+def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
+    isolated_toy_dataset_tmpdir, tmpdir
+):
+    _run_test_with_trained_model_on_toy_dataset(
+        isolated_toy_dataset_tmpdir, tmpdir, "[0]"
+    )
+
+
+def _run_test_with_trained_model_on_toy_dataset(
+    isolated_toy_dataset_tmpdir, tmpdir, trainer_gpus
 ):
     """Test performance (IoU) from a trained model on the toy LAS.
 
@@ -229,6 +246,7 @@ def test_run_test_with_trained_model_on_toy_dataset(
         overrides=[
             "experiment=test",
             f"model.ckpt_path={TRAINED_MODEL_PATH}",
+            f"trainer.gpus={trainer_gpus}",
         ]
         + tmp_paths_overrides
     )
