@@ -120,7 +120,7 @@ def save_regression_targets_to_pickle(obbox, target_pickle):
         # select first point, and its closest neighboor, and calculate average
         # Rectantgular so the nearest point on the polygon can only be a corner.
         p1 = corners.pop(0)
-        p2_idx = max(
+        p2_idx = min(
             range(len(corners)),
             key=lambda other_p_idx: p1.distance(corners[other_p_idx]),
         )
