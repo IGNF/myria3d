@@ -1,4 +1,5 @@
 from typing import Optional
+import numpy as np
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
@@ -91,8 +92,11 @@ class Model(LightningModule):
             torch.Tensor (B*N,C): logits
 
         """
-        logits = self.model(batch)
-        return logits
+        # TODO: replace with call to encoder + regression !
+        return torch.cat(
+            [batch.obbox_dict[k][:, None] for k in ["Ax", "Ay", "Bx", "By", "D"]],
+            dim=-1,
+        ).requires_grad_()
 
     def step(self, batch: Batch):
         """Model step, including loss computation.
@@ -105,9 +109,13 @@ class Model(LightningModule):
             torch.Tensor (1), torch.Tensor (B*N,C), torch.Tensor (B*N,C), torch.Tensor: loss, logits, targets
 
         """
-        logits = self.forward(batch)
-        loss = self.criterion(logits, batch.y)
-        return loss, logits
+        predicted_obbox = self.forward(batch)
+        target_obbox = torch.cat(
+            [batch.obbox_dict[k][:, None] for k in ["Ax", "Ay", "Bx", "By", "D"]],
+            dim=-1,
+        )
+        loss = self.criterion(predicted_obbox, target_obbox)
+        return loss
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -126,15 +134,9 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        loss, logits = self.step(batch)
+        loss = self.step(batch)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        with torch.no_grad():
-            preds = torch.argmax(logits.detach(), dim=1)
-            self.train_iou(preds, batch.y)
-        self.log(
-            "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
-        )
-        return {"loss": loss, "logits": logits, "targets": batch.y}
+        return {"loss": loss}
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -150,27 +152,9 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        loss, logits = self.step(batch)
+        loss = self.step(batch)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
-        with torch.no_grad():
-            preds = torch.argmax(logits.detach(), dim=1)
-            self.val_iou(preds, batch.y)
-        self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
-        return {"loss": loss, "logits": logits, "targets": batch.y}
-
-    def on_validation_epoch_end(self) -> None:
-        """At the end of a validation epoch, compute the IoU and track if it has improved
-        by updating the best one.
-
-        Args:
-            outputs : output of validation_step
-
-        """
-        iou = self.val_iou.compute()
-        self.val_iou_best.update(iou)
-        self.log(
-            "val/iou_best", self.val_iou_best.compute(), on_epoch=True, prog_bar=True
-        )
+        return {"loss": loss}
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -183,15 +167,9 @@ class Model(LightningModule):
             dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
         """
-        logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"].cpu()
-
-        preds = torch.argmax(logits, dim=1)
-        self.test_iou = self.test_iou.cpu()
-        self.test_iou(preds, targets)
-        self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
-
-        return {"logits": logits, "targets": targets}
+        loss = self.step(batch)
+        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+        return {"loss": loss}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
@@ -204,8 +182,8 @@ class Model(LightningModule):
             dict: Dictionnary with predicted logits as well as input batch.
 
         """
-        logits = self.forward(batch)
-        return {"logits": logits.detach().cpu()}
+        predicted_obbox = self.forward(batch)
+        return {"predicted_obbox": predicted_obbox.detach().cpu()}
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.

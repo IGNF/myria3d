@@ -20,7 +20,6 @@ iou:
 ## Optimization
 criterion: 
   _target_: torch.nn.CrossEntropyLoss
-  label_smoothing: 0.0
 momentum: 0.9  # arbitrary
 monitor: "val/loss_epoch"
 

@@ -298,6 +298,7 @@ class LidarIterableDataset(IterableDataset):
         sample_data = Data()
         sample_data.x_features_names = copy.deepcopy(data.x_features_names)
         sample_data.las_filepath = copy.deepcopy(data.las_filepath)
+        sample_data.obbox_dict = copy.deepcopy(data.obbox_dict)
         sample_data.pos = data.pos[sample_idx]
         sample_data.x = data.x[sample_idx]
         sample_data.y = data.y[sample_idx]

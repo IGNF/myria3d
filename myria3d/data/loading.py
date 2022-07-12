@@ -11,6 +11,7 @@ In particular, subclasses implement a "load_las" method that is used by the data
 
 from abc import ABC, abstractmethod
 import argparse
+import copy
 import math
 from numbers import Number
 import os
@@ -185,7 +186,9 @@ class LidarDataLogic(ABC):
             return None
 
         # select
-        sample_data = Data(x_features_names=data.x_features_names)
+        sample_data = Data(
+            x_features_names=copy.deepcopy(data.x_features_names), obbox_dict = copy.deepcopy(data.obbox_dict)
+        )
         sample_data.pos = data.pos[sample_idx]
         sample_data.x = data.x[sample_idx]
         sample_data.y = data.y[sample_idx]

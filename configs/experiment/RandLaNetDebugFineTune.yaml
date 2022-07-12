@@ -26,7 +26,7 @@ trainer:
 callbacks:
   finetune:
     unfreeze_fc_end_epoch: 1
-    unfreeze_decoder_train_epoch: 3
+    unfreeze_decoder_epoch: 3
 
 model:
     lr_scheduler: null

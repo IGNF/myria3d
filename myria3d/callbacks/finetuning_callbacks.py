@@ -7,14 +7,14 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
         d_in: int = 9,
         num_classes: int = 6,
         unfreeze_fc_end_epoch: int = 3,
-        unfreeze_decoder_train_epoch: int = 10,
+        unfreeze_decoder_epoch: int = 10,
         unfreeze_encoder_epoch: int = 20,
     ):
         super().__init__()
 
         self._d_in = d_in
         self._num_classes = num_classes
-        self._unfreeze_decoder_epoch = unfreeze_decoder_train_epoch
+        self._unfreeze_decoder_epoch = unfreeze_decoder_epoch
         self._unfreeze_fc_end_epoch = unfreeze_fc_end_epoch
         self._unfreeze_encoder_epoch = unfreeze_encoder_epoch
 
