@@ -1,5 +1,4 @@
 from typing import Optional
-import numpy as np
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
@@ -12,6 +11,17 @@ from myria3d.utils import utils
 log = utils.get_logger(__name__)
 
 MODEL_ZOO = [RandLANet, PointNet2]
+SUBTILE_WIDTH = 50.0
+SCALING_OF_LOGITS = torch.Tensor(
+    [
+        SUBTILE_WIDTH / 2,
+        SUBTILE_WIDTH / 2,
+        SUBTILE_WIDTH / 2,
+        SUBTILE_WIDTH / 2,
+        SUBTILE_WIDTH,
+    ]
+)
+BIAS_OF_LOGITS = torch.Tensor([0.5, 0.5, 0.5, 0.5, 0.0])
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -64,6 +74,7 @@ class Model(LightningModule):
 
         neural_net_class = get_neural_net_class(self.hparams.neural_net_class_name)
         self.model = neural_net_class(self.hparams.neural_net_hparams)
+        # self.bbox_layer_mlp2 = SharedMLP(512, 5, activation_fn=nn.ReLU(), bn=True)
 
         self.softmax = nn.Softmax(dim=1)
         # TODO: This should be uncommented for prediction of finetuned model
@@ -92,11 +103,49 @@ class Model(LightningModule):
             torch.Tensor (B*N,C): logits
 
         """
-        # TODO: replace with call to encoder + regression !
-        return torch.cat(
-            [batch.obbox_dict[k][:, None] for k in ["Ax", "Ay", "Bx", "By", "D"]],
-            dim=-1,
-        ).requires_grad_()
+        input = torch.cat([batch.pos, batch.x], axis=1)
+        chunks = torch.split(input, len(batch.pos) // batch.num_graphs)
+        input = torch.stack(chunks)  # B, N, 3+F
+
+        N = input.size(1)
+
+        pos = input[..., :3].clone()
+        x = self.model.fc_start(input).transpose(-2, -1).unsqueeze(-1)
+        x = self.model.bn_start(x)  # shape (B, d, N, 1)
+
+        decimation_ratio = 1
+
+        # <<<<<<<<<< ENCODER
+        x_stack = []
+
+        permutation = torch.randperm(N)
+        pos = pos[:, permutation]
+        x = x[:, :, permutation]
+
+        for lfa in self.model.encoder:
+            # at iteration i, x.shape = (B, N//(self.decimation**i), d_in)
+            x = lfa(pos[:, : N // decimation_ratio], x)
+            x_stack.append(x.clone())
+            decimation_ratio *= self.model.decimation
+            x = x[:, :, : N // decimation_ratio]
+
+        # # >>>>>>>>>> ENCODER
+
+        x = self.model.mlp(x)
+        x = self.model.box_layer_mlp1(x)
+        # outputs sigmoid activated values.
+
+        x = torch.max(x, dim=-2).values.squeeze()  # B, 5
+        predicted_bbox = (
+            x
+            - BIAS_OF_LOGITS.repeat(batch.num_graphs)
+            .view([batch.num_graphs, -1])
+            .to(x.device)
+        ) * SCALING_OF_LOGITS.repeat(batch.num_graphs).view([batch.num_graphs, -1]).to(
+            x.device
+        )
+
+        return predicted_bbox
 
     def step(self, batch: Batch):
         """Model step, including loss computation.
@@ -110,12 +159,17 @@ class Model(LightningModule):
 
         """
         predicted_obbox = self.forward(batch)
+
         target_obbox = torch.cat(
             [batch.obbox_dict[k][:, None] for k in ["Ax", "Ay", "Bx", "By", "D"]],
             dim=-1,
         )
-        loss = self.criterion(predicted_obbox, target_obbox)
-        return loss
+        # TODO: nécessaire de se rendre invariant à la permutation des deux points à prédire ??
+        losses = self.criterion(predicted_obbox, target_obbox)
+        log.info(
+            f"Predictions Ax, Ay, Bx, By, D {predicted_obbox.mean(dim=0).cpu().detach()}"
+        )
+        return losses, predicted_obbox, target_obbox
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -134,7 +188,12 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        loss = self.step(batch)
+        losses, predicted_obbox, target_obbox = self.step(batch)
+        self.log_averages(losses, prefix="train/loss")
+        self.log_averages(predicted_obbox, prefix="train/avg_pred")
+        self.log_averages(target_obbox, prefix="train/avg_target")
+        losses[:, -1] = losses[:, -1] / (SUBTILE_WIDTH / 2)
+        loss = losses.mean()
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         return {"loss": loss}
 
@@ -152,38 +211,83 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        loss = self.step(batch)
+        losses, predicted_obbox, target_obbox = self.step(batch)
+        self.log_averages(losses, prefix="val/loss")
+        self.log_averages(predicted_obbox, prefix="val/avg_pred")
+        self.log_averages(target_obbox, prefix="val/avg_target")
+
+        losses[:, -1] = losses[:, -1] / SUBTILE_WIDTH
+        loss = losses.mean()
         self.log("val/loss", loss, on_step=True, on_epoch=True)
         return {"loss": loss}
 
-    def test_step(self, batch: Batch, batch_idx: int):
-        """Test step.
+    # def test_step(self, batch: Batch, batch_idx: int):
+    #     """Test step.
 
-        Args:
-            batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
-            and y (targets, optionnal) in (B*N,C) format.
+    #     Args:
+    #         batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
+    #         and y (targets, optionnal) in (B*N,C) format.
 
-        Returns:
-            dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
+    #     Returns:
+    #         dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
-        """
-        loss = self.step(batch)
-        self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        return {"loss": loss}
+    #     """
+    #     loss = self.step(batch)
+    #     self.log("test/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+    #     return {"loss": loss}
 
-    def predict_step(self, batch: Batch) -> dict:
-        """Prediction step.
+    # def predict_step(self, batch: Batch) -> dict:
+    #     """Prediction step.
 
-        Args:
-            batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
-            and y (targets, optionnal) in (B*N,C) format.
+    #     Args:
+    #         batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
+    #         and y (targets, optionnal) in (B*N,C) format.
 
-        Returns:
-            dict: Dictionnary with predicted logits as well as input batch.
+    #     Returns:
+    #         dict: Dictionnary with predicted logits as well as input batch.
 
-        """
-        predicted_obbox = self.forward(batch)
-        return {"predicted_obbox": predicted_obbox.detach().cpu()}
+    #     """
+    #     predicted_obbox = self.forward(batch)
+    #     return {"predicted_obbox": predicted_obbox.detach().cpu()}
+
+    def log_averages(self, tensor, prefix="train/loss"):
+        with torch.no_grad():
+            averages = tensor.mean(dim=0).cpu()
+            self.log(
+                f"{prefix}_Ax",
+                averages[0],
+                on_step=True,
+                on_epoch=True,
+                prog_bar=False,
+            )
+            self.log(
+                f"{prefix}_Ay",
+                averages[1],
+                on_step=True,
+                on_epoch=True,
+                prog_bar=False,
+            )
+            self.log(
+                f"{prefix}_Bx",
+                averages[2],
+                on_step=True,
+                on_epoch=True,
+                prog_bar=False,
+            )
+            self.log(
+                f"{prefix}_By",
+                averages[3],
+                on_step=True,
+                on_epoch=True,
+                prog_bar=False,
+            )
+            self.log(
+                f"{prefix}_D",
+                averages[4],
+                on_step=True,
+                on_epoch=True,
+                prog_bar=False,
+            )
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.

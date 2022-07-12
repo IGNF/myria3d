@@ -13,10 +13,9 @@ logger:
   comet:
     experiment_name: "RandLaNet - Bridge specialization"
 
+# Unfreeze tghe encoder when new layer has started plateauing.
 callbacks:
   finetune:
-    unfreeze_fc_end_epoch: 1
-    unfreeze_decoder_epoch: 10
     unfreeze_encoder_epoch: 60
   log_iou_by_class: null
 
@@ -25,6 +24,8 @@ model:
   _target_: myria3d.models.model.Model
   criterion:
     _target_: torch.nn.L1Loss
+    reduction: none
+  lr: 0.01
 
 trainer:
   log_every_n_steps: 1
@@ -34,7 +35,7 @@ trainer:
   # gpus: [1]
 
 datamodule:
-  batch_size: 8
+  batch_size: 25
   transforms:
     augmentations:
       x_flip:

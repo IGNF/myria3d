@@ -1,5 +1,8 @@
 from pytorch_lightning.callbacks import BaseFinetuning
 
+from myria3d.models.modules.randla_net import SharedMLP
+from torch import nn
+
 
 class FinetuningFreezeUnfreeze(BaseFinetuning):
     def __init__(
@@ -28,29 +31,34 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
     def finetune_function(self, pl_module, current_epoch, optimizer, optimizer_idx):
         """Unfreeze layers sequentially, starting from the end of the architecture."""
         if current_epoch == 0:
-            self.unfreeze_and_add_param_group(
-                modules=pl_module.model.fc_end[-1],
-                optimizer=optimizer,
-                train_bn=True,
-                initial_denom_lr=100,
-            )
-        if current_epoch == self._unfreeze_fc_end_epoch:
-            self.unfreeze_and_add_param_group(
-                modules=pl_module.model.fc_end,
-                optimizer=optimizer,
-                train_bn=True,
-                initial_denom_lr=100,
-            )
-        if current_epoch == self._unfreeze_decoder_epoch:
-            self.unfreeze_and_add_param_group(
-                modules=pl_module.model.decoder,
-                optimizer=optimizer,
-                train_bn=True,
-                initial_denom_lr=100,
-            )
+            pl_module.model.box_layer_mlp1 = nn.Sequential(
+                SharedMLP(512, 128, activation_fn=nn.ReLU(), bn=True),
+                SharedMLP(128, 5, activation_fn=nn.Sigmoid(), bn=True),
+            ).to(pl_module.device)
+
+        #     self.unfreeze_and_add_param_group(
+        #         modules=pl_module.model.fc_end[-1],
+        #         optimizer=optimizer,
+        #         train_bn=True,
+        #         initial_denom_lr=100,
+        #     )
+        # if current_epoch == self._unfreeze_fc_end_epoch:
+        #     self.unfreeze_and_add_param_group(
+        #         modules=pl_module.model.fc_end,
+        #         optimizer=optimizer,
+        #         train_bn=True,
+        #         initial_denom_lr=100,
+        #     )
+        # if current_epoch == self._unfreeze_decoder_epoch:
+        #     self.unfreeze_and_add_param_group(
+        #         modules=pl_module.model.decoder,
+        #         optimizer=optimizer,
+        #         train_bn=True,
+        #         initial_denom_lr=100,
+        #     )
         if current_epoch == self._unfreeze_encoder_epoch:
             self.unfreeze_and_add_param_group(
-                modules=pl_module.model.decoder,
+                modules=pl_module.model.encoder,
                 optimizer=optimizer,
                 train_bn=True,
                 initial_denom_lr=100,
