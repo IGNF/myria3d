@@ -1,5 +1,6 @@
 import glob
 import os
+import shutil
 from typing import List
 from shapely.geometry import Polygon
 import geopandas
@@ -30,13 +31,15 @@ def main():
     for p in ["train", "val"]:
         input_dir_phase = os.path.join(INPUT_DATA_DIR, p)
         output_dir_phase = os.path.join(input_dir_phase, "oriented_bboxes")
+        shutil.rmtree(output_dir_phase, ignore_errors=True)
         os.makedirs(output_dir_phase, exist_ok=True)
         selection = df[df.split == p].basename.values
         for basename in tqdm.tqdm(selection):
             in_las = _find_file_in_dir(input_dir_phase, basename)
             out_json = os.path.join(output_dir_phase, basename.replace(".las", ".json"))
-            # print(out_json)
-            vectorize_bridge(in_las, out_json)
+            points = get_XY_centered_points(in_las)
+            vectorize_bridge(points, out_json)
+            # print(f"Vectorized LAS bridge to \n{out_json}.")
 
 
 def get_pdal_reader(las_path: str) -> pdal.Reader.las:
@@ -53,12 +56,20 @@ def get_pdal_reader(las_path: str) -> pdal.Reader.las:
     )
 
 
-def vectorize_bridge(las_path, out_json) -> None:
+def get_XY_centered_points(in_las):
+    pipeline = pdal.Pipeline() | get_pdal_reader(in_las)
+    pipeline.execute()
+    points = pipeline.arrays[0]
+    points["X"] = points["X"] - (points["X"].max() + points["X"].min()) / 2.0
+    points["Y"] = points["Y"] - (points["Y"].max() + points["Y"].min()) / 2.0
+    return points
+
+
+def vectorize_bridge(points, out_json) -> None:
     """Vectorizes bridge points into a geojson."""
     out_tif = out_json.replace(".json", ".tif")
-
-    pipeline = get_pdal_reader(las_path) | pdal.Filter.range(
-        limits=f"Classification[{BRIDGE}:{BRIDGE}]"
+    pipeline = pdal.Filter.range(limits=f"Classification[{BRIDGE}:{BRIDGE}]").pipeline(
+        points
     )
     pipeline.execute()
     points = pipeline.arrays[0]
@@ -79,7 +90,11 @@ def vectorize_bridge(las_path, out_json) -> None:
     ).pipeline(points)
     pipeline.execute()
     gdal_polygonize(out_tif, out_json, epsg_out=LAMBERT_93_SRID)
-    print(f"Vectorized LAS bridge to \n{out_json}.")
+
+
+def extract_minimum_oriented_rectangle(irregular_json, rectangular_json):
+    s = geopandas.read_file(irregular_json)
+    # Select single shape closest to center : we trust labels
 
 
 def save_geometries_to_geodataframe(geometry_list: List[Polygon], out_json: str):
