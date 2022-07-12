@@ -12,16 +12,10 @@ log = utils.get_logger(__name__)
 
 MODEL_ZOO = [RandLANet, PointNet2]
 SUBTILE_WIDTH = 50.0
-SCALING_OF_LOGITS = torch.Tensor(
-    [
-        SUBTILE_WIDTH / 2,
-        SUBTILE_WIDTH / 2,
-        SUBTILE_WIDTH / 2,
-        SUBTILE_WIDTH / 2,
-        SUBTILE_WIDTH,
-    ]
-)
-BIAS_OF_LOGITS = torch.Tensor([0.5, 0.5, 0.5, 0.5, 0.0])
+BIAS_OF_LOGITS = torch.Tensor(
+    [-0.5, -0.5, -0.5, -0.5, 0.0]
+)  # to shift to relative xy and keep absolute width between 0 and 1
+SCALING_OF_LOGITS = torch.Tensor([SUBTILE_WIDTH for _ in range(5)])
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -138,7 +132,7 @@ class Model(LightningModule):
         x = torch.max(x, dim=-2).values.squeeze()  # B, 5
         predicted_bbox = (
             x
-            - BIAS_OF_LOGITS.repeat(batch.num_graphs)
+            + BIAS_OF_LOGITS.repeat(batch.num_graphs)
             .view([batch.num_graphs, -1])
             .to(x.device)
         ) * SCALING_OF_LOGITS.repeat(batch.num_graphs).view([batch.num_graphs, -1]).to(
@@ -256,35 +250,35 @@ class Model(LightningModule):
             self.log(
                 f"{prefix}_Ax",
                 averages[0],
-                on_step=True,
+                on_step=False,
                 on_epoch=True,
                 prog_bar=False,
             )
             self.log(
                 f"{prefix}_Ay",
                 averages[1],
-                on_step=True,
+                on_step=False,
                 on_epoch=True,
                 prog_bar=False,
             )
             self.log(
                 f"{prefix}_Bx",
                 averages[2],
-                on_step=True,
+                on_step=False,
                 on_epoch=True,
                 prog_bar=False,
             )
             self.log(
                 f"{prefix}_By",
                 averages[3],
-                on_step=True,
+                on_step=False,
                 on_epoch=True,
                 prog_bar=False,
             )
             self.log(
                 f"{prefix}_D",
                 averages[4],
-                on_step=True,
+                on_step=False,
                 on_epoch=True,
                 prog_bar=False,
             )

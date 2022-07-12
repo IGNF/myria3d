@@ -1,4 +1,5 @@
 from pytorch_lightning.callbacks import BaseFinetuning
+import torch
 
 from myria3d.models.modules.randla_net import SharedMLP
 from torch import nn
@@ -31,9 +32,14 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
     def finetune_function(self, pl_module, current_epoch, optimizer, optimizer_idx):
         """Unfreeze layers sequentially, starting from the end of the architecture."""
         if current_epoch == 0:
+            final_layer = SharedMLP(128, 5, activation_fn=nn.Sigmoid(), bn=False)
+            p = torch.Tensor([0.0, 0.0, 0.0, 0.0, 0.5])
+            final_layer.conv.bias = torch.nn.Parameter(
+                torch.log(p / (1 - p))
+            ).requires_grad_(True)
             pl_module.model.box_layer_mlp1 = nn.Sequential(
                 SharedMLP(512, 128, activation_fn=nn.ReLU(), bn=True),
-                SharedMLP(128, 5, activation_fn=nn.Sigmoid(), bn=True),
+                final_layer,
             ).to(pl_module.device)
 
         #     self.unfreeze_and_add_param_group(
