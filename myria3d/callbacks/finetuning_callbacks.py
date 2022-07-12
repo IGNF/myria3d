@@ -35,8 +35,8 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
             final_layer = SharedMLP(128, 5, activation_fn=nn.Sigmoid(), bn=False)
             # we expect
             # xy around 0 == (0.5-0.5) * 50.0
-            # d ~ 25m = (0.5-0.0) * 50.0
-            p = torch.Tensor([0.5, 0.5, 0.5, 0.5, 0.5])
+            # d ~ 8m = (0.16-0.0) * 50.0
+            p = torch.Tensor([0.5, 0.5, 0.5, 0.5, 0.16])
             final_layer.conv.bias = torch.nn.Parameter(
                 torch.log(p / (1 - p))
             ).requires_grad_(True)
