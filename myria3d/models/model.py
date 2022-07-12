@@ -67,7 +67,7 @@ class Model(LightningModule):
         self.softmax = nn.Softmax(dim=1)
         # TODO: This should be uncommented for prediction of finetuned model
         # but not for finetuning itself... To be investigated!
-        # self.criterion = self.hparams.criterion
+        self.criterion = self.hparams.criterion
 
     def setup(self, stage: Optional[str]) -> None:
         """Setup stage: prepare to compute IoU and loss."""
