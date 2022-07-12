@@ -3,6 +3,7 @@ import os
 import shutil
 from typing import List
 from shapely.geometry import Polygon
+import shapely
 import geopandas
 from myria3d.data.loading import _find_file_in_dir
 
@@ -14,11 +15,12 @@ import pdal
 
 # data format
 BRIDGE = 17
-LAMBERT_93_SRID = 2154
+WIDTH_SUBTILE_CENTER_SQUARE = 50
+LAMBERT_93_SRID = 2154  # all json CRS need to be specified
 LAMBERT_93_EPSG_STR = f"EPSG:{LAMBERT_93_SRID}"
 # vectorization
 GDAL_WRITER_WINDOW_SIZE = 0.25
-GDAL8WRITER_RESOLUTION = 0.25
+GDAL_WRITER_RESOLUTION = 0.25
 
 MAX_IMPORTANCE = 3
 
@@ -28,7 +30,7 @@ df = pd.read_csv(SPLIT_CSV)
 
 
 def main():
-    for p in ["train", "val"]:
+    for p in ["val", "train"]:
         input_dir_phase = os.path.join(INPUT_DATA_DIR, p)
         output_dir_phase = os.path.join(input_dir_phase, "oriented_bboxes")
         shutil.rmtree(output_dir_phase, ignore_errors=True)
@@ -36,10 +38,17 @@ def main():
         selection = df[df.split == p].basename.values
         for basename in tqdm.tqdm(selection):
             in_las = _find_file_in_dir(input_dir_phase, basename)
-            out_json = os.path.join(output_dir_phase, basename.replace(".las", ".json"))
+            irregular_json = os.path.join(
+                output_dir_phase, basename.replace(".las", ".json")
+            )
+            rectangular_json = irregular_json.replace(".json", ".obbox.json")
             points = get_XY_centered_points(in_las)
-            vectorize_bridge(points, out_json)
+            vectorize_bridge(points, irregular_json)
             # print(f"Vectorized LAS bridge to \n{out_json}.")
+            obbox = extract_minimum_oriented_rectangle_shape(
+                irregular_json, rectangular_json
+            )
+            save_geometries_to_geodataframe([obbox], rectangular_json)
 
 
 def get_pdal_reader(las_path: str) -> pdal.Reader.las:
@@ -84,17 +93,39 @@ def vectorize_bridge(points, out_json) -> None:
         data_type="uint",
         output_type="max",
         window_size=GDAL_WRITER_WINDOW_SIZE,
-        resolution=GDAL8WRITER_RESOLUTION,
+        resolution=GDAL_WRITER_RESOLUTION,
         nodata=0,
         override_srs=LAMBERT_93_EPSG_STR,
     ).pipeline(points)
     pipeline.execute()
-    gdal_polygonize(out_tif, out_json, epsg_out=LAMBERT_93_SRID)
+    gdal_polygonize(out_tif, out_json, epsg_out=None)
 
 
-def extract_minimum_oriented_rectangle(irregular_json, rectangular_json):
-    s = geopandas.read_file(irregular_json)
-    # Select single shape closest to center : we trust labels
+def extract_minimum_oriented_rectangle_shape(irregular_json, rectangular_json):
+    center_square = make_centered_square(WIDTH_SUBTILE_CENTER_SQUARE)
+    s = geopandas.read_file(irregular_json, bbox=center_square).dropna()
+    # No bridge
+    if len(s) == 0:
+        return make_centered_square(0.0)
+
+    # Find biggest area
+    shape = s.iloc[s.area.argmax()].geometry
+    obbox = shape.minimum_rotated_rectangle
+    obbox = obbox.buffer(
+        -0.25, cap_style=shapely.geometry.CAP_STYLE.square, resolution=2
+    )
+    return obbox
+
+
+def make_centered_square(width):
+    return Polygon(
+        [
+            (-width / 2, -width / 2),
+            (-width / 2, width / 2),
+            (width / 2, width / 2),
+            (width / 2, -width / 2),
+        ]
+    )
 
 
 def save_geometries_to_geodataframe(geometry_list: List[Polygon], out_json: str):
