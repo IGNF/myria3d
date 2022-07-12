@@ -1,7 +1,9 @@
 import glob
 import os
+import pickle
 import shutil
 from typing import List
+import numpy as np
 from shapely.geometry import Polygon
 import shapely
 import geopandas
@@ -26,10 +28,12 @@ MAX_IMPORTANCE = 3
 
 INPUT_DATA_DIR = f"/var/data/cgaydon/mnt/store-lidarhd/projet-LHD/IA/Multiclass-Segmentation/data/20220630_ponts_bdtopo/variations/imp_leq_{MAX_IMPORTANCE}/"
 SPLIT_CSV = os.path.join(INPUT_DATA_DIR, "split.txt")
+TARGETS_CSV = os.path.join(INPUT_DATA_DIR, "targets_A_B_D.csv")
 df = pd.read_csv(SPLIT_CSV)
 
 
 def main():
+    df_targets = pd.DataFrame()
     for p in ["val", "train"]:
         input_dir_phase = os.path.join(INPUT_DATA_DIR, p)
         output_dir_phase = os.path.join(input_dir_phase, "oriented_bboxes")
@@ -49,29 +53,12 @@ def main():
                 irregular_json, rectangular_json
             )
             save_geometries_to_geodataframe([obbox], rectangular_json)
-
-
-def get_pdal_reader(las_path: str) -> pdal.Reader.las:
-    """Standard Reader which imposes Lamber 93 SRS.
-    Args:
-        las_path (str): input LAS path to read.
-    Returns:
-        pdal.Reader.las: reader to use in a pipeline.
-    """
-    return pdal.Reader.las(
-        filename=las_path,
-        nosrs=True,
-        override_srs=LAMBERT_93_EPSG_STR,
-    )
-
-
-def get_XY_centered_points(in_las):
-    pipeline = pdal.Pipeline() | get_pdal_reader(in_las)
-    pipeline.execute()
-    points = pipeline.arrays[0]
-    points["X"] = points["X"] - (points["X"].max() + points["X"].min()) / 2.0
-    points["Y"] = points["Y"] - (points["Y"].max() + points["Y"].min()) / 2.0
-    return points
+            target_pickle = rectangular_json.replace(".json", ".pickle")
+            targets = save_regression_targets_to_pickle(obbox, target_pickle)
+            data = {"basename": basename}
+            data.update(targets)
+            df_targets = df_targets.append(targets, ignore_index=True)
+    df_targets.to_csv(TARGETS_CSV, index=False)
 
 
 def vectorize_bridge(points, out_json) -> None:
@@ -115,6 +102,76 @@ def extract_minimum_oriented_rectangle_shape(irregular_json, rectangular_json):
         -0.25, cap_style=shapely.geometry.CAP_STYLE.square, resolution=2
     )
     return obbox
+
+
+from shapely.geometry import Point
+from shapely.ops import nearest_points
+
+
+def save_regression_targets_to_pickle(obbox, target_pickle):
+    targets = {k: 0.0 for k in ["Ax", "Ay", "Bx", "By", "D"]}
+    if obbox.area:
+        # calculate
+        # x, y = obbox.exterior.coords.xy
+        corners = [Point(o) for o in obbox.exterior.coords]
+        # ignore last point which is equals to first point
+        corners = corners[:-1]
+
+        # select first point, and its closest neighboor, and calculate average
+        # Rectantgular so the nearest point on the polygon can only be a corner.
+        p1 = corners.pop(0)
+        p2_idx = max(
+            range(len(corners)),
+            key=lambda other_p_idx: p1.distance(corners[other_p_idx]),
+        )
+        p2 = corners.pop(p2_idx)
+
+        # remaining corners
+        p3, p4 = corners
+
+        A = average_two_points(p1, p2)
+        B = average_two_points(p3, p4)
+        targets["Ax"] = A.x
+        targets["Ay"] = A.y
+        targets["Bx"] = B.x
+        targets["By"] = B.y
+        targets["D"] = p1.distance(p2)
+        assert abs(targets["D"] - p3.distance(p4)) <= 0.01
+
+    with open(target_pickle, "wb") as f:
+        pickle.dump(targets, f)
+
+    return targets
+
+
+def average_two_points(p1, p2):
+    return Point(np.mean([p1.x, p2.x]), np.mean([p1.y, p2.y]))
+
+
+# UTILS
+
+
+def get_pdal_reader(las_path: str) -> pdal.Reader.las:
+    """Standard Reader which imposes Lamber 93 SRS.
+    Args:
+        las_path (str): input LAS path to read.
+    Returns:
+        pdal.Reader.las: reader to use in a pipeline.
+    """
+    return pdal.Reader.las(
+        filename=las_path,
+        nosrs=True,
+        override_srs=LAMBERT_93_EPSG_STR,
+    )
+
+
+def get_XY_centered_points(in_las):
+    pipeline = pdal.Pipeline() | get_pdal_reader(in_las)
+    pipeline.execute()
+    points = pipeline.arrays[0]
+    points["X"] = points["X"] - (points["X"].max() + points["X"].min()) / 2.0
+    points["Y"] = points["Y"] - (points["Y"].max() + points["Y"].min()) / 2.0
+    return points
 
 
 def make_centered_square(width):
