@@ -16,7 +16,7 @@ logger:
 # Unfreeze tghe encoder when new layer has started plateauing.
 callbacks:
   finetune:
-    unfreeze_encoder_epoch: 60
+    unfreeze_encoder_epoch: 200
   log_iou_by_class: null
 
 # Uncomment to give more weight to bridge class.
@@ -30,8 +30,8 @@ model:
 trainer:
   log_every_n_steps: 1
   num_sanity_val_steps: 0
-  min_epochs: 50
-  max_epochs: 300
+  min_epochs: 400
+  max_epochs: 600
   # gpus: [1]
 
 datamodule:
