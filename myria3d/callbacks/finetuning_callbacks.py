@@ -50,12 +50,12 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
                 modules=pl_module.model.mlp,
                 optimizer=optimizer,
                 train_bn=True,
-                initial_denom_lr=100,
+                initial_denom_lr=10,
             )
         if current_epoch == self._unfreeze_encoder_epoch:
             self.unfreeze_and_add_param_group(
                 modules=pl_module.model.encoder,
                 optimizer=optimizer,
                 train_bn=True,
-                initial_denom_lr=10,
+                initial_denom_lr=100,
             )
