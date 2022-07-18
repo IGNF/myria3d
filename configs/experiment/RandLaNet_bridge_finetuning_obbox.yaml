@@ -42,8 +42,11 @@ trainer:
 datamodule:
   batch_size: 50
   transforms:
+  # Alternative data augmentation for OBBox
     augmentations:
       x_flip:
-        p: 0.0
+        _target_: myria3d.data.transforms.RandomFlipOBBOX
+        p: 0.5
       y_flip:
-        p: 0.0
+        _target_: myria3d.data.transforms.RandomFlipOBBOX
+        p: 0.5

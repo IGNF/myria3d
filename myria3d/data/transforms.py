@@ -1,3 +1,4 @@
+import random
 from typing import Callable, Dict, List
 
 import numpy as np
@@ -111,6 +112,32 @@ class StandardizeFeatures(BaseTransform):
         clamp = clamp_sigma * std
         clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
         return clamped
+
+
+# https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/transforms/random_flip.html#RandomFlip
+class RandomFlipOBBOX(BaseTransform):
+    """X/Y shifts and repercution o n obbox"""
+
+    def __init__(self, axis, p=0.5):
+        self.axis = axis
+        self.p = p
+
+    def __call__(self, data):
+        if random.random() < self.p:
+            pos = data.pos.clone()
+            pos[..., self.axis] = -pos[..., self.axis]
+            data.pos = pos
+            axis_letter = "x"
+            if self.axis == 1:
+                axis_letter = "y"
+            A_key = f"A{axis_letter}"
+            data.obbox_dict[A_key] = -data.obbox_dict[A_key]
+            B_key = f"B{axis_letter}"
+            data.obbox_dict[B_key] = -data.obbox_dict[B_key]
+        return data
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(axis={self.axis}, p={self.p})"
 
 
 class NormalizePos(BaseTransform):
