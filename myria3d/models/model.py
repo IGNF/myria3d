@@ -125,11 +125,12 @@ class Model(LightningModule):
 
         # # >>>>>>>>>> ENCODER
 
-        x = self.model.mlp(x)
-        x = self.model.box_layer_mlp1(x)
+        x = self.model.mlp(x)  # B, ~48, 512
         # outputs sigmoid activated values.
+        x = torch.max(x, dim=-2).values.squeeze()  # B, 512
 
-        x = torch.max(x, dim=-2).values.squeeze()  # B, 5
+        x = self.model.regression_layer(x)  # B, 1, 5 softmaxée
+
         predicted_bbox = (
             x
             + BIAS_OF_LOGITS.repeat(batch.num_graphs)
@@ -154,16 +155,50 @@ class Model(LightningModule):
         """
         predicted_obbox = self.forward(batch)
 
-        target_obbox = torch.cat(
+        target_obbox_AB = torch.cat(
             [batch.obbox_dict[k][:, None] for k in ["Ax", "Ay", "Bx", "By", "D"]],
             dim=-1,
-        )
-        # TODO: nécessaire de se rendre invariant à la permutation des deux points à prédire ??
-        losses = self.criterion(predicted_obbox, target_obbox)
+        )  # B, 5
+        target_obbox_BA = torch.cat(
+            [batch.obbox_dict[k][:, None] for k in ["Bx", "By", "Ax", "Ay", "D"]],
+            dim=-1,
+        )  # B, 5
+
+        # Invariance to order by taking the mean loss i.e. closest point.
+        losses_AB = self.criterion(predicted_obbox, target_obbox_AB).cpu()
+        losses_BA = self.criterion(predicted_obbox, target_obbox_BA).cpu()
+
+        losses = []
+        targets = []
+        for idx in range(batch.num_graphs):
+            ab_loss = losses_AB[idx]
+            ba_loss = losses_BA[idx]
+            loss = ab_loss
+            target = target_obbox_AB[idx]
+            if ab_loss.mean() > ba_loss.mean():
+                loss = ba_loss
+                target = target_obbox_BA[idx]
+            losses += [loss.clone()]
+            targets += [target.clone()]
+
+        losses = torch.stack(losses)
+        targets = torch.stack(targets)
+
+        # means_by_sample = stacked_losses.mean(dim=1)  # 50,2
+        # idx_of_minimizing_permutation = torch.argmin(means_by_sample, dim=1)  # B
+        # torch.gather(stacked_losses, 2, idx_of_minimizing_permutation)
+        # losses = torch.take_along_dim(
+        #     stacked_losses, idx_of_minimizing_permutation, dim=1
+        # )
+        # stacked_targets = torch.stack([target_obbox_AB, target_obbox_BA])
+        # target_obbox = torch.take_along_dim(
+        #     stacked_targets, idx_of_minimizing_permutation
+        # )
+
         log.info(
             f"Predictions Ax, Ay, Bx, By, D {predicted_obbox.mean(dim=0).cpu().detach()}"
         )
-        return losses, predicted_obbox, target_obbox
+        return losses, predicted_obbox, targets
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -186,8 +221,7 @@ class Model(LightningModule):
         self.log_averages(losses, prefix="train/loss")
         self.log_averages(predicted_obbox, prefix="train/avg_pred")
         self.log_averages(target_obbox, prefix="train/avg_target")
-        losses[:, -1] = losses[:, -1] / (SUBTILE_WIDTH / 2)
-        loss = losses.mean()
+        loss = losses.mean() / (SUBTILE_WIDTH / 2)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         return {"loss": loss}
 
@@ -209,9 +243,7 @@ class Model(LightningModule):
         self.log_averages(losses, prefix="val/loss")
         self.log_averages(predicted_obbox, prefix="val/avg_pred")
         self.log_averages(target_obbox, prefix="val/avg_target")
-
-        losses[:, -1] = losses[:, -1] / SUBTILE_WIDTH
-        loss = losses.mean()
+        loss = losses.mean() / (SUBTILE_WIDTH / 2)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
         return {"loss": loss}
 

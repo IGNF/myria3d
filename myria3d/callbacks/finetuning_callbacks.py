@@ -32,25 +32,27 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
     def finetune_function(self, pl_module, current_epoch, optimizer, optimizer_idx):
         """Unfreeze layers sequentially, starting from the end of the architecture."""
         if current_epoch == 0:
-            final_layer = SharedMLP(128, 5, activation_fn=nn.Sigmoid(), bn=False)
+            # final_linear = SharedMLP(128, 5, activation_fn=nn.Sigmoid(), bn=False)
+            final_linear = nn.Linear(64, 5, device=pl_module.device)
             # we expect
             # xy around 0 == (0.5-0.5) * 50.0
-            # d ~ 8m = (0.16-0.0) * 50.0
-            p = torch.Tensor([0.5, 0.5, 0.5, 0.5, 0.16])
-            final_layer.conv.bias = torch.nn.Parameter(
+            # d ~ 6m = (0.12-0.0) * 50.0
+            p = torch.Tensor([0.40, 0.40, 0.60, 0.60, 0.12])
+            final_linear.bias = torch.nn.Parameter(
                 torch.log(p / (1 - p))
             ).requires_grad_(True)
-            pl_module.model.box_layer_mlp1 = nn.Sequential(
-                SharedMLP(512, 128, activation_fn=nn.ReLU(), bn=True),
-                final_layer,
+            pl_module.model.regression_layer = nn.Sequential(
+                nn.Linear(512, 64), torch.nn.ReLU(), final_linear, torch.nn.Sigmoid()
             ).to(pl_module.device)
 
-        #     self.unfreeze_and_add_param_group(
-        #         modules=pl_module.model.fc_end[-1],
-        #         optimizer=optimizer,
-        #         train_bn=True,
-        #         initial_denom_lr=100,
-        #     )
+            # Maybe unfreeze later.
+            # self.unfreeze_and_add_param_group(
+            #     modules=pl_module.model.mlp,
+            #     optimizer=optimizer,
+            #     train_bn=True,
+            #     initial_denom_lr=100,
+            # )
+
         # if current_epoch == self._unfreeze_fc_end_epoch:
         #     self.unfreeze_and_add_param_group(
         #         modules=pl_module.model.fc_end,
