@@ -38,7 +38,7 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
             # xy around 0 == (0.5-0.5) * 50.0
             # d ~ 6m = (0.12-0.0) * 50.0
             # high value for sigmoid at start.
-            p = torch.Tensor([0.40, 0.40, 0.60, 0.60, 0.12, 0.45])
+            p = torch.Tensor([0.47, 0.47, 0.53, 0.53, 0.12, 0.45])
             final_linear.bias = torch.nn.Parameter(
                 torch.log(p / (1 - p))
             ).requires_grad_(True)
