@@ -26,6 +26,10 @@ model:
     _target_: torch.nn.L1Loss
     reduction: none
   lr: 0.01
+  # disabled scheduler to avoid error
+  lr_scheduler:
+    patience: 1000000
+    cooldown: 100000
 
 trainer:
   log_every_n_steps: 1
@@ -35,7 +39,7 @@ trainer:
   # gpus: [1]
 
 datamodule:
-  batch_size: 25
+  batch_size: 50
   transforms:
     augmentations:
       x_flip:
