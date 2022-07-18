@@ -219,11 +219,21 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
         """
         losses, predicted_obbox, target_obbox = self.step(batch)
-        d1 = pd.DataFrame(
+        d_target = pd.DataFrame(
             data=target_obbox.cpu().numpy(),
             columns=["Ax_train", "Ay_train", "Bx_train", "By_train", "D_train"],
         )
-        d2 = pd.DataFrame(
+        d_pred = pd.DataFrame(
+            data=predicted_obbox.detach().cpu().numpy(),
+            columns=[
+                "Ax_pred_train",
+                "Ay_pred_train",
+                "Bx_pred_train",
+                "By_pred_train",
+                "D_pred_train",
+            ],
+        )
+        d_loss = pd.DataFrame(
             data=(predicted_obbox - target_obbox).detach().cpu().numpy(),
             columns=[
                 "Ax_error_train",
@@ -233,7 +243,7 @@ class Model(LightningModule):
                 "D_error_train",
             ],
         )
-        df = d1.join(d2)
+        df = d_target.join(d_pred).join(d_loss).astype(float).round(1)
         self.experiment.log_html(df.to_html(), clear=True)
         self.log_averages(losses, prefix="train/loss")
         self.log_averages(predicted_obbox, prefix="train/avg_pred")
@@ -257,21 +267,31 @@ class Model(LightningModule):
 
         """
         losses, predicted_obbox, target_obbox = self.step(batch)
-        d1 =pd.DataFrame(
-                data=target_obbox.cpu().numpy(),
-                columns=["Ax_val", "Ay_val", "Bx_val", "By_val", "D_val"],
+        d_target = pd.DataFrame(
+            data=target_obbox.cpu().numpy(),
+            columns=["Ax_val", "Ay_val", "Bx_val", "By_val", "D_val"],
         )
-        d2 =pd.DataFrame(
-                data=(predicted_obbox - target_obbox).cpu().numpy(),
-                columns=[
-                    "Ax_error_val",
-                    "Ay_error_val",
-                    "Bx_error_val",
-                    "By_error_val",
-                    "D_error_val",
-                ],
-            )
-        df = d1.join(d2)
+        d_pred = pd.DataFrame(
+            data=predicted_obbox.cpu().numpy(),
+            columns=[
+                "Ax_pred_val",
+                "Ay_pred_val",
+                "Bx_pred_val",
+                "By_pred_val",
+                "D_pred_val",
+            ],
+        )
+        d_loss = pd.DataFrame(
+            data=(predicted_obbox - target_obbox).cpu().numpy(),
+            columns=[
+                "Ax_error_val",
+                "Ay_error_val",
+                "Bx_error_val",
+                "By_error_val",
+                "D_error_val",
+            ],
+        )
+        df = d_target.join(d_pred).join(d_loss).astype(float).round(1)
         self.experiment.log_html(df.to_html())
         self.log_averages(losses, prefix="val/loss")
         self.log_averages(predicted_obbox, prefix="val/avg_pred")
