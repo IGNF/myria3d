@@ -168,8 +168,23 @@ class Model(LightningModule):
         )  # B, 5
 
         # Clamping car dépasse de la zone d'intérêt parfois
-        target_obbox_AB[:,:4] = torch.clamp(target_obbox_AB[:,:4], min=-SUBTILE_WIDTH/2.0, max=SUBTILE_WIDTH/2.0)
-        target_obbox_BA[:,:4] = torch.clamp(target_obbox_BA[:,:4], min=-SUBTILE_WIDTH/2.0, max=SUBTILE_WIDTH/2.0)
+        target_obbox_AB[:, :4] = torch.clamp(
+            target_obbox_AB[:, :4], min=-SUBTILE_WIDTH / 2.0, max=SUBTILE_WIDTH / 2.0
+        )
+        target_obbox_BA[:, :4] = torch.clamp(
+            target_obbox_BA[:, :4], min=-SUBTILE_WIDTH / 2.0, max=SUBTILE_WIDTH / 2.0
+        )
+
+        # if not self.training:
+        #     # eval mode -> need to ignore smaller bridges...
+        #     pred_bridge_length = torch.sqrt(
+        #         torch.square(predicted_obbox[:, :2] - predicted_obbox[:, 2:4]).sum(1)
+        #     )
+        #     MIN_BRIDGE_LENGTH = 3.5
+        #     mask_too_small_bridges = (pred_bridge_length > MIN_BRIDGE_LENGTH).unsqueeze(
+        #         1
+        #     )
+        #     predicted_obbox = predicted_obbox * mask_too_small_bridges
 
         # Invariance to order by taking the mean loss i.e. closest point.
         losses_AB = self.criterion(predicted_obbox, target_obbox_AB).cpu()
