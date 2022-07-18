@@ -130,7 +130,9 @@ class Model(LightningModule):
         # outputs sigmoid activated values.
         x = torch.max(x, dim=-2).values.squeeze()  # B, 512
 
-        x = self.model.regression_layer(x)  # B, 1, 5 softmaxée
+        x = self.model.regression_layer(x)  # B, 1, 5+1 softmaxée
+        scores = x[:, 5:6]
+        x = x[:, :5] * scores
 
         predicted_bbox = (
             x
