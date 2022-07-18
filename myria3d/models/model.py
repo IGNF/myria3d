@@ -167,6 +167,10 @@ class Model(LightningModule):
             dim=-1,
         )  # B, 5
 
+        # Clamping car dépasse de la zone d'intérêt parfois
+        target_obbox_AB[:,:4] = torch.clamp(target_obbox_AB[:,:4], min=-SUBTILE_WIDTH/2.0, max=SUBTILE_WIDTH/2.0)
+        target_obbox_BA[:,:4] = torch.clamp(target_obbox_BA[:,:4], min=-SUBTILE_WIDTH/2.0, max=SUBTILE_WIDTH/2.0)
+
         # Invariance to order by taking the mean loss i.e. closest point.
         losses_AB = self.criterion(predicted_obbox, target_obbox_AB).cpu()
         losses_BA = self.criterion(predicted_obbox, target_obbox_BA).cpu()
