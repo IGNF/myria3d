@@ -43,7 +43,12 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
                 torch.log(p / (1 - p))
             ).requires_grad_(True)
             pl_module.model.regression_layer = nn.Sequential(
-                nn.Linear(512, 64), torch.nn.ReLU(), final_linear, torch.nn.Sigmoid()
+                nn.Linear(512, 256),
+                torch.nn.ReLU(),
+                nn.Linear(256, 64),
+                torch.nn.ReLU(),
+                final_linear,
+                torch.nn.Sigmoid(),
             ).to(pl_module.device)
 
         if current_epoch == self._unfreeze_encoder_epoch // 2:
