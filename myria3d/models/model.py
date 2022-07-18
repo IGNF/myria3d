@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 import pandas as pd
 import torch
@@ -8,6 +9,9 @@ from torchmetrics import MaxMetric
 from myria3d.models.modules.point_net2 import PointNet2
 from myria3d.models.modules.randla_net import RandLANet
 from myria3d.utils import utils
+from shapely.geometry import LineString
+import matplotlib.pyplot as plt
+import geopandas as gpd
 
 log = utils.get_logger(__name__)
 
@@ -240,6 +244,7 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
         """
         losses, predicted_obbox, target_obbox = self.step(batch)
+
         d_target = pd.DataFrame(
             data=target_obbox.cpu().numpy(),
             columns=["Ax_train", "Ay_train", "Bx_train", "By_train", "D_train"],
@@ -265,6 +270,7 @@ class Model(LightningModule):
             ],
         )
         df = d_target.join(d_pred).join(d_loss).astype(float).round(1)
+        self.plot_and_log_from_df(df, phase="train")
         self.experiment.log_html(df.to_html(), clear=True)
         self.log_averages(losses, prefix="train/loss")
         self.log_averages(predicted_obbox, prefix="train/avg_pred")
@@ -272,6 +278,40 @@ class Model(LightningModule):
         loss = losses.mean() / (SUBTILE_WIDTH / 2)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         return {"loss": loss}
+
+    def plot_and_log_from_df(self, df: pd.DataFrame, phase="train"):
+        for idx, row in df.iterrows():
+            target = LineString(
+                [
+                    (row[f"Ax_{phase}"], row[f"Ay_{phase}"]),
+                    (row[f"Bx_{phase}"], row[f"By_{phase}"]),
+                ]
+            ).buffer(
+                row[f"D_{phase}"], cap_style=3
+            )  # rectangular!
+            pred = LineString(
+                [
+                    (row[f"Ax_pred_{phase}"], row[f"Ay_pred_{phase}"]),
+                    (row[f"Bx_pred_{phase}"], row[f"By_pred_{phase}"]),
+                ]
+            ).buffer(
+                row[f"D_pred_{phase}"], cap_style=3
+            )  # rectangular!
+            p = gpd.GeoSeries(target)
+            ax = p.plot(color=["green"], alpha=0.5)
+            p = gpd.GeoSeries(pred)
+            p.plot(color=["blue"], alpha=0.5, ax=ax)
+            ax.set_xlim([-SUBTILE_WIDTH / 2, SUBTILE_WIDTH / 2])
+            ax.set_ylim([-SUBTILE_WIDTH / 2, SUBTILE_WIDTH / 2])
+            plt.show()
+            path_to_save = f"./diffplot_{phase}/{phase}_{row[f'D_{phase}']}_{row[f'Ax_{phase}']}_{row[f'Ay_{phase}']}.png"
+            # will work for val, not for train...
+            if row[f"D_{phase}"] == 0:
+                path_to_save = path_to_save.replace(".png", f"_{idx}.png")
+            os.makedirs(os.path.dirname(path_to_save), exist_ok=True)
+            plt.savefig(path_to_save)
+            self.experiment.log_image(path_to_save)
+            # import matplotlib.pyplot as plt
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -314,6 +354,7 @@ class Model(LightningModule):
         )
         df = d_target.join(d_pred).join(d_loss).astype(float).round(1)
         self.experiment.log_html(df.to_html())
+        self.plot_and_log_from_df(df, phase="val")
         self.log_averages(losses, prefix="val/loss")
         self.log_averages(predicted_obbox, prefix="val/avg_pred")
         self.log_averages(target_obbox, prefix="val/avg_target")
