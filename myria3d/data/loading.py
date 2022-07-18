@@ -187,7 +187,8 @@ class LidarDataLogic(ABC):
 
         # select
         sample_data = Data(
-            x_features_names=copy.deepcopy(data.x_features_names), obbox_dict = copy.deepcopy(data.obbox_dict)
+            x_features_names=copy.deepcopy(data.x_features_names),
+            obbox_dict=copy.deepcopy(data.obbox_dict),
         )
         sample_data.pos = data.pos[sample_idx]
         sample_data.x = data.x[sample_idx]
@@ -314,7 +315,7 @@ class FrenchLidarDataLogic(LidarDataLogic):
             las_filepath=las_filepath,
             x_features_names=cls.x_features_names,
             idx_in_original_cloud=np.arange(len(pos)),
-            obbox_dict=obbox_dict,
+            obbox_dict=copy.deepcopy(obbox_dict),
         )
 
 
