@@ -289,7 +289,7 @@ class Model(LightningModule):
                     (row[f"Bx_{phase}"], row[f"By_{phase}"]),
                 ]
             ).buffer(
-                row[f"D_{phase}"], cap_style=3
+                row[f"D_{phase}"] / 2.0, cap_style=3
             )  # rectangular!
             pred = LineString(
                 [
@@ -297,7 +297,7 @@ class Model(LightningModule):
                     (row[f"Bx_pred_{phase}"], row[f"By_pred_{phase}"]),
                 ]
             ).buffer(
-                row[f"D_pred_{phase}"], cap_style=3
+                row[f"D_pred_{phase}"] / 2.0, cap_style=3
             )  # rectangular!
             p = gpd.GeoSeries(target)
             ax = p.plot(color=["green"], alpha=0.5)
