@@ -245,33 +245,34 @@ class Model(LightningModule):
         """
         losses, predicted_obbox, target_obbox = self.step(batch)
 
-        d_target = pd.DataFrame(
-            data=target_obbox.cpu().numpy(),
-            columns=["Ax_train", "Ay_train", "Bx_train", "By_train", "D_train"],
-        )
-        d_pred = pd.DataFrame(
-            data=predicted_obbox.detach().cpu().numpy(),
-            columns=[
-                "Ax_pred_train",
-                "Ay_pred_train",
-                "Bx_pred_train",
-                "By_pred_train",
-                "D_pred_train",
-            ],
-        )
-        d_loss = pd.DataFrame(
-            data=(predicted_obbox - target_obbox).detach().cpu().numpy(),
-            columns=[
-                "Ax_error_train",
-                "Ay_error_train",
-                "Bx_error_train",
-                "By_error_train",
-                "D_error_train",
-            ],
-        )
-        df = d_target.join(d_pred).join(d_loss).astype(float).round(1)
-        self.plot_and_log_from_df(df, phase="train")
-        self.experiment.log_html(df.to_html(), clear=True)
+        if self.current_epoch % 5 == 0:
+            d_target = pd.DataFrame(
+                data=target_obbox.cpu().numpy(),
+                columns=["Ax_train", "Ay_train", "Bx_train", "By_train", "D_train"],
+            )
+            d_pred = pd.DataFrame(
+                data=predicted_obbox.detach().cpu().numpy(),
+                columns=[
+                    "Ax_pred_train",
+                    "Ay_pred_train",
+                    "Bx_pred_train",
+                    "By_pred_train",
+                    "D_pred_train",
+                ],
+            )
+            d_loss = pd.DataFrame(
+                data=(predicted_obbox - target_obbox).detach().cpu().numpy(),
+                columns=[
+                    "Ax_error_train",
+                    "Ay_error_train",
+                    "Bx_error_train",
+                    "By_error_train",
+                    "D_error_train",
+                ],
+            )
+            df = d_target.join(d_pred).join(d_loss).astype(float).round(1)
+            self.plot_and_log_from_df(df, phase="train")
+            self.experiment.log_html(df.to_html(), clear=True)
         self.log_averages(losses, prefix="train/loss")
         self.log_averages(predicted_obbox, prefix="train/avg_pred")
         self.log_averages(target_obbox, prefix="train/avg_target")
