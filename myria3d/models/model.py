@@ -277,7 +277,7 @@ class Model(LightningModule):
         self.log_averages(losses, prefix="train/loss")
         self.log_averages(predicted_obbox, prefix="train/avg_pred")
         self.log_averages(target_obbox, prefix="train/avg_target")
-        loss = losses.mean() / (SUBTILE_WIDTH / 2)
+        loss = self.get_loss_from_l1_losses(losses)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         return {"loss": loss}
 
@@ -368,9 +368,17 @@ class Model(LightningModule):
         self.log_averages(losses, prefix="val/loss")
         self.log_averages(predicted_obbox, prefix="val/avg_pred")
         self.log_averages(target_obbox, prefix="val/avg_target")
-        loss = losses.mean() / (SUBTILE_WIDTH / 2)
+        loss = self.get_loss_from_l1_losses(losses)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
         return {"loss": loss}
+
+    def get_loss_from_l1_losses(self, losses):
+        return torch.pow(losses, 2).mean() / SUBTILE_WIDTH
+
+    #     dist_A = torch.sqrt(losses[:,0]**2 + losses[:,1]**2)
+    #     dist_B = torch.sqrt(losses[:,2]**2 + losses[:,3]**2)
+    #     squared_D_loss = losses[:,4]**2
+    #     return dist_A + dist_B + squared_D_loss
 
     # def test_step(self, batch: Batch, batch_idx: int):
     #     """Test step.
