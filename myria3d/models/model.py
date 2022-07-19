@@ -304,14 +304,15 @@ class Model(LightningModule):
             ax.set_xlim([-SUBTILE_WIDTH / 2, SUBTILE_WIDTH / 2])
             ax.set_ylim([-SUBTILE_WIDTH / 2, SUBTILE_WIDTH / 2])
             plt.show()
-            path_to_save = f"./diffplot_{phase}/{phase}_{row[f'D_{phase}']}_{row[f'Ax_{phase}']}_{row[f'Ay_{phase}']}.png"
-            # will work for val, not for train...
-            if row[f"D_{phase}"] == 0:
+            mean_x = row[f"Ax_{phase}"] + row[f"Bx_{phase}"]
+            mean_y = row[f"Ay_{phase}"] + row[f"By_{phase}"]
+            path_to_save = f"./diffplot_{phase}/{phase}_{row[f'D_{phase}']}_{mean_x}_{mean_y}.png"
+            # do not plot empty ones for now...
+            if row[f"D_{phase}"] != 0:
                 path_to_save = path_to_save.replace(".png", f"_{idx}.png")
-            os.makedirs(os.path.dirname(path_to_save), exist_ok=True)
-            plt.savefig(path_to_save)
-            self.experiment.log_image(path_to_save)
-            # import matplotlib.pyplot as plt
+                os.makedirs(os.path.dirname(path_to_save), exist_ok=True)
+                plt.savefig(path_to_save)
+                self.experiment.log_image(path_to_save)
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
