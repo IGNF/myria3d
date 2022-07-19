@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+import numpy as np
 import pandas as pd
 import torch
 from pytorch_lightning import LightningModule
@@ -305,9 +306,16 @@ class Model(LightningModule):
             ax.set_xlim([-SUBTILE_WIDTH / 2, SUBTILE_WIDTH / 2])
             ax.set_ylim([-SUBTILE_WIDTH / 2, SUBTILE_WIDTH / 2])
             plt.show()
-            mean_x = row[f"Ax_{phase}"] + row[f"Bx_{phase}"]
-            mean_y = row[f"Ay_{phase}"] + row[f"By_{phase}"]
-            path_to_save = f"./diffplot_{phase}/{phase}_{row[f'D_{phase}']}_{mean_x}_{mean_y}.png"
+            length = np.round(
+                np.sqrt(
+                    (row[f"Ax_{phase}"] - row[f"Bx_{phase}"]) ** 2
+                    + (row[f"Ay_{phase}"] - row[f"By_{phase}"]) ** 2
+                ),
+                1,
+            )
+            path_to_save = (
+                f"./diffplot_{phase}/{phase}_{row[f'D_{phase}']}_{length}.png"
+            )
             # do not plot empty ones for now...
             if row[f"D_{phase}"] != 0:
                 path_to_save = path_to_save.replace(".png", f"_{idx}.png")
