@@ -70,34 +70,41 @@ class DataModule(LightningDataModule):
     def _set_train_data(self):
         """Sets the train dataset from a directory."""
         files = glob.glob(
-            osp.join(self.prepared_data_dir, "train", "**", "*.data"), recursive=True
+            osp.join(self.prepared_data_dir, "train", "**", "*.las"), recursive=True
         )
-        self.train_data = LidarMapDataset(
-            files, loading_function=torch.load, transform=self._get_train_transforms()
+        self.train_data = LidarMapDatasetCenter(
+            files,
+            loading_function=self.load_las,
+            random_center=True,
+            transform=self._get_train_transforms(),
+            subtile_width_meters=self.subtile_width_meters,
         )
 
     def _set_val_data(self):
         """Sets the validation dataset from a directory."""
 
         files = glob.glob(
-            osp.join(self.prepared_data_dir, "val", "**", "*.data"), recursive=True
+            osp.join(self.prepared_data_dir, "val", "**", "*.las"), recursive=True
         )
         log.info(f"Validation on {len(files)} subtiles.")
-        self.val_data = LidarMapDataset(
-            files, loading_function=torch.load, transform=self._get_val_transforms()
+        self.val_data = LidarMapDatasetCenter(
+            files,
+            loading_function=self.load_las,
+            random_center=False,
+            transform=self._get_val_transforms(),
+            subtile_width_meters=self.subtile_width_meters,
         )
 
     def _set_test_data(self):
         """Sets the test dataset. User need to explicitely require the use of test set, which is kept out of experiment until the end."""
 
         files = glob.glob(osp.join(self.test_data_dir, "**", "*.las"), recursive=True)
-        self.test_data = LidarIterableDataset(
+        self.test_data = LidarMapDatasetCenter(
             files,
             loading_function=self.load_las,
+            random_center=False,
             transform=self._get_test_transforms(),
-            input_tile_width_meters=self.input_tile_width_meters,
             subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
         )
 
     def _set_predict_data(self, files: List[str]):
@@ -106,13 +113,12 @@ class DataModule(LightningDataModule):
         NB: the single fgile should be in a list.
 
         """
-        self.predict_data = LidarIterableDataset(
+        self.predict_data = LidarIterableDatasetInference(
             files,
             loading_function=self.load_las,
             transform=self._get_predict_transforms(),
             input_tile_width_meters=self.input_tile_width_meters,
             subtile_width_meters=self.subtile_width_meters,
-            subtile_overlap=self.subtile_overlap,
         )
 
     def train_dataloader(self):
@@ -185,26 +191,37 @@ class DataModule(LightningDataModule):
         return self._get_val_transforms()
 
 
-class LidarMapDataset(Dataset):
-    """A Dataset to load prepared data as produced via loading.py."""
+class LidarMapDatasetCenter(Dataset):
+    """Random loading of point around center of 100m tile."""
 
     def __init__(
         self,
         files: List[str],
         loading_function=None,
+        random_center=True,
         transform=None,
+        subtile_width_meters: int = 50,
     ):
         self.files = files
         self.num_files = len(self.files)
 
         self.loading_function = loading_function
         self.transform = transform
+        self.random_center = random_center
+        self.subtile_width_meters = subtile_width_meters
 
     def __getitem__(self, idx):
         """Loads a subtile and transforms its features and targets."""
         filepath = self.files[idx]
 
         data = self.loading_function(filepath)
+        kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
+        center = np.array([50, 50])
+        if self.random_center:
+            x_center = np.random.randint(40, 60)
+            y_center = np.random.randint(40, 60)
+            center = np.array([x_center, y_center])
+        data = extract_around_center(data, kd_tree, center, self.subtile_width_meters)
         if self.transform:
             data = self.transform(data)
 
@@ -214,8 +231,8 @@ class LidarMapDataset(Dataset):
         return self.num_files
 
 
-class LidarIterableDataset(IterableDataset):
-    """A Dataset to load a full point cloud, batch by batch."""
+class LidarIterableDatasetInference(IterableDataset):
+    """A Dataset to load a full point cloud, batch by batch, for inference"""
 
     def __init__(
         self,
@@ -224,19 +241,12 @@ class LidarIterableDataset(IterableDataset):
         transform=None,
         subtile_width_meters: Number = 50,
         input_tile_width_meters: Number = 1000,
-        subtile_overlap: Number = 0,
     ):
         self.files = files
         self.loading_function = loading_function
         self.transform = transform
         self.input_tile_width_meters = input_tile_width_meters
         self.subtile_width_meters = subtile_width_meters
-        self.subtile_overlap = subtile_overlap
-        self.use_circular_receptive_field = (
-            False  # This is ugly, this branch should not last...
-        )
-        if self.use_circular_receptive_field:
-            self.sample_radius = subtile_width_meters / math.sqrt(2)
 
     def yield_transformed_subtile_data(self):
         """Yield subtiles from all tiles in an exhaustive fashion."""
@@ -250,7 +260,9 @@ class LidarIterableDataset(IterableDataset):
             for x_center in range_by_axis:
                 for y_center in range_by_axis:
                     center = np.array([x_center, y_center])
-                    subtile_data = self.extract_around_center(data, kd_tree, center)
+                    subtile_data = extract_around_center(
+                        data, kd_tree, center, self.subtile_width_meters
+                    )
                     if (
                         subtile_data
                         and len(subtile_data.pos) >= MIN_NUM_POINTS_IN_SAMPLE
@@ -260,42 +272,39 @@ class LidarIterableDataset(IterableDataset):
                         if data and (len(subtile_data.pos) >= MIN_NUM_POINTS_IN_SAMPLE):
                             yield subtile_data
 
-    def extract_around_center(
-        self, data: Data, kd_tree: cKDTree, center: np.array
-    ) -> Data:
-        """Filter a data object on a chosen axis, using a relative position .
-        Modifies the original data object so that extracted future filters are faster.
-
-        Args:
-            data (Data): a pyg Data object with pos, x, and y attributes.
-            relative_pos (int): where the data to extract start on chosen axis (typically in range 0-1000)
-            axis (int, optional): 0 for x and 1 for y axis. Defaults to 0.
-
-        Returns:
-            Data: the data that is at most subtile_width_meters above relative_pos on the chosen axis.
-
-        """
-        # square query with infinite norm
-        query_params = {"r": self.subtile_width_meters / 2.0, "p": np.inf}
-        if self.use_circular_receptive_field:
-            # circular query with euclidian norm
-            query_params = {"r": self.sample_radius / 2.0, "p": 2}
-
-        sample_idx = np.array(kd_tree.query_ball_point(center, **query_params))
-
-        if len(sample_idx) == 0:
-            return None
-
-        # select
-        sample_data = Data()
-        sample_data.x_features_names = copy.deepcopy(data.x_features_names)
-        sample_data.las_filepath = copy.deepcopy(data.las_filepath)
-        sample_data.pos = data.pos[sample_idx]
-        sample_data.x = data.x[sample_idx]
-        sample_data.y = data.y[sample_idx]
-        sample_data.idx_in_original_cloud = data.idx_in_original_cloud[sample_idx]
-
-        return sample_data
-
     def __iter__(self):
         return self.yield_transformed_subtile_data()
+
+
+def extract_around_center(
+    data: Data, kd_tree: cKDTree, center: np.array, subtile_width_meters: int
+) -> Data:
+    """Filter a data object on a chosen axis, using a relative position .
+
+    Args:
+        data (Data): a pyg Data object with pos, x, and y attributes.
+        relative_pos (int): where the data to extract start on chosen axis (typically in range 0-1000)
+        axis (int, optional): 0 for x and 1 for y axis. Defaults to 0.
+
+    Returns:
+        Data: the data that is at most subtile_width_meters above relative_pos on the chosen axis.
+
+    """
+    # square query with infinite norm
+    query_params = {"r": subtile_width_meters / 2.0, "p": np.inf}
+
+    sample_idx = np.array(kd_tree.query_ball_point(center, **query_params))
+
+    if len(sample_idx) == 0:
+        return None
+
+    # select
+    sample_data = Data()
+    sample_data.x_features_names = copy.deepcopy(data.x_features_names)
+    sample_data.las_filepath = copy.deepcopy(data.las_filepath)
+    sample_data.pos = data.pos[sample_idx]
+    sample_data.x = data.x[sample_idx]
+    sample_data.y = data.y[sample_idx]
+    sample_data.idx_in_original_cloud = data.idx_in_original_cloud[sample_idx]
+
+    return sample_data
