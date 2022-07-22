@@ -108,16 +108,46 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)  # B*N, C -> not easy to manipulate here...
-        do_regularize =self.current_epoch >= self.hparams.epoch_start_regularization
+        do_regularize = self.current_epoch >= self.hparams.epoch_start_regularization
         if do_regularize:
-            pool_func = scatter_mean
+            pool_func = lambda l, b: torch.sigmoid(scatter_mean(l,b))
             width = pool_func(logits[:, -4], batch.batch)
             height = pool_func(logits[:, -3], batch.batch)
             cos_phi = pool_func(logits[:, -2], batch.batch)
             sin_phi = pool_func(logits[:, -1], batch.batch)
+            with torch.no_grad():
+                self.log(
+                    "width_avg",
+                    width.mean(),
+                    on_step=True,
+                    on_epoch=True,
+                    prog_bar=True,
+                )
+                self.log(
+                    "height_avg",
+                    height.mean(),
+                    on_step=True,
+                    on_epoch=True,
+                    prog_bar=True,
+                )
+                self.log(
+                    "cos_phi_avg",
+                    cos_phi.mean(),
+                    on_step=True,
+                    on_epoch=True,
+                    prog_bar=True,
+                )
+                self.log(
+                    "sin_phi_avg",
+                    sin_phi.mean(),
+                    on_step=True,
+                    on_epoch=True,
+                    prog_bar=True,
+                )
         logits = logits[:, :-4]
         if do_regularize:
-            bridge_mask = torch.argmax(logits.detach(), dim=1) == 1
+            with torch.no_grad():
+                bridge_mask = torch.argmax(logits.detach(), dim=1) == 1
             bbox_weights = get_bbox_regularization_weights(
                 bridge_mask, batch.pos, batch.batch, width, height, cos_phi, sin_phi
             )
@@ -296,7 +326,7 @@ def get_bbox_regularization_weights(
         x_max_w = contrast_sigmoid(x_max - x)
         y_min_w = contrast_sigmoid(y - y_min)
         y_max_w = contrast_sigmoid(y_max - y)
-        # take the mean so that only closest error is considered on each axis
+        # take the multi so that bbox border is 0.5, outside is 0, inside is 1
         w_bridge = x_min_w * x_max_w * y_min_w * y_max_w
         w_non_bridge = 1 - w_bridge  # sum to 1 for each point.
         w = torch.stack([w_non_bridge, w_bridge]).permute(1, 0)
