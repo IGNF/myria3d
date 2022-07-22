@@ -15,8 +15,8 @@ logger:
 
 callbacks:
   finetune:
-    unfreeze_fc_end_epoch: 10
-    unfreeze_decoder_train_epoch: 50
+    unfreeze_fc_end_epoch: 1
+    unfreeze_decoder_train_epoch: 10
     unfreeze_encoder_epoch: 100
   early_stopping: null
 
