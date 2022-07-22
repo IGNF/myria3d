@@ -56,6 +56,19 @@ class ToTensor(BaseTransform):
         return data
 
 
+class ToNumpy(BaseTransform):
+    """Turn np.arrays specified by their keys into Tensor."""
+
+    def __init__(self, keys=["pos", "x", "y"]):
+        self.keys = keys
+
+    def __call__(self, data: Data):
+        for key in data.keys:
+            if key in self.keys:
+                data[key] = data[key].numpy()
+        return data
+
+
 class CopyFullPos:
     """Make a copy of the original positions - to be used for test and inference."""
 

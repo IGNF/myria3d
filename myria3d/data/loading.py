@@ -51,6 +51,7 @@ def _find_file_in_dir(input_data_dir: str, basename: str) -> str:
     files = glob.glob(query, recursive=True)
     return files[0]
 
+
 class LidarDataLogic(ABC):
     """Abstract class to load, chunk, and save a point cloud dataset according to a train/val/test split.
     load_las and its needed parameters ares specified in child classes.
@@ -203,8 +204,6 @@ class LidarDataLogic(ABC):
         torch.save(subtile_data, subtile_save_path)
 
 
-
-
 class FrenchLidarDataLogic(LidarDataLogic):
 
     x_features_names = [
@@ -271,9 +270,6 @@ class FrenchLidarDataLogic(LidarDataLogic):
 
         for idx, c in enumerate(cls.x_features_names):
             if c in ["red", "green", "blue", "nir"]:
-                print(
-                    x[:, idx].max()
-                )  # DEBUG: just to be sure that it is the same as before
                 assert x[:, idx].max() <= cls.colors_normalization_max_value
                 x[:, idx] = x[:, idx] / cls.colors_normalization_max_value
                 x[occluded_points, idx] = 0

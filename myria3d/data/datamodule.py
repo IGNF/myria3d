@@ -14,7 +14,7 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.data.data import Data
 from myria3d.data.loading import MIN_NUM_POINTS_IN_SAMPLE
 from myria3d.utils import utils
-from myria3d.data.transforms import CustomCompose
+from myria3d.data.transforms import CustomCompose, ToNumpy, ToTensor
 from scipy.spatial import cKDTree
 
 
@@ -217,6 +217,7 @@ class LidarMapDatasetCenter(Dataset):
         """Loads a subtile and transforms its features and targets."""
         filepath = self.files[idx]
         data = self.loading_function(filepath)
+        data = ToTensor()(data)
         data = self.center(data)
         center = np.array([0, 0])
         # data augmentation
@@ -227,6 +228,7 @@ class LidarMapDatasetCenter(Dataset):
             center = np.array([x_center, y_center])
         kd_tree = cKDTree(data.pos[:, :2])
         data = extract_around_center(data, kd_tree, center, self.subtile_width_meters)
+        data = ToNumpy()(data)
         if self.transform:
             data = self.transform(data)
 
