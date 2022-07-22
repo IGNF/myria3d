@@ -199,7 +199,7 @@ class LidarMapDatasetCenter(Dataset):
         self,
         files: List[str],
         loading_function=None,
-        random_center=True,
+        random_subtile_selection=True,
         transform=None,
         subtile_width_meters: int = 50,
     ):
@@ -208,7 +208,7 @@ class LidarMapDatasetCenter(Dataset):
 
         self.loading_function = loading_function
         self.transform = transform
-        self.random_subtile_selection = random_center
+        self.random_subtile_selection = random_subtile_selection
         self.subtile_width_meters = subtile_width_meters
         self.center = Center()
         self.rotate_around_z = RandomRotate(360, axis=2)

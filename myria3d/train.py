@@ -79,6 +79,8 @@ def train(config: DictConfig) -> Trainer:
     callbacks: List[Callback] = []
     if "callbacks" in config:
         for _, cb_conf in config.callbacks.items():
+            if cb_conf is None:
+                continue
             if "_target_" in cb_conf:
                 log.info(f"Instantiating callback <{cb_conf._target_}>")
                 callbacks.append(hydra.utils.instantiate(cb_conf))

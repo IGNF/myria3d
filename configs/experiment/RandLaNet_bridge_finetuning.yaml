@@ -11,7 +11,7 @@ task:
 
 logger:
   comet:
-    experiment_name: "=V0.0-20220630_ponts_bdtopo-finetuning-bbox-regularization"
+    experiment_name: "V0.0-20220630_ponts_bdtopo-finetuning-bbox-regularization"
 
 callbacks:
   finetune:
