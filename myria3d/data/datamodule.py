@@ -9,6 +9,7 @@ from pytorch_lightning import LightningDataModule
 import torch
 from torch.utils.data import Dataset
 from torch_geometric.loader import DataLoader
+from torch_geometric.transforms import Center, RandomRotate
 from torch.utils.data.dataset import IterableDataset
 from torch_geometric.data.data import Data
 from myria3d.data.loading import MIN_NUM_POINTS_IN_SAMPLE
@@ -75,7 +76,7 @@ class DataModule(LightningDataModule):
         self.train_data = LidarMapDatasetCenter(
             files,
             loading_function=self.load_las,
-            random_center=True,
+            random_subtile_selection=True,
             transform=self._get_train_transforms(),
             subtile_width_meters=self.subtile_width_meters,
         )
@@ -90,7 +91,7 @@ class DataModule(LightningDataModule):
         self.val_data = LidarMapDatasetCenter(
             files,
             loading_function=self.load_las,
-            random_center=False,
+            random_subtile_selection=False,
             transform=self._get_val_transforms(),
             subtile_width_meters=self.subtile_width_meters,
         )
@@ -102,7 +103,7 @@ class DataModule(LightningDataModule):
         self.test_data = LidarMapDatasetCenter(
             files,
             loading_function=self.load_las,
-            random_center=False,
+            random_subtile_selection=False,
             transform=self._get_test_transforms(),
             subtile_width_meters=self.subtile_width_meters,
         )
@@ -207,20 +208,24 @@ class LidarMapDatasetCenter(Dataset):
 
         self.loading_function = loading_function
         self.transform = transform
-        self.random_center = random_center
+        self.random_subtile_selection = random_center
         self.subtile_width_meters = subtile_width_meters
+        self.center = Center()
+        self.rotate_around_z = RandomRotate(360, axis=2)
 
     def __getitem__(self, idx):
         """Loads a subtile and transforms its features and targets."""
         filepath = self.files[idx]
-
         data = self.loading_function(filepath)
-        kd_tree = cKDTree(data.pos[:, :2] - data.pos[:, :2].min(axis=0))
-        center = np.array([50, 50])
-        if self.random_center:
-            x_center = np.random.randint(40, 60)
-            y_center = np.random.randint(40, 60)
+        data = self.center(data)
+        center = np.array([0, 0])
+        # data augmentation
+        if self.random_subtile_selection:
+            data = self.rotate_around_z(data)
+            x_center = np.random.randint(-10, 10)
+            y_center = np.random.randint(-10, 10)
             center = np.array([x_center, y_center])
+        kd_tree = cKDTree(data.pos[:, :2])
         data = extract_around_center(data, kd_tree, center, self.subtile_width_meters)
         if self.transform:
             data = self.transform(data)
