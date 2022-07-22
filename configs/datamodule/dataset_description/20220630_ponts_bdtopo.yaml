@@ -3,13 +3,13 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 
 # Deal with artefacts and synthetic points (65, 66) are set to "unclassified"
 # Anomalies: 201 and 204 are "candidate ground", 109 is a  leftovers anomaly.
-classification_preprocessing_dict: {65: 1, 66: 1, 109: 1, 201: 2, 204: 2}
+classification_preprocessing_dict: {2: 1, 65: 1, 66: 1, 109: 1, 201: 2, 204: 2}
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
-classification_dict: {1: "unclassified", 2: "ground", 17: bridge}
+classification_dict: {1: "other", 17: bridge}
 
 # Input and output dims of neural net are dataset dependant:
 d_in: 12
-num_classes: 3
+num_classes: 6  # 2 + scalars to regress
 
 # loading functions for data object prepared via myria3d/datamodule/data.py
 load_las_func:

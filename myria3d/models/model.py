@@ -3,6 +3,7 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
+from torch_scatter import scatter_mean
 from torchmetrics import MaxMetric
 from myria3d.models.modules.point_net2 import PointNet2
 from myria3d.models.modules.randla_net import RandLANet
@@ -105,9 +106,30 @@ class Model(LightningModule):
             torch.Tensor (1), torch.Tensor (B*N,C), torch.Tensor (B*N,C), torch.Tensor: loss, logits, targets
 
         """
-        logits = self.forward(batch)
+        logits = self.forward(batch)  # B*N, C -> not easy to manipulate here...
+        # Regularization happens here !
+        REGULARIZE = True
+        if REGULARIZE:
+            pool_func = scatter_mean
+            width = pool_func(logits[:, -4], batch.batch)
+            height = pool_func(logits[:, -3], batch.batch)
+            sin_phi = pool_func(logits[:, -2], batch.batch)
+            cos_phi = pool_func(logits[:, -1], batch.batch)
+        logits = logits[:, :-4]
+        assert logits.size(1) == 2
+        if REGULARIZE:
+            logits = self.regularize_logits_with_bbox(
+                logits, width, height, sin_phi, cos_phi
+            )
+
         loss = self.criterion(logits, batch.y)
         return loss, logits
+
+    def regularize_logits_with_bbox(self, logits, width, height, sin_phi, cos_phi):
+        """Weight logits based on a bridge bounding box"""
+        bbox_weights = torch.ones_like(logits).to(logits.device)
+        logits = logits * bbox_weights
+        return logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""

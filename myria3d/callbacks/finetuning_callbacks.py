@@ -32,21 +32,21 @@ class FinetuningFreezeUnfreeze(BaseFinetuning):
                 modules=pl_module.model.fc_end[-1],
                 optimizer=optimizer,
                 train_bn=True,
-                initial_denom_lr=100,
+                initial_denom_lr=1,
             )
         if current_epoch == self._unfreeze_fc_end_epoch:
             self.unfreeze_and_add_param_group(
                 modules=pl_module.model.fc_end,
                 optimizer=optimizer,
                 train_bn=True,
-                initial_denom_lr=100,
+                initial_denom_lr=1,
             )
         if current_epoch == self._unfreeze_decoder_epoch:
             self.unfreeze_and_add_param_group(
                 modules=pl_module.model.decoder,
                 optimizer=optimizer,
                 train_bn=True,
-                initial_denom_lr=100,
+                initial_denom_lr=10,
             )
         if current_epoch == self._unfreeze_encoder_epoch:
             self.unfreeze_and_add_param_group(
