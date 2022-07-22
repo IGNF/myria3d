@@ -1,3 +1,4 @@
+from numbers import Number
 from typing import Optional
 import torch
 from pytorch_lightning import LightningModule
@@ -107,29 +108,23 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)  # B*N, C -> not easy to manipulate here...
-        # Regularization happens here !
-        REGULARIZE = True
-        if REGULARIZE:
+        do_regularize =self.current_epoch >= self.hparams.epoch_start_regularization
+        if do_regularize:
             pool_func = scatter_mean
             width = pool_func(logits[:, -4], batch.batch)
             height = pool_func(logits[:, -3], batch.batch)
-            sin_phi = pool_func(logits[:, -2], batch.batch)
-            cos_phi = pool_func(logits[:, -1], batch.batch)
+            cos_phi = pool_func(logits[:, -2], batch.batch)
+            sin_phi = pool_func(logits[:, -1], batch.batch)
         logits = logits[:, :-4]
-        assert logits.size(1) == 2
-        if REGULARIZE:
-            logits = self.regularize_logits_with_bbox(
-                logits, width, height, sin_phi, cos_phi
+        if do_regularize:
+            bridge_mask = torch.argmax(logits.detach(), dim=1) == 1
+            bbox_weights = get_bbox_regularization_weights(
+                bridge_mask, batch.pos, batch.batch, width, height, cos_phi, sin_phi
             )
+            logits = logits * bbox_weights
 
         loss = self.criterion(logits, batch.y)
         return loss, logits
-
-    def regularize_logits_with_bbox(self, logits, width, height, sin_phi, cos_phi):
-        """Weight logits based on a bridge bounding box"""
-        bbox_weights = torch.ones_like(logits).to(logits.device)
-        logits = logits * bbox_weights
-        return logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -255,3 +250,57 @@ class Model(LightningModule):
         }
 
         return config
+
+
+def get_bbox_regularization_weights(
+    bridge_mask: torch.Tensor,
+    pos: torch.Tensor,
+    batch: Batch,
+    width,
+    height,
+    cos_phi,
+    sin_phi,
+    alpha: Number = 17,
+):
+    """Weight logits based on a bridge bounding box
+
+    alpha < 1 :softer softmax
+
+    """
+    contrast_sigmoid = lambda diff: torch.sigmoid(alpha * diff)
+    w_list = []
+    for i in range(int(batch.max() + 1)):
+        with torch.no_grad():
+            is_sample = batch == i
+            is_sample_and_bridge = is_sample * bridge_mask
+            # centering around predicted bridge center
+            sample_bridge_pos = pos[is_sample_and_bridge]
+            sampled_centered_pos = pos[is_sample] - sample_bridge_pos.mean(0)
+            # rotation around axis to align bridge with axis
+            sample_cos = cos_phi[i]
+            sample_sin = sin_phi[i]
+            rotation_matrix = torch.tensor(
+                [[sample_cos, sample_sin], [-sample_sin, sample_cos]]
+            )
+            assert sampled_centered_pos.size(-1) == rotation_matrix.size(-2)
+        sample_rotated_pos = sampled_centered_pos @ rotation_matrix.to(
+            sampled_centered_pos.device, sampled_centered_pos.dtype
+        )
+        x, y = sample_rotated_pos[:, 0], sample_rotated_pos[:, 1]
+        # get weights
+        x_min = -width[i] / 2.0
+        x_max = width[i] / 2.0
+        y_min = -height[i] / 2.0
+        y_max = height[i] / 2.0
+        x_min_w = contrast_sigmoid(x - x_min)
+        x_max_w = contrast_sigmoid(x_max - x)
+        y_min_w = contrast_sigmoid(y - y_min)
+        y_max_w = contrast_sigmoid(y_max - y)
+        # take the mean so that only closest error is considered on each axis
+        w_bridge = x_min_w * x_max_w * y_min_w * y_max_w
+        w_non_bridge = 1 - w_bridge  # sum to 1 for each point.
+        w = torch.stack([w_non_bridge, w_bridge]).permute(1, 0)
+        w_list += [w]
+
+    w = torch.cat(w_list)
+    return w

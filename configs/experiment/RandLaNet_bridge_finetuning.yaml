@@ -22,6 +22,7 @@ callbacks:
 
 # Uncomment to give more weight to bridge class.
 model:
+  epoch_start_regularization: 0
   lr: 0.1
   criterion:
     weight:
