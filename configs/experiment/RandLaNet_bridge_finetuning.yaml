@@ -18,7 +18,6 @@ callbacks:
     unfreeze_fc_end_epoch: 10
     unfreeze_decoder_train_epoch: 50
     unfreeze_encoder_epoch: 100
-  log_iou_by_class: null
   early_stopping: null
 
 # Uncomment to give more weight to bridge class.
