@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 2.3.8 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 2.3.9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -202,11 +202,16 @@ docker run -v <span class="o">{</span>local_inputs<span class="o">}</span>:/inpu
 </section>
 <section id="specific-options">
 <h2>Specific options<a class="headerlink" href="#specific-options" title="Permalink to this headline"></a></h2>
+<section id="output-format">
+<h3>Output format<a class="headerlink" href="#output-format" title="Permalink to this headline"></a></h3>
+<p>By default, the predicted classification is stored in a new PRedictedClassification format, which is not a config parameter at the moment. The probability <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a> is also stored, as a proxy for prediction uncertainty.</p>
+<p>What one can control is for which classes to save the probabilities. This is achieved with a <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save</span></code> config parameter, which can be either the <code class="docutils literal notranslate"><span class="pre">all</span></code> keyword (to save probabilities for all classes) or a list of specific classes (e.g. <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save=[building,vegetation]</span></code> - notice the absence of space between class name).</p>
+</section>
 <section id="receptive-field-overlap-at-inference-time">
 <h3>Receptive field overlap at inference time<a class="headerlink" href="#receptive-field-overlap-at-inference-time" title="Permalink to this headline"></a></h3>
-<p>To imrpove spatial regularity of the output predictions, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level. This, however, comes with a large computation price.
-To define an overlap between successive 50m*50m receptive fields, set <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap={value}</span></code>.
-For instance, <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap=25</span></code> means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.</p>
+<p>To improve spatial regularity of the predicted probabilities, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level.</p>
+<p>To define an overlap between successive 50m*50m receptive fields, set <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap={value}</span></code>.
+This, however, comes with a large computation price. For instance, <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap=25</span></code> means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.</p>
 </section>
 </section>
 </section>

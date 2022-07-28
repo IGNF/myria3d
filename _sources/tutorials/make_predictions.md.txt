@@ -57,7 +57,16 @@ docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --s
 
 ## Specific options
 
+
+### Output format
+
+By default, the predicted classification is stored in a new PRedictedClassification format, which is not a config parameter at the moment. The probability [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) is also stored, as a proxy for prediction uncertainty.
+
+What one can control is for which classes to save the probabilities. This is achieved with a `predict.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.probas_to_save=[building,vegetation]` - notice the absence of space between class name).
+
 ### Receptive field overlap at inference time
-To imrpove spatial regularity of the output predictions, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level. This, however, comes with a large computation price.
+
+To improve spatial regularity of the predicted probabilities, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level.
+
 To define an overlap between successive 50m*50m receptive fields, set `predict.subtile_overlap={value}`.
-For instance, `predict.subtile_overlap=25` means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.
+This, however, comes with a large computation price. For instance, `predict.subtile_overlap=25` means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.
