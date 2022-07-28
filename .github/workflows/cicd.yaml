@@ -30,7 +30,7 @@ jobs:
     - name: Fast unit tests first
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/files/large/
+        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
         --ipc=host
         myria3d
         python -m
@@ -43,6 +43,7 @@ jobs:
         -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/inputs/
         -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/outputs/:/outputs/
         --ipc=host
+        --shm-size=2gb
         myria3d
         python -m 
         myria3d.predict
@@ -54,13 +55,15 @@ jobs:
         datamodule.batch_size=25
         hydra.run.dir=/myria3d
 
-    # Always run with --ipc=host to enable sufficient shared memory when predicting on large data
-    # These time-consuming operations are performed locally when needed.
+    # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
+    # Those are too slow to be useful for continuous integration considering the action-runner, and commented for now.
     # - name: Slow unit tests last, using large files stored in self-hosted action-runner.
+    #   if: github.event_name == 'push'
     #   run: >
     #     docker run
     #     -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
     #     --ipc=host
+    #     --shm-size=5gb
     #     myria3d
     #     python -m
     #     pytest -rA -v -m "slow" 
