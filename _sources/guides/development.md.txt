@@ -4,7 +4,7 @@
 
 Package version follows semantic versionning conventions and is defined in `setup.py`. 
 
-Releases are generated when new high-level functionnality are implemented (e.g. a new step in the production process), with a documentation role. Production-ready code is fast-forwarded in the `prod` branch when needed to match the `main` branch.
+Releases are generated when new high-level functionnality are implemented (e.g. a new step in the production process), with a documentation role. Production-ready code is fast-forwarded in the `prod` branch when needed to match the `main` branch. When updating the `prod` branch, one should move the tag `prod-release-tag` alongside to the [related release](https://github.com/IGNF/myria3d/releases/tag/prod-release-tag).
 
 ## Tests
 
