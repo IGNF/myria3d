@@ -3,13 +3,15 @@
 Refer to [this tutorial](./setup_install.md) for how to setup a virtual environment and install the library.
 
 To run inference, you will need:
-- A source cloud point in LAS format on which to infer classes and probabilites.
+- A source cloud point in LAS format on which to infer classes and probabilites. Sample data from the French "Lidar HD" project can be downloaded at [this address](https://geoservices.ign.fr/lidarhd).
 - A checkpoint of a trained lightning module implementing model logic (class `myria3d.models.model.Model`)
 - A minimal yaml configuration specifying parameters. We use [hydra](https://hydra.cc/) to manage configurations, and this yaml results from the model training. The `datamodule` and `model` parameters groups must match dataset characteristics and model training settings.  The `predict` parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal). For hints on what to modify, see the `experiment/predict.yaml` file.
 
 ## Run inference from installed package
 
-Fill out the {missing parameters} below and run: 
+From the package root, run `pip install -e .` to install the package locally and freeze its current version.
+
+Then, fill out the {missing parameters} below and run: 
 
 ```bash
 python -m myria3d.predict \
@@ -43,10 +45,12 @@ Up to date docker images (named `myria3d`) are created via Github integration ac
 
 A docker image encapsulating the virtual environment and application sources can also be built using the provided Dockerfile. At built time, the Dockerfile is not standalone and should be part of the repository - whose content is copied into the image - at the github reference you want to build from.
 
-To run, mount needed volumes and follow this syntax. 
-Always specify option `--ipc=host` to allow multithreading in pytorch dataloader (as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images))
+To run inference: 
+- Mount the needed volumes with the `-v` option.
+- Always set `--ipc=host` to allow multithreading in pytorch dataloader (as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images)). 
+- Increase the shared memory with `--shm-size=2gb` (which should be enough for 1km*1km point French "Lidar HD" clouds).
 
 ```bash
 # specify your paths here as needed
-docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ myria3d {...}
+docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --shm-size=2gb myria3d {...options...}
 ```
