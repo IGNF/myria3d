@@ -55,12 +55,14 @@ jobs:
         hydra.run.dir=/myria3d
 
     # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
+    # run only at merge time because those tests are really long.
     - name: Slow unit tests last, using large files stored in self-hosted action-runner.
+      # if: github.event_name == 'push'
       run: >
         docker run
         -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
         --ipc=host
-        --shm-size=2gb
+        --shm-size=5gb
         myria3d
         python -m
         pytest -rA -v -m "slow" 
