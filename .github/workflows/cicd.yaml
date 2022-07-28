@@ -30,7 +30,7 @@ jobs:
     - name: Fast unit tests first
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/files/large/
+        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
         --ipc=host
         myria3d
         python -m
