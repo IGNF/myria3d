@@ -54,3 +54,10 @@ To run inference:
 # specify your paths here as needed
 docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --shm-size=2gb myria3d {...options...}
 ```
+
+## Specific options
+
+### Receptive field overlap at inference time
+To imrpove spatial regularity of the output predictions, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level. This, however, comes with a large computation price.
+To define an overlap between successive 50m*50m receptive fields, set `predict.subtile_overlap={value}`.
+For instance, `predict.subtile_overlap=25` means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.
