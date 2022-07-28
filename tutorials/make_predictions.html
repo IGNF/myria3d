@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specific-options">Specific options</a></li>
 </ul>
 </li>
 </ul>
@@ -198,6 +199,15 @@ hydra.run.dir<span class="o">={</span>path/for/hydra/logs<span class="o">}</span
 docker run -v <span class="o">{</span>local_inputs<span class="o">}</span>:/inputs/ -v <span class="o">{</span>local_output<span class="o">}</span>:/outputs/ --ipc<span class="o">=</span>host --shm-size<span class="o">=</span>2gb myria3d <span class="o">{</span>...options...<span class="o">}</span>
 </pre></div>
 </div>
+</section>
+<section id="specific-options">
+<h2>Specific options<a class="headerlink" href="#specific-options" title="Permalink to this headline"></a></h2>
+<section id="receptive-field-overlap-at-inference-time">
+<h3>Receptive field overlap at inference time<a class="headerlink" href="#receptive-field-overlap-at-inference-time" title="Permalink to this headline"></a></h3>
+<p>To imrpove spatial regularity of the output predictions, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level. This, however, comes with a large computation price.
+To define an overlap between successive 50m*50m receptive fields, set <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap={value}</span></code>.
+For instance, <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap=25</span></code> means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.</p>
+</section>
 </section>
 </section>
 
