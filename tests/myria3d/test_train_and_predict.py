@@ -206,7 +206,7 @@ def test_RandLaNet_predict_with_invariance_checks(
     check_las_invariance(LAS_SUBSET_FOR_TOY_DATASET, path_to_output_las)
 
 
-def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
+def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
     isolated_toy_dataset_tmpdir, tmpdir
 ):
     _run_test_with_trained_model_on_toy_dataset(
