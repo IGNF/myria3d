@@ -18,7 +18,7 @@ train:
   FixedPoints:
     _target_: torch_geometric.transforms.FixedPoints
     _args_:
-      - 20000
+      - 12500
     replace: False
     allow_duplicates: True
 
@@ -49,7 +49,7 @@ eval:
   FixedPoints:
     _target_: torch_geometric.transforms.FixedPoints
     _args_:
-      - 20000
+      - 12500
     replace: False
     allow_duplicates: True
 
@@ -75,7 +75,7 @@ predict:
   FixedPoints:
     _target_: torch_geometric.transforms.FixedPoints
     _args_:
-      - 20000
+      - 12500
     replace: False
     allow_duplicates: True
 

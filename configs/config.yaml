@@ -33,7 +33,6 @@ defaults:
   - logger: comet # set logger here or use command line (e.g. `python run.py logger=wandb`)
   - task: default.yaml # set logger here or use command line (e.g. `python run.py logger=wandb`)
   - predict: default.yaml
-  
 
   - experiment: RandLaNetDebug.yaml
 

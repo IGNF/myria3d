@@ -37,6 +37,7 @@ jobs:
         pytest -rA -v -m "not slow"
         --ignore=actions-runner
 
+    # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
     - name: Full module run on LAS subset
       run: >
         docker run
@@ -54,20 +55,6 @@ jobs:
         predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         datamodule.batch_size=25
         hydra.run.dir=/myria3d
-
-    # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
-    # Those are too slow to be useful for continuous integration considering the action-runner, and commented for now.
-    # - name: Slow unit tests last, using large files stored in self-hosted action-runner.
-    #   if: github.event_name == 'push'
-    #   run: >
-    #     docker run
-    #     -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
-    #     --ipc=host
-    #     --shm-size=5gb
-    #     myria3d
-    #     python -m
-    #     pytest -rA -v -m "slow" 
-    #     --ignore=actions-runner
 
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 

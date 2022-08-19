@@ -1,6 +1,6 @@
 defaults:
   - preparations: default.yaml
-  - augmentations: heavy.yaml
+  - augmentations: light.yaml
   - normalizations: default.yaml
 
 # turn the config dict into ListConfig that will be fed directly to a Compose object
