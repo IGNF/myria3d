@@ -297,109 +297,6 @@ class FrenchLidarDataSignature(LidarDataSignature):
         return data
 
 
-class SwissTopoLidarDataLogic(LidarDataSignature):
-    x_features_names = [
-        "intensity",
-        "return_number",
-        "number_of_returns",
-        "red",
-        "green",
-        "blue",
-        "rgb_avg",
-    ]
-    colors_normalization_max_value = 256
-
-    @classmethod
-    def load_las(cls, las_filepath: str) -> Data:
-        """Loads a point cloud in LAS format to memory and turns it into torch-geometric Data object.
-
-        Builds a composite (average) color channel on the fly.
-
-        Args:
-            las_filepath (str): path to the LAS file.
-
-        Returns:
-            Data: the point cloud formatted for later deep learning training.
-
-        """
-        las = laspy.read(las_filepath)
-        pos = np.asarray([las.x, las.y, las.z], dtype=np.float32).transpose()
-
-        x = np.asarray(
-            [
-                las[x_name]
-                for x_name in [
-                    "intensity",
-                    "return_number",
-                    "number_of_returns",
-                    "red",
-                    "green",
-                    "blue",
-                ]
-            ],
-            dtype=np.float32,
-        ).transpose()
-
-        return_number_idx = cls.x_features_names.index("return_number")
-        occluded_points = x[:, return_number_idx] > 1
-
-        x[:, return_number_idx] = (x[:, return_number_idx]) / (
-            cls.return_number_normalization_max_value
-        )
-        num_return_idx = cls.x_features_names.index("number_of_returns")
-        x[:, num_return_idx] = (x[:, num_return_idx]) / (
-            cls.return_number_normalization_max_value
-        )
-
-        for idx, c in enumerate(cls.x_features_names):
-            if c in ["red", "green", "blue"]:
-                assert x[:, idx].max() <= cls.colors_normalization_max_value
-                x[:, idx] = x[:, idx] / cls.colors_normalization_max_value
-                x[occluded_points, idx] = 0
-
-        rgb_avg = (
-            np.asarray(
-                [las[x_name] for x_name in ["red", "green", "blue"]], dtype=np.float32
-            )
-            .transpose()
-            .mean(axis=1, keepdims=True)
-        )
-
-        x = np.concatenate([x, rgb_avg], axis=1)
-
-        try:
-            # for LAS format V1.2
-            y = las.classification.array.astype(int)
-        except Exception:
-            # for  LAS format V1.4
-            y = las.classification.astype(int)
-
-        return Data(
-            pos=pos,
-            x=x,
-            y=y,
-            las_filepath=las_filepath,
-            x_features_names=cls.x_features_names,
-            idx_in_original_cloud=np.arange(len(pos)),
-        )
-
-    def per_sample_standardization(self, data: Data):
-        """Scale features in 0-1 range.
-
-        Additionnaly : use reserved -0.75 value for occluded points colors(normal range is -0.5 to 0.5).
-
-        """
-
-        idx = data.x_features_names.index("intensity")
-        # Log transform to be less sensitive to large outliers - info is in lower values
-        data.x[:, idx] = torch.log(data.x[:, idx] + 1)
-        data.x[:, idx] = standardize_channel(data.x[:, idx])
-        idx = data.x_features_names.index("rgb_avg")
-        data.x[:, idx] = standardize_channel(data.x[:, idx])
-
-        return data
-
-
 def standardize_channel(channel_data: torch.Tensor, clamp_sigma: int = 3):
     """Sample-wise standardization y* = (y-y_mean)/y_std"""
     mean = channel_data.mean()
@@ -522,9 +419,6 @@ def main():
         make_toy_dataset_from_test_file(args.prepared_data_dir)
     elif args.origin == "FR":
         data_prepper = FrenchLidarDataSignature(**args.__dict__)
-        data_prepper.prepare_full_dataset()
-    elif args.origin == "CH":
-        data_prepper = SwissTopoLidarDataLogic(**args.__dict__)
         data_prepper.prepare_full_dataset()
     else:
         raise KeyError(f"Data origin is invalid (currently: {args.origin})")

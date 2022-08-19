@@ -6,9 +6,9 @@
 
 In `myria3d/data/loading.py` is the logic for data preprocessing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time.
 
-The loading function is dataset dependant, and there are currently a logic for both SwissTopo data and French Lidar HD IGN data. Variations in logics may be due to the availability of specific dimensions (e.g. Infrared information) or encodings. The function returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a description of features names and the path to the input file.
+The loading function is dataset dependant, and current one supports French Lidar HD IGN data. Variations in logics may be due to the availability of specific dimensions (e.g. Infrared information) or encodings. The function returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a description of features names and the path to the input file.
 
-> Detailed instruction to create a compatible dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
+> Legacy: Detailed instruction to create a compatible dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
 
 You may want to implement your own logic, which then needs to be specified in `_get_data_preparation_parser` and `main` so that it can be used via the CLI to prepare a new dataset (see section below). The loading logic must additionnaly be referenced by the hydra config parameter `datamodule.dataset_description.load_las_func`. 
 
