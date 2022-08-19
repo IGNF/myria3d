@@ -60,7 +60,7 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = batch.y
+        targets = outputs["targets"]
         self.log_iou(logits, targets, "train", self.train_iou_by_class_dict)
 
     def on_validation_batch_end(
@@ -74,7 +74,7 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = batch.y
+        targets = outputs["targets"]
         self.log_iou(logits, targets, "val", self.val_iou_by_class_dict)
 
     def on_test_batch_end(

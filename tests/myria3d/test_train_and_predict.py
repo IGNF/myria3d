@@ -37,13 +37,7 @@ def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_f
         isolated_toy_dataset_tmpdir, tmpdir
     )
     cfg_one_epoch = make_default_hydra_cfg(
-        overrides=[
-            "experiment=RandLaNetDebug",
-            "datamodule.batch_size=2",
-            "trainer.min_epochs=1",
-            "trainer.max_epochs=1",
-        ]
-        + tmp_paths_overrides
+        overrides=["experiment=RandLaNetDebug"] + tmp_paths_overrides
     )
     trainer = train(cfg_one_epoch)
     return trainer.checkpoint_callback.best_model_path
@@ -87,13 +81,7 @@ def test_FrenchLidar_RandLaNetDebug_with_gpu(
     # Attention to concurrency with other processes using the GPU when running tests.
     gpu_id = 0
     cfg_one_epoch = make_default_hydra_cfg(
-        overrides=[
-            "experiment=RandLaNetDebug",
-            "datamodule.batch_size=2",
-            "trainer.min_epochs=1",
-            "trainer.max_epochs=1",
-            f"trainer.gpus=[{gpu_id}]",
-        ]
+        overrides=["experiment=RandLaNetDebug", f"trainer.gpus=[{gpu_id}]"]
         + tmp_paths_overrides
     )
     train(cfg_one_epoch)
@@ -304,12 +292,3 @@ def _make_list_of_necesary_hydra_overrides_with_tmp_paths(
         f"logger.csv.save_dir={tmpdir}",
         f"callbacks.model_checkpoint.dirpath={tmpdir}",
     ]
-
-
-def _get_metrics_df_from_tmpdir(tmpdir: str) -> pd.DataFrame:
-    """Get dataframe of metrics logged by csv logger.
-
-    Not sure if version_0 is added by pytest or by lightning.
-
-    """
-    return pd.read_csv(osp.join(tmpdir, "csv", "version_0", "metrics.csv"))

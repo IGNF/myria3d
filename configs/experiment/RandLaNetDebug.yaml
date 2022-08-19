@@ -1,9 +1,5 @@
 # @package _global_
 
-defaults:
-  - override /trainer: default.yaml
-  - override /model: randla_net_model.yaml
-
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
@@ -13,14 +9,13 @@ logger:
 
 trainer:
   log_every_n_steps: 1
-  overfit_batches: 1
+  limit_train_batches: 1
+  limit_val_batches: 1
+  limit_test_batches: 1
+  max_epochs: 1
   num_sanity_val_steps: 0
-  min_epochs: 40
-  max_epochs: 40
-  check_val_every_n_epoch: 1
-  # gpus: "1"
 
 datamodule:
-  batch_size: 16 # Large possible for faster training.
+  batch_size: 2
   num_workers: 1
 
