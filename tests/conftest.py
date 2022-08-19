@@ -1,6 +1,3 @@
-import os
-import os.path as osp
-import shutil
 import pytest
 from pytorch_lightning import seed_everything
 import sh

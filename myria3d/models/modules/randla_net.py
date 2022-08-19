@@ -1,7 +1,4 @@
 # Adapted from https://github.com/aRI0U/RandLA-Net-pytorch/blob/master/model.py
-
-import math
-from numbers import Number
 from typing import Tuple
 import torch
 import torch.nn as nn
