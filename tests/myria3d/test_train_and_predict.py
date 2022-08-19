@@ -1,6 +1,5 @@
 import os.path as osp
 import numpy as np
-import pandas as pd
 import pdal
 import pytest
 from typing import List

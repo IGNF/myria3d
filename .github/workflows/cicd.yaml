@@ -24,9 +24,6 @@ jobs:
     - name: Build docker image
       run: docker build -t myria3d .
 
-    - name: Check code neatness (linter)
-      run: docker run myria3d flake8
-
     - name: Fast unit tests first
       run: >
         docker run
@@ -36,6 +33,7 @@ jobs:
         python -m
         pytest -rA -v -m "not slow"
         --ignore=actions-runner
+
 
     # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
     - name: Full module run on LAS subset
@@ -55,6 +53,9 @@ jobs:
         predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         datamodule.batch_size=25
         hydra.run.dir=/myria3d
+
+    - name: Check code neatness (linter)
+      run: docker run myria3d flake8
 
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 

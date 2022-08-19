@@ -3,7 +3,6 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
-from torchmetrics import MaxMetric
 from myria3d.models.modules.randla_net import RandLANet
 from myria3d.utils import utils
 
