@@ -43,25 +43,6 @@ def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_f
     return trainer.checkpoint_callback.best_model_path
 
 
-def test_FrenchLidar_default_training_on_one_batch_as_command(
-    isolated_toy_dataset_tmpdir,
-):
-    """Test running by CLI for 1 train, val and test batch of a toy dataset.
-
-    Args:
-        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
-
-    """
-    command = [
-        "run.py",
-        "experiment=RandLaNet_base_run_FR",  # Use the defaults for French Lidar HD
-        "logger=csv",  # disables comet logging
-        f"datamodule.prepared_data_dir={isolated_toy_dataset_tmpdir}",
-        "++trainer.fast_dev_run=1",  # Only one batch for train, val, test, predict
-    ]
-    run_hydra_decorated_command(command)
-
-
 @RunIf(min_gpus=1)
 def test_FrenchLidar_RandLaNetDebug_with_gpu(
     isolated_toy_dataset_tmpdir, tmpdir_factory
