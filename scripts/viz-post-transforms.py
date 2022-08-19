@@ -23,14 +23,14 @@ import myria3d  # noqa
 voxel_size = 0.5
 NUM_NODES_SAMPLING = 20000  # grid_sampler = GridSampling(voxel_size)
 # random_sampler = FixedPoints(NUM_NODES_SAMPLING, replace=False, allow_duplicates=True)
-# SRC_LAS = "/home/cgaydon/repositories/lidar-deep-segmentation/tests/data/toy_dataset_src/870000_6618000.subset.50mx100m.las"
+# SRC_LAS = "/home/cgaydon/repositories/myria3d/tests/data/toy_dataset_src/870000_6618000.subset.50mx100m.las"
 SRC_LAS = "/var/data/cgaydon/data/20220607_151_dalles_proto-prepared-V2.2.0/test/730000_6361000.las"
-IMG_SAVE_PATH = f"/home/cgaydon/repositories/lidar-deep-segmentation/outputs/viz/post_transform_{voxel_size}_{NUM_NODES_SAMPLING}/"
+IMG_SAVE_PATH = f"/home/cgaydon/repositories/myria3d/outputs/viz/post_transform_{voxel_size}_{NUM_NODES_SAMPLING}/"
 os.makedirs(IMG_SAVE_PATH, exist_ok=True)
 
 
 @hydra.main(
-    config_path="/home/cgaydon/repositories/lidar-deep-segmentation/configs",
+    config_path="/home/cgaydon/repositories/myria3d/configs",
     config_name="config.yaml",
 )
 def visualize_dataset(cfg: DictConfig) -> None:
