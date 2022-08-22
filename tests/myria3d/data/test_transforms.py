@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import torch_geometric
-from myria3d.data.transforms import TargetTransform
+from myria3d.pctl.transforms.transforms import TargetTransform
 
 
 def test_TargetTransform_with_valid_config():

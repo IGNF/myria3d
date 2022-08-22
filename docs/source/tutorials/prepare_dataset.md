@@ -10,7 +10,7 @@ The loading function is dataset dependant, and current one supports French Lidar
 
 > Legacy: Detailed instruction to create a compatible dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
 
-You may want to implement your own logic, which then needs to be specified in `_get_data_preparation_parser` and `main` so that it can be used via the CLI to prepare a new dataset (see section below). The loading logic must additionnaly be referenced by the hydra config parameter `datamodule.dataset_description.load_las_func`. 
+You may want to implement your own logic, which then needs to be specified in `_get_data_preparation_parser` and `main` so that it can be used via the CLI to prepare a new dataset (see section below). The loading logic must additionnaly be referenced by the hydra config parameter `dataset_description.load_las_func`. 
 
 ## Data preparation
 

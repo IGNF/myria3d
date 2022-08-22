@@ -15,8 +15,8 @@ myria3d.data.loading
 .. automodule:: myria3d.data.loading
    :members:
 
-myria3d.data.transforms
+myria3d.pctl.transforms.transforms
 -----------------------------------------------
 
-.. automodule:: myria3d.data.transforms
+.. automodule:: myria3d.pctl.transforms.transforms
    :members:

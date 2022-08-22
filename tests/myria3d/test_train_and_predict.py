@@ -1,10 +1,11 @@
 import os.path as osp
+from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 import numpy as np
 import pdal
 import pytest
 from typing import List
 
-from myria3d.data.loading import LAS_SUBSET_FOR_TOY_DATASET
+from myria3d.pctl.dataset.utils import pdal_read_las_array
 from myria3d.predict import predict
 from myria3d.train import train
 from tests.conftest import (
@@ -20,11 +21,11 @@ Sanity checks to make sure the model train/val/predict/test logics do not crash.
 
 
 @pytest.fixture(scope="session")
-def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_factory):
+def one_epoch_trained_RandLaNet_checkpoint(toy_dataset_hdf5_path, tmpdir_factory):
     """Train a RandLaNet model for one epoch, in order to run it in different other tests.
 
     Args:
-        isolated_toy_dataset_tmpdir (str): path to isolated toy dataset as created by fixture.
+        toy_dataset_hdf5_path (str): path to toy dataset as created by fixture.
         tmpdir_factory (fixture): factory to create a session level tempdir.
 
     Returns:
@@ -33,7 +34,7 @@ def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_f
     """
     tmpdir = tmpdir_factory.mktemp("training_logs_dir")
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-        isolated_toy_dataset_tmpdir, tmpdir
+        toy_dataset_hdf5_path, tmpdir
     )
     cfg_one_epoch = make_default_hydra_cfg(
         overrides=["experiment=RandLaNetDebug"] + tmp_paths_overrides
@@ -43,19 +44,17 @@ def one_epoch_trained_RandLaNet_checkpoint(isolated_toy_dataset_tmpdir, tmpdir_f
 
 
 @RunIf(min_gpus=1)
-def test_FrenchLidar_RandLaNetDebug_with_gpu(
-    isolated_toy_dataset_tmpdir, tmpdir_factory
-):
+def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_factory):
     """Train a RandLaNet model for one epoch using GPU. XFail is no GPU available.
 
     Args:
-        isolated_toy_dataset_tmpdir (str): path to isolated toy dataset as created by fixture.
+        toy_dataset_hdf5_path (str): path to isolated toy dataset as created by fixture.
         tmpdir_factory (fixture): factory to create a session-level tempdir.
 
     """
     tmpdir = tmpdir_factory.mktemp("training_logs_dir")
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-        isolated_toy_dataset_tmpdir, tmpdir
+        toy_dataset_hdf5_path, tmpdir
     )
     # We will always use the first GPU id for tests, because it always exists if there are some GPUs.
     # Attention to concurrency with other processes using the GPU when running tests.
@@ -77,7 +76,7 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
 
     """
     # Hydra changes CWD, and therefore absolute paths are preferred
-    abs_path_to_toy_LAS = osp.abspath(LAS_SUBSET_FOR_TOY_DATASET)
+    abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
     command = [
         "run.py",
         "experiment=predict",
@@ -85,7 +84,6 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "predict.probas_to_save=[building,unclassified]",
-        "datamodule.prepared_data_dir=placeholder",
     ]
     run_hydra_decorated_command(command)
 
@@ -109,7 +107,7 @@ def test_RandLaNet_predict_with_invariance_checks(
         overrides=[
             "experiment=predict",
             f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
-            f"predict.src_las={LAS_SUBSET_FOR_TOY_DATASET}",
+            f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
             "predict.probas_to_save=[building,unclassified]",
         ]
@@ -124,49 +122,39 @@ def test_RandLaNet_predict_with_invariance_checks(
     DIMS_ALWAYS_THERE = ["PredictedClassification", "entropy"]
     DIMS_CHOSEN_IN_CONFIG = ["building", "unclassified"]
     check_las_contains_dims(
-        path_to_output_las,
-        dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
+        path_to_output_las, dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
     )
     DIMS_NOT_THERE = ["ground"]
     check_las_does_not_contains_dims(path_to_output_las, dims_to_check=DIMS_NOT_THERE)
 
     # check that predict does not change other dimensions
-    check_las_invariance(LAS_SUBSET_FOR_TOY_DATASET, path_to_output_las)
+    check_las_invariance(TOY_LAS_DATA, path_to_output_las)
 
 
 def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
-    one_epoch_trained_RandLaNet_checkpoint, isolated_toy_dataset_tmpdir, tmpdir
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint,
-        isolated_toy_dataset_tmpdir,
-        tmpdir,
-        "null",
+        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "null",
     )
 
 
 @RunIf(min_gpus=1)
 def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
-    one_epoch_trained_RandLaNet_checkpoint, isolated_toy_dataset_tmpdir, tmpdir
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint,
-        isolated_toy_dataset_tmpdir,
-        tmpdir,
-        "[0]",
+        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "[0]",
     )
 
 
 def _run_test_right_after_training(
-    one_epoch_trained_RandLaNet_checkpoint,
-    isolated_toy_dataset_tmpdir,
-    tmpdir,
-    trainer_gpus,
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, trainer_gpus,
 ):
     """Run test using the model that was just trained for one epoch.
 
     Args:
-        isolated_toy_dataset_tmpdir (fixture -> str): directory to toy dataset
+        toy_dataset_hdf5_path (fixture -> str): path to toy dataset
         one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
         a RandLa-Net model that was trained for once epoch at start of test session.
         tmpdir (fixture -> str): temporary directory.
@@ -176,7 +164,7 @@ def _run_test_right_after_training(
     # function's name is train, but under the hood and thanks to configuration,
     # trainer.test(...) is called.
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-        isolated_toy_dataset_tmpdir, tmpdir
+        toy_dataset_hdf5_path, tmpdir
     )
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
@@ -217,21 +205,6 @@ def check_las_does_not_contains_dims(las_path, dims_to_check=[]):
         assert dim not in a1.dtype.fields.keys()
 
 
-def pdal_read_las_array(las_path: str):
-    """Read LAS as a named array.
-
-    Args:
-        las_path (str): input LAS path
-
-    Returns:
-        np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.
-
-    """
-    p1 = pdal.Pipeline() | pdal.Reader.las(filename=las_path)
-    p1.execute()
-    return p1.arrays[0]
-
-
 def check_las_invariance(las_path_1: str, las_path_2: str):
     """Check that key dimensions are equal between two LAS files
 
@@ -256,18 +229,18 @@ def check_las_invariance(las_path_1: str, las_path_2: str):
 
 
 def _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-    isolated_toy_dataset_tmpdir: str, tmpdir: str
+    toy_dataset_hdf5_path: str, tmpdir: str
 ):
     """Get list of overrides for hydra, the ones that are always needed when calling train/test.
 
     Args:
-        isolated_toy_dataset_tmpdir (str): path to directory to dataset derived from large las
+        toy_dataset_hdf5_path (str): path to directory to dataset derived from large las
         tmpdir (str): path to temporary directory.
 
     """
 
     return [
-        f"datamodule.prepared_data_dir={isolated_toy_dataset_tmpdir}",
+        f"datamodule.hdf5_file_path={toy_dataset_hdf5_path}",
         "logger=csv",  # disables comet logging
         f"logger.csv.save_dir={tmpdir}",
         f"callbacks.model_checkpoint.dirpath={tmpdir}",

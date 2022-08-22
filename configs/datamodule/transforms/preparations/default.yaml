@@ -1,14 +1,14 @@
 # default preparations with grid sampling and random sampling.
 
 train:
-  ToTensor:
-    _target_: myria3d.data.transforms.ToTensor
+  # ToTensor:
+  #   _target_: myria3d.pctl.transforms.transforms.ToTensor
 
   TargetTransform:
-    _target_: myria3d.data.transforms.TargetTransform
+    _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
-      - ${datamodule.dataset_description.classification_preprocessing_dict}
-      - ${datamodule.dataset_description.classification_dict}
+      - ${dataset_description.classification_preprocessing_dict}
+      - ${dataset_description.classification_dict}
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -26,20 +26,20 @@ train:
     _target_: torch_geometric.transforms.Center
 
 eval:
-  ToTensor:
-    _target_: myria3d.data.transforms.ToTensor
+  # ToTensor:
+  #   _target_: myria3d.pctl.transforms.transforms.ToTensor
 
   TargetTransform:
-    _target_: myria3d.data.transforms.TargetTransform
+    _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
-      - ${datamodule.dataset_description.classification_preprocessing_dict}
-      - ${datamodule.dataset_description.classification_dict}
+      - ${dataset_description.classification_preprocessing_dict}
+      - ${dataset_description.classification_dict}
 
   CopyFullPreparedTargets:
-    _target_: myria3d.data.transforms.CopyFullPreparedTargets
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
 
   CopyFullPos:
-    _target_: myria3d.data.transforms.CopyFullPos
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -55,17 +55,17 @@ eval:
 
   # For interpolation
   CopySampledPos:
-    _target_: myria3d.data.transforms.CopySampledPos
+    _target_: myria3d.pctl.transforms.transforms.CopySampledPos
 
   Center:
     _target_: torch_geometric.transforms.Center
   
 predict:
-  ToTensor:
-    _target_: myria3d.data.transforms.ToTensor
+  # ToTensor:
+  #   _target_: myria3d.pctl.transforms.transforms.ToTensor
 
   CopyFullPos:
-    _target_: myria3d.data.transforms.CopyFullPos
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -80,7 +80,7 @@ predict:
     allow_duplicates: True
 
   CopySampledPos:
-    _target_: myria3d.data.transforms.CopySampledPos
+    _target_: myria3d.pctl.transforms.transforms.CopySampledPos
 
   Center:
     _target_: torch_geometric.transforms.Center

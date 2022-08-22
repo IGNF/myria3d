@@ -4,15 +4,13 @@ import sh
 from typing import List
 from hydra import compose, initialize
 
-from myria3d.data.loading import make_toy_dataset_from_test_file
+from myria3d.pctl.dataset.toy_dataset import make_toy_dataset_from_test_file
 
 
 @pytest.fixture(scope="session")
-def isolated_toy_dataset_tmpdir(tmpdir_factory):
+def toy_dataset_hdf5_path(tmpdir_factory):
     """Creates a toy dataset accessible from within the pytest session."""
-    tmpdir = tmpdir_factory.mktemp("toy_dataset_tmpdir")
-    tmpdir_prepared = make_toy_dataset_from_test_file(tmpdir)
-    return tmpdir_prepared
+    return make_toy_dataset_from_test_file()
 
 
 def make_default_hydra_cfg(overrides=[]):

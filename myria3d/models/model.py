@@ -70,7 +70,7 @@ class Model(LightningModule):
             self.train_iou = self.hparams.iou()
             self.val_iou = self.hparams.iou()
         if stage == "test":
-            self.test_iou = self.hparams.iou().cpu()
+            self.test_iou = self.hparams.iou()
         if stage != "predict":
             self.criterion = self.hparams.criterion
 
@@ -149,14 +149,14 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"]  # .cpu()
-
+        targets = batch.copies["transformed_y_copy"].to(logits.device)
+        self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
 
-        with torch.no_grad():
-            preds = torch.argmax(logits.detach(), dim=1)
-            self.val_iou(preds, targets)
+        preds = torch.argmax(logits.detach(), dim=1)
+        self.val_iou = self.val_iou.to(preds.device)
+        self.val_iou(preds, targets)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": targets}
 
@@ -181,14 +181,17 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"]
+        targets = batch.copies["transformed_y_copy"].to(logits.device)
+        self.criterion = self.criterion.to(logits.device)
+        loss = self.criterion(logits, targets)
+        self.log("test/loss", loss, on_step=True, on_epoch=True)
 
         preds = torch.argmax(logits, dim=1)
-        self.test_iou = self.test_iou
+        self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
         self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
-        return {"logits": logits, "targets": targets}
+        return {"loss": loss, "logits": logits, "targets": targets}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.

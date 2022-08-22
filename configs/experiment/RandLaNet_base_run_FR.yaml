@@ -1,7 +1,6 @@
 # @package _global_
 defaults:
-  - override /datamodule/dataset_description: 20220607_151_dalles_proto
-  - override /datamodule/transforms/augmentations: heavy.yaml
+  - override /datamodule/transforms/augmentations: light.yaml
 
 
 logger:

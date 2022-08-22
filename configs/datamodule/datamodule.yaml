@@ -1,16 +1,25 @@
-_target_: myria3d.data.datamodule.DataModule
+_target_: myria3d.pctl.datamodule.hdf5.LidarDataModule
 
-# Directory with test, train, val prepared subdirs
-prepared_data_dir: ${oc.env:PREPARED_DATA_DIR}
-# Possibility to override test annotated LAS data directly with any folder
-test_data_dir: ${datamodule.prepared_data_dir}/test/
+# A standalone precomputed HDF5 dataset can be used without source files by setting data_dir and split_csv_path to null.
+data_dir: null  # data directory containing LAS files
+split_csv_path: null  # csv specifying split, with schema basename, split (where split is one out of train/val/test)
+hdf5_file_path: "path/to/dataset_file.hdf5"  # where to create a HDF5 dataset file from LAS and CSV sources.
 
-batch_size: 32
+# functions used to load and preprocess LAS data points into a pytorch geometric Data object.
+points_pre_transform:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}"
+
+pre_filter: null  # todo
+tile_width: 1000
+subtile_width: 50
+subtile_overlap_train: 0
+subtile_shape: "square"  # "square" or "disk"
+
+batch_size: 12
+num_workers: 2
 prefetch_factor: 2
-num_workers: 2  # for data loaders
-subtile_width_meters: 50  # size of receptive fields : 50mx50m
-subtile_overlap: ${predict.subtile_overlap}  # Used for test and predict phases only
 
 defaults:
-  - dataset_description: 20220204_BuildingValidation_and_Ground.yaml
   - transforms: default.yaml

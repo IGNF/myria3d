@@ -1,9 +1,7 @@
 # Do not scale positions to keep meter-space for neural network parameters
 
 NullifyLowestZ:
-  _target_: myria3d.data.transforms.NullifyLowestZ
+  _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
 
-NormalizeFolowingDataLogic:
-  _target_: myria3d.data.transforms.NormalizeFolowingDataLogic
-  _args_:
-    - ${datamodule.dataset_description.data_signature}
+StandardizeRGBAndIntensity:
+  _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity
