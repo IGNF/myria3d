@@ -5,7 +5,6 @@ import pandas as pd
 from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
 from myria3d.utils import utils
 from pytorch_lightning import LightningDataModule
-from torch_geometric.loader import DataLoader
 from torch_geometric.transforms import Compose
 
 from myria3d.pctl.dataset.iterable import InferenceDataset

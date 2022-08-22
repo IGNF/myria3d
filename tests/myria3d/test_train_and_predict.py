@@ -1,7 +1,6 @@
 import os.path as osp
 from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 import numpy as np
-import pdal
 import pytest
 from typing import List
 
@@ -122,7 +121,8 @@ def test_RandLaNet_predict_with_invariance_checks(
     DIMS_ALWAYS_THERE = ["PredictedClassification", "entropy"]
     DIMS_CHOSEN_IN_CONFIG = ["building", "unclassified"]
     check_las_contains_dims(
-        path_to_output_las, dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
+        path_to_output_las,
+        dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
     )
     DIMS_NOT_THERE = ["ground"]
     check_las_does_not_contains_dims(path_to_output_las, dims_to_check=DIMS_NOT_THERE)
@@ -135,7 +135,10 @@ def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "null",
+        one_epoch_trained_RandLaNet_checkpoint,
+        toy_dataset_hdf5_path,
+        tmpdir,
+        "null",
     )
 
 
@@ -144,12 +147,18 @@ def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "[0]",
+        one_epoch_trained_RandLaNet_checkpoint,
+        toy_dataset_hdf5_path,
+        tmpdir,
+        "[0]",
     )
 
 
 def _run_test_right_after_training(
-    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, trainer_gpus,
+    one_epoch_trained_RandLaNet_checkpoint,
+    toy_dataset_hdf5_path,
+    tmpdir,
+    trainer_gpus,
 ):
     """Run test using the model that was just trained for one epoch.
 

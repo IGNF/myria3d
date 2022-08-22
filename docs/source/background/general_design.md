@@ -18,7 +18,7 @@ Here are a few challenges relative to training 3D segmentation models for Aerial
 - Short training time allow for faster iterations, more frequent feedback on architecture design, less time spent on doomed solutions. As a result, we want to be parcimonious in terms of the operation performed during a train forward pass of a model.
 
 **Strategy**:
-- During training and validation phases, we perform supervision and back-propagation on the subsampled point cloud directly. Our hypothesis is that the gain we may expect from interpolating predicted logits to the full point cloud (usually from N'=~12500 to N~30000 on a average for a 50mx50m sample) is tiny compared to the computational cost of such operation (time of a forward pass multiplied from x5 to x10 with a batch size of 32 on CPU).
+- During training we perform supervision and back-propagation on the subsampled point cloud directly. Our hypothesis is that the gain we may expect from interpolating predicted logits to the full point cloud (usually from N'=~12500 to N~30000 on a average for a 50mx50m sample) is tiny compared to the computational cost of such operation (time of a forward pass multiplied from x5 to x10 with a batch size of 32 on CPU).
 
 
 ## Evaluation is key to select the right approach
@@ -28,5 +28,4 @@ Here are a few challenges relative to training 3D segmentation models for Aerial
 - Evaluation of models must be reliable in order to compare solutions. For semantic segmentation models on point cloud, this means that performance metrics (i.e. mean and by-class Intersection-over-Union) should be computed based on a confusion matrix that is computed from all points in all point clouds in the test dataset.
 
 **Strategy**:
-- During test phase, we **do** interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in `eval` mode only, and is also leveraged during inference.
-- This differentiated approach between `train` and `eval` modes has the drawback of requiring full (non-subsampled) positions and targets as well as subsampled, non-normalized positions to be copied and saved at data preparation time to allow for the interpolation. 
+- During test and validation phases, we **do** interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in `eval` mode only, and is also leveraged during inference.

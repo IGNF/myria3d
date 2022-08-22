@@ -48,10 +48,10 @@ class HDF5Dataset(Dataset):
             tile_width (Number, optional): width of a LAS tile. Defaults to 1000.
             subtile_width (Number, optional): effective width of a subtile (i.e. receptive field). Defaults to 50.
             subtile_shape (SHAPE_TYPE, optional): Shape of subtile could be either "square" or "disk". Defaults to "square".
-            subtile_overlap_train (Number, optional): Overlap to use at dataset preparation, for data augmentation of train set. Defaults to 0.
-            pre_filter (_type_, optional): Function to filter out specific subtiles, like those with small num of points. Defaults to None.
-            train_transform (List[Callable], optional): List of transforms to apply to a sample for training. Defaults to None.
-            eval_transform (List[Callable], optional): List of transforms to apply to a sample for evaluation (test/val sets). Defaults to None.
+            subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. Defaults to 0.
+            pre_filter (_type_, optional): Function to filter out specific subtiles. Defaults to None.
+            train_transform (List[Callable], optional): Transforms to apply to a sample for training. Defaults to None.
+            eval_transform (List[Callable], optional): Transforms to apply to a sample for evaluation (test/val sets). Defaults to None.
 
         """
 

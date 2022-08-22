@@ -8,8 +8,7 @@ Refer to [this other tutorial](../tutorials/prepare_dataset.md) for how to prepa
 Once your python environment is set up and your dataset ready for training, proceed to the next section.
 
 Some environment variable need to be injected at runtime can be specified in a `.env` file. Rename `.env_example` to `.env` and fill out: 
-- `LOG PATH`, where hydra logs and config are saved.
-- `PREPARED_DATA_DIR`, which specifies where to look for your prepared dataset. Alternatively, you can override the parameter  `prepared_data_dir` to the same effect via the CLI.
+- `LOGS_DIR`, where hydra logs and config will be saved.
 - `LOGGER` section, which specifies credentials needed for logging to [comet.ml](https://www.comet.ml/). You will need to create an account first if you choose to use Comet. Alternatively, setting `logger=csv` at runtime will save results in a single, local csv file, and disable comet logging.
 
 ## Quick run

@@ -1,7 +1,12 @@
 """Generation of a toy dataset for testing purposes."""
 
 import os
-from myria3d.pctl.dataset.hdf5 import HDF5Dataset
+import os.path as osp
+import sys
+
+# to use from CLI.
+sys.path.append(osp.dirname(osp.dirname(osp.dirname(osp.dirname(__file__)))))
+from myria3d.pctl.dataset.hdf5 import HDF5Dataset  # noqa
 
 
 TOY_LAS_DATA = "tests/data/toy_dataset_src/870000_6618000.subset.50mx100m.las"
@@ -45,3 +50,7 @@ def make_toy_dataset_from_test_file():
         pre_filter=None,
     )
     return TOY_DATASET_HDF5_PATH
+
+
+if __name__ == "__main__":
+    make_toy_dataset_from_test_file()
