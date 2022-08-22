@@ -1,11 +1,11 @@
 # @package _global_
 
-# all parameters below will be merged with parameters from default configurations set above
-# this allows you to overwrite only specified parameters
+# Nota : call "python myria3d/pctl/dataset/toy_dataset.py" to create a toy dataset before running this.
 
 logger:
   comet:
     experiment_name: "RandLaNetDebug"
+    disabled: true
 
 trainer:
   log_every_n_steps: 1
@@ -18,4 +18,6 @@ trainer:
 datamodule:
   batch_size: 2
   num_workers: 1
+  # runtime.cwd is where application is run from e.g. where run.py is.
+  hdf5_file_path: "${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5"
 
