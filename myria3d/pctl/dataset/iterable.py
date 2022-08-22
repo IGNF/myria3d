@@ -1,4 +1,6 @@
 from numbers import Number
+from typing import Callable
+from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
 import torch
 from torch.utils.data.dataset import IterableDataset
 from myria3d.pctl.dataset.utils import SHAPE_TYPE, split_cloud_into_samples
@@ -10,7 +12,7 @@ class InferenceDataset(IterableDataset):
     def __init__(
         self,
         las_file: str,
-        points_pre_transform=None,
+        points_pre_transform: Callable = lidar_hd_pre_transform,
         pre_filter=None,
         transform=None,
         tile_width: Number = 1000,
@@ -43,12 +45,10 @@ class InferenceDataset(IterableDataset):
         ):
             sample_data = self.points_pre_transform(sample_points)
             sample_data["x"] = torch.from_numpy(sample_data["x"])
-            sample_data["y"] = torch.from_numpy(sample_data["y"])
+            # sample_data["y"] = torch.from_numpy(sample_data["y"])  # No need in inference.
             sample_data["pos"] = torch.from_numpy(sample_data["pos"])
-            # for final interpolation
-            sample_data["idx_in_original_cloud"] = torch.from_numpy(
-                idx_in_original_cloud
-            )
+            # for final interpolation - should be kept as a np.ndarray to be batched as a list later.
+            sample_data["idx_in_original_cloud"] = idx_in_original_cloud
 
             if self.pre_filter is not None and self.pre_filter(sample_data):
                 # e.g. not enough points in this receptive field.

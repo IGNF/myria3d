@@ -29,8 +29,9 @@ class LidarDataModule(LightningDataModule):
         pre_filter=None,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
-        subtile_overlap_train: Number = 0,
         subtile_shape: SHAPE_TYPE = "square",
+        subtile_overlap_train: Number = 0,
+        subtile_overlap_predict: Number = 0,
         batch_size: int = 12,
         num_workers: int = 1,
         prefetch_factor: int = 2,
@@ -45,8 +46,9 @@ class LidarDataModule(LightningDataModule):
 
         self.tile_width = tile_width
         self.subtile_width = subtile_width
-        self.subtile_overlap_train = subtile_overlap_train
         self.subtile_shape = subtile_shape
+        self.subtile_overlap_train = subtile_overlap_train
+        self.subtile_overlap_predict = subtile_overlap_predict
 
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -113,8 +115,8 @@ class LidarDataModule(LightningDataModule):
                     points_pre_transform=self.points_pre_transform,
                     tile_width=self.tile_width,
                     subtile_width=self.subtile_width,
-                    subtile_shape=self.subtile_shape,
                     subtile_overlap_train=self.subtile_overlap_train,
+                    subtile_shape=self.subtile_shape,
                     pre_filter=self.pre_filter,
                     train_transform=self.train_transform,
                     eval_transform=self.eval_transform,
@@ -149,8 +151,12 @@ class LidarDataModule(LightningDataModule):
         self.predict_dataset = InferenceDataset(
             las_file_to_predict,
             points_pre_transform=self.points_pre_transform,
-            transform=self.predict_transform,
             pre_filter=self.pre_filter,
+            transform=self.predict_transform,
+            tile_width=self.tile_width,
+            subtile_width=self.subtile_width,
+            subtile_shape=self.subtile_shape,
+            subtile_overlap=self.subtile_overlap_predict,
         )
 
     def predict_dataloader(self):

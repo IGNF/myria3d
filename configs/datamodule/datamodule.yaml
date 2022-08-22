@@ -14,8 +14,9 @@ points_pre_transform:
 pre_filter: null  # todo
 tile_width: 1000
 subtile_width: 50
-subtile_overlap_train: 0
 subtile_shape: "square"  # "square" or "disk"
+subtile_overlap_train: 0
+subtile_overlap_predict: "${predict.subtile_overlap}"
 
 batch_size: 12
 num_workers: 2

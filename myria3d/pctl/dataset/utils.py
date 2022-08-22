@@ -60,11 +60,11 @@ def pdal_read_las_array(las_path: str):
     return p1.arrays[0]
 
 
-def pdal_read_las_array_as_floats(las_path: str):
+def pdal_read_las_array_as_float32(las_path: str):
     """Read LAS as a a named array, casted to floats."""
     arr = pdal_read_las_array(las_path)
     all_floats = np.dtype(
-        {"names": arr.dtype.names, "formats": ["f8"] * len(arr.dtype.names)}
+        {"names": arr.dtype.names, "formats": ["f4"] * len(arr.dtype.names)}
     )
     return arr.astype(all_floats)
 
@@ -107,7 +107,7 @@ def split_cloud_into_samples(
         _type_: idx_in_original_cloud, and points of sample in pdal input format casted as floats.
 
     """
-    points = pdal_read_las_array_as_floats(las_path)
+    points = pdal_read_las_array_as_float32(las_path)
     pos = np.asarray(
         [points["X"], points["Y"], points["Z"]], dtype=np.float32
     ).transpose()
