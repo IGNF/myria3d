@@ -114,18 +114,18 @@ class HDF5LidarDataModule(LightningDataModule):
                 log.warning(
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
-                self.dataset = HDF5Dataset(
-                    self.hdf5_file_path,
-                    las_files_by_split=las_files_by_split,
-                    points_pre_transform=self.points_pre_transform,
-                    tile_width=self.tile_width,
-                    subtile_width=self.subtile_width,
-                    subtile_overlap_train=self.subtile_overlap_train,
-                    subtile_shape=self.subtile_shape,
-                    pre_filter=self.pre_filter,
-                    train_transform=self.train_transform,
-                    eval_transform=self.eval_transform,
-                )
+            self.dataset = HDF5Dataset(
+                self.hdf5_file_path,
+                las_files_by_split=las_files_by_split,
+                points_pre_transform=self.points_pre_transform,
+                tile_width=self.tile_width,
+                subtile_width=self.subtile_width,
+                subtile_overlap_train=self.subtile_overlap_train,
+                subtile_shape=self.subtile_shape,
+                pre_filter=self.pre_filter,
+                train_transform=self.train_transform,
+                eval_transform=self.eval_transform,
+            )
 
     def train_dataloader(self):
         return GeometricNoneProofDataloader(
