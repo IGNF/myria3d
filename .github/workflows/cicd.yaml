@@ -36,7 +36,8 @@ jobs:
 
 
     # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
-    - name: Full module run on LAS subset
+    # predict.subtile_overlap specifies overlap between adjacent samples (in meters).
+    - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
       run: >
         docker run
         -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/inputs/
@@ -49,7 +50,8 @@ jobs:
         predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
-        datamodule.batch_size=25
+        predict.subtile_overlap=25
+        datamodule.batch_size=20
         hydra.run.dir=/myria3d
 
     - name: Check code neatness (linter)
