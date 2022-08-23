@@ -37,7 +37,7 @@ Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multip
 
 From the line for package-based inference above, simply change `python -m myria3d.predict` to `python run.py` to run directly from sources.
 
-In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of the `config.yaml` file and commenting out the lines containing `oc.env` logic.
+In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of your configuration file and commenting out the lines containing `oc.env` logic.
 
 ## Run inference from within a docker image
 
@@ -52,7 +52,7 @@ To run inference:
 
 ```bash
 # specify your paths here as needed
-docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --shm-size=2gb myria3d {...options...}
+docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --shm-size=2gb myria3d.predict {...options...}
 ```
 
 ## Specific options
@@ -62,7 +62,7 @@ docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --s
 
 By default, the predicted classification is stored in a new PRedictedClassification format, which is not a config parameter at the moment. The probability [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) is also stored, as a proxy for prediction uncertainty.
 
-What one can control is for which classes to save the probabilities. This is achieved with a `predict.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.probas_to_save=[building,vegetation]` - notice the absence of space between class name).
+What one can control is for which classes to save the probabilities. This is achieved with a `predict.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.probas_to_save=[building,vegetation]` - notice the absence of space between class names).
 
 ### Receptive field overlap at inference time
 

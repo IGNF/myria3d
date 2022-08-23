@@ -44,7 +44,7 @@ jobs:
         --ipc=host
         --shm-size=2gb
         myria3d
-        python /myria3d/run.py
+        python /myria3d/myria3d/predict.py
         experiment=predict
         predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
