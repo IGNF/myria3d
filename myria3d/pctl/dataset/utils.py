@@ -131,6 +131,10 @@ def split_cloud_into_samples(
         yield sample_idx, sample_points
 
 
+def pre_filter_below_n_points(data, min_num_nodes=50):
+    return data.pos.shape[0] < min_num_nodes
+
+
 # COPC
 
 

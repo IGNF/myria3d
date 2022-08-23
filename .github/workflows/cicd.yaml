@@ -44,13 +44,11 @@ jobs:
         --ipc=host
         --shm-size=2gb
         myria3d
-        python -m 
-        myria3d.predict
-        --config-path /inputs/
-        --config-name predict_config_V2.3.0.yaml
+        python /myria3d/run.py
+        experiment=predict
+        predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
-        predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
         datamodule.batch_size=25
         hydra.run.dir=/myria3d
 

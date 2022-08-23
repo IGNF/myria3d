@@ -15,6 +15,7 @@ from myria3d.pctl.dataset.utils import (
     SHAPE_TYPE,
     SPLIT_TYPE,
     LAS_FILES_BY_SPLIT_TYPE,
+    pre_filter_below_n_points,
     split_cloud_into_samples,
 )
 from myria3d.utils import utils
@@ -34,7 +35,7 @@ class HDF5Dataset(Dataset):
         subtile_width: Number = 50,
         subtile_overlap_train: Number = 0,
         subtile_shape: SHAPE_TYPE = "square",
-        pre_filter=None,
+        pre_filter=pre_filter_below_n_points,
         train_transform: List[Callable] = None,
         eval_transform: List[Callable] = None,
     ):

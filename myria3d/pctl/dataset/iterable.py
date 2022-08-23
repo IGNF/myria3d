@@ -1,9 +1,15 @@
 from numbers import Number
-from typing import Callable
-from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from typing import Callable, Optional
+from numpy.typing import ArrayLike
 import torch
+from torch_geometric.data import Data
 from torch.utils.data.dataset import IterableDataset
-from myria3d.pctl.dataset.utils import SHAPE_TYPE, split_cloud_into_samples
+from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from myria3d.pctl.dataset.utils import (
+    SHAPE_TYPE,
+    pre_filter_below_n_points,
+    split_cloud_into_samples,
+)
 
 
 class InferenceDataset(IterableDataset):
@@ -12,9 +18,9 @@ class InferenceDataset(IterableDataset):
     def __init__(
         self,
         las_file: str,
-        points_pre_transform: Callable = lidar_hd_pre_transform,
-        pre_filter=None,
-        transform=None,
+        points_pre_transform: Callable[[ArrayLike], Data] = lidar_hd_pre_transform,
+        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
+        transform: Optional[Callable[[Data], Data]] = None,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_overlap: Number = 0,

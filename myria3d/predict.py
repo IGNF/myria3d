@@ -1,13 +1,16 @@
 from glob import glob
 import os
+import os.path as osp
 import hydra
 import torch
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
+import sys
 
-from myria3d.utils import utils
-from myria3d.models.interpolation import Interpolator
+sys.path.append(osp.dirname(osp.dirname(__file__)))
+from myria3d.utils import utils  # noqa
+from myria3d.models.interpolation import Interpolator  # noqa
 
 
 log = utils.get_logger(__name__)
