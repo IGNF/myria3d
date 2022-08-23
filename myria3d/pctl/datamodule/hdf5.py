@@ -16,7 +16,7 @@ log = utils.get_logger(__name__)
 TRANSFORMS_LIST = List[Callable]
 
 
-class LidarDataModule(LightningDataModule):
+class HDF5LidarDataModule(LightningDataModule):
     """Datamodule to feed train and validation data to the model."""
 
     def __init__(

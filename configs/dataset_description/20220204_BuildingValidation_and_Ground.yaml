@@ -7,6 +7,3 @@ classification_dict: {1: "unclassified", 2: "ground", 6: "building"}
 # Input and output dims of neural net are dataset dependant:
 d_in: 12
 num_classes: 3
-
-data_signature:
-  _target_: myria3d.data.loading.FrenchLidarDataSignature

@@ -1,9 +1,6 @@
 # default preparations with grid sampling and random sampling.
 
 train:
-  # ToTensor:
-  #   _target_: myria3d.pctl.transforms.transforms.ToTensor
-
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
@@ -26,9 +23,6 @@ train:
     _target_: torch_geometric.transforms.Center
 
 eval:
-  # ToTensor:
-  #   _target_: myria3d.pctl.transforms.transforms.ToTensor
-
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
@@ -61,9 +55,6 @@ eval:
     _target_: torch_geometric.transforms.Center
   
 predict:
-  # ToTensor:
-  #   _target_: myria3d.pctl.transforms.transforms.ToTensor
-
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 

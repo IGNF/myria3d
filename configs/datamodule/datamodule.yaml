@@ -1,4 +1,4 @@
-_target_: myria3d.pctl.datamodule.hdf5.LidarDataModule
+_target_: myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule
 
 # A standalone precomputed HDF5 dataset can be used without source files by setting data_dir and split_csv_path to null.
 data_dir: null  # data directory containing LAS files
