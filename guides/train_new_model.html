@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to train new models &mdash; myria3d 2.3.10 documentation</title>
+  <title>How to train new models &mdash; myria3d 2.4.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -46,8 +46,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
 </ul>
 </li>
@@ -96,10 +96,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.data.html">myria3d.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
@@ -108,7 +110,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
 </ul>
 </li>
@@ -159,8 +160,7 @@ Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html">
 <p>Once your python environment is set up and your dataset ready for training, proceed to the next section.</p>
 <p>Some environment variable need to be injected at runtime can be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">LOG</span> <span class="pre">PATH</span></code>, where hydra logs and config are saved.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PREPARED_DATA_DIR</span></code>, which specifies where to look for your prepared dataset. Alternatively, you can override the parameter  <code class="docutils literal notranslate"><span class="pre">prepared_data_dir</span></code> to the same effect via the CLI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LOGS_DIR</span></code>, where hydra logs and config will be saved.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LOGGER</span></code> section, which specifies credentials needed for logging to <a class="reference external" href="https://www.comet.ml/">comet.ml</a>. You will need to create an account first if you choose to use Comet. Alternatively, setting <code class="docutils literal notranslate"><span class="pre">logger=csv</span></code> at runtime will save results in a single, local csv file, and disable comet logging.</p></li>
 </ul>
 </section>
@@ -174,16 +174,21 @@ To overfit on a single batch for 30 epochs, run:</p>
 </section>
 <section id="training">
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
-<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define parameter <code class="docutils literal notranslate"><span class="pre">datamodule.dataset_description</span></code> to specify your classification task - see e.g. config <code class="docutils literal notranslate"><span class="pre">20220504_proto23dalles.yaml</span></code> for an example.</p>
+<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> to specify your classification task - see config <code class="docutils literal notranslate"><span class="pre">20220607_151_dalles_proto.yaml</span></code> for an example.</p>
 <p>To run the full training and validation for French Lidar HD, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR
 </pre></div>
 </div>
-<p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOG_PATH</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
+<p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOGS_DIR</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
+<section id="optimized-learning-rate">
+<h3>Optimized learning rate<a class="headerlink" href="#optimized-learning-rate" title="Permalink to this headline"></a></h3>
+<p>Pytorch Lightning support au <a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find">automated learning rate finder</a>, by means of an Learning Rate-range test (see section 3.3 in <a class="reference external" href="https://arxiv.org/pdf/1506.01186.pdf">this paper</a> for reference).
+You can perfom this automatically before training by setting <code class="docutils literal notranslate"><span class="pre">trainer.auto_lr_find=true</span></code> when calling training on your dataset. The best learning rate will be logged and results saved as an image, so that you do not need to perform this test more than once.</p>
+</section>
 </section>
 <section id="testing-the-model">
 <h2>Testing the model<a class="headerlink" href="#testing-the-model" title="Permalink to this headline"></a></h2>
-<p>To evaluate per-class IoU on unseen, annotated data, you need to use the aforementionned training hydra config and run:</p>
+<p>To evaluate per-class IoU on unseen, annotated data, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
 --config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> <span class="se">\</span>
 --config-name <span class="o">{</span>config.yaml<span class="o">}</span> <span class="se">\</span>
@@ -192,7 +197,8 @@ model.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">
 trainer.gpus<span class="o">={</span><span class="m">0</span> <span class="k">for</span> none, <span class="o">[</span>i<span class="o">]</span> to use GPU number i<span class="o">}</span> <span class="se">\</span>
 </pre></div>
 </div>
-<p>Test data is expected to be in the form of raw LAS data in a <code class="docutils literal notranslate"><span class="pre">test</span></code> subdir of the <code class="docutils literal notranslate"><span class="pre">datamodule.prepared_data_dir</span></code> path. LAS files are found via a recursive glob command and can be nested in subdirs. You may override where to look for test data by specifying a different dir path with <code class="docutils literal notranslate"><span class="pre">datamodule.test_data_dir</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">config-path</span></code> and <code class="docutils literal notranslate"><span class="pre">config-name</span></code> means you are using the saved configuration from your training, which contains the path to the prepared HDF5 dataset.
+If you are using the default configuration, you do not need those.</p>
 </section>
 <section id="inference">
 <h2>Inference<a class="headerlink" href="#inference" title="Permalink to this headline"></a></h2>

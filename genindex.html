@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; myria3d 2.3.10 documentation</title>
+  <title>Index &mdash; myria3d 2.4.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -43,8 +43,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
 </ul>
 </li>
@@ -93,10 +93,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.data.html">myria3d.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.model.html">myria3d.models</a><ul>
@@ -105,7 +107,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#pointnet">PointNet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
 </ul>
 </li>
@@ -150,8 +151,7 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#Symbols"><strong>Symbols</strong></a>
- | <a href="#A"><strong>A</strong></a>
+ <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
@@ -167,22 +167,13 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
- | <a href="#X"><strong>X</strong></a>
  | <a href="#Y"><strong>Y</strong></a>
  
 </div>
-<h2 id="Symbols">Symbols</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.`split`">`split` (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward.params.Attributs">Attributs (myria3d.models.modules.randla_net.RandLANet.forward parameter)</a>
+      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward.params.Attributes">Attributes (myria3d.models.modules.randla_net.RandLANet.forward parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -194,8 +185,6 @@
 
       <ul>
         <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step.params.batch">(myria3d.models.model.Model.predict_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.step.params.batch">(myria3d.models.model.Model.step parameter)</a>
 </li>
         <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step.params.batch">(myria3d.models.model.Model.test_step parameter)</a>
 </li>
@@ -240,14 +229,6 @@
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.confmat">confmat (myria3d.callbacks.logging_callbacks.SingleClassIoU attribute)</a>
 </li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.CopyFullPos">CopyFullPos (class in myria3d.data.transforms)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.CopyFullPreparedTargets">CopyFullPreparedTargets (class in myria3d.data.transforms)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.CopySampledPos">CopySampledPos (class in myria3d.data.transforms)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.CustomCompose">CustomCompose (class in myria3d.data.transforms)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -255,8 +236,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.d_in">d_in (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule">DataModule (class in myria3d.data.datamodule)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -270,14 +249,10 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.EmptySubtileFilter">EmptySubtileFilter (class in myria3d.data.transforms)</a>
-</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.eval_time">eval_time() (in module myria3d.utils.utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data">extract_subtile_from_tile_data() (myria3d.data.datamodule.LidarIterableDataset method)</a>
-</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.extras">extras() (in module myria3d.utils.utils)</a>
 </li>
   </ul></td>
@@ -288,10 +263,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.fields">fields (myria3d.utils.utils.print_config parameter)</a>
 </li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.split_and_save.params.filepath">filepath (myria3d.data.loading.LidarDataLogic.split_and_save parameter)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.files">files (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
-</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in myria3d.callbacks.finetuning_callbacks)</a>
@@ -301,14 +272,10 @@
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward">forward() (myria3d.models.model.Model method)</a>
 
       <ul>
-        <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.point_net2.PointNet2.forward">(myria3d.models.modules.point_net2.PointNet2 method)</a>
-</li>
         <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward">(myria3d.models.modules.randla_net.RandLANet method)</a>
 </li>
       </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">freeze_before_training() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.FrenchLidarDataLogic">FrenchLidarDataLogic (class in myria3d.data.loading)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -317,8 +284,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.get_all_iou_by_class_object">get_all_iou_by_class_object() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.get_all_subtiles_xy_min_corner">get_all_subtiles_xy_min_corner() (myria3d.data.datamodule.LidarIterableDataset method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -332,34 +297,12 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las.params.las_filepath">las_filepath (myria3d.data.loading.FrenchLidarDataLogic.load_las parameter)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.load_las.params.las_filepath">(myria3d.data.loading.LidarDataLogic.load_las parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las.params.las_filepath">(myria3d.data.loading.SwissTopoLidarDataLogic.load_las parameter)</a>
-</li>
-      </ul></li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic">LidarDataLogic (class in myria3d.data.loading)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset">LidarIterableDataset (class in myria3d.data.datamodule)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarMapDataset">LidarMapDataset (class in myria3d.data.datamodule)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.FrenchLidarDataLogic.load_las">load_las() (myria3d.data.loading.FrenchLidarDataLogic class method)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.load_las">(myria3d.data.loading.LidarDataLogic method)</a>
-</li>
-        <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.SwissTopoLidarDataLogic.load_las">(myria3d.data.loading.SwissTopoLidarDataLogic class method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.log_hyperparameters">log_hyperparameters() (in module myria3d.utils.utils)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.log_iou">log_iou() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode">LogCode (class in myria3d.callbacks.comet_callbacks)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass">LogIoUByClass (class in myria3d.callbacks.logging_callbacks)</a>
@@ -372,13 +315,7 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.main">main() (in module myria3d.data.loading)</a>
-
-      <ul>
-        <li><a href="apidoc/scripts.html#run.main">(in module run)</a>
-</li>
-      </ul></li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file">make_toy_dataset_from_test_file() (in module myria3d.data.loading)</a>
+      <li><a href="apidoc/scripts.html#run.main">main() (in module run)</a>
 </li>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model">Model (class in myria3d.models.model)</a>
 </li>
@@ -394,15 +331,19 @@
 </li>
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a>
 </li>
-        <li><a href="apidoc/myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a>
-</li>
-        <li><a href="apidoc/myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a>
-</li>
-        <li><a href="apidoc/myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a>
-</li>
         <li><a href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">myria3d.models.interpolation</a>
 </li>
         <li><a href="apidoc/myria3d.model.html#module-myria3d.models.model">myria3d.models.model</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a>
 </li>
         <li><a href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a>
 </li>
@@ -427,8 +368,6 @@
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     myria3d.callbacks.finetuning_callbacks
 
@@ -436,32 +375,13 @@
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     myria3d.callbacks.logging_callbacks
 
       <ul>
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">module</a>
-</li>
-      </ul></li>
-      <li>
-    myria3d.data.datamodule
-
-      <ul>
-        <li><a href="apidoc/myria3d.data.html#module-myria3d.data.datamodule">module</a>
-</li>
-      </ul></li>
-      <li>
-    myria3d.data.loading
-
-      <ul>
-        <li><a href="apidoc/myria3d.data.html#module-myria3d.data.loading">module</a>
-</li>
-      </ul></li>
-      <li>
-    myria3d.data.transforms
-
-      <ul>
-        <li><a href="apidoc/myria3d.data.html#module-myria3d.data.transforms">module</a>
 </li>
       </ul></li>
       <li>
@@ -476,6 +396,41 @@
 
       <ul>
         <li><a href="apidoc/myria3d.model.html#module-myria3d.models.model">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.dataloader
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.datamodule
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.dataset
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.points_pre_transform
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.transforms
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">module</a>
 </li>
       </ul></li>
       <li>
@@ -509,8 +464,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.NormalizePos">NormalizePos (class in myria3d.data.transforms)</a>
-</li>
       <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes">num_classes (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
 </li>
   </ul></td>
@@ -533,10 +486,10 @@
       </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end">on_test_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_start">on_test_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_start">on_test_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
+</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_train_batch_end">on_train_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode.on_train_start">on_train_start() (myria3d.callbacks.comet_callbacks.LogCode method)</a>
@@ -544,8 +497,6 @@
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">on_validation_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_validation_epoch_end">on_validation_epoch_end() (myria3d.models.model.Model method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.split_and_save.params.output_subdir_path">output_subdir_path (myria3d.data.loading.LidarDataLogic.split_and_save parameter)</a>
 </li>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_validation_epoch_end.params.outputs">outputs (myria3d.models.model.Model.on_validation_epoch_end parameter)</a>
 </li>
@@ -555,18 +506,10 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.point_net2.PointNet2">PointNet2 (class in myria3d.models.modules.point_net2)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.predict_dataloader">predict_dataloader() (myria3d.data.datamodule.DataModule method)</a>
-</li>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step">predict_step() (myria3d.models.model.Model method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.prepare">prepare() (myria3d.data.loading.LidarDataLogic method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.prepared_data_dir">prepared_data_dir (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
-</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">print_config() (in module myria3d.utils.utils)</a>
 </li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.printed and in what order.">printed and in what order. (myria3d.utils.utils.print_config parameter)</a>
@@ -579,12 +522,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet">RandLANet (class in myria3d.models.modules.randla_net)</a>
 </li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.reinforce_type">reinforce_type() (myria3d.data.datamodule.LidarIterableDataset method)</a>
+      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.resolve">resolve (myria3d.utils.utils.print_config parameter)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.resolve">resolve (myria3d.utils.utils.print_config parameter)</a>
-</li>
       <li>
     run
 
@@ -600,27 +541,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end">set_fc_end() (myria3d.models.modules.randla_net.RandLANet method)</a>
 </li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.setup">setup() (myria3d.data.datamodule.DataModule method)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.setup">(myria3d.models.model.Model method)</a>
-</li>
-      </ul></li>
-      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in myria3d.callbacks.logging_callbacks)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.LidarDataLogic.split_and_save">split_and_save() (myria3d.data.loading.LidarDataLogic method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.split_csv">split_csv (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.setup">setup() (myria3d.models.model.Model method)</a>
 </li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.make_toy_dataset_from_test_file.params.src_las_path">src_las_path (myria3d.data.loading.make_toy_dataset_from_test_file parameter)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.StandardizeFeatures">StandardizeFeatures (class in myria3d.data.transforms)</a>
-</li>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.step">step() (myria3d.models.model.Model method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.loading.SwissTopoLidarDataLogic">SwissTopoLidarDataLogic (class in myria3d.data.loading)</a>
+      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in myria3d.callbacks.logging_callbacks)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -628,25 +553,13 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.TargetTransform">TargetTransform (class in myria3d.data.transforms)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.test_dataloader">test_dataloader() (myria3d.data.datamodule.DataModule method)</a>
-</li>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step">test_step() (myria3d.models.model.Model method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data.params.tile_data">tile_data (myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data parameter)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.ToTensor">ToTensor (class in myria3d.data.transforms)</a>
-</li>
       <li><a href="apidoc/scripts.html#myria3d.train.train">train() (in module myria3d.train)</a>
 </li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.train_dataloader">train_dataloader() (myria3d.data.datamodule.DataModule method)</a>
-</li>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step">training_step() (myria3d.models.model.Model method)</a>
-</li>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.transforms.CustomCompose.params.transforms">transforms (myria3d.data.transforms.CustomCompose parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -654,19 +567,7 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.DataModule.val_dataloader">val_dataloader() (myria3d.data.datamodule.DataModule method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step">validation_step() (myria3d.models.model.Model method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="X">X</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data.params.xy_min_corner">xy_min_corner (myria3d.data.datamodule.LidarIterableDataset.extract_subtile_from_tile_data parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -679,8 +580,6 @@
       <ul>
         <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step.params.y">(myria3d.models.model.Model.predict_step parameter)</a>
 </li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.step.params.y">(myria3d.models.model.Model.step parameter)</a>
-</li>
         <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step.params.y">(myria3d.models.model.Model.test_step parameter)</a>
 </li>
         <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.y">(myria3d.models.model.Model.training_step parameter)</a>
@@ -688,10 +587,6 @@
         <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.y">(myria3d.models.model.Model.validation_step parameter)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.data.html#myria3d.data.datamodule.LidarIterableDataset.yield_transformed_subtile_data">yield_transformed_subtile_data() (myria3d.data.datamodule.LidarIterableDataset method)</a>
-</li>
   </ul></td>
 </tr></table>
 

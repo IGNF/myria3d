@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KNN-Interpolation to merge multiple predictions [TODO] &mdash; myria3d 2.4.0 documentation</title>
+  <title>myria3d.pctl &mdash; myria3d 2.4.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="General design of the package" href="general_design.html" />
-    <link rel="prev" title="Developer’s guide" href="../guides/development.html" /> 
+    <link rel="next" title="myria3d.models" href="myria3d.model.html" />
+    <link rel="prev" title="Default configuration" href="configs.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -78,51 +78,51 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="general_design.html">General design of the package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
 </ul>
 </li>
 </ul>
@@ -141,9 +141,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>KNN-Interpolation to merge multiple predictions [TODO]</li>
+      <li>myria3d.pctl</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/background/interpolation.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/apidoc/myria3d.pctl.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -151,20 +151,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="knn-interpolation-to-merge-multiple-predictions-todo">
-<h1>KNN-Interpolation to merge multiple predictions [TODO]<a class="headerlink" href="#knn-interpolation-to-merge-multiple-predictions-todo" title="Permalink to this headline"></a></h1>
-<p>.. warning:: Work in progress</p>
-<p>-&gt; geometric regularity
--&gt; KNN
--&gt; test-time overlap</p>
+  <section id="myria3d-pctl">
+<h1>myria3d.pctl<a class="headerlink" href="#myria3d-pctl" title="Permalink to this headline"></a></h1>
+<p>Objects relative to the preprocessing and loading of Lidar data.</p>
+<section id="module-myria3d.pctl.datamodule">
+<span id="myria3d-pctl-datamodule"></span><h2>myria3d.pctl.datamodule<a class="headerlink" href="#module-myria3d.pctl.datamodule" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-myria3d.pctl.dataset">
+<span id="myria3d-pctl-dataset"></span><h2>myria3d.pctl.dataset<a class="headerlink" href="#module-myria3d.pctl.dataset" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-myria3d.pctl.dataloader">
+<span id="myria3d-pctl-dataloader"></span><h2>myria3d.pctl.dataloader<a class="headerlink" href="#module-myria3d.pctl.dataloader" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-myria3d.pctl.points_pre_transform">
+<span id="myria3d-pctl-points-pre-transform"></span><h2>myria3d.pctl.points_pre_transform<a class="headerlink" href="#module-myria3d.pctl.points_pre_transform" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-myria3d.pctl.transforms">
+<span id="myria3d-pctl-transforms"></span><h2>myria3d.pctl.transforms<a class="headerlink" href="#module-myria3d.pctl.transforms" title="Permalink to this headline"></a></h2>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../guides/development.html" class="btn btn-neutral float-left" title="Developer’s guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="general_design.html" class="btn btn-neutral float-right" title="General design of the package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="configs.html" class="btn btn-neutral float-left" title="Default configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="myria3d.model.html" class="btn btn-neutral float-right" title="myria3d.models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

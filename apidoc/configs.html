@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Default configuration &mdash; myria3d 2.3.10 documentation</title>
+  <title>Default configuration &mdash; myria3d 2.4.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="myria3d.data" href="myria3d.data.html" />
+    <link rel="next" title="myria3d.pctl" href="myria3d.pctl.html" />
     <link rel="prev" title="Scripts" href="scripts.html" /> 
 </head>
 
@@ -46,8 +46,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#data-preparation">Data preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
 </ul>
 </li>
@@ -96,10 +96,12 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="myria3d.data.html">myria3d.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.data.html#module-myria3d.data.datamodule">myria3d.data.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.data.html#module-myria3d.data.loading">myria3d.data.loading</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.data.html#module-myria3d.data.transforms">myria3d.data.transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
@@ -108,7 +110,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#pointnet">PointNet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
 </ul>
 </li>
@@ -162,52 +163,78 @@
 <span class="nt">trainer</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytorch_lightning.Trainer</span><span class="w"></span>
 <span class="w">  </span><span class="nt">gpus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
-<span class="w">  </span><span class="nt">min_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span><span class="w"></span>
-<span class="w">  </span><span class="nt">max_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span><span class="w"></span>
+<span class="w">  </span><span class="nt">min_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">max_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">log_every_n_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">  </span><span class="nt">check_val_every_n_epoch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">weights_summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
 <span class="w">  </span><span class="nt">progress_bar_refresh_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">auto_lr_find</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">  </span><span class="nt">overfit_batches</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">limit_train_batches</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">limit_val_batches</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">limit_test_batches</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">  </span><span class="nt">num_sanity_val_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
 <span class="nt">datamodule</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">dataset_description</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">_convert_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span><span class="w"></span>
-<span class="w">    </span><span class="nt">classification_preprocessing_dict</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">59</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6</span><span class="w"></span>
-<span class="w">      </span><span class="nt">50</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">    </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unclassified</span><span class="w"></span>
-<span class="w">      </span><span class="nt">2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ground</span><span class="w"></span>
-<span class="w">      </span><span class="nt">6</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">building</span><span class="w"></span>
-<span class="w">    </span><span class="nt">d_in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span><span class="w"></span>
-<span class="w">    </span><span class="nt">num_classes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
-<span class="w">    </span><span class="nt">load_las_func</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">functools.partial</span><span class="w"></span>
-<span class="w">      </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${get_method:myria3d.data.loading.FrenchLidarDataLogic.load_las}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">transforms</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">preparations</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">ToTensor</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.ToTensor</span><span class="w"></span>
-<span class="w">      </span><span class="nt">TargetTransform</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.TargetTransform</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_preprocessing_dict}</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_dict}</span><span class="w"></span>
-<span class="w">      </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
-<span class="w">      </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
-<span class="w">        </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">        </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">      </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
+<span class="w">      </span><span class="nt">train</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">TargetTransform</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.TargetTransform</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_preprocessing_dict}</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
+<span class="w">        </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
+<span class="w">        </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
+<span class="w">          </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">          </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
+<span class="w">      </span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">TargetTransform</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.TargetTransform</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_preprocessing_dict}</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
+<span class="w">        </span><span class="nt">CopyFullPreparedTargets</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPreparedTargets</span><span class="w"></span>
+<span class="w">        </span><span class="nt">CopyFullPos</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPos</span><span class="w"></span>
+<span class="w">        </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
+<span class="w">        </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
+<span class="w">          </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">          </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">        </span><span class="nt">CopySampledPos</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopySampledPos</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
+<span class="w">      </span><span class="nt">predict</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">CopyFullPos</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPos</span><span class="w"></span>
+<span class="w">        </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
+<span class="w">        </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
+<span class="w">          </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">          </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">        </span><span class="nt">CopySampledPos</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopySampledPos</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
 <span class="w">    </span><span class="nt">augmentations</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">x_flip</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.RandomFlip</span><span class="w"></span>
@@ -220,23 +247,79 @@
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">        </span><span class="nt">p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
 <span class="w">    </span><span class="nt">normalizations</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">NullifyLowestZ</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.NullifyLowestZ</span><span class="w"></span>
 <span class="w">      </span><span class="nt">NormalizePos</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.NormalizePos</span><span class="w"></span>
-<span class="w">      </span><span class="nt">StandardizeFeatures</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.transforms.StandardizeFeatures</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.NormalizePos</span><span class="w"></span>
+<span class="w">        </span><span class="nt">subtile_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.subtile_width}</span><span class="w"></span>
+<span class="w">      </span><span class="nt">StandardizeRGBAndIntensity</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity</span><span class="w"></span>
 <span class="w">    </span><span class="nt">augmentations_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.augmentations}&#39;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">preparations_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.preparations}&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">preparations_train_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.preparations.train}&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">preparations_eval_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.preparations.eval}&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">preparations_predict_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.preparations.predict}&#39;</span><span class="w"></span>
 <span class="w">    </span><span class="nt">normalizations_list</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${oc.dict.values:</span><span class="nv"> </span><span class="s">datamodule.transforms.normalizations}&#39;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.data.datamodule.DataModule</span><span class="w"></span>
-<span class="w">  </span><span class="nt">prepared_data_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:PREPARED_DATA_DIR}</span><span class="w"></span>
-<span class="w">  </span><span class="nt">test_data_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.prepared_data_dir}/test/</span><span class="w"></span>
-<span class="w">  </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span><span class="w"></span>
-<span class="w">  </span><span class="nt">prefetch_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule</span><span class="w"></span>
+<span class="w">  </span><span class="nt">data_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
+<span class="w">  </span><span class="nt">split_csv_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
+<span class="w">  </span><span class="nt">hdf5_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5</span><span class="w"></span>
+<span class="w">  </span><span class="nt">points_pre_transform</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">functools.partial</span><span class="w"></span>
+<span class="w">    </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">pre_filter</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">functools.partial</span><span class="w"></span>
+<span class="w">    </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}</span><span class="w"></span>
+<span class="w">    </span><span class="nt">min_num_nodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
+<span class="w">  </span><span class="nt">tile_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span><span class="w"></span>
+<span class="w">  </span><span class="nt">subtile_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
+<span class="w">  </span><span class="nt">subtile_shape</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">square</span><span class="w"></span>
+<span class="w">  </span><span class="nt">subtile_overlap_train</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">  </span><span class="nt">subtile_overlap_predict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.subtile_overlap}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
 <span class="w">  </span><span class="nt">num_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">  </span><span class="nt">subtile_width_meters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
-<span class="w">  </span><span class="nt">subtile_overlap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.subtile_overlap}</span><span class="w"></span>
-<span class="w">  </span><span class="nt">augment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">  </span><span class="nt">subsample_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
+<span class="w">  </span><span class="nt">prefetch_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="nt">dataset_description</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">_convert_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span><span class="w"></span>
+<span class="w">  </span><span class="nt">classification_preprocessing_dict</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">160</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span><span class="w"></span>
+<span class="w">    </span><span class="nt">161</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span><span class="w"></span>
+<span class="w">    </span><span class="nt">162</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span><span class="w"></span>
+<span class="w">    </span><span class="nt">0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">7</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">46</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">47</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">48</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">49</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">50</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">51</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">52</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">53</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">54</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">55</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">56</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">57</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">58</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">64</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">65</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">66</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">67</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">77</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">155</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">204</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unclassified</span><span class="w"></span>
+<span class="w">    </span><span class="nt">2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ground</span><span class="w"></span>
+<span class="w">    </span><span class="nt">5</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vegetation</span><span class="w"></span>
+<span class="w">    </span><span class="nt">6</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">building</span><span class="w"></span>
+<span class="w">    </span><span class="nt">9</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">water</span><span class="w"></span>
+<span class="w">    </span><span class="nt">17</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span><span class="w"></span>
+<span class="w">    </span><span class="nt">64</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lasting_above</span><span class="w"></span>
+<span class="w">  </span><span class="nt">d_in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span><span class="w"></span>
+<span class="w">  </span><span class="nt">num_classes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span><span class="w"></span>
 <span class="nt">callbacks</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">log_code</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.callbacks.comet_callbacks.LogCode</span><span class="w"></span>
@@ -249,11 +332,11 @@
 <span class="w">    </span><span class="nt">log_momentum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
 <span class="w">  </span><span class="nt">log_iou_by_class</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.callbacks.logging_callbacks.LogIoUByClass</span><span class="w"></span>
-<span class="w">    </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_dict}</span><span class="w"></span>
+<span class="w">    </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
 <span class="w">    </span><span class="nt">interpolator</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.models.interpolation.Interpolator</span><span class="w"></span>
 <span class="w">      </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.interpolation_k}</span><span class="w"></span>
-<span class="w">      </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.classification_dict}</span><span class="w"></span>
+<span class="w">      </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
 <span class="w">      </span><span class="nt">probas_to_save</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.probas_to_save}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">model_checkpoint</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytorch_lightning.callbacks.ModelCheckpoint</span><span class="w"></span>
@@ -287,8 +370,8 @@
 <span class="w">    </span><span class="nt">cooldown</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
 <span class="w">    </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
 <span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.models.model.Model</span><span class="w"></span>
-<span class="w">  </span><span class="nt">d_in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.d_in}</span><span class="w"></span>
-<span class="w">  </span><span class="nt">num_classes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${datamodule.dataset_description.num_classes}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">d_in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.d_in}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">num_classes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.num_classes}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">ckpt_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
 <span class="w">  </span><span class="nt">neural_net_class_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RandLANet</span><span class="w"></span>
 <span class="w">  </span><span class="nt">neural_net_hparams</span><span class="p">:</span><span class="w"></span>
@@ -319,7 +402,7 @@
 <span class="w">    </span><span class="nt">project_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:COMET_PROJECT_NAME}</span><span class="w"></span>
 <span class="w">    </span><span class="nt">experiment_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RandLaNetDebug</span><span class="w"></span>
 <span class="w">    </span><span class="nt">auto_log_co2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">    </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">    </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
 <span class="nt">task</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">task_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fit</span><span class="w"></span>
 <span class="nt">predict</span><span class="p">:</span><span class="w"></span>
@@ -339,7 +422,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="scripts.html" class="btn btn-neutral float-left" title="Scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="myria3d.data.html" class="btn btn-neutral float-right" title="myria3d.data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="myria3d.pctl.html" class="btn btn-neutral float-right" title="myria3d.pctl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
