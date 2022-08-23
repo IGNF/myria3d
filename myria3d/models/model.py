@@ -3,12 +3,13 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
+from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.models.modules.randla_net import RandLANet
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = [RandLANet]
+MODEL_ZOO = [RandLANet, PyGRandLANet]
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -60,7 +61,7 @@ class Model(LightningModule):
         self.save_hyperparameters()
 
         neural_net_class = get_neural_net_class(self.hparams.neural_net_class_name)
-        self.model = neural_net_class(self.hparams.neural_net_hparams)
+        self.model = neural_net_class(**self.hparams.neural_net_hparams)
 
         self.softmax = nn.Softmax(dim=1)
 

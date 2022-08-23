@@ -1,0 +1,13 @@
+defaults:
+  - default.yaml
+
+lr: 0.004566395347136576  # 200-long LR-test-range betw 10^-4 and 3.0
+
+neural_net_class_name: "PyGRandLANet"
+neural_net_hparams:
+  num_features: ${model.d_in}  # 3 (xyz) + num of features
+  num_classes: ${model.num_classes}
+  num_neighbors: 16
+  decimation: 4  # divide by decimation for each of the 4 local encoder.
+  interpolation_k: ${predict.interpolation_k}  # interpolation at eval time
+  num_workers: 4  # for knn_interpolate
