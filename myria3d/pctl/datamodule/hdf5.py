@@ -10,7 +10,11 @@ from torch_geometric.transforms import Compose
 from torch_geometric.data import Data
 
 from myria3d.pctl.dataset.iterable import InferenceDataset
-from myria3d.pctl.dataset.utils import SHAPE_TYPE, find_file_in_dir, pre_filter_below_n_points
+from myria3d.pctl.dataset.utils import (
+    SHAPE_TYPE,
+    find_file_in_dir,
+    pre_filter_below_n_points,
+)
 from myria3d.pctl.dataset.hdf5 import HDF5Dataset
 
 log = utils.get_logger(__name__)
@@ -27,7 +31,7 @@ class HDF5LidarDataModule(LightningDataModule):
         split_csv_path: str,
         hdf5_file_path: str,
         points_pre_transform: Optional[Callable[[ArrayLike], Data]] = None,
-        pre_filter:Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
+        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_shape: SHAPE_TYPE = "square",
