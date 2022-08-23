@@ -68,6 +68,7 @@ def print_config(
         "trainer",
         "model",
         "datamodule",
+        "dataset_description",
         "callbacks",
         "predict",
     ),

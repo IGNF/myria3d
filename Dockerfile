@@ -55,19 +55,3 @@ ENTRYPOINT ["conda",  \
         "-n", \
         "myria3d"]
 
-# Example usage
-CMD         ["python", \
-        "-m", \
-        "myria3d.predict", \
-        "--config-path", \
-        "/CICD_github_assets/parametres_etape1/.hydra", \ 
-        "--config-name", \
-        "predict_config_V1.6.3.yaml", \
-        "predict.src_las=/CICD_github_assets/parametres_etape1/test/792000_6272000_subset_buildings.las", \
-        "predict.output_dir=/CICD_github_assets/output_etape1", \
-        "predict.ckpt_path=/CICD_github_assets/parametres_etape1/checkpoints/epoch_033.ckpt", \
-        "predict.gpus=0", \
-        "datamodule.batch_size=10", \ 
-        "datamodule.subtile_overlap=0", \ 
-        "hydra.run.dir=/myria3d"]
-
