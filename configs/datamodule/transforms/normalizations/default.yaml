@@ -3,5 +3,9 @@
 NullifyLowestZ:
   _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
 
+NormalizePos:
+  _target_: myria3d.pctl.transforms.transforms.NormalizePos
+  subtile_width: "${datamodule.subtile_width}"
+
 StandardizeRGBAndIntensity:
   _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity

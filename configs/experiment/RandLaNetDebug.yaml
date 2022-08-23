@@ -8,7 +8,6 @@ logger:
     disabled: true
 
 trainer:
-  log_every_n_steps: 1
   limit_train_batches: 1
   limit_val_batches: 1
   limit_test_batches: 1

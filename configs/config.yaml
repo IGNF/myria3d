@@ -26,7 +26,7 @@ defaults:
   - _self_  # for legacy reasons
 
   - trainer: default.yaml
-  - datamodule: datamodule.yaml
+  - datamodule: hdf5_datamodule.yaml
   - dataset_description: 20220607_151_dalles_proto.yaml  # describes input features and classes
   - callbacks: default.yaml # set this to null if you don't want to use callbacks
   - model: randla_net_model.yaml
