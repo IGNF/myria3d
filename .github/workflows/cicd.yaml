@@ -24,9 +24,6 @@ jobs:
     - name: Build docker image
       run: docker build -t myria3d .
 
-    - name: Check code neatness (linter)
-      run: docker run myria3d flake8
-
     - name: Fast unit tests first
       run: >
         docker run
@@ -37,7 +34,10 @@ jobs:
         pytest -rA -v -m "not slow"
         --ignore=actions-runner
 
-    - name: Full module run on LAS subset
+
+    # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
+    # predict.subtile_overlap specifies overlap between adjacent samples (in meters).
+    - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
       run: >
         docker run
         -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/inputs/
@@ -45,29 +45,17 @@ jobs:
         --ipc=host
         --shm-size=2gb
         myria3d
-        python -m 
-        myria3d.predict
-        --config-path /inputs/
-        --config-name predict_config_V2.3.0.yaml
+        python /myria3d/myria3d/predict.py
+        experiment=predict
+        predict.ckpt_path=/inputs/proto151_V0.0_epoch_056_Myria3DV2.3.0.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
-        predict.ckpt_path=/inputs/RandLaNet_Buildings_B2V0.5_epoch_033.ckpt
-        datamodule.batch_size=25
+        predict.subtile_overlap=25
+        datamodule.batch_size=20
         hydra.run.dir=/myria3d
 
-    # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
-    # Those are too slow to be useful for continuous integration considering the action-runner, and commented for now.
-    # - name: Slow unit tests last, using large files stored in self-hosted action-runner.
-    #   if: github.event_name == 'push'
-    #   run: >
-    #     docker run
-    #     -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
-    #     --ipc=host
-    #     --shm-size=5gb
-    #     myria3d
-    #     python -m
-    #     pytest -rA -v -m "slow" 
-    #     --ignore=actions-runner
+    - name: Check code neatness (linter)
+      run: docker run myria3d flake8
 
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 

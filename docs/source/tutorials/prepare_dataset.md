@@ -1,64 +1,34 @@
 # Preparing data for training
 
-## Using your own data 
+### Peprocessing functions
 
-### Data signatures
+The loading function is dataset dependant, and is `lidar_hd_pre_transform` by default. The function takes points loaded from a LAS file via pdal as input, and returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a list of features names for later use in transforms.
 
-In `myria3d/data/loading.py` is the logic for data preprocessing, both offline and online, i.e. saving preprocessed data objects for fast trainig vs. pre-processing at inference time.
+It is adapted to the French Lidar HD data provided by IGN (see [the official page](https://geoservices.ign.fr/lidarhd) - link in French). Return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.
 
-The loading function is dataset dependant, and there are currently a logic for both SwissTopo data and French Lidar HD IGN data. Variations in logics may be due to the availability of specific dimensions (e.g. Infrared information) or encodings. The function returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a description of features names and the path to the input file.
+You may want to implement your own logic (e.g. with custom, additional features) in diretcory `points_pre_transform`. It then needs to be referenced similarly to `lidar_hd_pre_transform`.
 
-> Detailed instruction to create a compatible dataset from Swiss data is given in [this repo](https://github.com/CharlesGaydon/Colorize-SwissSURFACE3D-Lidar).
 
-You may want to implement your own logic, which then needs to be specified in `_get_data_preparation_parser` and `main` so that it can be used via the CLI to prepare a new dataset (see section below). The loading logic must additionnaly be referenced by the hydra config parameter `datamodule.dataset_description.load_las_func`. 
+### Using your own data
 
-## Data preparation
+Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m*50m was a good balance between context and memory intensity. For faster training, this split can be done once, to avoid loading large file in memory multiple times.
 
-See the argument for data preparation in :
+To perform a training, you will need to specify these parameters of the datamodule config group:
+- `data_dir`: path to a directory in which a set of LAS files are stored (can be nested in subdirectories).
+- `split_csv_path`: path to a CSV file with schema `basename,split`, specifying a train/val/test spit for your data.
 
-```
-python myria3d/data/loading.py -h
-```
+These will be composed into a single file dataset for which you can specify a path via the `datamodule.hdf5_file_path` parameter. This happens on the fly, therefore a first training might take some time, but this should only happens once.
 
-Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m\*50m was a good balance between context and memory intensity. 
+Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.
 
-For train and split sets, the subtiles turned into `Data` objects are serialized with torch so that they can be quickly loaded at training time.
-
-For test, input point clouds are simply copied so that the test logic might mirror the logic used at inference time, including the on-the-fly splitting of these large input point clouds.
-
-The prepared dataset hence have the following structure.
-```
-prepared_dataset
-└───train
-│   │   fileA_part1.data
-│   │   ...
-│   │   fileA_partN.data
-│   │   ...
-│   │   fileB_part1.data
-│   │   ...
-│   │   fileB_partN.data
-│   │   ...
-└───val
-│   │   fileC_part1.data
-│   │   ...
-│   │   fileC_partN.data
-│   │   ...
-│   │   fileD_part1.data
-│   │   ...
-│   │   fileD_partN.data
-└───val
-│   │   fileX.las
-│   │   fileY.las
-│   │   ...
-│   │   fileZ.las
-```
 
 ## Getting started quickly with a toy dataset
 
 A LAS file is provided as part of the test suite. It can be turned into a small, training-ready dataset to get started with the package. 
-This single file is copied 6 times, so that there are 2 copies in each split (train/val/test). The copies are then prepared for training. The French Lidar data signature is used.
 
-To create a toy dataset in `./inputs/toy_dataset/`, simply run :
+To create a toy dataset run :
 ```
-python myria3d/data/loading.py --origin FR_TOY --prepared_data_dir=./inputs/toy_dataset/
+python myria3d/pctl/dataset/toy_dataset.py
 ```
+
+You will see a new file: `/test/data/toy_dataset.hdf5`.

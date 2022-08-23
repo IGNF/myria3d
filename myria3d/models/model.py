@@ -3,14 +3,12 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
-from torchmetrics import MaxMetric
-from myria3d.models.modules.point_net2 import PointNet2
 from myria3d.models.modules.randla_net import RandLANet
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = [RandLANet, PointNet2]
+MODEL_ZOO = [RandLANet]
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -71,9 +69,8 @@ class Model(LightningModule):
         if stage == "fit":
             self.train_iou = self.hparams.iou()
             self.val_iou = self.hparams.iou()
-            self.val_iou_best = MaxMetric()
         if stage == "test":
-            self.test_iou = self.hparams.iou().cpu()
+            self.test_iou = self.hparams.iou()
         if stage != "predict":
             self.criterion = self.hparams.criterion
 
@@ -91,20 +88,20 @@ class Model(LightningModule):
         logits = self.model(batch)
         return logits
 
-    def step(self, batch: Batch):
-        """Model step, including loss computation.
+    # def step(self, batch: Batch):
+    #     """Model step, including loss computation.
 
-        Args:
-            batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
-            and y (targets, optionnal) in (B*N,C) format.
+    #     Args:
+    #         batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
+    #         and y (targets, optionnal) in (B*N,C) format.
 
-        Returns:
-            torch.Tensor (1), torch.Tensor (B*N,C), torch.Tensor (B*N,C), torch.Tensor: loss, logits, targets
+    #     Returns:
+    #         torch.Tensor (1), torch.Tensor (B*N,C), torch.Tensor (B*N,C), torch.Tensor: loss, logits, targets
 
-        """
-        logits = self.forward(batch)
-        loss = self.criterion(logits, batch.y)
-        return loss, logits
+    #     """
+    # logits = self.forward(batch)
+    # loss = self.criterion(logits, batch.y)
+    #     return loss, logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -123,15 +120,19 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        loss, logits = self.step(batch)
+        logits = self.forward(batch)
+        targets = batch.y
+
+        loss = self.criterion(logits, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
+
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
-            self.train_iou(preds, batch.y)
+            self.train_iou(preds, targets)
         self.log(
             "train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True
         )
-        return {"loss": loss, "logits": logits, "targets": batch.y}
+        return {"loss": loss, "logits": logits, "targets": targets}
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -147,27 +148,26 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        loss, logits = self.step(batch)
+        logits = self.forward(batch)
+        targets = batch.copies["transformed_y_copy"].to(logits.device)
+        self.criterion = self.criterion.to(logits.device)
+        loss = self.criterion(logits, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
-        with torch.no_grad():
-            preds = torch.argmax(logits.detach(), dim=1)
-            self.val_iou(preds, batch.y)
+
+        preds = torch.argmax(logits.detach(), dim=1)
+        self.val_iou = self.val_iou.to(preds.device)
+        self.val_iou(preds, targets)
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
-        return {"loss": loss, "logits": logits, "targets": batch.y}
+        return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_validation_epoch_end(self) -> None:
-        """At the end of a validation epoch, compute the IoU and track if it has improved
-        by updating the best one.
+        """At the end of a validation epoch, compute the IoU.
 
         Args:
             outputs : output of validation_step
 
         """
-        iou = self.val_iou.compute()
-        self.val_iou_best.update(iou)
-        self.log(
-            "val/iou_best", self.val_iou_best.compute(), on_epoch=True, prog_bar=True
-        )
+        self.val_iou.compute()
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -181,17 +181,22 @@ class Model(LightningModule):
 
         """
         logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"].cpu()
+        targets = batch.copies["transformed_y_copy"].to(logits.device)
+        self.criterion = self.criterion.to(logits.device)
+        loss = self.criterion(logits, targets)
+        self.log("test/loss", loss, on_step=True, on_epoch=True)
 
         preds = torch.argmax(logits, dim=1)
-        self.test_iou = self.test_iou.cpu()
+        self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
         self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
-        return {"logits": logits, "targets": targets}
+        return {"loss": loss, "logits": logits, "targets": targets}
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
+
+        Move to CPU to avoid acucmulation of predictions into gpu memory.
 
         Args:
             batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
@@ -208,7 +213,7 @@ class Model(LightningModule):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
 
         Returns:
-            An optimized, or a config which includes a scheduler and the parma to monitor.
+            An optimizer, or a config of a scheduler and an optimizer.
 
         """
         self.lr = self.hparams.lr  # aliasing for Lightning auto_find_lr
@@ -218,15 +223,8 @@ class Model(LightningModule):
         if self.hparams.lr_scheduler is None:
             return optimizer
 
-        try:
-            lr_scheduler = self.hparams.lr_scheduler(optimizer)
-        except Exception:
-            # OneCycleLR needs optimizer and max_lr
-            lr_scheduler = self.hparams.lr_scheduler(optimizer, self.lr)
-        config = {
+        return {
             "optimizer": optimizer,
-            "lr_scheduler": lr_scheduler,
+            "lr_scheduler": self.hparams.lr_scheduler(optimizer),
             "monitor": self.hparams.monitor,
         }
-
-        return config

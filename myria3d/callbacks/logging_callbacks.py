@@ -60,7 +60,7 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = batch.y
+        targets = outputs["targets"]
         self.log_iou(logits, targets, "train", self.train_iou_by_class_dict)
 
     def on_validation_batch_end(
@@ -74,7 +74,7 @@ class LogIoUByClass(Callback):
     ):
         """Log IoU for each class."""
         logits = outputs["logits"]
-        targets = batch.y
+        targets = outputs["targets"]
         self.log_iou(logits, targets, "val", self.val_iou_by_class_dict)
 
     def on_test_batch_end(
@@ -113,6 +113,7 @@ class SingleClassIoU(JaccardIndex):
     This enables good computation of epoch-level JaccardIndex.
     i.e. use the full confusion matrix instead of averaging many step-level JaccardIndex.
     Default parameters of JaccardIndex are used except for absent_score set to 1.0 and none reduction.
+
     """
 
     def __init__(

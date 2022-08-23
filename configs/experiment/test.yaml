@@ -3,10 +3,6 @@
 # Use a specified model to infer on the full validation set (i.e. test dataloader)
 
 # all parameters below will be merged with parameters from default configurations
-
-defaults:
-  - override /datamodule/transforms/preparations: test.yaml
-
 seed: 12345
 
 task:
@@ -25,8 +21,6 @@ model:
   ckpt_path: "path/to/checkpoint"  # override
 
 trainer:
-  log_every_n_steps: 1
   num_sanity_val_steps: 0
   min_epochs: 1
   max_epochs: 100000
-  check_val_every_n_epoch: 1

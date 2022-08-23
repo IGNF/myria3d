@@ -1,5 +1,11 @@
-NormalizePos:
-  _target_: myria3d.data.transforms.NormalizePos
+# Do not scale positions to keep meter-space for neural network parameters
 
-StandardizeFeatures:
-  _target_: myria3d.data.transforms.StandardizeFeatures
+NullifyLowestZ:
+  _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
+
+NormalizePos:
+  _target_: myria3d.pctl.transforms.transforms.NormalizePos
+  subtile_width: "${datamodule.subtile_width}"
+
+StandardizeRGBAndIntensity:
+  _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity

@@ -1,27 +1,22 @@
 # @package _global_
 
-defaults:
-  - override /trainer: default.yaml
-  - override /model: randla_net_model.yaml
-
-# all parameters below will be merged with parameters from default configurations set above
-# this allows you to overwrite only specified parameters
+# Nota : call "python myria3d/pctl/dataset/toy_dataset.py" to create a toy dataset before running this.
 
 logger:
   comet:
     experiment_name: "RandLaNetDebug"
+    disabled: true
 
 trainer:
-  log_every_n_steps: 1
-  overfit_batches: 1
+  limit_train_batches: 1
+  limit_val_batches: 1
+  limit_test_batches: 1
+  max_epochs: 1
   num_sanity_val_steps: 0
-  min_epochs: 40
-  max_epochs: 40
-  check_val_every_n_epoch: 1
-  # gpus: "1"
 
 datamodule:
-  batch_size: 16 # Large possible for faster training.
-  subsample_size: 12500  # Aim for at least 10pts/m²
+  batch_size: 2
   num_workers: 1
+  # runtime.cwd is where application is run from e.g. where run.py is.
+  hdf5_file_path: "${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5"
 

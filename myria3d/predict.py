@@ -1,13 +1,16 @@
 from glob import glob
 import os
+import os.path as osp
 import hydra
 import torch
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
+import sys
 
-from myria3d.utils import utils
-from myria3d.models.interpolation import Interpolator
+sys.path.append(osp.dirname(osp.dirname(__file__)))
+from myria3d.utils import utils  # noqa
+from myria3d.models.interpolation import Interpolator  # noqa
 
 
 log = utils.get_logger(__name__)
@@ -38,9 +41,9 @@ def predict(config: DictConfig) -> str:
     assert os.path.exists(config.predict.src_las)
 
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
-    datamodule._set_predict_data([config.predict.src_las])
+    datamodule._set_predict_data(config.predict.src_las)
 
-    # Do not require gradient for faster
+    # Do not require gradient for faster predictions
     torch.set_grad_enabled(False)
 
     model: LightningModule = hydra.utils.instantiate(config.model)
@@ -52,7 +55,7 @@ def predict(config: DictConfig) -> str:
     # TODO: Interpolator could be instantiated directly via hydra.
     itp = Interpolator(
         interpolation_k=config.predict.interpolation_k,
-        classification_dict=datamodule.dataset_description.get("classification_dict"),
+        classification_dict=config.dataset_description.get("classification_dict"),
         probas_to_save=config.predict.probas_to_save,
     )
 

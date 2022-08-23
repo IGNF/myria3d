@@ -1,0 +1,77 @@
+# default preparations with grid sampling and random sampling.
+
+train:
+  TargetTransform:
+    _target_: myria3d.pctl.transforms.transforms.TargetTransform
+    _args_:
+      - ${dataset_description.classification_preprocessing_dict}
+      - ${dataset_description.classification_dict}
+
+  GridSampling:
+    _target_: torch_geometric.transforms.GridSampling
+    _args_:
+      - 0.25
+
+  FixedPoints:
+    _target_: torch_geometric.transforms.FixedPoints
+    _args_:
+      - 12500
+    replace: False
+    allow_duplicates: True
+
+  Center:
+    _target_: torch_geometric.transforms.Center
+
+eval:
+  TargetTransform:
+    _target_: myria3d.pctl.transforms.transforms.TargetTransform
+    _args_:
+      - ${dataset_description.classification_preprocessing_dict}
+      - ${dataset_description.classification_dict}
+
+  CopyFullPreparedTargets:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
+
+  CopyFullPos:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  GridSampling:
+    _target_: torch_geometric.transforms.GridSampling
+    _args_:
+      - 0.25
+
+  FixedPoints:
+    _target_: torch_geometric.transforms.FixedPoints
+    _args_:
+      - 12500
+    replace: False
+    allow_duplicates: True
+
+  # For interpolation
+  CopySampledPos:
+    _target_: myria3d.pctl.transforms.transforms.CopySampledPos
+
+  Center:
+    _target_: torch_geometric.transforms.Center
+  
+predict:
+  CopyFullPos:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  GridSampling:
+    _target_: torch_geometric.transforms.GridSampling
+    _args_:
+      - 0.25
+
+  FixedPoints:
+    _target_: torch_geometric.transforms.FixedPoints
+    _args_:
+      - 12500
+    replace: False
+    allow_duplicates: True
+
+  CopySampledPos:
+    _target_: myria3d.pctl.transforms.transforms.CopySampledPos
+
+  Center:
+    _target_: torch_geometric.transforms.Center

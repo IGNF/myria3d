@@ -14,7 +14,7 @@ import os
 import sys
 import yaml
 
-from hydra.experimental import compose, initialize
+from hydra import compose, initialize
 from omegaconf import OmegaConf
 
 

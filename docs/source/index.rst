@@ -36,7 +36,7 @@ Myria3D > Documentation
 
    apidoc/scripts
    apidoc/configs
-   apidoc/myria3d.data
+   apidoc/myria3d.pctl
    apidoc/myria3d.model
    apidoc/myria3d.models.modules
    apidoc/myria3d.callbacks

@@ -4,9 +4,6 @@
 # an inference.
 # This file should not be used directly if the trained model's config is different than the default config.
 
-defaults:
-  - override /datamodule/transforms/preparations: predict.yaml
-
 seed: 12345
 
 task:
