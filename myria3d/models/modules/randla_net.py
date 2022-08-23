@@ -22,16 +22,16 @@ class RandLANet(nn.Module):
 
     """
 
-    def __init__(self, hparams_net: dict):
+    def __init__(self, **kwargs: dict):
         super(RandLANet, self).__init__()
-        self.d_in = hparams_net.get("d_in", 6)  # xyz + features
-        self.num_neighbors = hparams_net.get("num_neighbors", 16)
-        self.decimation = hparams_net.get("decimation", 4)
-        self.dropout = hparams_net.get("dropout", 0.0)
-        self.num_classes = hparams_net.get("num_classes", 7)
-        self.interpolation_k = hparams_net.get("interpolation_k", 25)
+        self.d_in = kwargs.get("d_in", 6)  # xyz + features
+        self.num_neighbors = kwargs.get("num_neighbors", 16)
+        self.decimation = kwargs.get("decimation", 4)
+        self.dropout = kwargs.get("dropout", 0.0)
+        self.num_classes = kwargs.get("num_classes", 7)
+        self.interpolation_k = kwargs.get("interpolation_k", 25)
 
-        self.num_workers = hparams_net.get("num_workers", 4)
+        self.num_workers = kwargs.get("num_workers", 4)
 
         self.fc_start = nn.Linear(self.d_in, self.d_in * 2)
         self.bn_start = nn.Sequential(

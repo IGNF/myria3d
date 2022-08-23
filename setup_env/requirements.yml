@@ -1,4 +1,4 @@
-name: myria3d
+name: myria3d_pyg2_1_0
 channels:
   - comet_ml
   - pytorch
@@ -17,8 +17,8 @@ dependencies:
   - shapely
   - python-pdal  # useful for data preparation
   # --------- deep learning --------- #
-  - pytorch==1.10.1
-  - pyg==2.0.3
+  - pytorch==1.11.*
+  # - pyg==2.1.0
   - torchvision==0.11.2
   - cudatoolkit=11.3  # single equal sign there, not a typo
   - pytorch-lightning==1.5.9
