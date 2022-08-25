@@ -4,8 +4,9 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
-from myria3d.models.modules.randla_net import RandLANet
+from myria3d.models.modules.randla_net import RandLANet, get_batch_tensor_by_enumeration
 from myria3d.utils import utils
+from torch_geometric.nn import knn_interpolate
 
 log = utils.get_logger(__name__)
 
@@ -83,26 +84,34 @@ class Model(LightningModule):
             and y (targets, optionnal) in (B*N,C) format.
 
         Returns:
+            torch.Tensor (B*N,1): targets
             torch.Tensor (B*N,C): logits
 
         """
         logits = self.model(batch)
-        return logits
+        if self.training or "copies" not in batch:
+            # In training mode and for validation, we directly optimize on subsampled points, for
+            # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
+            # 2) data augmentation at the supervision level.
+            return batch.y, logits  # B*N, C
 
-    # def step(self, batch: Batch):
-    #     """Model step, including loss computation.
-
-    #     Args:
-    #         batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
-    #         and y (targets, optionnal) in (B*N,C) format.
-
-    #     Returns:
-    #         torch.Tensor (1), torch.Tensor (B*N,C), torch.Tensor (B*N,C), torch.Tensor: loss, logits, targets
-
-    #     """
-    # logits = self.forward(batch)
-    # loss = self.criterion(logits, batch.y)
-    #     return loss, logits
+        # During evaluation on test data and inference, we interpolate predictions back to original positions
+        # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
+        logits = logits.cpu()
+        batch_y = get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
+        logits = knn_interpolate(
+            logits.cpu(),
+            batch.copies["pos_sampled_copy"].cpu(),
+            batch.copies["pos_copy"].cpu(),
+            batch_x=batch.batch.cpu(),
+            batch_y=batch_y.cpu(),
+            k=self.interpolation_k,
+            num_workers=self.num_workers,
+        )
+        targets = None
+        if "transformed_y_copy" in batch.copies:
+            targets = batch.copies["transformed_y_copy"].to(logits.device)
+        return targets, logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -122,8 +131,7 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        logits = self.forward(batch)
-        targets = batch.y
+        targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
@@ -150,8 +158,7 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"].to(logits.device)
+        targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
@@ -182,8 +189,7 @@ class Model(LightningModule):
             dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
         """
-        logits = self.forward(batch)
-        targets = batch.copies["transformed_y_copy"].to(logits.device)
+        targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("test/loss", loss, on_step=True, on_epoch=True)
@@ -208,7 +214,7 @@ class Model(LightningModule):
             dict: Dictionnary with predicted logits as well as input batch.
 
         """
-        logits = self.forward(batch)
+        _, logits = self.forward(batch)
         return {"logits": logits.detach().cpu()}
 
     def configure_optimizers(self):
