@@ -6,6 +6,7 @@ checkpoints/
 runs/
 # large files that are not tracked
 tests/data/large
+tests/data/toy_dataset.hdf5
 
 
 # Byte-compiled / optimized / DLL files
