@@ -134,26 +134,7 @@ class RandLANet(nn.Module):
         scores = torch.cat(
             [score_cloud.permute(1, 0) for score_cloud in scores]
         )  # B*N, C
-        if self.training or "copies" not in batch:
-            # In training mode and for validation, we directly optimize on subsampled points, for
-            # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
-            # 2) data augmentation at the supervision level.
-            return scores  # B*N, C
-
-        # During evaluation on test data and inference, we interpolate predictions back to original positions
-        # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
-        scores = scores.cpu()
-        batch_y = get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
-        scores = knn_interpolate(
-            scores.cpu(),
-            batch.copies["pos_sampled_copy"].cpu(),
-            batch.copies["pos_copy"].cpu(),
-            batch_x=batch.batch.cpu(),
-            batch_y=batch_y.cpu(),
-            k=self.interpolation_k,
-            num_workers=self.num_workers,
-        )
-        return scores  # N1+N2+...+Nn, C
+        return scores
 
     def set_fc_end(self, d_in, dropout, num_classes):
         """Build the final fully connected layer.
