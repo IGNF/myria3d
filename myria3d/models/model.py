@@ -105,8 +105,8 @@ class Model(LightningModule):
             batch.copies["pos_copy"].cpu(),
             batch_x=batch.batch.cpu(),
             batch_y=batch_y.cpu(),
-            k=self.interpolation_k,
-            num_workers=self.num_workers,
+            k=self.hparams.interpolation_k,
+            num_workers=self.hparams.num_workers,
         )
         targets = None  # no targets in inference mode.
         if "transformed_y_copy" in batch.copies:

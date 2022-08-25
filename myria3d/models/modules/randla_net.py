@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 
 from torch_geometric.nn.pool import knn
-from torch_geometric.nn.unpool import knn_interpolate
 
 
 class RandLANet(nn.Module):
