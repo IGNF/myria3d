@@ -12,6 +12,7 @@ logger:
 
 trainer:
   min_epochs: 100
+  max_epochs: 100
   overfit_batches: 1
   num_sanity_val_steps: 0
 

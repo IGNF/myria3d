@@ -108,8 +108,9 @@ class Model(LightningModule):
             k=self.interpolation_k,
             num_workers=self.num_workers,
         )
-        targets = None
+        targets = None  # no targets in inference mode.
         if "transformed_y_copy" in batch.copies:
+            # eval (test/val).
             targets = batch.copies["transformed_y_copy"].to(logits.device)
         return targets, logits
 
