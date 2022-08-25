@@ -1,14 +1,14 @@
 import torch
 import torch.nn.functional as F
 from torch import Tensor
-from torch.nn import LeakyReLU, Sequential
+from torch.nn import LeakyReLU, Sequential, Linear
 from tqdm import tqdm
 
 import torch_geometric.transforms as T
 from torchmetrics.functional import jaccard_index
 from torch_scatter import scatter
 from torch_geometric.loader import DataLoader
-from torch_geometric.nn import MLP, global_max_pool, knn_interpolate
+from torch_geometric.nn import MLP, global_max_pool, knn_interpolate, BatchNorm
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn
 from torch_geometric.datasets import ShapeNet
@@ -28,28 +28,40 @@ class PyGRandLANet(torch.nn.Module):
         super().__init__()
         self.interpolation_k = interpolation_k
         self.num_workers = num_workers
-
-        self.lfa1_module = DilatedResidualBlock(
-            decimation, num_neighbors, num_features, 32
+        # 16 instead of 8 to avoid having lower dim than num_features.
+        self.fc0 = Sequential(
+            Linear(in_features=num_features, out_features=16),
+            bn099(16),
         )
-        self.lfa2_module = DilatedResidualBlock(decimation, num_neighbors, 32, 128)
-        self.lfa3_module = DilatedResidualBlock(decimation, num_neighbors, 128, 256)
-        self.lfa4_module = DilatedResidualBlock(decimation, num_neighbors, 256, 512)
-        self.mlp1 = MLP([512, 512])
-        self.fp4_module = FPModule(1, MLP([512 + 256, 256]))
-        self.fp3_module = FPModule(1, MLP([256 + 128, 128]))
-        self.fp2_module = FPModule(1, MLP([128 + 32, 32]))
-        self.fp1_module = FPModule(1, MLP([32 + num_features, 8]))
+        self.lfa1_module = DilatedResidualBlock(
+            decimation, num_neighbors, 16, 16, return_subsampled_only=False
+        )
+        self.lfa2_module = DilatedResidualBlock(decimation, num_neighbors, 32, 64)
+        self.lfa3_module = DilatedResidualBlock(decimation, num_neighbors, 128, 128)
+        self.lfa4_module = DilatedResidualBlock(decimation, num_neighbors, 256, 256)
+        self.mlp1 = MLP([512, 512], act=lrelu02)
+        self.fp4_module = FPModule(
+            1, MLP([512 + 256, 256], act=lrelu02, norm=bn099(256))
+        )
+        self.fp3_module = FPModule(
+            1, MLP([256 + 128, 128], act=lrelu02, norm=bn099(128))
+        )
+        self.fp2_module = FPModule(1, MLP([128 + 32, 32], act=lrelu02, norm=bn099(32)))
+        self.fp1_module = FPModule(1, MLP([32 + 16, 8], act=lrelu02, norm=bn099(8)))
 
-        self.mlp2 = MLP([8, 64, 32], dropout=0.5)
-        self.lin = torch.nn.Linear(32, num_classes)
+        self.mlp2 = Sequential(
+            MLP([8, 64], act=lrelu02, norm=bn099(64)),
+            MLP([64, 32], act=lrelu02, norm=bn099(32), dropout=0.5),
+        )
+        self.fc_end = Linear(32, num_classes)
 
     def forward(self, batch):
         x_with_pos = torch.cat([batch.pos, batch.x], axis=1)
-        in_0 = (x_with_pos, batch.pos, batch.batch)
 
-        lfa1_out = self.lfa1_module(*in_0)
-        lfa2_out = self.lfa2_module(*lfa1_out)
+        in_0 = (self.fc0(x_with_pos), batch.pos, batch.batch)
+
+        lfa1_out_original, lfa1_out_sampled = self.lfa1_module(*in_0)
+        lfa2_out = self.lfa2_module(*lfa1_out_sampled)
         lfa3_out = self.lfa3_module(*lfa2_out)
         lfa4_out = self.lfa4_module(*lfa3_out)
 
@@ -57,14 +69,22 @@ class PyGRandLANet(torch.nn.Module):
 
         fp4_out = self.fp4_module(*mlp_out, *lfa3_out)
         fp3_out = self.fp3_module(*fp4_out, *lfa2_out)
-        fp2_out = self.fp2_module(*fp3_out, *lfa1_out)
+        fp2_out = self.fp2_module(*fp3_out, *lfa1_out_original)
         x, _, _ = self.fp1_module(*fp2_out, *in_0)
 
         x = self.mlp2(x)
 
-        scores = self.lin(x)
+        scores = self.fc_end(x)
 
         return scores
+
+
+# Default activation and BatchNorm used by RandLaNet authors
+lrelu02 = LeakyReLU(negative_slope=0.2)
+
+
+def bn099(in_channels):
+    return BatchNorm(in_channels, momentum=0.99, eps=1e-6)
 
 
 class GlobalPooling(torch.nn.Module):
@@ -85,22 +105,25 @@ class LocalFeatureAggregation(MessagePassing):
 
     def __init__(self, d_out):
         super().__init__(aggr="add")
-        self.mlp_encoder = MLP([10, d_out // 2])
-        self.mlp_attention = MLP([d_out, d_out])
+        self.mlp_encoder = MLP([10, d_out // 2], act=lrelu02, norm=bn099(d_out // 2))
+        self.mlp_attention = Linear(in_features=d_out, out_features=d_out, bias=False)
+        self.mlp_post_attention = MLP([d_out, d_out], act=lrelu02, norm=bn099(d_out))
 
     def forward(self, edge_indx, x, pos):
         out = self.propagate(edge_indx, x=x, pos=pos)  # N // 4 * d_out
+        out = self.mlp_post_attention(out)
         return out
 
     def message(self, x_j: Tensor, pos_i: Tensor, pos_j: Tensor) -> Tensor:
-        """
-        Local Spatial Encoding (locSE) and attentive pooling of features.
+        """Local Spatial Encoding (locSE) and attentive pooling of features.
+
         Args:
             x_j (Tensor): neighboors features (K,d)
             pos_i (Tensor): centroid position (repeated) (K,3)
             pos_j (Tensor): neighboors positions (K,3)
         returns:
             (Tensor): locSE weighted by feature attention scores.
+
         """
         dist = pos_j - pos_i
         euclidian_dist = torch.sqrt(dist * dist).sum(1, keepdim=True)
@@ -108,47 +131,37 @@ class LocalFeatureAggregation(MessagePassing):
             [pos_i, pos_j, dist, euclidian_dist], dim=1
         )  # N//4 * K, d
         local_spatial_encoding = self.mlp_encoder(relative_infos)  # N//4 * K, d
-        out1 = torch.cat([x_j, local_spatial_encoding], dim=1)  # N//4 * K, 2d
+        local_features = torch.cat([x_j, local_spatial_encoding], dim=1)  # N//4 * K, 2d
 
         # attention will weight the different features of x
         attention_scores = torch.softmax(
-            self.mlp_attention(out1), dim=-1
+            self.mlp_attention(local_features), dim=-1
         )  # N//4 * K, d_out
-        out2 = attention_scores * out1  # N//4 * K, d_out
-        return out2
+        return attention_scores * local_features  # N//4 * K, d_out
 
 
 class DilatedResidualBlock(MessagePassing):
-    def __init__(self, decimation, num_neighbors, d_in, d_out):
+    def __init__(
+        self,
+        decimation,
+        num_neighbors,
+        d_in: int,
+        d_out: int,
+        return_subsampled_only: bool = True,
+    ):
         super().__init__()
         self.num_neighbors = num_neighbors
         self.decimation = decimation
         self.d_in = d_in
         self.d_out = d_out
+        self.return_subsampled_only = return_subsampled_only
 
         # MLP on input
-        self.mlp1 = Sequential(
-            MLP(
-                [d_in, d_out // 4],
-                norm=False,
-            ),
-            LeakyReLU(negative_slope=0.2),
-        )
-        # MLP on input whose result is summed with the output of mlp2
-        self.shortcut = Sequential(
-            MLP(
-                [d_in, d_out],
-            ),
-            LeakyReLU(negative_slope=0.2),
-        )
+        self.mlp1 = MLP([d_in, d_out // 4], act=lrelu02, norm=False)
+        # MLP on input, and the result is summed with the output of mlp2
+        self.shortcut = MLP([d_in, 2 * d_out], act=None, norm=bn099(2 * d_out))
         # MLP on output
-        self.mlp2 = Sequential(
-            MLP(
-                [d_out, d_out],
-                norm=False,
-            ),
-            LeakyReLU(negative_slope=0.2),
-        )
+        self.mlp2 = MLP([d_out, 2 * d_out], act=None, norm=bn099(2 * d_out))
 
         self.lfa1 = LocalFeatureAggregation(d_out // 2)
         self.lfa2 = LocalFeatureAggregation(d_out)
@@ -168,8 +181,12 @@ class DilatedResidualBlock(MessagePassing):
         x = self.lfa2(edge_index, x, pos)  # N, d_out
         x = self.mlp2(x)  # N, d_out
         x = self.lrelu(x + shortcut_of_x)  # N, d_out
-        x, pos, batch = x[idx], pos[idx], batch[idx]  # N // decimation, d_out
-        return x, pos, batch
+        out_sampled = (x[idx], pos[idx], batch[idx])  # N // decimation, d_out
+        if self.return_subsampled_only:
+            # Usually enough, except for first layer.
+            return out_sampled
+        out_original = (x, pos, batch)
+        return out_original, out_sampled
 
 
 class FPModule(torch.nn.Module):
