@@ -30,12 +30,9 @@ class PyGRandLANet(torch.nn.Module):
         self.num_workers = num_workers
         # 16 instead of 8 to avoid having lower dim than num_features.
         self.fc0 = Sequential(
-            Linear(in_features=num_features, out_features=16),
-            bn099(16),
+            Linear(in_features=num_features, out_features=16), bn099(16)
         )
-        self.lfa1_module = DilatedResidualBlock(
-            decimation, num_neighbors, 16, 16, return_subsampled_only=False
-        )
+        self.lfa1_module = DilatedResidualBlock(decimation, num_neighbors, 16, 16)
         self.lfa2_module = DilatedResidualBlock(decimation, num_neighbors, 32, 64)
         self.lfa3_module = DilatedResidualBlock(decimation, num_neighbors, 128, 128)
         self.lfa4_module = DilatedResidualBlock(decimation, num_neighbors, 256, 256)
@@ -60,8 +57,8 @@ class PyGRandLANet(torch.nn.Module):
 
         in_0 = (self.fc0(x_with_pos), batch.pos, batch.batch)
 
-        lfa1_out_original, lfa1_out_sampled = self.lfa1_module(*in_0)
-        lfa2_out = self.lfa2_module(*lfa1_out_sampled)
+        lfa1_out = self.lfa1_module(*in_0)
+        lfa2_out = self.lfa2_module(*lfa1_out)
         lfa3_out = self.lfa3_module(*lfa2_out)
         lfa4_out = self.lfa4_module(*lfa3_out)
 
@@ -69,7 +66,7 @@ class PyGRandLANet(torch.nn.Module):
 
         fp4_out = self.fp4_module(*mlp_out, *lfa3_out)
         fp3_out = self.fp3_module(*fp4_out, *lfa2_out)
-        fp2_out = self.fp2_module(*fp3_out, *lfa1_out_original)
+        fp2_out = self.fp2_module(*fp3_out, *lfa1_out)
         x, _, _ = self.fp1_module(*fp2_out, *in_0)
 
         x = self.mlp2(x)
@@ -147,14 +144,12 @@ class DilatedResidualBlock(MessagePassing):
         num_neighbors,
         d_in: int,
         d_out: int,
-        return_subsampled_only: bool = True,
     ):
         super().__init__()
         self.num_neighbors = num_neighbors
         self.decimation = decimation
         self.d_in = d_in
         self.d_out = d_out
-        self.return_subsampled_only = return_subsampled_only
 
         # MLP on input
         self.mlp1 = MLP([d_in, d_out // 4], act=lrelu02, norm=False)
@@ -175,18 +170,13 @@ class DilatedResidualBlock(MessagePassing):
             pos, pos[idx], self.num_neighbors, batch_x=batch, batch_y=batch[idx]
         )
         edge_index = torch.stack([col, row], dim=0)
-        shortcut_of_x = self.shortcut(x)  # N, d_out
+        shortcut_of_x = self.shortcut(x)  # N, 2 * d_out
         x = self.mlp1(x)  # N, d_out // 4
         x = self.lfa1(edge_index, x, pos)  # N, d_out
         x = self.lfa2(edge_index, x, pos)  # N, d_out
-        x = self.mlp2(x)  # N, d_out
-        x = self.lrelu(x + shortcut_of_x)  # N, d_out
-        out_sampled = (x[idx], pos[idx], batch[idx])  # N // decimation, d_out
-        if self.return_subsampled_only:
-            # Usually enough, except for first layer.
-            return out_sampled
-        out_original = (x, pos, batch)
-        return out_original, out_sampled
+        x = self.mlp2(x)  # N, 2 * d_out
+        x = self.lrelu(x + shortcut_of_x)  # N, 2 * d_out
+        return x[idx], pos[idx], batch[idx]  # N // decimation, 2 * d_out
 
 
 class FPModule(torch.nn.Module):
