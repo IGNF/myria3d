@@ -8,7 +8,7 @@ logger:
     experiment_name: "Pyg RandLaNet - FR Data"
 
 trainer:
-  num_sanity_val_steps: 0
+  num_sanity_val_steps: 2
   min_epochs: 100
   max_epochs: 150
   # gpus: [1]
