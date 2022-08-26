@@ -1,7 +1,7 @@
 defaults:
   - default.yaml
 
-lr: 0.001
+lr: 0.0003116676189135389
 
 neural_net_class_name: "PyGRandLANet"
 neural_net_hparams:
