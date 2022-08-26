@@ -1,3 +1,4 @@
+from typing import List, Union
 import torch
 import torch.nn.functional as F
 from torch import Tensor
@@ -13,6 +14,8 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn
 from torch_geometric.datasets import ShapeNet
 
+from myria3d.pctl.transforms.transforms import MinimumNumNodes
+
 
 class PyGRandLANet(torch.nn.Module):
     # num_features = total including pos, which should be removed.. TODO: make this simpler.
@@ -20,22 +23,27 @@ class PyGRandLANet(torch.nn.Module):
         self,
         num_features,
         num_classes,
-        decimation: int = 4,
-        num_neighbors: int = 16,
-        interpolation_k: int = 25,
-        num_workers: int = 1,
+        decimation: Union[List[int], int] = 4,
+        num_neighbors: Union[List[int], int] = 16,
     ):
         super().__init__()
-        self.interpolation_k = interpolation_k
-        self.num_workers = num_workers
+
+        # aliases and extends as list if needed
+        d = decimation
+        nk = num_neighbors
+        if isinstance(d, int):
+            d = 4 * [d]
+        if isinstance(nk, int):
+            nk = 4 * [nk]
+
         # 16 instead of 8 to avoid having lower dim than num_features.
         self.fc0 = Sequential(
             Linear(in_features=num_features, out_features=16), bn099(16)
         )
-        self.lfa1_module = DilatedResidualBlock(decimation, num_neighbors, 16, 16)
-        self.lfa2_module = DilatedResidualBlock(decimation, num_neighbors, 32, 64)
-        self.lfa3_module = DilatedResidualBlock(decimation, num_neighbors, 128, 128)
-        self.lfa4_module = DilatedResidualBlock(decimation, num_neighbors, 256, 256)
+        self.lfa1_module = DilatedResidualBlock(d[0], nk[0], 16, 16)
+        self.lfa2_module = DilatedResidualBlock(d[1], nk[1], 32, 64)
+        self.lfa3_module = DilatedResidualBlock(d[2], nk[2], 128, 128)
+        self.lfa4_module = DilatedResidualBlock(d[3], nk[3], 256, 256)
         self.mlp1 = MLP([512, 512], act=lrelu02)
         self.fp4_module = FPModule(
             1, MLP([512 + 256, 256], act=lrelu02, norm=bn099(256))
@@ -44,10 +52,10 @@ class PyGRandLANet(torch.nn.Module):
             1, MLP([256 + 128, 128], act=lrelu02, norm=bn099(128))
         )
         self.fp2_module = FPModule(1, MLP([128 + 32, 32], act=lrelu02, norm=bn099(32)))
-        self.fp1_module = FPModule(1, MLP([32 + 16, 8], act=lrelu02, norm=bn099(8)))
+        self.fp1_module = FPModule(1, MLP([32 + 16, 64], act=lrelu02, norm=bn099(8)))
 
         self.mlp2 = Sequential(
-            MLP([8, 64], act=lrelu02, norm=bn099(64)),
+            MLP([64, 64], act=lrelu02, norm=bn099(64)),
             MLP([64, 32], act=lrelu02, norm=bn099(32), dropout=0.5),
         )
         self.fc_end = Linear(32, num_classes)
@@ -123,7 +131,7 @@ class LocalFeatureAggregation(MessagePassing):
 
         """
         dist = pos_j - pos_i
-        euclidian_dist = torch.sqrt(dist * dist).sum(1, keepdim=True)
+        euclidian_dist = torch.sqrt((dist * dist).sum(1, keepdim=True))
         relative_infos = torch.cat(
             [pos_i, pos_j, dist, euclidian_dist], dim=1
         )  # N//4 * K, d
@@ -205,6 +213,7 @@ def main():
             T.RandomRotate(15, axis=0),
             T.RandomRotate(15, axis=1),
             T.RandomRotate(15, axis=2),
+            # MinimumNumNodes(4 * 4 * 4 * 4 + 5),
         ]
     )
     pre_transform = T.NormalizeScale()
@@ -231,7 +240,7 @@ def main():
             data = data.to(device)
             optimizer.zero_grad()
             out = model(data)
-            loss = F.nll_loss(out, data.y)
+            loss = F.cross_entropy(out, data.y)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
