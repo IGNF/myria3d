@@ -230,7 +230,7 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=12, shuffle=False, num_workers=6)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = PyGRandLANet(3, train_dataset.num_classes).to(device)
+    model = PyGRandLANet(3 + 3, train_dataset.num_classes).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     def train():
