@@ -14,8 +14,6 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn
 from torch_geometric.datasets import ShapeNet
 
-from myria3d.pctl.transforms.transforms import MinimumNumNodes
-
 
 class PyGRandLANet(torch.nn.Module):
     # num_features = total including pos, which should be removed.. TODO: make this simpler.
@@ -52,7 +50,7 @@ class PyGRandLANet(torch.nn.Module):
             1, MLP([256 + 128, 128], act=lrelu02, norm=bn099(128))
         )
         self.fp2_module = FPModule(1, MLP([128 + 32, 32], act=lrelu02, norm=bn099(32)))
-        self.fp1_module = FPModule(1, MLP([32 + 16, 64], act=lrelu02, norm=bn099(8)))
+        self.fp1_module = FPModule(1, MLP([32 + 16, 64], act=lrelu02, norm=bn099(64)))
 
         self.mlp2 = Sequential(
             MLP([64, 64], act=lrelu02, norm=bn099(64)),
@@ -213,7 +211,6 @@ def main():
             T.RandomRotate(15, axis=0),
             T.RandomRotate(15, axis=1),
             T.RandomRotate(15, axis=2),
-            # MinimumNumNodes(4 * 4 * 4 * 4 + 5),
         ]
     )
     pre_transform = T.NormalizeScale()
