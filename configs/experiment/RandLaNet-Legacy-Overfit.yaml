@@ -19,5 +19,7 @@ datamodule:
   batch_size: 6
   num_workers: 2
   # runtime.cwd is where application is run from e.g. where run.py is.
+  data_dir: "${hydra:runtime.cwd}/tests/data/"
+  split_csv_path: "${hydra:runtime.cwd}/tests/data/toy_dataset_src/toy_dataset_split.csv"
   hdf5_file_path: "${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5"
 

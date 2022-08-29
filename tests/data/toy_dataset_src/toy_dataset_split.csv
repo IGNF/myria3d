@@ -1,0 +1,4 @@
+basename,split
+862000_6652000.classified_toy_dataset.100mx100m.las,train
+862000_6652000.classified_toy_dataset.100mx100m.las,val
+862000_6652000.classified_toy_dataset.100mx100m.las,test
