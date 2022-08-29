@@ -7,6 +7,9 @@ logger:
   comet:
     experiment_name: "RandLaNet - FR Data"
 
+datamodule:
+  batch_size: 32
+
 trainer:
   num_sanity_val_steps: 0
   min_epochs: 100
