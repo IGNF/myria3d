@@ -14,54 +14,58 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn
 from torch_geometric.datasets import ShapeNet
 
+# Default activation, BatchNorm, and resulting MLP used by RandLaNet authors
+lrelu02_kwargs = {"negative_slope": 0.2}
+
+
+bn099_kwargs = {"momentum": 0.99, "eps": 1e-6}
+
+
+def default_MLP(*args, **kwargs):
+    """MLP with custom activation, bn, and dropout that are always active even an last layer."""
+    kwargs["plain_last"] = kwargs.get("plain_last", False)
+    kwargs["act"] = kwargs.get("act", "LeakyReLU")
+    kwargs["act_kwargs"] = kwargs.get("act_kwargs", lrelu02_kwargs)
+    kwargs["norm_kwargs"] = kwargs.get("norm_kwargs", bn099_kwargs)
+    return MLP(*args, **kwargs)
+
 
 class PyGRandLANet(torch.nn.Module):
-    # num_features = total including pos, which should be removed.. TODO: make this simpler.
     def __init__(
         self,
         num_features,
         num_classes,
-        decimation: Union[List[int], int] = 4,
-        num_neighbors: Union[List[int], int] = 16,
+        decimation: int = 4,
+        num_neighbors: int = 16,
+        return_logits: bool = False,
     ):
         super().__init__()
 
-        # aliases and extends as list if needed
+        self.return_logits = return_logits
+        # Authors use 8, which might become a bottlenecj if num_classes>8 or num_features>8.
+        bottleneck = max(num_classes, num_features)
         d = decimation
         nk = num_neighbors
-        if isinstance(d, int):
-            d = 4 * [d]
-        if isinstance(nk, int):
-            nk = 4 * [nk]
 
-        # 16 instead of 8 to avoid having lower dim than num_features.
-        self.fc0 = Sequential(
-            Linear(in_features=num_features, out_features=16), bn099(16)
-        )
-        self.lfa1_module = DilatedResidualBlock(d[0], nk[0], 16, 16)
-        self.lfa2_module = DilatedResidualBlock(d[1], nk[1], 32, 64)
-        self.lfa3_module = DilatedResidualBlock(d[2], nk[2], 128, 128)
-        self.lfa4_module = DilatedResidualBlock(d[3], nk[3], 256, 256)
-        self.mlp1 = MLP([512, 512], act=lrelu02)
-        self.fp4_module = FPModule(
-            1, MLP([512 + 256, 256], act=lrelu02, norm=bn099(256))
-        )
-        self.fp3_module = FPModule(
-            1, MLP([256 + 128, 128], act=lrelu02, norm=bn099(128))
-        )
-        self.fp2_module = FPModule(1, MLP([128 + 32, 32], act=lrelu02, norm=bn099(32)))
-        self.fp1_module = FPModule(1, MLP([32 + 16, 64], act=lrelu02, norm=bn099(64)))
+        self.fc0 = Linear(num_features, bottleneck)
+        self.lfa1_module = DilatedResidualBlock(d, nk, bottleneck, 32)
+        self.lfa2_module = DilatedResidualBlock(d, nk, 32, 128)
+        self.lfa3_module = DilatedResidualBlock(d, nk, 128, 256)
+        self.lfa4_module = DilatedResidualBlock(d, nk, 256, 512)
+        self.mlp1 = default_MLP([512, 512])
+        self.fp4_module = FPModule(1, default_MLP([512 + 256, 256]))
+        self.fp3_module = FPModule(1, default_MLP([256 + 128, 128]))
+        self.fp2_module = FPModule(1, default_MLP([128 + 32, 32]))
+        self.fp1_module = FPModule(1, default_MLP([32 + bottleneck, bottleneck]))
 
         self.mlp2 = Sequential(
-            MLP([64, 64], act=lrelu02, norm=bn099(64)),
-            MLP([64, 32], act=lrelu02, norm=bn099(32), dropout=0.5),
+            default_MLP([bottleneck, 64, 32], dropout=[0.0, 0.5]),
+            Linear(32, num_classes),
         )
-        self.fc_end = Linear(32, num_classes)
 
     def forward(self, batch):
-        x_with_pos = torch.cat([batch.pos, batch.x], axis=1)
 
-        in_0 = (self.fc0(x_with_pos), batch.pos, batch.batch)
+        in_0 = (self.fc0(batch.x), batch.pos, batch.batch)
 
         lfa1_out = self.lfa1_module(*in_0)
         lfa2_out = self.lfa2_module(*lfa1_out)
@@ -75,11 +79,10 @@ class PyGRandLANet(torch.nn.Module):
         fp2_out = self.fp2_module(*fp3_out, *lfa1_out)
         x, _, _ = self.fp1_module(*fp2_out, *in_0)
 
-        x = self.mlp2(x)
-
-        scores = self.fc_end(x)
-
-        return scores
+        logits = self.mlp2(x)
+        if self.return_logits:
+            return logits
+        return logits.log_softmax(dim=-1)
 
 
 # Default activation and BatchNorm used by RandLaNet authors
@@ -90,40 +93,31 @@ def bn099(in_channels):
     return BatchNorm(in_channels, momentum=0.99, eps=1e-6)
 
 
-class GlobalPooling(torch.nn.Module):
-    def __init__(self, nn):
-        super().__init__()
-        self.nn = nn
-
-    def forward(self, x, pos, batch):
-        x = self.nn(x)
-        x = global_max_pool(x, batch)
-        pos = pos.new_zeros((x.size(0), 3))
-        batch = torch.arange(x.size(0), device=batch.device)
-        return x, pos, batch
-
-
 class LocalFeatureAggregation(MessagePassing):
     """Positional encoding of points in a neighborhood."""
 
     def __init__(self, d_out):
         super().__init__(aggr="add")
-        self.mlp_encoder = MLP([10, d_out // 2], act=lrelu02, norm=bn099(d_out // 2))
-        self.mlp_attention = Linear(in_features=d_out, out_features=d_out, bias=False)
-        self.mlp_post_attention = MLP([d_out, d_out], act=lrelu02, norm=bn099(d_out))
+        self.mlp_encoder = default_MLP([10, d_out // 2])
+        self.mlp_attention = default_MLP(
+            [d_out, d_out], bias=False, act=None, norm=None
+        )
+        self.mlp_post_attention = default_MLP([d_out, d_out])
 
     def forward(self, edge_indx, x, pos):
         out = self.propagate(edge_indx, x=x, pos=pos)  # N // 4 * d_out
-        out = self.mlp_post_attention(out)
+        out = self.mlp_post_attention(out)  # N // 4 * d_out
         return out
 
     def message(self, x_j: Tensor, pos_i: Tensor, pos_j: Tensor) -> Tensor:
-        """Local Spatial Encoding (locSE) and attentive pooling of features.
+        """
+        Local Spatial Encoding (locSE) and attentive pooling of features.
 
         Args:
             x_j (Tensor): neighboors features (K,d)
             pos_i (Tensor): centroid position (repeated) (K,3)
             pos_j (Tensor): neighboors positions (K,3)
+
         returns:
             (Tensor): locSE weighted by feature attention scores.
 
@@ -158,34 +152,62 @@ class DilatedResidualBlock(MessagePassing):
         self.d_out = d_out
 
         # MLP on input
-        self.mlp1 = MLP([d_in, d_out // 4], act=lrelu02, norm=False)
+        self.mlp1 = default_MLP([d_in, d_out // 8])  # TODO: remove the norm ?
         # MLP on input, and the result is summed with the output of mlp2
-        self.shortcut = MLP([d_in, 2 * d_out], act=None, norm=bn099(2 * d_out))
+        self.shortcut = default_MLP([d_in, d_out], act=None)
         # MLP on output
-        self.mlp2 = MLP([d_out, 2 * d_out], act=None, norm=bn099(2 * d_out))
+        self.mlp2 = default_MLP([d_out // 2, d_out], act=None)
 
-        self.lfa1 = LocalFeatureAggregation(d_out // 2)
-        self.lfa2 = LocalFeatureAggregation(d_out)
+        self.lfa1 = LocalFeatureAggregation(d_out // 4)
+        self.lfa2 = LocalFeatureAggregation(d_out // 2)
 
-        self.lrelu = torch.nn.LeakyReLU()
+        self.lrelu = torch.nn.LeakyReLU(**lrelu02_kwargs)
 
     def forward(self, x, pos, batch):
         # Random Sampling by decimation
-        idx = torch.arange(start=0, end=batch.size(0), step=self.decimation)
+        idx = subsample_by_decimation(batch, self.decimation)
         row, col = knn(
             pos, pos[idx], self.num_neighbors, batch_x=batch, batch_y=batch[idx]
         )
         edge_index = torch.stack([col, row], dim=0)
-        shortcut_of_x = self.shortcut(x)  # N, 2 * d_out
-        x = self.mlp1(x)  # N, d_out // 4
-        x = self.lfa1(edge_index, x, pos)  # N, d_out
-        x = self.lfa2(edge_index, x, pos)  # N, d_out
-        x = self.mlp2(x)  # N, 2 * d_out
-        x = self.lrelu(x + shortcut_of_x)  # N, 2 * d_out
-        return x[idx], pos[idx], batch[idx]  # N // decimation, 2 * d_out
+        shortcut_of_x = self.shortcut(x)  # N, d_out
+        x = self.mlp1(x)  # N, d_out // 8
+        x = self.lfa1(edge_index, x, pos)  # N, d_out // 2
+        x = self.lfa2(edge_index, x, pos)  # N, d_out // 2
+        x = self.mlp2(x)  # N, d_out
+        x = self.lrelu(x + shortcut_of_x)  # N, d_out
+        return x[idx], pos[idx], batch[idx]  # N // decimation, d_out
+
+
+def subsample_by_decimation(batch, decimation):
+    """Subsamples by a decimation factor.
+
+    Each sample needs to be decimated separately to prevent emptying point clouds by accident.
+
+    """
+    ends = (
+        (torch.argwhere(torch.diff(batch) != 0) + 1)
+        .cpu()
+        .numpy()
+        .squeeze()
+        .astype(int)
+        .tolist()
+    )
+    starts = [0] + ends
+    ends = ends + [batch.size(0)]
+    idx = torch.cat(
+        [
+            (start + torch.randperm(end - start))[::decimation]
+            for start, end in zip(starts, ends)
+        ],
+        dim=0,
+    )
+    return idx
 
 
 class FPModule(torch.nn.Module):
+    """Upsampling with a skip connection."""
+
     def __init__(self, k, nn):
         super().__init__()
         self.k = k
@@ -226,7 +248,7 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=12, shuffle=False, num_workers=6)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = PyGRandLANet(3 + 3, train_dataset.num_classes).to(device)
+    model = PyGRandLANet(3, train_dataset.num_classes).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     def train():
@@ -237,7 +259,7 @@ def main():
             data = data.to(device)
             optimizer.zero_grad()
             out = model(data)
-            loss = F.cross_entropy(out, data.y)
+            loss = F.nll_loss(out, data.y)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
