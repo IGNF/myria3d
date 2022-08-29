@@ -20,3 +20,5 @@ callbacks:
   early_stopping:
     patience: 20
 
+predict:
+  interpolation_k: 10

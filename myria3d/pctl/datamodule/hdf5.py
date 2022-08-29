@@ -77,8 +77,8 @@ class HDF5LidarDataModule(LightningDataModule):
     def train_transform(self) -> Compose:
         return Compose(
             self.preparation_train_transform
-            + self.augmentation_transform
             + self.normalization_transform
+            + self.augmentation_transform
         )
 
     @property
