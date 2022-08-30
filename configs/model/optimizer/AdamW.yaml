@@ -2,4 +2,3 @@ _target_: functools.partial
 _args_: 
   - "${get_method:torch.optim.AdamW}"
 lr: ${model.lr}  # not needed since we give it in model.py ?
-weight_decay: 0.01
