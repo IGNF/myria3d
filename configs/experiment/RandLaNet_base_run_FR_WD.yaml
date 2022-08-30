@@ -13,6 +13,8 @@ datamodule:
 
 model:
   lr: 0.001
+  lr_scheduler:
+    patience: 2
 
 trainer:
   num_sanity_val_steps: 2
