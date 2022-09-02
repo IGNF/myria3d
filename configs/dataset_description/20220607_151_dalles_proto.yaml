@@ -17,7 +17,8 @@ classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "buildin
 
 # class_weights for the CrossEntropyLoss with format "[[w1,w2,w3...,wk]]" with w_i a float e.g. 1.0
 # Balanced CE: arbitrary weights based on heuristic.
-class_weights: [2.5,1.0,1.0,5.0,20.0,20.0,20.0]
+# class_weights: [2.5,1.0,1.0,5.0,20.0,20.0,20.0] normalized so they sum to 7 to preserve scale of CELoss
+class_weights: [0.25,0.1,0.1,0.5,2.0,2.0,2.0]
 # Input and output dims of neural net are dataset dependant:
 d_in: 12
 num_classes: 7
