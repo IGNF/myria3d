@@ -106,6 +106,7 @@ class Model(LightningModule):
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
         self.experiment = self.logger.experiment[0]
+        self.criterion = self.criterion.to(self.device)
 
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
         """Training step.
@@ -122,7 +123,7 @@ class Model(LightningModule):
         """
         logits = self.forward(batch)
         targets = batch.y
-
+        self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 
