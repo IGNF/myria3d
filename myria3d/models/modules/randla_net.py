@@ -171,6 +171,8 @@ class RandLANet(nn.Module):
             parts.append(nn.Dropout(p=dropout))
         parts.append(SharedMLP(32, num_classes))
         self.fc_end = nn.Sequential(*parts)
+        # Set last bias to zero
+        nn.init.constant_(self.fc_end[-1].conv.bias.data, 0)
 
     def change_num_class_for_finetuning(self, new_num_classes: int):
         """Change end layer output number of classes if new_num_classes is different.
