@@ -9,4 +9,4 @@ neural_net_hparams:
   num_classes: ${model.num_classes}
   num_neighbors: 16
   decimation: 4  # divide by decimation for each of the 4 local encoder.
-  return_logits: true
+  return_logits: true  # to use with crossEntropyLoss directly
