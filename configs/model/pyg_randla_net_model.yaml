@@ -1,7 +1,7 @@
 defaults:
   - default.yaml
 
-lr: 0.0003116676189135389
+lr: 0.003933709606504788   # 200-long LR-test-range betw 10^-4 and 3.0
 
 neural_net_class_name: "PyGRandLANet"
 neural_net_hparams:
