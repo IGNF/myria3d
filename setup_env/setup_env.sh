@@ -8,8 +8,8 @@ mamba env create -f setup_env/requirements.yml
 # activate it
 conda activate myria3d_pyg2_1_0
 
-mkdir -p ./install/
-cd ./install/
+mkdir -p ./wheels/
+cd ./wheels/
 sudo wget https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
 sudo wget https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_cluster-1.6.0-cp39-cp39-linux_x86_64.whl
 sudo wget https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_sparse-0.6.14-cp39-cp39-linux_x86_64.whl
