@@ -22,11 +22,10 @@ class LogIoUByClass(Callback):
     A Callback to log JaccardIndex for each class.
     """
 
-    def __init__(self, classification_dict: Dict[int, str], interpolator: Interpolator):
+    def __init__(self, classification_dict: Dict[int, str]):
         self.classification_names = classification_dict.values()
         self.num_classes = len(classification_dict)
         self.metric = SingleClassIoU
-        self.itp = interpolator
 
     def get_all_iou_by_class_object(self):
         """Get a dict with schema {class_name:iou_for_class_name, ...}"""

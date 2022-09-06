@@ -17,11 +17,6 @@ lr_monitor:
 log_iou_by_class:
   _target_: myria3d.callbacks.logging_callbacks.LogIoUByClass
   classification_dict: ${dataset_description.classification_dict}
-  interpolator:  # only used at test time
-    _target_: myria3d.models.interpolation.Interpolator
-    interpolation_k: ${predict.interpolation_k}
-    classification_dict: ${dataset_description.classification_dict}
-    probas_to_save: ${predict.probas_to_save}  # replace by a list of string of class names to select specific probas to save
 
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
