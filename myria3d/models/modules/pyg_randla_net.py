@@ -18,7 +18,6 @@ from torchmetrics.functional import jaccard_index
 from torch_geometric.datasets import ShapeNet
 
 
-
 class PyGRandLANet(torch.nn.Module):
     def __init__(
         self,
@@ -29,7 +28,6 @@ class PyGRandLANet(torch.nn.Module):
         return_logits: bool = False,
     ):
         super().__init__()
-
         # An option to return logits instead of probas
         self.decimation = decimation
         self.return_logits = return_logits
@@ -95,6 +93,7 @@ lrelu02_kwargs = {"negative_slope": 0.2}
 
 
 bn099_kwargs = {"momentum": 0.99, "eps": 1e-6}
+
 
 class SharedMLP(MLP):
     """SharedMLP with new defauts BN and Activation following tensorflow implementation."""
@@ -243,12 +242,12 @@ class FPModule(torch.nn.Module):
         return x, pos_skip, batch_skip
 
 
-
-
 def main():
     category = "Airplane"  # Pass in `None` to train on all categories.
     category_num_classes = 4  # 4 for Airplane - see ShapeNet for details
-    path = osp.join(osp.dirname(osp.realpath(__file__)), "..","..","..", "data", "ShapeNet")
+    path = osp.join(
+        osp.dirname(osp.realpath(__file__)), "..", "..", "..", "data", "ShapeNet"
+    )
     transform = T.Compose(
         [
             T.RandomJitter(0.01),
