@@ -30,19 +30,15 @@ def find_file_in_dir(data_dir: str, basename: str) -> str:
 def get_mosaic_of_centers(
     tile_width: Number, subtile_width: Number, subtile_overlap: Number = 0
 ):
-    return [
-        np.array([x, y])
-        for x in np.arange(
-            subtile_width / 4,
-            tile_width - (subtile_width / 4) + 1,
-            step=subtile_width - subtile_overlap,
-        )
-        for y in np.arange(
-            subtile_width / 4,
-            tile_width - (subtile_width / 4) + 1,
-            step=subtile_width - subtile_overlap,
-        )
-    ]
+    if subtile_overlap < 0:
+        raise ValueError("datamodule.subtile_overlap must be positive.")
+
+    xy_range = np.arange(
+        subtile_width / 2,
+        tile_width + (subtile_width / 2) - subtile_overlap,
+        step=subtile_width - subtile_overlap,
+    )
+    return [np.array([x, y]) for x in xy_range for y in xy_range]
 
 
 def pdal_read_las_array(las_path: str):
