@@ -18,12 +18,10 @@ iou:
   absent_score: 1.0  # do not penalize if a class is absent from labels.
 
 ## Optimization
-criterion: 
-  _target_: torch.nn.CrossEntropyLoss
-  label_smoothing: 0.0
 momentum: 0.9  # arbitrary
 monitor: "val/loss_epoch"
 
 defaults:
   - optimizer: Adam.yaml
   - lr_scheduler: ReduceLROnPlateau.yaml
+  - criterion: CrossEntropyLoss.yaml

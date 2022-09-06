@@ -1,0 +1,6 @@
+_target_: torch.nn.CrossEntropyLoss
+label_smoothing: 0.0
+weight:
+  _target_: torch.FloatTensor
+  _args_: 
+    - ${dataset_description.class_weights}

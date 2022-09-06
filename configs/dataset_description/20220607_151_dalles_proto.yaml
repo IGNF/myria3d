@@ -9,12 +9,16 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # Expectded classification dict:
 # classification_preprocessing_dict: {3: 5, 4: 5, 64:1, 65:1, 160: 64, 161: 64, 162: 64}
 
-# Temporary classification dict to care of abnormal classes in the dataset.
 # Additionnaly, artefacts as well as synthetic points (65, 66) are set to "unclassified"
 classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1, 7: 1, 46: 1, 47: 1, 48: 1, 49: 1, 50: 1, 51: 1, 52: 1, 53: 1, 54: 1, 55: 1, 56: 1, 57: 1, 58: 1, 64: 1, 65: 1, 66: 1, 67: 1, 77: 1, 155: 1, 204: 1}
+
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge, 64: lasting_above}
 
+# class_weights for the CrossEntropyLoss with format "[[w1,w2,w3...,wk]]" with w_i a float e.g. 1.0
+# Balanced CE: arbitrary weights based on heuristic.
+# class_weights: [2.5,1.0,1.0,5.0,20.0,20.0,20.0] normalized so they sum to 7 to preserve scale of CELoss
+class_weights: [0.25,0.1,0.1,0.5,2.0,2.0,2.0]
 # Input and output dims of neural net are dataset dependant:
 d_in: 12
 num_classes: 7
