@@ -109,7 +109,6 @@ def train(config: DictConfig) -> Trainer:
     )
 
     task_name = config.task.get("task_name")
-
     if "fit" in task_name:
         if config.trainer.auto_lr_find:
             log.info("Finding best lr with auto_lr_find!")
@@ -147,9 +146,16 @@ def train(config: DictConfig) -> Trainer:
         )
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
         log.info("End of training and validating!")
-
-    if "test" in task_name:
+    if "test" in task_name or "fit" in task_name:
         log.info("Starting testing!")
+        if trainer.checkpoint_callback.best_model_path:
+            log.info(
+                f"Test will use just-trained best model checkpointed at \n {trainer.checkpoint_callback.best_model_path}"
+            )
+            config.model.ckpt_path = trainer.checkpoint_callback.best_model_path
+        log.info(
+                f"Test will use specified model checkpointed at \n {config.model.ckpt_path}"
+            )
         trainer.test(
             model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path
         )
