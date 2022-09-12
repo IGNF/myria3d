@@ -13,12 +13,6 @@ class RandLANet(nn.Module):
     RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
     at https://arxiv.org/abs/1911.11236
 
-    Our modifications:
-    - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
-    information bottleneck in cases where d_in is above 8.
-    - Use pytorch-geometric instead of torch_points_kernels for GPU support, and
-    ease of installation of dependencies.
-
     """
 
     def __init__(self, **kwargs: dict):
