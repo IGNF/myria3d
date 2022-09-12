@@ -34,10 +34,11 @@ def test_fake_run_randlanet(num_graphs):
     assert output.shape == torch.Size([num_points * batch.num_graphs, num_classes])
 
 
-@pytest.mark.parametrize("num_nodes", [[12500, 12500], [12500, 10000]])
+@pytest.mark.parametrize("num_nodes", [[12500, 12500], [50, 50], [12500, 10000]])
 def test_fake_run_pyg_randlanet(num_nodes):
     """Documents expected data format and make a forward pass with PyG RandLa-Net.
 
+    Accepts small clouds even though decimation should lead to empty cloud.
     Accepts point clouds of various sizes.
 
     """
