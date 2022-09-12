@@ -38,6 +38,7 @@ WORKDIR /setup_env
 COPY ./setup_env/ .
 
 # Build the environment
+RUN conda install -y mamba -n base -c conda-forge
 RUN mamba env create -f setup_env/requirements.yml
 
 # Copy the repository content in /myria3d 
