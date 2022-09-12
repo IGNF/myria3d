@@ -2,10 +2,9 @@
 name: "Documentation Build"
 
 # Event that must trigger the workflow
-on:
-  push:         # <- trigger when we call push
-    branches:
-      - main  # <- but only on main branch
+on: push         # <- trigger when we call push
+    # branches:
+    #   - main  # <- but only on main branch
 
 jobs:
 
