@@ -1,13 +1,12 @@
 import pytest
 import torch
-from torch_geometric.data import Batch
+from torch_geometric.data import Batch, Data
 from myria3d.models.modules.randla_net import RandLANet
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 
 
-@pytest.mark.parametrize("model_class", [RandLANet, PyGRandLANet])
 @pytest.mark.parametrize("num_graphs", [1, 2])
-def test_fake_run_randlanet(model_class, num_graphs):
+def test_fake_run_randlanet(num_graphs):
     """Documents expected data format and make a forward pass with RandLa-Net
 
     Model pass with "batch_size=1" is a edge case that needs to pass to avoid unexpected crash due to incomplete batch at the
@@ -30,6 +29,37 @@ def test_fake_run_randlanet(model_class, num_graphs):
     num_points = 12500
     batch.pos = torch.rand((num_points * batch.num_graphs, num_euclidian_dimensions))
     batch.x = torch.rand((num_points * batch.num_graphs, num_features))
-    rln = model_class(**hparams_net)
+    rln = RandLANet(**hparams_net)
     output = rln(batch)
     assert output.shape == torch.Size([num_points * batch.num_graphs, num_classes])
+
+
+@pytest.mark.parametrize("num_nodes", [[12500, 12500], [12500, 10000]])
+def test_fake_run_pyg_randlanet(num_nodes):
+    """Documents expected data format and make a forward pass with PyG RandLa-Net.
+
+    Accepts point clouds of various sizes.
+
+    """
+    num_euclidian_dimensions = 3
+    num_features = 9
+    num_classes = 6
+    kwargs = {
+        "decimation": 4,
+        "num_neighbors": 16,
+    }
+
+    batch = Batch.from_data_list(
+        [
+            Data(
+                x=torch.rand((n, num_features)),
+                pos=torch.rand((n, num_euclidian_dimensions)),
+                batch=torch.full((n,), idx),
+            )
+            for idx, n in enumerate(num_nodes)
+        ]
+    )
+
+    rln = PyGRandLANet(num_euclidian_dimensions + num_features, num_classes, **kwargs)
+    output = rln(batch)
+    assert output.shape == torch.Size([sum(num_nodes), num_classes])
