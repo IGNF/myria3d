@@ -36,28 +36,29 @@ jobs:
             # For caching to work:
             use-only-tar-bz2: true
             # Environment to create and activate for next steps
-            activate-environment: myria3d
+            activate-environment: myria3d_pyg2_1_0
 
       # Cache the conda environment
       # See https://github.com/conda-incubator/setup-miniconda#caching-environments
-      - name: Get Date
-        id: get-date
-        run: echo "::set-output name=today::$(/bin/date -u '+%Y%m%d')"
-        shell: bash
+      # UNCOMMENT TO REACTIVATE CACHING ONCE CONDA BUILDS ARE AVAILABLE FOR PYG >=2.1
+      # - name: Get Date
+      #   id: get-date
+      #   run: echo "::set-output name=today::$(/bin/date -u '+%Y%m%d')"
+      #   shell: bash
 
-      - name: Cache conda environment
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.CONDA }}/envs
-          key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles('setup_env/requirements.yml') }}-${{ hashFiles('setup_env/requirements.txt') }}
-        env:
-          # Increase this value to reset cache if etc/example-environment.yml has not changed
-          CACHE_NUMBER: 0
-        id: cache
+      # - name: Cache conda environment
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ env.CONDA }}/envs
+      #     key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles('setup_env/requirements.yml') }}-${{ hashFiles('setup_env/requirements.txt') }}
+      #   env:
+      #     # Increase this value to reset cache if etc/example-environment.yml has not changed
+      #     CACHE_NUMBER: 0
+      #   id: cache
 
       - name: Update environment if there was no cached env.
-        run: mamba env update -n myria3d -f setup_env/requirements.yml
-        if: steps.cache.outputs.cache-hit != 'true'
+        run: source ./setup_env/setup_env.sh
+        # if: steps.cache.outputs.cache-hit != 'true'
 
       - name: List installed packages
         run: mamba list
