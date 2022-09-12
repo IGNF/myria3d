@@ -9,7 +9,6 @@ trainer:
   min_epochs: 1
   max_epochs: 1
   log_every_n_steps: 1
-  check_val_every_n_epoch: 1
   weights_summary: null
   progress_bar_refresh_rate: 1
   auto_lr_find: false
@@ -79,20 +78,13 @@ datamodule:
           _target_: myria3d.pctl.transforms.transforms.CopySampledPos
         Center:
           _target_: torch_geometric.transforms.Center
-    augmentations:
-      x_flip:
-        _target_: torch_geometric.transforms.RandomFlip
-        _args_:
-        - 0
-        p: 0.5
-      y_flip:
-        _target_: torch_geometric.transforms.RandomFlip
-        _args_:
-        - 1
-        p: 0.5
+    augmentations: {}
     normalizations:
       NullifyLowestZ:
         _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
+      NormalizePos:
+        _target_: myria3d.pctl.transforms.transforms.NormalizePos
+        subtile_width: ${datamodule.subtile_width}
       StandardizeRGBAndIntensity:
         _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity
     augmentations_list: '${oc.dict.values: datamodule.transforms.augmentations}'
@@ -108,7 +100,11 @@ datamodule:
     _target_: functools.partial
     _args_:
     - ${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}
-  pre_filter: null
+  pre_filter:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
+    min_num_nodes: 50
   tile_width: 1000
   subtile_width: 50
   subtile_shape: square
@@ -116,7 +112,7 @@ datamodule:
   subtile_overlap_predict: ${predict.subtile_overlap}
   batch_size: 2
   num_workers: 1
-  prefetch_factor: 2
+  prefetch_factor: 3
 dataset_description:
   _convert_: all
   classification_preprocessing_dict:
@@ -155,6 +151,14 @@ dataset_description:
     9: water
     17: bridge
     64: lasting_above
+  class_weights:
+  - 0.25
+  - 0.1
+  - 0.1
+  - 0.5
+  - 2.0
+  - 2.0
+  - 2.0
   d_in: 12
   num_classes: 7
 callbacks:
@@ -201,6 +205,9 @@ model:
     patience: 5
     cooldown: 0
     verbose: true
+  criterion:
+    _target_: torch.nn.CrossEntropyLoss
+    label_smoothing: 0.0
   _target_: myria3d.models.model.Model
   d_in: ${dataset_description.d_in}
   num_classes: ${dataset_description.num_classes}
@@ -212,17 +219,14 @@ model:
     num_neighbors: 16
     decimation: 4
     dropout: 0.5
-    interpolation_k: ${predict.interpolation_k}
-    num_workers: 4
+  interpolation_k: ${predict.interpolation_k}
+  num_workers: 4
   iou:
     _target_: functools.partial
     _args_:
     - ${get_method:torchmetrics.JaccardIndex}
     - ${model.num_classes}
     absent_score: 1.0
-  criterion:
-    _target_: torch.nn.CrossEntropyLoss
-    label_smoothing: 0.0
   momentum: 0.9
   monitor: val/loss_epoch
   lr: 0.004566395347136576
