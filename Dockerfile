@@ -38,7 +38,7 @@ WORKDIR /setup_env
 COPY ./setup_env/ .
 
 # Build the environment
-RUN ./setup_env.sh
+RUN source ./setup_env.sh
 
 # Copy the repository content in /myria3d 
 WORKDIR /myria3d
