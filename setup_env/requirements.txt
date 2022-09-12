@@ -14,3 +14,11 @@ recommonmark==0.7.*
 sphinxnotes-mock==1.0.0b0  # still a beta
 sphinx-argparse==0.3.*  #  Using 
 docutils==0.17
+
+
+# --------- Torch Geometric --------- #
+https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
+https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_cluster-1.6.0-cp39-cp39-linux_x86_64.whl
+https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_sparse-0.6.14-cp39-cp39-linux_x86_64.whl
+https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_spline_conv-1.2.1-cp39-cp39-linux_x86_64.whl
+git+https://github.com/pyg-team/pytorch_geometric.git

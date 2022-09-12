@@ -38,7 +38,7 @@ WORKDIR /setup_env
 COPY ./setup_env/ .
 
 # Build the environment
-RUN bash -c "source ./setup_env.sh"
+RUN mamba env create -f setup_env/requirements.yml
 
 # Copy the repository content in /myria3d 
 WORKDIR /myria3d
