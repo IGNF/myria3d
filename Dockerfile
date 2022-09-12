@@ -37,10 +37,8 @@ ENV PATH /opt/conda/bin:$PATH
 WORKDIR /setup_env
 COPY ./setup_env/ .
 
-# install mamba to setup the env faster
-RUN conda install -y mamba -n base -c conda-forge
 # Build the environment
-RUN mamba env create -f requirements.yml
+RUN source ./setup_env/setup_env.sh
 
 # Copy the repository content in /myria3d 
 WORKDIR /myria3d
