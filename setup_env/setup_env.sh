@@ -4,7 +4,7 @@
 # Install mamba to create the environment faster
 conda install -y mamba -n base -c conda-forge
 # Build it
-mamba env create -f setup_env/requirements.yml -f
+mamba env create -f setup_env/requirements.yml --force 
 # activate it
 conda activate myria3d_pyg2_1_0
 
