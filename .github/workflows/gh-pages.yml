@@ -35,7 +35,7 @@ jobs:
             # For caching to work:
             use-only-tar-bz2: true
             # Environment to create and activate for next steps
-            activate-environment: myria3d_pyg2_1_0
+            activate-environment: myria3d
 
       # Cache the conda environment
       # See https://github.com/conda-incubator/setup-miniconda#caching-environments
