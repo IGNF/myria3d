@@ -56,7 +56,7 @@ jobs:
       #   id: cache
 
       - name: Update environment if there was no cached env.
-        run: source ./setup_env.sh
+        run: source ./setup_env/setup_env.sh
         # if: steps.cache.outputs.cache-hit != 'true'
 
       - name: List installed packages
