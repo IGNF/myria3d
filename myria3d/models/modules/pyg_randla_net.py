@@ -208,6 +208,10 @@ def get_decimation_idx(ptr, decimation):
     batch_size = ptr.size(0) - 1
     num_nodes = torch.Tensor([ptr[i + 1] - ptr[i] for i in range(batch_size)]).long()
     decimated_num_nodes = num_nodes // decimation
+    # Always keep at least one node
+    decimated_num_nodes = torch.max(
+        torch.ones_like(decimated_num_nodes), decimated_num_nodes
+    )
     idx_decim = torch.cat(
         [
             (ptr[i] + torch.randperm(decimated_num_nodes[i], device=ptr.device))
