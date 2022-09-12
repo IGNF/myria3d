@@ -45,11 +45,11 @@ WORKDIR /myria3d
 COPY . .
 
 # Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "myria3d", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "myria3d_pyg2_1_0", "/bin/bash", "-c"]
 
 # the entrypoint garanty that all command will be runned in the conda environment
 ENTRYPOINT ["conda",  \   
         "run", \
         "-n", \
-        "myria3d"]
+        "myria3d_pyg2_1_0"]
 
