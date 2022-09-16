@@ -19,24 +19,10 @@ RUN apt-get update && apt-get install -y \
         libx11-6 \
         && rm -rf /var/lib/apt/lists/*
 
-# Create a working directory
-RUN mkdir /app
-WORKDIR /app
-
-# Create a non-root user and switch to it
-RUN adduser --disabled-password --gecos '' --shell /bin/bash user \
-        && chown -R user:user /app
-RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-user
-USER user
-
-# All users can use /home/user as their home directory
-ENV HOME=/home/user
-RUN mkdir $HOME/.cache $HOME/.config \
-        && chmod -R 777 $HOME
 
 # Set up the Conda environment
 ENV CONDA_AUTO_UPDATE_CONDA=false \
-        PATH=$HOME/miniconda/bin:$PATH
+        PATH=~/miniconda/bin:$PATH
 COPY environment.yml /app/environment.yml
 RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39_4.10.3-Linux-x86_64.sh \
         && chmod +x ~/miniconda.sh \
@@ -48,13 +34,12 @@ RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39
 
 # Need to export this for torch_geometric to find where cuda is.
 # See https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
-ENV LD_LIBRARY_PATH="/home/user/miniconda/lib/:$LD_LIBRARY_PATH"
+ENV LD_LIBRARY_PATH="~/miniconda/lib/:$LD_LIBRARY_PATH"
 
 # Copy the repository content in /app 
+RUN mkdir /app
 WORKDIR /app
 COPY . .
 
 # Set the default command to bash for image inspection.
 CMD ["bash"]
-
-
