@@ -46,8 +46,9 @@ jobs:
         --shm-size=2gb
         myria3d
         python /app/myria3d/predict.py
-        experiment=predict
-        predict.ckpt_path=/inputs/proto151_V0.0_epoch_056_Myria3DV2.3.0.ckpt
+        --config-path /inputs/
+        --config-name proto151_V0.0_epoch_80_Myria3DV3.0.0_predict_config_Myria3DV3.0.0.yaml
+        predict.ckpt_path=/inputs/proto151_V0.0_epoch_80_Myria3DV3.0.0.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
         predict.subtile_overlap=25
