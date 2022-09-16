@@ -24,14 +24,13 @@ jobs:
     - name: Build docker image
       run: docker build -t myria3d .
 
-    - name: Fast unit tests first
+    - name: Run pytest
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
         --ipc=host
         myria3d
         python -m
-        pytest -rA -v -m "not slow"
+        pytest -rA -v
         --ignore=actions-runner
 
 
@@ -40,19 +39,20 @@ jobs:
     - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/inputs/
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/outputs/:/outputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.0.2/inputs/:/inputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.0.2/outputs/:/outputs/
         --ipc=host
         --shm-size=2gb
         myria3d
-        python /myria3d/myria3d/predict.py
-        experiment=predict
-        predict.ckpt_path=/inputs/proto151_V0.0_epoch_056_Myria3DV2.3.0.ckpt
+        python /app/myria3d/predict.py
+        --config-path /inputs/
+        --config-name proto151_V0.0_epoch_80_Myria3DV3.0.0_predict_config_Myria3DV3.0.0.yaml
+        predict.ckpt_path=/inputs/proto151_V0.0_epoch_80_Myria3DV3.0.0.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
         predict.subtile_overlap=25
         datamodule.batch_size=20
-        hydra.run.dir=/myria3d
+        hydra.run.dir=/app
 
     - name: Check code neatness (linter)
       run: docker run myria3d flake8

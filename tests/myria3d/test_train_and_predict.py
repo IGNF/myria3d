@@ -243,7 +243,7 @@ def _make_list_of_necesary_hydra_overrides_with_tmp_paths(
     """Get list of overrides for hydra, the ones that are always needed when calling train/test.
 
     Args:
-        toy_dataset_hdf5_path (str): path to directory to dataset derived from large las
+        toy_dataset_hdf5_path (str): path to directory to dataset.
         tmpdir (str): path to temporary directory.
 
     """
