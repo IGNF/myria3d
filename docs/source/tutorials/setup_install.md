@@ -7,31 +7,23 @@
 We use [anaconda](https://www.anaconda.com/products/individual) to manage virtual environments. 
 This makes installing pytorch-related libraries way easier than using pure pip installs.
 
-If you want to use a gpu to speed up model training and inference, make sure that the cuda toolkit is installed on your machine.
-
-```bash
-sudo apt install nvidia-cuda-toolkit
-```
-
-The  [bash](https://github.com/IGNF/myria3d/setup_env/) directory contains everything you need to setup a compatible pytorch virtual environement.
-You can get it by by cloning the entire project with:
-
-```bash
-git clone https://github.com/IGNF/myria3d
-cd myria3d
-```
-or by manually downloading its content.
+We enable CUDA-acceleration in pytorch as part of the defaut virtual environement recipe (see below).
 
 ### Environment Installation
 
-To install the environment, run:
+To install the environment, follow these instructions:
+
 ```bash
-source setup_env/setup_env.sh
+# Install mamba to create the environment faster
+conda install -y mamba -n base -c conda-forge
+# Build it with mamba
+mamba env create -f environment.yml
+# activate it
+conda activate myria3d
 ```
 
-If you do have CUDA, [check you CUDA version](https://varhowto.com/check-cuda-version/) and be sure `cudatoolkit` version in `setup_env/requirements.yml` matches yours.
+Nota: if you do have CUDA, [check you CUDA version](https://varhowto.com/check-cuda-version/) and be sure `cudatoolkit` version in `setup_env/requirements.yml` matches yours. Adapt if needed (including sources for torch-geometric's dependencies given as wheels).
 
-If you do not have CUDA installed, you need comment out `cudatoolkit` dependency and `FORCE_CUDA: 1` environement variable in `setup_env/requirements.yml`
 
 Finally, activate the created environmnt by running
 

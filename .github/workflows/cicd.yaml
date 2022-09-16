@@ -24,14 +24,14 @@ jobs:
     - name: Build docker image
       run: docker build -t myria3d .
 
-    - name: Fast unit tests first
+    - name: Run pytest
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/myria3d/tests/data/large/
+        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/app/tests/data/large/
         --ipc=host
         myria3d
         python -m
-        pytest -rA -v -m "not slow"
+        pytest -rA -v
         --ignore=actions-runner
 
 
@@ -45,14 +45,14 @@ jobs:
         --ipc=host
         --shm-size=2gb
         myria3d
-        python /myria3d/myria3d/predict.py
+        python /app/myria3d/predict.py
         experiment=predict
         predict.ckpt_path=/inputs/proto151_V0.0_epoch_056_Myria3DV2.3.0.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
         predict.subtile_overlap=25
         datamodule.batch_size=20
-        hydra.run.dir=/myria3d
+        hydra.run.dir=/app
 
     - name: Check code neatness (linter)
       run: docker run myria3d flake8
