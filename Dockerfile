@@ -5,7 +5,6 @@ FROM nvidia/cuda:11.3.1-base-ubuntu20.04
 ENV http_proxy 'http://192.168.4.9:3128/'
 ENV https_proxy 'http://192.168.4.9:3128/'
 
-
 # Remove any third-party apt sources to avoid issues with expiring keys.
 RUN rm -f /etc/apt/sources.list.d/*.list
 
@@ -19,6 +18,8 @@ RUN apt-get update && apt-get install -y \
         libx11-6 \
         && rm -rf /var/lib/apt/lists/*
 
+# Create a working directory
+RUN mkdir /app
 
 # Set up the Conda environment and make python accessible via PATH.
 ENV CONDA_AUTO_UPDATE_CONDA=false
@@ -38,9 +39,6 @@ ENV LD_LIBRARY_PATH="/miniconda/lib/:$LD_LIBRARY_PATH"
 
 # Check succes of environment creation.
 RUN python -c "import torch_geometric;"
-
-# Create a working directory
-RUN mkdir /app
 
 # Copy the repository content in /app 
 WORKDIR /app
