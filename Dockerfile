@@ -20,21 +20,21 @@ RUN apt-get update && apt-get install -y \
         && rm -rf /var/lib/apt/lists/*
 
 
-# Set up the Conda environment
-ENV CONDA_AUTO_UPDATE_CONDA=false \
-        PATH=~/miniconda/bin:$PATH
+# Set up the Conda environment and make python accessible via PATH.
+ENV CONDA_AUTO_UPDATE_CONDA=false
+ENV PATH=/miniconda:/miniconda/bin:$PATH 
 COPY environment.yml /app/environment.yml
-RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39_4.10.3-Linux-x86_64.sh \
-        && chmod +x ~/miniconda.sh \
-        && ~/miniconda.sh -b -p ~/miniconda \
-        && rm ~/miniconda.sh \
-        && ~/miniconda/bin/conda env update -n base -f /app/environment.yml \
+RUN curl -sLo /miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39_4.10.3-Linux-x86_64.sh \
+        && chmod +x /miniconda.sh \
+        && /miniconda.sh -b -p /miniconda \
+        && rm /miniconda.sh \
+        && /miniconda/bin/conda env update -n base -f /app/environment.yml \
         && rm /app/environment.yml \
-        && ~/miniconda/bin/conda clean -ya
+        && /miniconda/bin/conda clean -ya
 
 # Need to export this for torch_geometric to find where cuda is.
 # See https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
-ENV LD_LIBRARY_PATH="~/miniconda/lib/:$LD_LIBRARY_PATH"
+ENV LD_LIBRARY_PATH="/miniconda/lib/:$LD_LIBRARY_PATH"
 
 # Check succes of environment creation.
 RUN python -c "import torch_geometric;"
@@ -48,4 +48,3 @@ COPY . .
 
 # Set the default command to bash for image inspection.
 CMD ["bash"]
-
