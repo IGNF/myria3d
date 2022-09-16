@@ -29,7 +29,6 @@ jobs:
     - name: Run pytest
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/app/tests/data/large/
         --ipc=host
         myria3d
         python -m
@@ -42,8 +41,8 @@ jobs:
     - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/inputs/:/inputs/
-        -v /var/data/cicd/CICD_github_assets/myria3d_B2V0.5/outputs/:/outputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.0.2/inputs/:/inputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.0.2/outputs/:/outputs/
         --ipc=host
         --shm-size=2gb
         myria3d
