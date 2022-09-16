@@ -28,18 +28,24 @@ RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39
         && chmod +x ~/miniconda.sh \
         && ~/miniconda.sh -b -p ~/miniconda \
         && rm ~/miniconda.sh \
-        && conda env update -n base -f /app/environment.yml \
+        && ~/miniconda/bin/conda env update -n base -f /app/environment.yml \
         && rm /app/environment.yml \
-        && conda clean -ya
+        && ~/miniconda/bin/conda clean -ya
 
 # Need to export this for torch_geometric to find where cuda is.
 # See https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
 ENV LD_LIBRARY_PATH="~/miniconda/lib/:$LD_LIBRARY_PATH"
 
-# Copy the repository content in /app 
+# Check succes of environment creation.
+RUN python -c "import torch_geometric;"
+
+# Create a working directory
 RUN mkdir /app
+
+# Copy the repository content in /app 
 WORKDIR /app
 COPY . .
 
 # Set the default command to bash for image inspection.
 CMD ["bash"]
+
