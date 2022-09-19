@@ -24,6 +24,33 @@ class ToTensor(BaseTransform):
         return data
 
 
+def subsample_data(data, num_nodes, choice):
+    for key, item in data:
+        if key == "num_nodes":
+            data.num_nodes = choice.size(0)
+        elif bool(re.search("edge", key)):
+            continue
+        elif torch.is_tensor(item) and item.size(0) == num_nodes and item.size(0) != 1:
+            data[key] = item[choice]
+    return data
+
+
+class MaximumNumNodes(BaseTransform):
+    def __init__(self, num: int):
+        self.num = num
+
+    def __call__(self, data):
+        num_nodes = data.num_nodes
+
+        if num_nodes <= self.num:
+            return data
+
+        choice =  torch.randperm(data.num_nodes)[:self.num]
+        data = subsample_data(data, num_nodes, choice)
+
+        return data
+
+
 class MinimumNumNodes(BaseTransform):
     def __init__(self, num: int):
         self.num = num
@@ -39,17 +66,7 @@ class MinimumNumNodes(BaseTransform):
             dim=0,
         )[: self.num]
 
-        for key, item in data:
-            if key == "num_nodes":
-                data.num_nodes = choice.size(0)
-            elif bool(re.search("edge", key)):
-                continue
-            elif (
-                torch.is_tensor(item)
-                and item.size(0) == num_nodes
-                and item.size(0) != 1
-            ):
-                data[key] = item[choice]
+        data = subsample_data(data, num_nodes, choice)
 
         return data
 
