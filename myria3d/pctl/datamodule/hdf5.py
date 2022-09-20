@@ -114,18 +114,41 @@ class HDF5LidarDataModule(LightningDataModule):
                 log.warning(
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
-            self.dataset = HDF5Dataset(
-                self.hdf5_file_path,
-                las_files_by_split=las_files_by_split,
-                points_pre_transform=self.points_pre_transform,
-                tile_width=self.tile_width,
-                subtile_width=self.subtile_width,
-                subtile_overlap_train=self.subtile_overlap_train,
-                subtile_shape=self.subtile_shape,
-                pre_filter=self.pre_filter,
-                train_transform=self.train_transform,
-                eval_transform=self.eval_transform,
-            )
+
+        self._dataset(las_files_by_split=las_files_by_split)
+
+    def setup(self, stage: Optional[str] = None) -> None:
+        self.dataset = self._dataset()
+
+    def _dataset(
+        self, las_files_by_split: Optional[Dict[str, str]] = None
+    ) -> HDF5Dataset:
+        """Abstraction to ease HDF5 dataset instantiation.
+
+        Args:
+            las_files_by_split (Optional[Dict[str, str]], optional): Maps split (val/train/test) to file path.
+                If specified, the hdf5 file is created at dataset initialization time.
+                Otherwise,a precomputed HDF5 file is used directly without I/O to the HDF5 file.
+                This is usefule for multi-GPU training, where data creation is performed in prepare_data method, and the dataset
+                is then loaded again in each GPU in setup method.
+                Defaults to None.
+
+        Returns:
+            HDF5Dataset: the dataset with train, val, and test data.
+
+        """
+        return HDF5Dataset(
+            self.hdf5_file_path,
+            las_files_by_split=las_files_by_split,
+            points_pre_transform=self.points_pre_transform,
+            tile_width=self.tile_width,
+            subtile_width=self.subtile_width,
+            subtile_overlap_train=self.subtile_overlap_train,
+            subtile_shape=self.subtile_shape,
+            pre_filter=self.pre_filter,
+            train_transform=self.train_transform,
+            eval_transform=self.eval_transform,
+        )
 
     def train_dataloader(self):
         return GeometricNoneProofDataloader(
