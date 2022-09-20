@@ -63,12 +63,12 @@ class HDF5Dataset(Dataset):
 
         self.hdf5_file_path = hdf5_file_path
         self.dataset = None
+        self.samples_hdf5_paths = None
 
         if las_files_by_split is None:
             log.warning(
                 "las_files_by_split is None and pre-computed HDF5 dataset is therefore used."
             )
-            self.index_all_samples_as_needed()
             return
 
         # CONVERSION TO a SINGLE H5 file
@@ -135,11 +135,15 @@ class HDF5Dataset(Dataset):
                         # A termination flag to report that all samples for this point cloud were included in the df5 file.
                         f[s][b].attrs["is_complete"] = True
 
-            self.index_all_samples_as_needed()
+        self.index_all_samples_as_needed()
 
     def index_all_samples_as_needed(self):
         """Index all samples in the dataset."""
         # Use existing if already indexed. Need to decode b-string
+        if self.samples_hdf5_paths is not None:
+            return
+
+        # Use stored if already indexed. Need to decode b-string
         with h5py.File(self.hdf5_file_path, "r") as f:
             if "samples_hdf5_paths" in f:
                 self.samples_hdf5_paths = [
@@ -173,13 +177,16 @@ class HDF5Dataset(Dataset):
     def _get_data(self, sample_hdf5_path) -> Data:
         """Loads a Data object from the HDF5 dataset.
 
-        Opening the file has a high cost so we do it only once and store the opened files as a singleton 
-        for each process within __get_item__ and not in __init__ to support for Multi-GPU. 
+        Opening the file has a high cost so we do it only once and store the opened files as a singleton
+        for each process within __get_item__ and not in __init__ to support for Multi-GPU.
         See https://discuss.pytorch.org/t/dataloader-when-num-worker-0-there-is-bug/25643/16?u=piojanu.
-        
+
         """
         if self.dataset is None:
             self.dataset = h5py.File(self.hdf5_file_path, "r")
+
+        self.index_all_samples_as_needed()
+
         grp = self.dataset[sample_hdf5_path]
         # [...] needed to make a copy of content and avoid closing HDF5.
         # Nota: idx_in_original_cloud SHOULD be np.ndarray, in order to be batched into a list,
@@ -227,6 +234,7 @@ class HDF5Dataset(Dataset):
         return self._get_split_subset("test")
 
     def _get_split_subset(self, split: SPLIT_TYPE):
+        self.index_all_samples_as_needed()
         indices = [
             idx for idx, p in enumerate(self.samples_hdf5_paths) if p.startswith(split)
         ]
