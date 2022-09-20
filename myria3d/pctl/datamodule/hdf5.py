@@ -91,7 +91,7 @@ class HDF5LidarDataModule(LightningDataModule):
             self.preparation_predict_transform + self.normalization_transform
         )
 
-    def setup(self, stage: Optional[str] = None):
+    def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
         if stage in ["fit", "test"] or stage is None:
             las_files_by_split = None
