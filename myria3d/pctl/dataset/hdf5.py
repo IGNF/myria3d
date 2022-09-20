@@ -136,6 +136,10 @@ class HDF5Dataset(Dataset):
         self.index_all_samples()
 
     def index_all_samples(self):
+        # TODO: index of all files might need to be stored within the HDF5 at creation time
+        # as an attribute to avoid multiple read at initialization. Right now it seems to work fine,
+        # probably because it is a very fast operation.
+
         self.samples_hdf5_paths = []
         with h5py.File(self.hdf5_file_path, "a") as f:
             for s in f.keys():
