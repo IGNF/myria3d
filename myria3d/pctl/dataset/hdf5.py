@@ -62,12 +62,13 @@ class HDF5Dataset(Dataset):
         self.eval_transform = eval_transform
 
         self.hdf5_file_path = hdf5_file_path
+        self.dataset = None
 
         if las_files_by_split is None:
             log.warning(
                 "las_files_by_split is None and pre-computed HDF5 dataset is therefore used."
             )
-            self.index_all_samples()
+            self.index_all_samples_as_needed()
             return
 
         # CONVERSION TO a SINGLE H5 file
@@ -133,40 +134,64 @@ class HDF5Dataset(Dataset):
 
                         # A termination flag to report that all samples for this point cloud were included in the df5 file.
                         f[s][b].attrs["is_complete"] = True
-        self.index_all_samples()
 
-    def index_all_samples(self):
-        # TODO: index of all files might need to be stored within the HDF5 at creation time
-        # as an attribute to avoid multiple read at initialization. Right now it seems to work fine,
-        # probably because it is a very fast operation.
+            self.index_all_samples_as_needed()
 
+    def index_all_samples_as_needed(self):
+        """Index all samples in the dataset."""
+        # Use existing if already indexed. Need to decode b-string
+        with h5py.File(self.hdf5_file_path, "r") as f:
+            if "samples_hdf5_paths" in f:
+                self.samples_hdf5_paths = [
+                    sample_path.decode("utf-8")
+                    for sample_path in f["samples_hdf5_paths"]
+                ]
+                return
+
+        # Otherwise, index samples, and add the index as an attribute to the HDF5 file.
         self.samples_hdf5_paths = []
-        with h5py.File(self.hdf5_file_path, "a") as f:
-            for s in f.keys():
+        with h5py.File(self.hdf5_file_path, "r") as f:
+            for s in [s for s in f.keys() if s in ["train", "val", "test"]]:
                 basenames = f[s].keys()
                 for bn in basenames:
                     self.samples_hdf5_paths += [
                         osp.join(s, bn, sample_number)
                         for sample_number in f[s][bn].keys()
                     ]
+        with h5py.File(self.hdf5_file_path, "a") as f:
+            variable_lenght_str_datatype = h5py.special_dtype(vlen=str)
+            f.create_dataset(
+                "samples_hdf5_paths",
+                (len(self.samples_hdf5_paths),),
+                dtype=variable_lenght_str_datatype,
+                data=self.samples_hdf5_paths,
+            )
 
     def __len__(self):
         return len(self.samples_hdf5_paths)
 
     def _get_data(self, sample_hdf5_path) -> Data:
-        with h5py.File(self.hdf5_file_path, "r") as f:
-            grp = f[sample_hdf5_path]
-            # [...] needed to make a copy of content and avoid closing HDF5.
-            # Nota: idx_in_original_cloud SHOULD be np.ndarray, in order to be batched into a list,
-            # which serves to keep track of indivual sample sizes in a simpler way for interpolation.
-            return Data(
-                x=torch.from_numpy(grp["x"][...]),
-                pos=torch.from_numpy(grp["pos"][...]),
-                y=torch.from_numpy(grp["y"][...]),
-                idx_in_original_cloud=grp["idx_in_original_cloud"][...],
-                # num_nodes=grp["pos"][...].shape[0],
-                x_features_names=grp["x"].attrs["x_features_names"].tolist(),
-            )
+        """Loads a Data object from the HDF5 dataset.
+
+        Opening the file has a high cost so we do it only once and store the opened files as a singleton 
+        for each process within __get_item__ and not in __init__ to support for Multi-GPU. 
+        See https://discuss.pytorch.org/t/dataloader-when-num-worker-0-there-is-bug/25643/16?u=piojanu.
+        
+        """
+        if self.dataset is None:
+            self.dataset = h5py.File(self.hdf5_file_path, "r")
+        grp = self.dataset[sample_hdf5_path]
+        # [...] needed to make a copy of content and avoid closing HDF5.
+        # Nota: idx_in_original_cloud SHOULD be np.ndarray, in order to be batched into a list,
+        # which serves to keep track of indivual sample sizes in a simpler way for interpolation.
+        return Data(
+            x=torch.from_numpy(grp["x"][...]),
+            pos=torch.from_numpy(grp["pos"][...]),
+            y=torch.from_numpy(grp["y"][...]),
+            idx_in_original_cloud=grp["idx_in_original_cloud"][...],
+            # num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.
+            x_features_names=grp["x"].attrs["x_features_names"].tolist(),
+        )
 
     def __getitem__(self, idx):
         sample_hdf5_path = self.samples_hdf5_paths[idx]
