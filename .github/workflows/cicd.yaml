@@ -11,6 +11,7 @@ on:
     branches:
       - prod
       - main
+      - nexus_push
 
 jobs:
   CICD:
@@ -81,9 +82,26 @@ jobs:
       if: github.event_name == 'push'
       run: docker save myria3d:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${BRANCH_NAME}.tar
 
+
+    # get the version number, to tag the image pushed to nexus
+    - name: get version number
+      if: github.event_name == 'push'
+      id: version
+      run: echo "::set-output name=version::$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)"
+
+    # show the version number, for debugging purpose
+    - name: Print the version
+      if: github.event_name == 'push'
+      run: echo "${{steps.version.outputs.version}}"
+
+    # - name: push docker on nexus
+    #   if: ${{(((github.event_name == 'push') && (github.ref_name == 'main')) || ((github.event_name == 'pull_request') && (github.base_ref == 'main') && (github.event.review.state == 'approved')))}}  # we push on nexus only if a pull request on the main branch has been accepted
+    #   run: |
+    #     docker tag lidar_prod_im 10.128.81.69:8082/lidar_hd/lidar_prod_im:${{steps.version.outputs.version}}
+    #     docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+    #     docker push 10.128.81.69:8082/lidar_hd/lidar_prod_im:${{steps.version.outputs.version}}
+
+
     - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
       run: docker system prune --force # remove dangling docker images, without asking user for confirmation
-
-
-      
