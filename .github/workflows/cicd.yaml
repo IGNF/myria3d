@@ -13,7 +13,7 @@ on:
       - main
       - nexus_push
 env:
-    nexus_server: 10.128.81.69:8082
+  nexus_server: 10.128.81.69:8082
 
 jobs:
   CICD:
