@@ -78,9 +78,9 @@ jobs:
       run: docker run myria3d:${BRANCH_NAME} bash
 
     # This needs writing rights to the mounted path
-    - name: Save the docker image as myria3d_${BRANCH_NAME}.tar
-      if: github.event_name == 'push'
-      run: docker save myria3d:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${BRANCH_NAME}.tar
+    # - name: Save the docker image as myria3d_${BRANCH_NAME}.tar
+    #   if: github.event_name == 'push'
+    #   run: docker save myria3d:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${BRANCH_NAME}.tar
 
 
     # get the version number, to tag the image pushed to nexus
@@ -99,8 +99,8 @@ jobs:
       run: |
         docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.version.outputs.version}}
         docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.version.outputs.version}}
-
+        # docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.version.outputs.version}}
+        docker push 10.128.81.69:8082/lidar_hd/myria3d --all-tags
 
     - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
