@@ -72,7 +72,6 @@ jobs:
 
     # get version number and date, to tag the image pushed to nexus
     - name: get version number
-      if: github.event_name == 'push'
       id: tag
       run: |
         echo "::set-output name=version::$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)"
@@ -80,27 +79,21 @@ jobs:
 
     # show possible tags, for debugging purpose
     - name: Print tag
-      if: github.event_name == 'push'
       run: |
         echo "${{steps.tag.outputs.version}}"
         echo "${{steps.tag.outputs.date}}"
 
+
     - name: push docker on nexus, if a pull request on main has been accepted  
       if: ((github.ref_name == 'main') && (github.event.pull_request.merged == true)) # we push on nexus only if a pull request on the main branch has been accepted 
       run: |
-        # docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
-        # docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        # docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
 
     - name: push docker on nexus, from a simple branch 
-      if: (github.ref_name != 'main')
+      if: ((github.event_name != 'pull_request') && (github.ref_name != 'main'))
       run: |
-        # docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{github.ref_name}}
-        # docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        # docker push 10.128.81.69:8082/lidar_hd/myria3d:${{github.ref_name}}
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         docker push $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
