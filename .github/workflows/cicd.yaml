@@ -83,25 +83,28 @@ jobs:
     #   run: docker save myria3d:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${BRANCH_NAME}.tar
 
 
-    # get the version number, to tag the image pushed to nexus
+    # get version number and date, to tag the image pushed to nexus
     - name: get version number
       if: github.event_name == 'push'
-      id: version
-      run: echo "::set-output name=version::$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)"
+      id: tag
+      run: |
+        echo "::set-output name=version::$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)"
+        echo "::set-output name=date::$(date '+%Y.%m.%d')"
 
-    # show the version number, for debugging purpose
+    # show possible tags, for debugging purpose
     - name: Print version
       if: github.event_name == 'push'
-      run: echo "${{steps.version.outputs.version}}"
+      run: |
+        echo "${{steps.tag.outputs.version}}"
+        echo "${{steps.tag.outputs.date}}"
 
     - name: push docker on nexus
       # if: ${{(((github.event_name == 'push') && (github.ref_name == 'main')) || ((github.event_name == 'pull_request') && (github.base_ref == 'main') && (github.event.review.state == 'approved')))}}  # we push on nexus only if a pull request on the main branch has been accepted
       run: |
-        # docker tag myria3d -t 10.128.81.69:8082/lidar_hd/myria3d:${{steps.version.outputs.version}} -t 10.128.81.69:8082/lidar_hd/myria3d:${BRANCH_NAME}
-        docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.version.outputs.version}}
+        # docker tag myria3d  10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
+        docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.version}}
         docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        # docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.version.outputs.version}}
-        docker push 10.128.81.69:8082/lidar_hd/myria3d --all-tags
+        docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
 
     - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
