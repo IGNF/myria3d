@@ -101,8 +101,8 @@ jobs:
     - name: push docker on nexus
       # if: ${{(((github.event_name == 'push') && (github.ref_name == 'main')) || ((github.event_name == 'pull_request') && (github.base_ref == 'main') && (github.event.review.state == 'approved')))}}  # we push on nexus only if a pull request on the main branch has been accepted
       run: |
-        # docker tag myria3d  10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
-        docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.version}}
+        # docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.version}}
+        docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
 
