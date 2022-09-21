@@ -82,6 +82,7 @@ jobs:
     #   if: github.event_name == 'push'
     #   run: docker save myria3d:${BRANCH_NAME} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${BRANCH_NAME}.tar
 
+
     # get the version number, to tag the image pushed to nexus
     - name: get version number
       if: github.event_name == 'push'
