@@ -67,7 +67,9 @@ jobs:
 
     - name: Print the branch name
       if: github.event_name == 'push'
-      run: echo ${BRANCH_NAME}
+      run: |
+        echo ${BRANCH_NAME}
+        echo ${{github.ref_name}}
 
     - name: Tag the docker image with branch name
       if: github.event_name == 'push'
