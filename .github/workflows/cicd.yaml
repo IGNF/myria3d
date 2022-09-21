@@ -91,9 +91,9 @@ jobs:
         # docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         # docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         # docker push 10.128.81.69:8082/lidar_hd/myria3d:${{steps.tag.outputs.date}}
-        docker tag myria3d ${{nexus_server}}/lidar_hd/myria3d:${{steps.tag.outputs.date}}
-        docker login ${{nexus_server}} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push ${{nexus_server}}/lidar_hd/myria3d:${{steps.tag.outputs.date}}
+        docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
+        docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+        docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
 
     - name: push docker on nexus, from a simple branch 
       if: (github.ref_name != 'main')
@@ -101,9 +101,9 @@ jobs:
         # docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{github.ref_name}}
         # docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         # docker push 10.128.81.69:8082/lidar_hd/myria3d:${{github.ref_name}}
-        docker tag myria3d ${{nexus_server}}/lidar_hd/myria3d:${{github.ref_name}}
-        docker login ${{nexus_server}} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push ${{nexus_server}}/lidar_hd/myria3d:${{github.ref_name}}
+        docker tag myria3d $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
+        docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+        docker push $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
 
     - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
