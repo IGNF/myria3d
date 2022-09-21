@@ -108,7 +108,7 @@ jobs:
     - name: push docker on nexus, from a simple branch 
       if: (github.ref_name != 'main')
       run: |
-        docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{sgithub.ref_name}}
+        docker tag myria3d 10.128.81.69:8082/lidar_hd/myria3d:${{github.ref_name}}
         docker login 10.128.81.69:8082 --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         docker push 10.128.81.69:8082/lidar_hd/myria3d:${{github.ref_name}}
 
