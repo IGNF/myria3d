@@ -71,7 +71,7 @@ class HDF5Dataset(Dataset):
         # Instantiates these to null;
         # They are loaded within __getitem__ to support multi-processing training.
         self.dataset = None
-        self.samples_hdf5_paths = None
+        self._samples_hdf5_paths = None
 
         if las_files_by_split is None:
             log.warning(
@@ -88,7 +88,84 @@ class HDF5Dataset(Dataset):
             for las_path in tqdm(las_paths, desc=f"Preparing {split} set..."):
                 self._add_to_dataset(split, las_path)
 
+        # call it once to be sure that samples are all indexed into the hdf5 file.
+        self.samples_hdf5_paths()
+
+    def __getitem__(self, idx: int) -> Optional[Data]:
         self._index_all_samples_as_needed()
+        sample_hdf5_path = self.samples_hdf5_paths[idx]
+        data = self._get_data(sample_hdf5_path)
+
+        # filter if empty
+        if self.pre_filter is not None and self.pre_filter(data):
+            return None
+
+        # Transforms, including sampling and some augmentations.
+        transform = self.train_transform
+        if sample_hdf5_path.startswith("val") or sample_hdf5_path.startswith(
+            "test"
+        ):
+            transform = self.eval_transform
+        if transform is not None:
+            data = transform(data)
+
+        # filter if empty
+        if data is None or (
+            self.pre_filter is not None and self.pre_filter(data)
+        ):
+            return None
+
+        return data
+
+    def _get_data(self, sample_hdf5_path: str) -> Data:
+        """Loads a Data object from the HDF5 dataset.
+
+        Opening the file has a high cost so we do it only once and store the opened files as a singleton
+        for each process within __get_item__ and not in __init__ to support for Multi-GPU.
+
+        See https://discuss.pytorch.org/t/dataloader-when-num-worker-0-there-is-bug/25643/16?u=piojanu.
+
+        """
+        if self.dataset is None:
+            self.dataset = h5py.File(self.hdf5_file_path, "r")
+
+        grp = self.dataset[sample_hdf5_path]
+        # [...] needed to make a copy of content and avoid closing HDF5.
+        # Nota: idx_in_original_cloud SHOULD be np.ndarray, in order to be batched into a list,
+        # which serves to keep track of indivual sample sizes in a simpler way for interpolation.
+        return Data(
+            x=torch.from_numpy(grp["x"][...]),
+            pos=torch.from_numpy(grp["pos"][...]),
+            y=torch.from_numpy(grp["y"][...]),
+            idx_in_original_cloud=grp["idx_in_original_cloud"][...],
+            x_features_names=grp["x"].attrs["x_features_names"].tolist(),
+            # num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.
+        )
+
+    def __len__(self):
+        return len(self.samples_hdf5_paths)
+
+    @property
+    def traindata(self):
+        return self._get_split_subset("train")
+
+    @property
+    def valdata(self):
+        return self._get_split_subset("val")
+
+    @property
+    def testdata(self):
+        return self._get_split_subset("test")
+
+    def _get_split_subset(self, split: SPLIT_TYPE):
+        """Get a sub-dataset of a specific (train/val/test) split."""
+        self._index_all_samples_as_needed()
+        indices = [
+            idx
+            for idx, p in enumerate(self.samples_hdf5_paths)
+            if p.startswith(split)
+        ]
+        return torch.utils.data.Subset(self, indices)
 
     def _add_to_dataset(self, split: str, las_path: str):
         """Add samples from LAS into HDF5 dataset file.
@@ -158,111 +235,41 @@ class HDF5Dataset(Dataset):
                 # A termination flag to report that all samples for this point cloud were included in the df5 file.
                 f[split][b].attrs["is_complete"] = True
 
-    def _index_all_samples_as_needed(self):
+    @property
+    def samples_hdf5_paths(self):
         """Index all samples in the dataset, if not already done before."""
-        # Use existing if already indexed. Need to decode b-string
-        if self.samples_hdf5_paths is not None:
-            return
+        # Use existing if already loaded as variable.
+        if self._samples_hdf5_paths:
+            return self._samples_hdf5_paths
 
-        # Use stored if already indexed. Need to decode b-string
+        # Load as variable if already indexed in hdf5 file. Need to decode b-string.
         with h5py.File(self.hdf5_file_path, "r") as f:
             if "samples_hdf5_paths" in f:
-                self.samples_hdf5_paths = [
+                self._samples_hdf5_paths = [
                     sample_path.decode("utf-8")
                     for sample_path in f["samples_hdf5_paths"]
                 ]
-                return
+                return self._samples_hdf5_paths
 
         # Otherwise, index samples, and add the index as an attribute to the HDF5 file.
-        self.samples_hdf5_paths = []
+        self._samples_hdf5_paths = []
         with h5py.File(self.hdf5_file_path, "r") as f:
-            for s in [s for s in f.keys() if s in ["train", "val", "test"]]:
-                basenames = f[s].keys()
-                for bn in basenames:
-                    self.samples_hdf5_paths += [
-                        osp.join(s, bn, sample_number)
-                        for sample_number in f[s][bn].keys()
+            for split in [
+                s for s in f.keys() if s in ["train", "val", "test"]
+            ]:
+                basenames = f[split].keys()
+                for basename in basenames:
+                    self._samples_hdf5_paths += [
+                        osp.join(split, basename, sample_number)
+                        for sample_number in f[split][basename].keys()
                     ]
         with h5py.File(self.hdf5_file_path, "a") as f:
+            # special type to avoid silent string truncation in hdf5 datasets.
             variable_lenght_str_datatype = h5py.special_dtype(vlen=str)
             f.create_dataset(
                 "samples_hdf5_paths",
                 (len(self.samples_hdf5_paths),),
                 dtype=variable_lenght_str_datatype,
-                data=self.samples_hdf5_paths,
+                data=self._samples_hdf5_paths,
             )
-
-    def __len__(self):
-        return len(self.samples_hdf5_paths)
-
-    def _get_data(self, sample_hdf5_path: str) -> Data:
-        """Loads a Data object from the HDF5 dataset.
-
-        Opening the file has a high cost so we do it only once and store the opened files as a singleton
-        for each process within __get_item__ and not in __init__ to support for Multi-GPU.
-        See https://discuss.pytorch.org/t/dataloader-when-num-worker-0-there-is-bug/25643/16?u=piojanu.
-
-        """
-        if self.dataset is None:
-            self.dataset = h5py.File(self.hdf5_file_path, "r")
-
-        grp = self.dataset[sample_hdf5_path]
-        # [...] needed to make a copy of content and avoid closing HDF5.
-        # Nota: idx_in_original_cloud SHOULD be np.ndarray, in order to be batched into a list,
-        # which serves to keep track of indivual sample sizes in a simpler way for interpolation.
-        return Data(
-            x=torch.from_numpy(grp["x"][...]),
-            pos=torch.from_numpy(grp["pos"][...]),
-            y=torch.from_numpy(grp["y"][...]),
-            idx_in_original_cloud=grp["idx_in_original_cloud"][...],
-            # num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.
-            x_features_names=grp["x"].attrs["x_features_names"].tolist(),
-        )
-
-    def __getitem__(self, idx: int) -> Optional[Data]:
-        self._index_all_samples_as_needed()
-        sample_hdf5_path = self.samples_hdf5_paths[idx]
-        data = self._get_data(sample_hdf5_path)
-
-        # filter if empty
-        if self.pre_filter is not None and self.pre_filter(data):
-            return None
-
-        # Transforms, including sampling and some augmentations.
-        transform = self.train_transform
-        if sample_hdf5_path.startswith("val") or sample_hdf5_path.startswith(
-            "test"
-        ):
-            transform = self.eval_transform
-        if transform is not None:
-            data = transform(data)
-
-        # filter if empty
-        if data is None or (
-            self.pre_filter is not None and self.pre_filter(data)
-        ):
-            return None
-
-        return data
-
-    @property
-    def traindata(self):
-        return self._get_split_subset("train")
-
-    @property
-    def valdata(self):
-        return self._get_split_subset("val")
-
-    @property
-    def testdata(self):
-        return self._get_split_subset("test")
-
-    def _get_split_subset(self, split: SPLIT_TYPE):
-        """Get a sub-dataset of a specific (train/val/test) split."""
-        self._index_all_samples_as_needed()
-        indices = [
-            idx
-            for idx, p in enumerate(self.samples_hdf5_paths)
-            if p.startswith(split)
-        ]
-        return torch.utils.data.Subset(self, indices)
+        return self._samples_hdf5_paths
