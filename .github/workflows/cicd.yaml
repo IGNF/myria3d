@@ -78,13 +78,12 @@ jobs:
         echo "::set-output name=date::$(date '+%Y.%m.%d')"
 
     # show possible tags, for debugging purpose
-    - name: Print tag
+    - name: Print tags
       run: |
         echo "${{steps.tag.outputs.version}}"
         echo "${{steps.tag.outputs.date}}"
 
-
-    - name: push docker on nexus, if a pull request on main has been accepted  
+    - name: push docker on nexus if the pull request on main has been accepted  
       if: ((github.ref_name == 'main') && (github.event.pull_request.merged == true)) # we push on nexus only if a pull request on the main branch has been accepted 
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
