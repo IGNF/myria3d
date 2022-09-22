@@ -13,13 +13,17 @@ from myria3d.pctl.dataset.utils import (
 
 
 class InferenceDataset(IterableDataset):
-    """No need for HDF5 for Inference."""
+    """Iterable dataset to load samples from a single las file."""
 
     def __init__(
         self,
         las_file: str,
-        points_pre_transform: Callable[[ArrayLike], Data] = lidar_hd_pre_transform,
-        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
+        points_pre_transform: Callable[
+            [ArrayLike], Data
+        ] = lidar_hd_pre_transform,
+        pre_filter: Optional[
+            Callable[[Data], bool]
+        ] = pre_filter_below_n_points,
         transform: Optional[Callable[[Data], Data]] = None,
         tile_width: Number = 1000,
         subtile_width: Number = 50,

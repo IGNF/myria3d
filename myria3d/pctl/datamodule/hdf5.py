@@ -11,6 +11,7 @@ from torch_geometric.data import Data
 
 from myria3d.pctl.dataset.iterable import InferenceDataset
 from myria3d.pctl.dataset.utils import (
+    LAS_PATHS_BY_SPLIT_DICT_TYPE,
     SHAPE_TYPE,
     find_file_in_dir,
     pre_filter_below_n_points,
@@ -31,7 +32,9 @@ class HDF5LidarDataModule(LightningDataModule):
         split_csv_path: str,
         hdf5_file_path: str,
         points_pre_transform: Optional[Callable[[ArrayLike], Data]] = None,
-        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
+        pre_filter: Optional[
+            Callable[[Data], bool]
+        ] = pre_filter_below_n_points,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_shape: SHAPE_TYPE = "square",
@@ -45,6 +48,8 @@ class HDF5LidarDataModule(LightningDataModule):
         self.split_csv_path = split_csv_path
         self.data_dir = data_dir
         self.hdf5_file_path = hdf5_file_path
+        self._dataset = None  # will be set by self.dataset property
+        self.las_paths_by_split_dict = None  # Will be set from split_csv
 
         self.points_pre_transform = points_pre_transform
         self.pre_filter = pre_filter
@@ -70,8 +75,12 @@ class HDF5LidarDataModule(LightningDataModule):
             "preparations_predict_list", []
         )
 
-        self.augmentation_transform: TRANSFORMS_LIST = t.get("augmentations_list", [])
-        self.normalization_transform: TRANSFORMS_LIST = t.get("normalizations_list", [])
+        self.augmentation_transform: TRANSFORMS_LIST = t.get(
+            "augmentations_list", []
+        )
+        self.normalization_transform: TRANSFORMS_LIST = t.get(
+            "normalizations_list", []
+        )
 
     @property
     def train_transform(self) -> Compose:
@@ -83,7 +92,9 @@ class HDF5LidarDataModule(LightningDataModule):
 
     @property
     def eval_transform(self) -> Compose:
-        return Compose(self.preparation_eval_transform + self.normalization_transform)
+        return Compose(
+            self.preparation_eval_transform + self.normalization_transform
+        )
 
     @property
     def predict_transform(self) -> Compose:
@@ -91,19 +102,24 @@ class HDF5LidarDataModule(LightningDataModule):
             self.preparation_predict_transform + self.normalization_transform
         )
 
-    def setup(self, stage: Optional[str] = None):
+    def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
+
         if stage in ["fit", "test"] or stage is None:
-            las_files_by_split = None
+            las_paths_by_split_dict: Optional[
+                LAS_PATHS_BY_SPLIT_DICT_TYPE
+            ] = None
             if self.split_csv_path and self.data_dir:
-                las_files_by_split = {}
+                las_paths_by_split_dict = {}
                 split_df = pd.read_csv(self.split_csv_path)
                 for phase in ["train", "val", "test"]:
-                    basenames = split_df[split_df.split == phase].basename.tolist()
-                    las_files_by_split[phase] = [
+                    basenames = split_df[
+                        split_df.split == phase
+                    ].basename.tolist()
+                    las_paths_by_split_dict[phase] = [
                         find_file_in_dir(self.data_dir, b) for b in basenames
                     ]
-                if not len(las_files_by_split):
+                if not len(las_paths_by_split_dict):
                     raise FileNotFoundError(
                         (
                             f"No basename found while parsing directory {self.data_dir}"
@@ -114,18 +130,47 @@ class HDF5LidarDataModule(LightningDataModule):
                 log.warning(
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
-            self.dataset = HDF5Dataset(
-                self.hdf5_file_path,
-                las_files_by_split=las_files_by_split,
-                points_pre_transform=self.points_pre_transform,
-                tile_width=self.tile_width,
-                subtile_width=self.subtile_width,
-                subtile_overlap_train=self.subtile_overlap_train,
-                subtile_shape=self.subtile_shape,
-                pre_filter=self.pre_filter,
-                train_transform=self.train_transform,
-                eval_transform=self.eval_transform,
-            )
+        # Create the dataset in prepare_data, so that it is done one a single GPU.
+        self.las_paths_by_split_dict = las_paths_by_split_dict
+        self.dataset
+
+    # TODO: not needed ?
+    def setup(self, stage: Optional[str] = None) -> None:
+        """Instantiate the (already prepared) dataset (called on all GPUs)."""
+        self.dataset
+
+    @property
+    def dataset(self) -> HDF5Dataset:
+        """Abstraction to ease HDF5 dataset instantiation.
+
+        Args:
+            las_paths_by_split_dict (LAS_PATHS_BY_SPLIT_DICT_TYPE, optional): Maps split (val/train/test) to file path.
+                If specified, the hdf5 file is created at dataset initialization time.
+                Otherwise,a precomputed HDF5 file is used directly without I/O to the HDF5 file.
+                This is usefule for multi-GPU training, where data creation is performed in prepare_data method, and the dataset
+                is then loaded again in each GPU in setup method.
+                Defaults to None.
+
+        Returns:
+            HDF5Dataset: the dataset with train, val, and test data.
+
+        """
+        if self._dataset:
+            return self._dataset
+
+        self._dataset = HDF5Dataset(
+            self.hdf5_file_path,
+            las_paths_by_split_dict=self.las_paths_by_split_dict,
+            points_pre_transform=self.points_pre_transform,
+            tile_width=self.tile_width,
+            subtile_width=self.subtile_width,
+            subtile_overlap_train=self.subtile_overlap_train,
+            subtile_shape=self.subtile_shape,
+            pre_filter=self.pre_filter,
+            train_transform=self.train_transform,
+            eval_transform=self.eval_transform,
+        )
+        return self._dataset
 
     def train_dataloader(self):
         return GeometricNoneProofDataloader(
