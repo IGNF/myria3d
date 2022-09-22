@@ -88,11 +88,10 @@ class HDF5Dataset(Dataset):
             for las_path in tqdm(las_paths, desc=f"Preparing {split} set..."):
                 self._add_to_dataset(split, las_path)
 
-        # Call this once to be sure that samples are all indexed into the hdf5 file.
-        self.samples_hdf5_paths()
+        # Use property once to be sure that samples are all indexed into the hdf5 file.
+        self.samples_hdf5_paths
 
     def __getitem__(self, idx: int) -> Optional[Data]:
-        self._index_all_samples_as_needed()
         sample_hdf5_path = self.samples_hdf5_paths[idx]
         data = self._get_data(sample_hdf5_path)
 
@@ -159,7 +158,6 @@ class HDF5Dataset(Dataset):
 
     def _get_split_subset(self, split: SPLIT_TYPE):
         """Get a sub-dataset of a specific (train/val/test) split."""
-        self._index_all_samples_as_needed()
         indices = [
             idx
             for idx, p in enumerate(self.samples_hdf5_paths)
