@@ -48,6 +48,8 @@ class HDF5LidarDataModule(LightningDataModule):
         self.split_csv_path = split_csv_path
         self.data_dir = data_dir
         self.hdf5_file_path = hdf5_file_path
+        self._dataset = None  # will be set by self.dataset property
+        self.las_paths_by_split_dict = None  # Will be set from split_csv
 
         self.points_pre_transform = points_pre_transform
         self.pre_filter = pre_filter
@@ -104,7 +106,9 @@ class HDF5LidarDataModule(LightningDataModule):
         """Prepare dataset containing train, val, test data."""
 
         if stage in ["fit", "test"] or stage is None:
-            las_paths_by_split_dict = None
+            las_paths_by_split_dict: Optional[
+                LAS_PATHS_BY_SPLIT_DICT_TYPE
+            ] = None
             if self.split_csv_path and self.data_dir:
                 las_paths_by_split_dict = {}
                 split_df = pd.read_csv(self.split_csv_path)
@@ -127,17 +131,16 @@ class HDF5LidarDataModule(LightningDataModule):
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
         # Create the dataset in prepare_data, so that it is done one a single GPU.
-        self.dataset(las_paths_by_split_dict=las_paths_by_split_dict)
+        self.las_paths_by_split_dict = las_paths_by_split_dict
+        self.dataset
 
+    # TODO: not needed ?
     def setup(self, stage: Optional[str] = None) -> None:
         """Instantiate the (already prepared) dataset (called on all GPUs)."""
-        self.dataset = self.dataset()
+        self.dataset
 
     @property
-    def dataset(
-        self,
-        las_paths_by_split_dict: Optional[LAS_PATHS_BY_SPLIT_DICT_TYPE] = None,
-    ) -> HDF5Dataset:
+    def dataset(self) -> HDF5Dataset:
         """Abstraction to ease HDF5 dataset instantiation.
 
         Args:
@@ -157,7 +160,7 @@ class HDF5LidarDataModule(LightningDataModule):
 
         self._dataset = HDF5Dataset(
             self.hdf5_file_path,
-            las_paths_by_split_dict=las_paths_by_split_dict,
+            las_paths_by_split_dict=self.las_paths_by_split_dict,
             points_pre_transform=self.points_pre_transform,
             tile_width=self.tile_width,
             subtile_width=self.subtile_width,
