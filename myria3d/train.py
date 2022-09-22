@@ -154,8 +154,8 @@ def train(config: DictConfig) -> Trainer:
             )
             config.model.ckpt_path = trainer.checkpoint_callback.best_model_path
         log.info(
-                f"Test will use specified model checkpointed at \n {config.model.ckpt_path}"
-            )
+            f"Test will use specified model checkpointed at \n {config.model.ckpt_path}"
+        )
         trainer.test(
             model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path
         )
