@@ -31,7 +31,9 @@ class HDF5LidarDataModule(LightningDataModule):
         split_csv_path: str,
         hdf5_file_path: str,
         points_pre_transform: Optional[Callable[[ArrayLike], Data]] = None,
-        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
+        pre_filter: Optional[
+            Callable[[Data], bool]
+        ] = pre_filter_below_n_points,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_shape: SHAPE_TYPE = "square",
@@ -70,8 +72,12 @@ class HDF5LidarDataModule(LightningDataModule):
             "preparations_predict_list", []
         )
 
-        self.augmentation_transform: TRANSFORMS_LIST = t.get("augmentations_list", [])
-        self.normalization_transform: TRANSFORMS_LIST = t.get("normalizations_list", [])
+        self.augmentation_transform: TRANSFORMS_LIST = t.get(
+            "augmentations_list", []
+        )
+        self.normalization_transform: TRANSFORMS_LIST = t.get(
+            "normalizations_list", []
+        )
 
     @property
     def train_transform(self) -> Compose:
@@ -83,7 +89,9 @@ class HDF5LidarDataModule(LightningDataModule):
 
     @property
     def eval_transform(self) -> Compose:
-        return Compose(self.preparation_eval_transform + self.normalization_transform)
+        return Compose(
+            self.preparation_eval_transform + self.normalization_transform
+        )
 
     @property
     def predict_transform(self) -> Compose:
@@ -94,16 +102,18 @@ class HDF5LidarDataModule(LightningDataModule):
     def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
         if stage in ["fit", "test"] or stage is None:
-            las_files_by_split = None
+            las_paths_by_split_dict = None
             if self.split_csv_path and self.data_dir:
-                las_files_by_split = {}
+                las_paths_by_split_dict = {}
                 split_df = pd.read_csv(self.split_csv_path)
                 for phase in ["train", "val", "test"]:
-                    basenames = split_df[split_df.split == phase].basename.tolist()
-                    las_files_by_split[phase] = [
+                    basenames = split_df[
+                        split_df.split == phase
+                    ].basename.tolist()
+                    las_paths_by_split_dict[phase] = [
                         find_file_in_dir(self.data_dir, b) for b in basenames
                     ]
-                if not len(las_files_by_split):
+                if not len(las_paths_by_split_dict):
                     raise FileNotFoundError(
                         (
                             f"No basename found while parsing directory {self.data_dir}"
@@ -114,19 +124,19 @@ class HDF5LidarDataModule(LightningDataModule):
                 log.warning(
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
-
-        self._dataset(las_files_by_split=las_files_by_split)
+        # Create the dataset here.
+        self._dataset(las_paths_by_split_dict=las_paths_by_split_dict)
 
     def setup(self, stage: Optional[str] = None) -> None:
         self.dataset = self._dataset()
 
     def _dataset(
-        self, las_files_by_split: Optional[Dict[str, str]] = None
+        self, las_paths_by_split_dict: Optional[Dict[str, str]] = None
     ) -> HDF5Dataset:
         """Abstraction to ease HDF5 dataset instantiation.
 
         Args:
-            las_files_by_split (Optional[Dict[str, str]], optional): Maps split (val/train/test) to file path.
+            las_paths_by_split_dict (Optional[Dict[str, str]], optional): Maps split (val/train/test) to file path.
                 If specified, the hdf5 file is created at dataset initialization time.
                 Otherwise,a precomputed HDF5 file is used directly without I/O to the HDF5 file.
                 This is usefule for multi-GPU training, where data creation is performed in prepare_data method, and the dataset
@@ -139,7 +149,7 @@ class HDF5LidarDataModule(LightningDataModule):
         """
         return HDF5Dataset(
             self.hdf5_file_path,
-            las_files_by_split=las_files_by_split,
+            las_paths_by_split_dict=las_paths_by_split_dict,
             points_pre_transform=self.points_pre_transform,
             tile_width=self.tile_width,
             subtile_width=self.subtile_width,

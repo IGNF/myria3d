@@ -14,7 +14,7 @@ from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
 from myria3d.pctl.dataset.utils import (
     SHAPE_TYPE,
     SPLIT_TYPE,
-    LAS_FILES_BY_SPLIT_TYPE,
+    LAS_PATHS_BY_SPLIT_DICT_TYPE,
     pre_filter_below_n_points,
     split_cloud_into_samples,
 )
@@ -29,7 +29,7 @@ class HDF5Dataset(Dataset):
     def __init__(
         self,
         hdf5_file_path: str,
-        las_files_by_split: Optional[LAS_FILES_BY_SPLIT_TYPE] = None,
+        las_paths_by_split_dict: Optional[LAS_PATHS_BY_SPLIT_DICT_TYPE] = None,
         points_pre_transform: Callable = lidar_hd_pre_transform,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
@@ -42,8 +42,8 @@ class HDF5Dataset(Dataset):
         """Initialization, taking care of HDF5 dataset preparation if needed, and indexation of its content.
 
         Args:
-            las_files_by_split (Optional[LAS_FILES_BY_SPLIT_TYPE]): should look like
-                las_files_by_split = {'train': ['las1.las','las2.las'], 'val': [...], , 'test': [...]}
+            las_paths_by_split_dict (Optional[LAS_PATHS_BY_SPLIT_DICT_TYPE]): should look like
+                las_paths_by_split_dict = {'train': ['dir/las1.las','dir/las2.las'], 'val': [...], , 'test': [...]}
             hdf5_file_path (str): path to HDF5 dataset
             points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.
             tile_width (Number, optional): width of a LAS tile. Defaults to 1000.
@@ -73,15 +73,15 @@ class HDF5Dataset(Dataset):
         self.dataset = None
         self._samples_hdf5_paths = None
 
-        if las_files_by_split is None:
+        if las_paths_by_split_dict is None:
             log.warning(
-                "las_files_by_split is None and pre-computed HDF5 dataset is therefore used."
+                "las_paths_by_split_dict is None and pre-computed HDF5 dataset is therefore used."
             )
             return
 
         # Add data for all LAS Files into a single hdf5 file.
         os.makedirs(osp.dirname(hdf5_file_path), exist_ok=True)
-        for split, las_paths in las_files_by_split.items():
+        for split, las_paths in las_paths_by_split_dict.items():
             with h5py.File(hdf5_file_path, "a") as f:
                 if split not in f:
                     f.create_group(split)

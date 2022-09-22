@@ -9,9 +9,7 @@ sys.path.append(osp.dirname(osp.dirname(osp.dirname(osp.dirname(__file__)))))
 from myria3d.pctl.dataset.hdf5 import HDF5Dataset  # noqa
 
 
-TOY_LAS_DATA = (
-    "tests/data/toy_dataset_src/862000_6652000.classified_toy_dataset.100mx100m.las"
-)
+TOY_LAS_DATA = "tests/data/toy_dataset_src/862000_6652000.classified_toy_dataset.100mx100m.las"
 TOY_DATASET_HDF5_PATH = "tests/data/toy_dataset.hdf5"
 
 
@@ -39,7 +37,7 @@ def make_toy_dataset_from_test_file():
     # TODO: update transforms ? or use a config ?
     HDF5Dataset(
         TOY_DATASET_HDF5_PATH,
-        las_files_by_split={
+        las_paths_by_split_dict={
             "train": [TOY_LAS_DATA],
             "val": [TOY_LAS_DATA],
             "test": [TOY_LAS_DATA],
