@@ -11,7 +11,6 @@ on:
     branches:
       - prod
       - main
-      - nexus_push
 env:
   nexus_server: 10.128.81.69:8082
 
