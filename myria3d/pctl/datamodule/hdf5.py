@@ -11,6 +11,7 @@ from torch_geometric.data import Data
 
 from myria3d.pctl.dataset.iterable import InferenceDataset
 from myria3d.pctl.dataset.utils import (
+    LAS_PATHS_BY_SPLIT_DICT_TYPE,
     SHAPE_TYPE,
     find_file_in_dir,
     pre_filter_below_n_points,
@@ -101,6 +102,7 @@ class HDF5LidarDataModule(LightningDataModule):
 
     def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
+
         if stage in ["fit", "test"] or stage is None:
             las_paths_by_split_dict = None
             if self.split_csv_path and self.data_dir:
@@ -124,19 +126,22 @@ class HDF5LidarDataModule(LightningDataModule):
                 log.warning(
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
-        # Create the dataset here.
-        self._dataset(las_paths_by_split_dict=las_paths_by_split_dict)
+        # Create the dataset in prepare_data, so that it is done one a single GPU.
+        self.dataset(las_paths_by_split_dict=las_paths_by_split_dict)
 
     def setup(self, stage: Optional[str] = None) -> None:
-        self.dataset = self._dataset()
+        """Instantiate the (already prepared) dataset (called on all GPUs)."""
+        self.dataset = self.dataset()
 
-    def _dataset(
-        self, las_paths_by_split_dict: Optional[Dict[str, str]] = None
+    @property
+    def dataset(
+        self,
+        las_paths_by_split_dict: Optional[LAS_PATHS_BY_SPLIT_DICT_TYPE] = None,
     ) -> HDF5Dataset:
         """Abstraction to ease HDF5 dataset instantiation.
 
         Args:
-            las_paths_by_split_dict (Optional[Dict[str, str]], optional): Maps split (val/train/test) to file path.
+            las_paths_by_split_dict (LAS_PATHS_BY_SPLIT_DICT_TYPE, optional): Maps split (val/train/test) to file path.
                 If specified, the hdf5 file is created at dataset initialization time.
                 Otherwise,a precomputed HDF5 file is used directly without I/O to the HDF5 file.
                 This is usefule for multi-GPU training, where data creation is performed in prepare_data method, and the dataset
@@ -147,7 +152,10 @@ class HDF5LidarDataModule(LightningDataModule):
             HDF5Dataset: the dataset with train, val, and test data.
 
         """
-        return HDF5Dataset(
+        if self._dataset:
+            return self._dataset
+
+        self._dataset = HDF5Dataset(
             self.hdf5_file_path,
             las_paths_by_split_dict=las_paths_by_split_dict,
             points_pre_transform=self.points_pre_transform,
@@ -159,6 +167,7 @@ class HDF5LidarDataModule(LightningDataModule):
             train_transform=self.train_transform,
             eval_transform=self.eval_transform,
         )
+        return self._dataset
 
     def train_dataloader(self):
         return GeometricNoneProofDataloader(

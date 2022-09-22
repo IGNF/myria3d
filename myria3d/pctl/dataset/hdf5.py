@@ -88,7 +88,7 @@ class HDF5Dataset(Dataset):
             for las_path in tqdm(las_paths, desc=f"Preparing {split} set..."):
                 self._add_to_dataset(split, las_path)
 
-        # call it once to be sure that samples are all indexed into the hdf5 file.
+        # Call this once to be sure that samples are all indexed into the hdf5 file.
         self.samples_hdf5_paths()
 
     def __getitem__(self, idx: int) -> Optional[Data]:
