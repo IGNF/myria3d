@@ -22,13 +22,13 @@ python run.py experiment=RandLaNetDebug
 
 ## Training
 
-Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may stem from one of the provided experiment file (e.g. `RandLaNet_base_run_FR.yaml`). In particular, you will need to define `dataset_description` to specify your classification task - see config `20220607_151_dalles_proto.yaml` for an example.
+Define your experiment hyperparameters in an experiment file in the `configs/experiment` folder. You may stem from one of the provided experiment file (e.g. `RandLaNet_base_run_FR_pyg_randla_net.yaml`). In particular, you will need to define `dataset_description` to specify your classification task - see config `20220607_151_dalles_proto.yaml` for an example.
 
 
 To run the full training and validation for French Lidar HD, run:
 
 ```bash
-python run.py experiment=RandLaNet_base_run_FR
+python run.py experiment=RandLaNet_base_run_FR_pyg_randla_net
 ```
 
 After training, you model best checkpoints and hydra config will be saved in a `DATE/TIME/` subfolder of the `LOGS_DIR` you specified, with an associated hydra `config.yaml`.
@@ -38,9 +38,16 @@ After training, you model best checkpoints and hydra config will be saved in a `
 Pytorch Lightning support au [automated learning rate finder](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find), by means of an Learning Rate-range test (see section 3.3 in [this paper](https://arxiv.org/pdf/1506.01186.pdf) for reference). 
 You can perfom this automatically before training by setting `trainer.auto_lr_find=true` when calling training on your dataset. The best learning rate will be logged and results saved as an image, so that you do not need to perform this test more than once.
 
+### Multi-GPUs
+
+Multi-GPUs training is supported. Refer to e.g. experiment file `RandLaNet_base_run_FR_pyg_randla_net-MultiGPU.yaml` for pytorch lightning flags to activate it. 
+Multi-GPUs training effectively reduces training time by the number of GPUs used. Batch size might need to be reduced to keep a constant number of steps per epoch in DDP.
+
 ## Testing the model
 
-To evaluate per-class IoU on unseen, annotated data, run:
+Test will be automatically performed after each training, using best checkpointeded model.
+
+To manually evaluate per-class IoU on the test set, run:
 
 ```bash
 python run.py \
@@ -50,8 +57,13 @@ task.task_name="test" \
 model.ckpt_path={/path/to/checkpoint.ckpt} \
 trainer.gpus={0 for none, [i] to use GPU number i} \
 ```
-`config-path` and `config-name` means you are using the saved configuration from your training, which contains the path to the prepared HDF5 dataset. 
-If you are using the default configuration, you do not need those.
+ARguments `config-path` and `config-name` means you are using the saved configuration from your training, which contains the path to the prepared HDF5 dataset. 
+
+If you are using defaut configurations, you can call test using a custom experiment:
+
+```bash
+python run.py experiment=test
+```
 
 ## Inference
 
