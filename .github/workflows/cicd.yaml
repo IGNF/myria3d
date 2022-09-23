@@ -82,15 +82,17 @@ jobs:
         echo "${{steps.tag.outputs.version}}"
         echo "${{steps.tag.outputs.date}}"
 
-    - name: push docker on nexus if the pull request on main has been accepted  
-      if: ((github.ref_name == 'main') && (github.event.pull_request.merged == true)) # we push on nexus only if a pull request on the main branch has been accepted 
+    - name: push main docker on nexus (tagged with a date)
+      # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
+      if: ((github.ref_name == 'main') && ((github.event.pull_request.merged == true) || (github.event_name == 'push'))) 
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
         docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
 
-    - name: push docker on nexus, from a simple branch 
-      if: ((github.event_name != 'pull_request') && (github.ref_name != 'main'))
+    - name: push branch docker on nexus (tagged with the branch name)
+      # we push on nexus an image from a branch when it's pushed
+      if: ((github.event_name == 'push') && (github.ref_name != 'main'))
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
