@@ -88,7 +88,7 @@ jobs:
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
+        docker push $nexus_server/lidar_hd/myria3d:$${{steps.tag.outputs.version}}-{{steps.tag.outputs.date}}
 
     - name: push branch docker on nexus (tagged with the branch name)
       # we push on nexus an image from a branch when it's pushed
@@ -96,7 +96,7 @@ jobs:
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push $nexus_server/lidar_hd/myria3d:${{github.ref_name}}
+        docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.version}}-${{github.ref_name}}
 
     - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
