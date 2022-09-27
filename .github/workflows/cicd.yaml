@@ -84,7 +84,7 @@ jobs:
 
     - name: push main docker on nexus (tagged with a date)
       # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
-      if: ((github.ref_name == 'main') && ((github.event.pull_request.merged == true) || (github.event_name == 'push'))) 
+      if: ((github.ref_name == 'main') && (github.event_name == 'push')) 
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.date}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
