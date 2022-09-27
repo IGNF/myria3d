@@ -5,7 +5,7 @@ defaults:
 
 logger:
   comet:
-    experiment_name: "Pyg RandLaNet - No Random Sampling (10 x 30000pts)"
+    experiment_name: "RandLaNet_base_run_FR_pyg_randla_net_NoRS-(BS10xMAX40000pts)"
 
 
 # Smaller BS : 10 x 40 000 (max) == 400 000 pts i.e. previous budget of 32 x 12 500pts.
