@@ -7,7 +7,7 @@
 We use [anaconda](https://www.anaconda.com/products/individual) to manage virtual environments. 
 This makes installing pytorch-related libraries way easier than using pure pip installs.
 
-We enable CUDA-acceleration in pytorch as part of the defaut virtual environement recipe (see below).
+We enable CUDA-acceleration in pytorch as part of the defaut virtual environment recipe (see below).
 
 ### Environment Installation
 
@@ -25,7 +25,7 @@ conda activate myria3d
 Nota: if you do have CUDA, [check you CUDA version](https://varhowto.com/check-cuda-version/) and be sure `cudatoolkit` version in `setup_env/requirements.yml` matches yours. Adapt if needed (including sources for torch-geometric's dependencies given as wheels).
 
 
-Finally, activate the created environmnt by running
+Finally, activate the created environment by running
 
 ```bash
 conda activate myria3d
