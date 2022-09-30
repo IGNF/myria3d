@@ -99,15 +99,21 @@ bn099_kwargs = {"momentum": 0.01, "eps": 1e-6}
 class SharedMLP(MLP):
     """SharedMLP with new defauts BN and Activation following tensorflow implementation."""
 
-    def __init__(self, *args, **kwargs):
-        # BN + Act always active even at last layer.
-        kwargs["plain_last"] = False
-        # LeakyRelu with 0.2 slope by default.
-        kwargs["act"] = kwargs.get("act", "LeakyReLU")
-        kwargs["act_kwargs"] = kwargs.get("act_kwargs", lrelu02_kwargs)
-        # BatchNorm with 1-0.99=0.01 momentum and 1e-6 eps by defaut. (pytorch momentum != tensorflow momentum)
-        kwargs["norm_kwargs"] = kwargs.get("norm_kwargs", bn099_kwargs)
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     # BN + Act always active even at last layer.
+    #     kwargs["plain_last"] = False
+    #     # LeakyRelu with 0.2 slope by default.
+    #     kwargs["act"] = kwargs.get("act", "LeakyReLU")
+    #     kwargs["act_kwargs"] = kwargs.get("act_kwargs", lrelu02_kwargs)
+    #     # BatchNorm with 1-0.99=0.01 momentum and 1e-6 eps by defaut. (pytorch momentum != tensorflow momentum)
+    #     kwargs["norm_kwargs"] = kwargs.get("norm_kwargs", bn099_kwargs)
+    #     super().__init__(*args, **kwargs)
+
+    def __init__(self, *args, act="LeakyReLU", act_kwargs=lrelu02_kwargs, norm_kwargs=bn099_kwargs, **kwargs):
+        # plain_last=False: BN + Act always active even at last layer.
+        # act="LeakyReLU": LeakyRelu with 0.2 slope by default.
+        # norm_kwargs=bn099_kwargs: BatchNorm with 1-0.99=0.01 momentum and 1e-6 eps by defaut. (pytorch momentum != tensorflow momentum)
+        super().__init__(*args, plain_last=False, act=act, act_kwargs=act_kwargs, norm_kwargs=norm_kwargs, **kwargs)
 
 
 class GlobalPooling(torch.nn.Module):
