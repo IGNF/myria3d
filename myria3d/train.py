@@ -28,6 +28,7 @@ log = utils.get_logger(__name__)
 
 NEURAL_NET_ARCHITECTURE_CONFIG_GROUP = "neural_net"
 
+
 def train(config: DictConfig) -> Trainer:
     """Training pipeline (+ Test, + Finetuning)
 
