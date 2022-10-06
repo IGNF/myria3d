@@ -10,12 +10,10 @@ class GeometricNoneProofDataloader(DataLoader):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        if "collate_fn" in kwargs:
-            # Allow overriding - this is needed for pytorch lightning "overfit_batches" function, which
-            # update the dataloader with a different collater.
-            super().__init__(*args, **kwargs)
-        else:
-            super().__init__(*args, collate_fn=GeometricNoneProofCollater(), **kwargs)
+        # Allow overriding - this is needed for pytorch lightning "overfit_batches" function, which
+        # update the dataloader with a different collater.
+        kwargs["collate_fn"] = kwargs.get("collate_fn", GeometricNoneProofCollater())
+        super().__init__(*args, **kwargs)
 
 
 class GeometricNoneProofCollater(Collater):

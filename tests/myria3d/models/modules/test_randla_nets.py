@@ -45,10 +45,8 @@ def test_fake_run_pyg_randlanet(num_nodes):
     num_euclidian_dimensions = 3
     num_features = 9
     num_classes = 6
-    kwargs = {
-        "decimation": 4,
-        "num_neighbors": 16,
-    }
+    decimation = 4
+    num_neighbors = 16
 
     batch = Batch.from_data_list(
         [
@@ -61,6 +59,6 @@ def test_fake_run_pyg_randlanet(num_nodes):
         ]
     )
 
-    rln = PyGRandLANet(num_euclidian_dimensions + num_features, num_classes, **kwargs)
+    rln = PyGRandLANet(num_euclidian_dimensions + num_features, num_classes, decimation=decimation, num_neighbors=num_neighbors)
     output = rln(batch)
     assert output.shape == torch.Size([sum(num_nodes), num_classes])

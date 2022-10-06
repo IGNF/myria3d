@@ -26,6 +26,7 @@ from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
+NEURAL_NET_ARCHITECTURE_CONFIG_GROUP = "neural_net"
 
 def train(config: DictConfig) -> Trainer:
     """Training pipeline (+ Test, + Finetuning)
@@ -78,7 +79,7 @@ def train(config: DictConfig) -> Trainer:
     # Init lightning callbacks
     callbacks: List[Callback] = []
     if "callbacks" in config:
-        for _, cb_conf in config.callbacks.items():
+        for cb_conf in config.callbacks.values():
             if "_target_" in cb_conf:
                 log.info(f"Instantiating callback <{cb_conf._target_}>")
                 callbacks.append(hydra.utils.instantiate(cb_conf))
@@ -86,7 +87,7 @@ def train(config: DictConfig) -> Trainer:
     # Init lightning loggers
     logger: List[LightningLoggerBase] = []
     if "logger" in config:
-        for _, lg_conf in config.logger.items():
+        for lg_conf in config.logger.values():
             if "_target_" in lg_conf:
                 log.info(f"Instantiating logger <{lg_conf._target_}>")
                 logger.append(hydra.utils.instantiate(lg_conf))
@@ -166,12 +167,7 @@ def train(config: DictConfig) -> Trainer:
         # Instantiates the Model but overwrites everything with current config,
         # except module related params (nnet architecture)
         kwargs_to_override = copy.deepcopy(model.hparams)
-        NEURAL_NET_ARCHITECTURE_CONFIG_GROUP = "neural_net"
-        kwargs_to_override = {
-            key: value
-            for key, value in kwargs_to_override.items()
-            if NEURAL_NET_ARCHITECTURE_CONFIG_GROUP not in key
-        }
+        kwargs_to_override.pop(NEURAL_NET_ARCHITECTURE_CONFIG_GROUP, None)  # removes that key if it's there
         model = Model.load_from_checkpoint(config.model.ckpt_path, **kwargs_to_override)
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=None)
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")

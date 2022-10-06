@@ -60,14 +60,14 @@ class InferenceDataset(IterableDataset):
             # for final interpolation - should be kept as a np.ndarray to be batched as a list later.
             sample_data["idx_in_original_cloud"] = idx_in_original_cloud
 
-            if self.pre_filter is not None and self.pre_filter(sample_data):
+            if self.pre_filter and self.pre_filter(sample_data):
                 # e.g. not enough points in this receptive field.
                 continue
 
             if self.transform:
                 sample_data = self.transform(sample_data)
 
-            if self.pre_filter is not None and self.pre_filter(sample_data):
+            if self.pre_filter and self.pre_filter(sample_data):
                 # e.g. not enough points in this receptive field.
                 continue
 

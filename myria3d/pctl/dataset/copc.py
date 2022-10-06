@@ -152,8 +152,7 @@ class COPCRandomDataset(COPCDataset):
         copc_path = self.copc_paths[idx]
         center = get_random_center_in_tile(self.tile_width, self.subtile_width)
         wkt = make_circle_wkt(center, self.subtile_width)
-        reader_kwargs = {"polygon": wkt, "resolution": self.resolution}
-        points = load_from_copc(copc_path, **reader_kwargs)
+        points = load_from_copc(copc_path, polygon=wkt, resolution=self.resolution)
         return points
 
 
@@ -207,8 +206,7 @@ class COPCInferenceDataset(COPCDataset):
     def load_points(self, idx) -> np.ndarray:
         copc_path, center = self.samples[idx]
         wkt = make_circle_wkt(center, self.subtile_width)
-        reader_kwargs = {"polygon": wkt}
-        points = load_from_copc(copc_path, **reader_kwargs)
+        points = load_from_copc(copc_path, polygon=wkt)
         return points
 
 

@@ -96,7 +96,7 @@ class HDF5Dataset(Dataset):
         data = self._get_data(sample_hdf5_path)
 
         # filter if empty
-        if self.pre_filter is not None and self.pre_filter(data):
+        if self.pre_filter and self.pre_filter(data):
             return None
 
         # Transforms, including sampling and some augmentations.
@@ -105,12 +105,12 @@ class HDF5Dataset(Dataset):
             "test"
         ):
             transform = self.eval_transform
-        if transform is not None:
+        if transform :
             data = transform(data)
 
         # filter if empty
-        if data is None or (
-            self.pre_filter is not None and self.pre_filter(data)
+        if not data or (
+            self.pre_filter and self.pre_filter(data)
         ):
             return None
 
@@ -173,18 +173,18 @@ class HDF5Dataset(Dataset):
             las_path (str): path to point cloud.
 
         """
-        b = osp.basename(las_path)
+        basename = osp.basename(las_path)
 
         # Delete dataset for incomplete LAS entry, to start from scratch.
         # Useful in case data preparation was interrupted.
-        with h5py.File(self.hdf5_file_path, "a") as f:
-            if b in f[split] and "is_complete" not in f[split][b].attrs:
-                del f[b]
+        with h5py.File(self.hdf5_file_path, "a") as hdf5_file:
+            if basename in hdf5_file[split] and "is_complete" not in hdf5_file[split][basename].attrs:
+                del hdf5_file[basename]
                 # Parse and add subtiles to split group.
-        with h5py.File(self.hdf5_file_path, "a") as f:
-            if b not in f[split]:
+        with h5py.File(self.hdf5_file_path, "a") as hdf5_file:
+            if basename not in hdf5_file[split]:
                 sample_number = 0
-                for sample_idx, sample_points in split_cloud_into_samples(
+                for sample_number, (sample_idx, sample_points) in enumerate(split_cloud_into_samples(
                     las_path,
                     self.tile_width,
                     self.subtile_width,
@@ -193,45 +193,44 @@ class HDF5Dataset(Dataset):
                     subtile_overlap=self.subtile_overlap_train
                     if split == "train"
                     else 0,
-                ):
+                )):
                     data = self.points_pre_transform(sample_points)
                     if self.pre_filter is not None and self.pre_filter(data):
                         # e.g. pre_filter spots situations where num_nodes is too small.
                         continue
                     sample_id = str(sample_number).zfill(5)
-                    hdf5_path = osp.join(split, b, sample_id)
+                    hdf5_path = osp.join(split, basename, sample_id)
                     hd5f_path_x = osp.join(hdf5_path, "x")
-                    f.create_dataset(
+                    hdf5_file.create_dataset(
                         hd5f_path_x,
                         data.x.shape,
                         dtype="f",
                         data=data.x,
                     )
-                    f[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(
+                    hdf5_file[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(
                         data.x_features_names
                     )
-                    f.create_dataset(
+                    hdf5_file.create_dataset(
                         osp.join(hdf5_path, "pos"),
                         data.pos.shape,
                         dtype="f",
                         data=data.pos,
                     )
-                    f.create_dataset(
+                    hdf5_file.create_dataset(
                         osp.join(hdf5_path, "y"),
                         data.y.shape,
                         dtype="i",
                         data=data.y,
                     )
-                    f.create_dataset(
+                    hdf5_file.create_dataset(
                         osp.join(hdf5_path, "idx_in_original_cloud"),
                         sample_idx.shape,
                         dtype="i",
                         data=sample_idx,
                     )
-                    sample_number += 1
 
                 # A termination flag to report that all samples for this point cloud were included in the df5 file.
-                f[split][b].attrs["is_complete"] = True
+                hdf5_file[split][basename].attrs["is_complete"] = True
 
     @property
     def samples_hdf5_paths(self):
@@ -241,30 +240,28 @@ class HDF5Dataset(Dataset):
             return self._samples_hdf5_paths
 
         # Load as variable if already indexed in hdf5 file. Need to decode b-string.
-        with h5py.File(self.hdf5_file_path, "r") as f:
-            if "samples_hdf5_paths" in f:
+        with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
+            if "samples_hdf5_paths" in hdf5_file:
                 self._samples_hdf5_paths = [
                     sample_path.decode("utf-8")
-                    for sample_path in f["samples_hdf5_paths"]
+                    for sample_path in hdf5_file["samples_hdf5_paths"]
                 ]
                 return self._samples_hdf5_paths
 
         # Otherwise, index samples, and add the index as an attribute to the HDF5 file.
         self._samples_hdf5_paths = []
-        with h5py.File(self.hdf5_file_path, "r") as f:
-            for split in [
-                s for s in f.keys() if s in ["train", "val", "test"]
-            ]:
-                basenames = f[split].keys()
-                for basename in basenames:
-                    self._samples_hdf5_paths += [
-                        osp.join(split, basename, sample_number)
-                        for sample_number in f[split][basename].keys()
-                    ]
-        with h5py.File(self.hdf5_file_path, "a") as f:
+        with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
+            for split in hdf5_file.keys():
+                if split not in ["train", "val", "test"]:
+                    continue
+                for basename in hdf5_file[split].keys():
+                    for sample_number in hdf5_file[split][basename].keys():
+                        self._samples_hdf5_paths.append(osp.join(split, basename, sample_number))
+
+        with h5py.File(self.hdf5_file_path, "a") as hdf5_file:
             # special type to avoid silent string truncation in hdf5 datasets.
             variable_lenght_str_datatype = h5py.special_dtype(vlen=str)
-            f.create_dataset(
+            hdf5_file.create_dataset(
                 "samples_hdf5_paths",
                 (len(self.samples_hdf5_paths),),
                 dtype=variable_lenght_str_datatype,
