@@ -21,7 +21,14 @@ from .utils import (
 
 
 class COPCDataset(Dataset):
-    """Dataset for fast data augmentation of large LAS tiles, for deep learning training/inference."""
+    """Dataset for data augmentation of large LAS tiles, for deep learning training/inference, using COPC format.
+    See https://lidarmag.com/2021/12/27/cloud-native-geospatial-lidar-with-the-cloud-optimized-point-cloud/ for more
+    details.
+
+    Nota: the related DataModule is not implemented at the moment.
+    There is a need to validate speed/performance first. Right now, it is not fast enough to support
+    large batch loading for deep learning applications. LAZ decompression occuring in COPC might be a bottleneck.
+    """
 
     def __init__(
         self,
@@ -34,12 +41,16 @@ class COPCDataset(Dataset):
         if len(tiles_basenames) == 0:
             raise KeyError("Given list of files is empty")
 
-        processed_basenames = [b.replace(".las", ".copc.laz") for b in tiles_basenames]
+        processed_basenames = [
+            b.replace(".las", ".copc.laz") for b in tiles_basenames
+        ]
         self.copc_paths = [osp.join(copc_dir, b) for b in processed_basenames]
 
         if data_dir:
             # CONVERSION TO COPC IF NEEDED
-            raw_paths = [find_file_in_dir(data_dir, b) for b in tiles_basenames]
+            raw_paths = [
+                find_file_in_dir(data_dir, b) for b in tiles_basenames
+            ]
             try:
                 # IndexError if no file is found in dir.
                 [find_file_in_dir(copc_dir, b) for b in processed_basenames]
@@ -51,7 +62,9 @@ class COPCDataset(Dataset):
                     desc="Conversion to COPC.LAZ format.",
                 ):
                     write_las_to_copc_laz(
-                        las_path, copc_laz_path, add_original_index=add_original_index
+                        las_path,
+                        copc_laz_path,
+                        add_original_index=add_original_index,
                     )
 
     @abstractmethod
@@ -84,7 +97,9 @@ class COPCDataset(Dataset):
             data = self.transform(data)
 
         # filter if empty
-        if data is None or (self.pre_filter is not None and self.pre_filter(data)):
+        if data is None or (
+            self.pre_filter is not None and self.pre_filter(data)
+        ):
             return None
 
         return data
@@ -110,7 +125,10 @@ class COPCRandomDataset(COPCDataset):
         resolution: float = 0.0,
     ):
         super().__init__(
-            tiles_basenames, copc_dir, data_dir=datadir, add_original_index=False
+            tiles_basenames,
+            copc_dir,
+            data_dir=datadir,
+            add_original_index=False,
         )
 
         self.tile_width = tile_width
@@ -134,8 +152,7 @@ class COPCRandomDataset(COPCDataset):
         copc_path = self.copc_paths[idx]
         center = get_random_center_in_tile(self.tile_width, self.subtile_width)
         wkt = make_circle_wkt(center, self.subtile_width)
-        reader_kwargs = {"polygon": wkt, "resolution": self.resolution}
-        points = load_from_copc(copc_path, **reader_kwargs)
+        points = load_from_copc(copc_path, polygon=wkt, resolution=self.resolution)
         return points
 
 
@@ -173,7 +190,9 @@ class COPCInferenceDataset(COPCDataset):
 
         # samples is a list of path-center pairs
         xy_centers = get_mosaic_of_centers(
-            self.tile_width, self.subtile_width, subtile_overlap=subtile_overlap
+            self.tile_width,
+            self.subtile_width,
+            subtile_overlap=subtile_overlap,
         )
         self.samples = []
         for path in self.copc_paths:
@@ -187,8 +206,7 @@ class COPCInferenceDataset(COPCDataset):
     def load_points(self, idx) -> np.ndarray:
         copc_path, center = self.samples[idx]
         wkt = make_circle_wkt(center, self.subtile_width)
-        reader_kwargs = {"polygon": wkt}
-        points = load_from_copc(copc_path, **reader_kwargs)
+        points = load_from_copc(copc_path, polygon=wkt)
         return points
 
 

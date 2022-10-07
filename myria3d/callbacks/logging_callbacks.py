@@ -6,7 +6,6 @@ from pytorch_lightning.utilities.types import STEP_OUTPUT
 import torch
 from torchmetrics import JaccardIndex
 from torchmetrics.functional.classification.jaccard import _jaccard_from_confmat
-from myria3d.models.interpolation import Interpolator
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -22,11 +21,10 @@ class LogIoUByClass(Callback):
     A Callback to log JaccardIndex for each class.
     """
 
-    def __init__(self, classification_dict: Dict[int, str], interpolator: Interpolator):
+    def __init__(self, classification_dict: Dict[int, str]):
         self.classification_names = classification_dict.values()
         self.num_classes = len(classification_dict)
         self.metric = SingleClassIoU
-        self.itp = interpolator
 
     def get_all_iou_by_class_object(self):
         """Get a dict with schema {class_name:iou_for_class_name, ...}"""

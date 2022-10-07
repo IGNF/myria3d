@@ -47,22 +47,31 @@ A docker image encapsulating the virtual environment and application sources can
 
 To run inference: 
 - Mount the needed volumes with the `-v` option.
-- Always set `--ipc=host` to allow multithreading in pytorch dataloader (as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images)). 
+- Always set `--ipc=host` to allow multithreading (used in pytorch dataloader, as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images)). 
 - Increase the shared memory with `--shm-size=2gb` (which should be enough for 1km*1km point French "Lidar HD" clouds).
+- Set `--gpus=all` to make gpus visible to the container if available.
+
+See [docker-pytorch README](https://github.com/anibali/docker-pytorch#running-pytorch-scripts) for more details plus an additional option to specify user id at runtime.
 
 ```bash
 # specify your paths here as needed
-docker run -v {local_inputs}:/inputs/ -v {local_output}:/outputs/ --ipc=host --shm-size=2gb myria3d.predict {...options...}
+docker run \
+-v {local_inputs}:/inputs/ \
+-v {local_output}:/outputs/ \
+--ipc=host \
+--gpus=all \
+--shm-size=2gb \
+myria3d.predict {...config paths & options...}
 ```
 
-## Specific options
+## Additional options for prediction
 
 
-### Output format
+### Output dimensions
 
-By default, the predicted classification is stored in a new PRedictedClassification format, which is not a config parameter at the moment. The probability [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) is also stored, as a proxy for prediction uncertainty.
+By default, the predicted classification is stored in a new `PredictedClassification` LAS dimension. The [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) of probabilities is also stored and used as a limited proxy for prediction uncertainty.
 
-What one can control is for which classes to save the probabilities. This is achieved with a `predict.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.probas_to_save=[building,vegetation]` - notice the absence of space between class names).
+One can control for which classes to save the probabilities. This is achieved with a `predict.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.probas_to_save=[building,vegetation]` - note the absence of space between class names).
 
 ### Receptive field overlap at inference time
 

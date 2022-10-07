@@ -6,11 +6,14 @@ class GeometricNoneProofDataloader(DataLoader):
     """Torch geometric's dataloader is a simple torch Dataloader with a different Collater.
 
     This overrides the collater with a NoneProof one that will not fail if some Data is None.
-    This
+
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, collate_fn=GeometricNoneProofCollater(), **kwargs)
+        # Allow overriding - this is needed for pytorch lightning "overfit_batches" function, which
+        # update the dataloader with a different collater.
+        kwargs["collate_fn"] = kwargs.get("collate_fn", GeometricNoneProofCollater())
+        super().__init__(*args, **kwargs)
 
 
 class GeometricNoneProofCollater(Collater):

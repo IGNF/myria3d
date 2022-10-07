@@ -1,3 +1,5 @@
+import math
+import re
 from typing import Dict, List
 
 import numpy as np
@@ -20,6 +22,39 @@ class ToTensor(BaseTransform):
             if key in self.keys:
                 data[key] = torch.from_numpy(data[key])
         return data
+
+
+class MinimumNumNodes(BaseTransform):
+    def __init__(self, num: int):
+        self.num = num
+
+    def __call__(self, data):
+        num_nodes = data.num_nodes
+
+        if num_nodes >= self.num:
+            return data
+
+        choice = torch.cat(
+            [torch.randperm(num_nodes) for _ in range(math.ceil(self.num / num_nodes))],
+            dim=0,
+        )[: self.num]
+
+        for key, item in data:
+            if key == "num_nodes":
+                data.num_nodes = choice.size(0)
+            elif bool(re.search("edge", key)):
+                continue
+            elif (
+                torch.is_tensor(item)
+                and item.size(0) == num_nodes
+                and item.size(0) != 1
+            ):
+                data[key] = item[choice]
+
+        return data
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.num}"
 
 
 class CopyFullPos:

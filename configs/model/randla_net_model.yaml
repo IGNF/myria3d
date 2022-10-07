@@ -10,5 +10,3 @@ neural_net_hparams:
   num_neighbors: 16
   decimation: 4  # divide by decimation for each of the 4 local encoder.
   dropout: 0.5  # Use 0.0 of false to deactivate
-  interpolation_k: ${predict.interpolation_k}  # interpolation at eval time
-  num_workers: 4  # for knn_interpolate

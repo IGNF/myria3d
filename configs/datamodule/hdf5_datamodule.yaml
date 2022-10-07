@@ -23,9 +23,9 @@ subtile_shape: "square"  # "square" or "disk"
 subtile_overlap_train: 0
 subtile_overlap_predict: "${predict.subtile_overlap}"
 
-batch_size: 12
-num_workers: 2
-prefetch_factor: 2
+batch_size: 32
+num_workers: 3
+prefetch_factor: 3
 
 defaults:
   - transforms: default.yaml
