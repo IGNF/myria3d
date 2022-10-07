@@ -1,7 +1,4 @@
 basename,split
-870000_6618000.subset.50mx100m.train1.las,train
-870000_6618000.subset.50mx100m.train2.las,train
-870000_6618000.subset.50mx100m.val1.las,val
-870000_6618000.subset.50mx100m.val2.las,val
-870000_6618000.subset.50mx100m.test1.las,test
-870000_6618000.subset.50mx100m.test2.las,test
+862000_6652000.classified_toy_dataset.100mx100m.las,train
+862000_6652000.classified_toy_dataset.100mx100m.las,val
+862000_6652000.classified_toy_dataset.100mx100m.las,test

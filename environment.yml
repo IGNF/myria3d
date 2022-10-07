@@ -1,0 +1,67 @@
+name: myria3d
+channels:
+  - conda-forge
+  - anaconda
+dependencies:
+  - python==3.9.*
+  - pip
+  # cudatoolkit to specify the cuda driver in the conda env
+  - conda-forge::cudatoolkit=11.3.1 # single equal sign there, not a typo
+  - numba==0.55.1
+  # --------- data formats --------- #
+  - numpy==1.20
+  - h5py
+  # --------- geo --------- #
+  - pygeos
+  - shapely
+  - python-pdal
+  # --------- loggers --------- #
+  # --------- linters --------- #
+  - pre-commit # hooks for applying linters on commit
+  - black # code formatting
+  - isort # import sorting
+  - flake8 # code analysis
+  # --------- tests --------- #
+  - pytest==7.1.*
+  - coverage==6.3.*
+  - pytest-cov==3.0.*
+  # --------- others --------- #
+  - python-dotenv # loading env variables from .env file
+  - rich # beautiful text formatting in terminal
+  - sh # for running bash commands in some tests
+  # - scikit-learn # used in some callbacks
+  # - seaborn # used in some callbacks
+  # - jupyterlab # better jupyter notebooks
+  - pudb # debugger
+  - pip:
+      # --------- Deep Learning --------- #
+      # Extra index may need to be on first line 
+      - --extra-index-url https://download.pytorch.org/whl/cu113
+      - torch==1.11.*
+      - torchvision
+      - pytorch-lightning==1.5.9
+      - torchmetrics==0.7.*  # Else, pytorch-lightning will install the latest
+      - comet_ml==3.31.*
+      # Wheels for torch-geometric optionnal dependencies
+      - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_cluster-1.6.0-cp39-cp39-linux_x86_64.whl
+      - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
+      - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_sparse-0.6.14-cp39-cp39-linux_x86_64.whl
+      - git+https://github.com/pyg-team/pytorch_geometric.git@2.1.0
+      # Nota: if libcusparse.so.11. errors occur, run
+      # export LD_LIBRARY_PATH="/home/user/miniconda/envs/lib:$LD_LIBRARY_PATH" 
+      # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
+      # --------- Visualization --------- #
+      - pandas==1.4.*
+      - matplotlib==3.5.*
+      # --------- hydra configs --------- #
+      - hydra-core==1.1.*
+      - hydra-colorlog==1.1.*
+      # # --------- Documentation --------- #
+      - sphinx==4.5.*
+      - sphinx_rtd_theme==1.0.*
+      - myst_parser==0.17.*
+      - sphinx_paramlinks==0.5.*
+      - recommonmark==0.7.*
+      - sphinxnotes-mock==1.0.0b0  # still a beta
+      - docutils==0.17
+      - rstcheck==3.3.*  # RST Linter

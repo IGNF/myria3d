@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
 SHAPE_TYPE = Union[Literal["disk"], Literal["square"]]
-LAS_FILES_BY_SPLIT_TYPE = Dict[SPLIT_TYPE, List[str]]
+LAS_PATHS_BY_SPLIT_DICT_TYPE = Dict[SPLIT_TYPE, List[str]]
 
 # commons
 
@@ -51,7 +51,7 @@ def pdal_read_las_array(las_path: str):
         np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.
 
     """
-    p1 = pdal.Pipeline() | pdal.Reader.las(filename=las_path)
+    p1 = pdal.Pipeline() | get_pdal_reader(las_path)
     p1.execute()
     return p1.arrays[0]
 
@@ -119,7 +119,9 @@ def split_cloud_into_samples(
             # Adapt radius to have complete coverage of the data, with a slight overlap between samples.
             minkowski_p = 2
             radius = radius * math.sqrt(2)
-        sample_idx = np.array(kd_tree.query_ball_point(center, r=radius, p=minkowski_p))
+        sample_idx = np.array(
+            kd_tree.query_ball_point(center, r=radius, p=minkowski_p)
+        )
         if not len(sample_idx):
             # no points in this receptive fields
             continue

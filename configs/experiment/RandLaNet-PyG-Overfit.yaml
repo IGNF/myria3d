@@ -1,0 +1,25 @@
+# @package _global_
+
+# Nota : call "python myria3d/pctl/dataset/toy_dataset.py" to create a toy dataset before running this.
+defaults:
+  - override /model: pyg_randla_net_model.yaml
+  - override /datamodule/transforms/augmentations: none.yaml
+
+
+logger:
+  comet:
+    experiment_name: "RandLaNetOverfit"
+
+trainer:
+  min_epochs: 100
+  max_epochs: 100
+  overfit_batches: 1
+  num_sanity_val_steps: 0
+
+datamodule:
+  batch_size: 12
+  num_workers: 2
+  # runtime.cwd is where application is run from e.g. where run.py is.
+  data_dir: "${hydra:runtime.cwd}/tests/data/"
+  split_csv_path: "${hydra:runtime.cwd}/tests/data/toy_dataset_src/toy_dataset_split.csv"
+  hdf5_file_path: "${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5"

@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 
 from torch_geometric.nn.pool import knn
-from torch_geometric.nn.unpool import knn_interpolate
 
 
 class RandLANet(nn.Module):
@@ -14,24 +13,18 @@ class RandLANet(nn.Module):
     RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
     at https://arxiv.org/abs/1911.11236
 
-    Our modifications:
-    - fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
-    information bottleneck in cases where d_in is above 8.
-    - Use pytorch-geometric instead of torch_points_kernels for GPU support, and
-    ease of installation of dependencies.
-
     """
 
-    def __init__(self, hparams_net: dict):
+    def __init__(self, **kwargs: dict):
         super(RandLANet, self).__init__()
-        self.d_in = hparams_net.get("d_in", 6)  # xyz + features
-        self.num_neighbors = hparams_net.get("num_neighbors", 16)
-        self.decimation = hparams_net.get("decimation", 4)
-        self.dropout = hparams_net.get("dropout", 0.0)
-        self.num_classes = hparams_net.get("num_classes", 7)
-        self.interpolation_k = hparams_net.get("interpolation_k", 25)
+        self.d_in = kwargs.get("d_in", 6)  # xyz + features
+        self.num_neighbors = kwargs.get("num_neighbors", 16)
+        self.decimation = kwargs.get("decimation", 4)
+        self.dropout = kwargs.get("dropout", 0.0)
+        self.num_classes = kwargs.get("num_classes", 7)
+        self.interpolation_k = kwargs.get("interpolation_k", 25)
 
-        self.num_workers = hparams_net.get("num_workers", 4)
+        self.num_workers = kwargs.get("num_workers", 4)
 
         self.fc_start = nn.Linear(self.d_in, self.d_in * 2)
         self.bn_start = nn.Sequential(
@@ -134,26 +127,7 @@ class RandLANet(nn.Module):
         scores = torch.cat(
             [score_cloud.permute(1, 0) for score_cloud in scores]
         )  # B*N, C
-        if self.training or "copies" not in batch:
-            # In training mode and for validation, we directly optimize on subsampled points, for
-            # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
-            # 2) data augmentation at the supervision level.
-            return scores  # B*N, C
-
-        # During evaluation on test data and inference, we interpolate predictions back to original positions
-        # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
-        scores = scores.cpu()
-        batch_y = get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
-        scores = knn_interpolate(
-            scores.cpu(),
-            batch.copies["pos_sampled_copy"].cpu(),
-            batch.copies["pos_copy"].cpu(),
-            batch_x=batch.batch.cpu(),
-            batch_y=batch_y.cpu(),
-            k=self.interpolation_k,
-            num_workers=self.num_workers,
-        )
-        return scores  # N1+N2+...+Nn, C
+        return scores
 
     def set_fc_end(self, d_in, dropout, num_classes):
         """Build the final fully connected layer.

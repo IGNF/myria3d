@@ -8,6 +8,8 @@ import torch
 from torch.distributions import Categorical
 from torch_scatter import scatter_sum
 
+from myria3d.pctl.dataset.utils import get_pdal_reader
+
 log = logging.getLogger(__name__)
 
 
@@ -49,10 +51,7 @@ class Interpolator:
             self.probas_to_save = probas_to_save
 
         # Maps ascending index (0,1,2,...) back to conventionnal LAS classification codes (6=buildings, etc.)
-        self.reverse_mapper: Dict[int, int] = {
-            class_index: class_code
-            for class_index, class_code in enumerate(classification_dict.keys())
-        }
+        self.reverse_mapper: Dict[int, int] = {class_index: class_code for class_index, class_code in enumerate(classification_dict.keys())}
 
         self.logits: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
@@ -64,15 +63,13 @@ class Interpolator:
             filepath (str): Path to LAS for which predictions are made.
         """
         # self.current_f = filepath
-        pipeline = pdal.Reader.las(filename=src_las)
+        pipeline = get_pdal_reader(src_las)
         new_dims = self.probas_to_save + [
             ChannelNames.PredictedClassification.value,
             ChannelNames.ProbasEntropy.value,
         ]
         for new_dim in new_dims:
-            pipeline |= pdal.Filter.ferry(
-                dimensions=f"=>{new_dim}"
-            ) | pdal.Filter.assign(value=f"{new_dim}=0")
+            pipeline |= pdal.Filter.ferry(dimensions=f"=>{new_dim}") | pdal.Filter.assign(value=f"{new_dim}=0")
         pipeline.execute()
         return pipeline.arrays[0]  # named array
 
@@ -99,9 +96,7 @@ class Interpolator:
         # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
         # scatter_sum reorders logitsbased on index,they therefore match las order.
         reduced_logits = torch.zeros((len(las), logits.size(1)))
-        scatter_sum(
-            logits, torch.from_numpy(idx_in_full_cloud), out=reduced_logits, dim=0
-        )
+        scatter_sum(logits, torch.from_numpy(idx_in_full_cloud), out=reduced_logits, dim=0)
         # reduced_logits contains logits ordered by their idx in original cloud !
         # Warning : some points may not contain any predictions if they were in small areas.
         return reduced_logits
@@ -139,9 +134,7 @@ class Interpolator:
         out_f = os.path.abspath(out_f)
         log.info(f"Updated LAS ({basename}) will be saved to \n {output_dir}\n")
         log.info("Saving...")
-        pipeline = pdal.Writer.las(
-            filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8
-        ).pipeline(las)
+        pipeline = pdal.Writer.las(filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8).pipeline(las)
         pipeline.execute()
         log.info("Saved.")
 

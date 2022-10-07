@@ -1,0 +1,18 @@
+# @package _global_
+defaults:
+  - RandLaNet_base_run_FR_pyg_randla_net.yaml
+
+logger:
+  comet:
+    experiment_name: "Pyg RandLaNet - FR Data - 2xGPUs"
+
+trainer:
+  strategy: ddp_find_unused_parameters_false
+  # Replace by gpu to simulate multi-gpus training.
+  accelerator: gpu
+  num_processes: 2
+  gpus: 2
+  
+datamodule:
+  # You may want to divide batch size by number of gpus to keep number of steps by epoch unchanged.
+  batch_size: 16
