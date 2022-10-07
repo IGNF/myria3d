@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Developer’s guide &mdash; myria3d 2.4.5 documentation</title>
+  <title>Developer’s guide &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -168,12 +170,13 @@ python -m pytest -rA -v
 </section>
 <section id="continuous-integration-ci">
 <h2>Continuous Integration (CI)<a class="headerlink" href="#continuous-integration-ci" title="Permalink to this headline"></a></h2>
-<p>New features are developped in ad-hoc branches (e.g. <code class="docutils literal notranslate"><span class="pre">refactor-requirements</span></code>), and merged in the <code class="docutils literal notranslate"><span class="pre">dev</span></code> branch. When ready, <code class="docutils literal notranslate"><span class="pre">dev</span></code> can be merged in <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p>
-<p>CI tests are run for pull request to merge on either <code class="docutils literal notranslate"><span class="pre">dev</span></code> or <code class="docutils literal notranslate"><span class="pre">main</span></code> branches, and on pushes to <code class="docutils literal notranslate"><span class="pre">dev</span></code>, <code class="docutils literal notranslate"><span class="pre">main</span></code>, and <code class="docutils literal notranslate"><span class="pre">prod</span></code>. The CI workflow builds a docker image, runs linting, and tests the code.</p>
+<p>New features are developped in ad-hoc branches (e.g. <code class="docutils literal notranslate"><span class="pre">dev-Vx.y.z-Feature-Name</span></code>).</p>
+<p>CI tests are run for pull request to merge on either the <code class="docutils literal notranslate"><span class="pre">main</span></code> branches, and on pushes to <code class="docutils literal notranslate"><span class="pre">main</span></code>, and <code class="docutils literal notranslate"><span class="pre">prod</span></code> branches. The CI workflow builds a docker image, runs linting, and tests the code.</p>
 </section>
 <section id="continuous-delivery-cd">
 <h2>Continuous Delivery (CD)<a class="headerlink" href="#continuous-delivery-cd" title="Permalink to this headline"></a></h2>
-<p>When the event is a push and not a merge request, this means that there was either a direct push to <code class="docutils literal notranslate"><span class="pre">dev</span></code>|<code class="docutils literal notranslate"><span class="pre">main</span></code>|<code class="docutils literal notranslate"><span class="pre">prod</span></code> or that a merge request was accepted. In this case, if the CI workflow passes, the docker image is tagged with the branch name, resulting in e.g. a <code class="docutils literal notranslate"><span class="pre">myria3d:prod</span></code> image that is up to date with the branch content. See [../tutorials/use.md] for how to leverage such image to run the app.</p>
+<p>When the event is a push and not a merge request, this means that there was either a direct push to <code class="docutils literal notranslate"><span class="pre">main</span></code>|<code class="docutils literal notranslate"><span class="pre">prod</span></code> or that a merge request was accepted. In this case, if the CI workflow passes (i.e. tests pass and code is PEP8 compliant), the created docker image is tagged with the branch name, resulting in e.g. a <code class="docutils literal notranslate"><span class="pre">myria3d:prod</span></code> image that is up to date with the branch content.
+See [../tutorials/use.md] for how to leverage such image to run the app.</p>
 <p>Additionnaly, pushes on the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch build this library documentation, which is hosted on Github pages.</p>
 </section>
 </section>

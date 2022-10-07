@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training &mdash; myria3d 2.4.5 documentation</title>
+  <title>Preparing data for training &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -157,7 +159,7 @@
 <h2>Peprocessing functions<a class="headerlink" href="#peprocessing-functions" title="Permalink to this headline"></a></h2>
 <p>The loading function is dataset dependant, and is <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code> by default. The function takes points loaded from a LAS file via pdal as input, and returns a <code class="docutils literal notranslate"><span class="pre">pytorch_geometric.Data</span></code> object following the standard naming convention of <code class="docutils literal notranslate"><span class="pre">pytorch_geometric</span></code>, plus a list of features names for later use in transforms.</p>
 <p>It is adapted to the French Lidar HD data provided by IGN (see <a class="reference external" href="https://geoservices.ign.fr/lidarhd">the official page</a> - link in French). Return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.</p>
-<p>You may want to implement your own logic (e.g. with custom, additional features) in diretcory <code class="docutils literal notranslate"><span class="pre">points_pre_transform</span></code>. It then needs to be referenced similarly to <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code>.</p>
+<p>You may want to implement your own logic (e.g. with custom, additional features) in directory <code class="docutils literal notranslate"><span class="pre">points_pre_transform</span></code>. It then needs to be referenced similarly to <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code>.</p>
 </section>
 <section id="using-your-own-data">
 <h2>Using your own data<a class="headerlink" href="#using-your-own-data" title="Permalink to this headline"></a></h2>

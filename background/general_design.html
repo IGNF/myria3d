@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General design of the package &mdash; myria3d 2.4.5 documentation</title>
+  <title>General design of the package &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -154,16 +156,46 @@
   <section id="general-design-of-the-package">
 <h1>General design of the package<a class="headerlink" href="#general-design-of-the-package" title="Permalink to this headline"></a></h1>
 <p>Here are a few challenges relative to training 3D segmentation models for Aerial High Density Lidar, and the strategies we adopt in Myria3D in order to face them.</p>
+<section id="model-should-be-fast-performant-and-practical">
+<h2>Model should be fast, performant, and practical<a class="headerlink" href="#model-should-be-fast-performant-and-practical" title="Permalink to this headline"></a></h2>
+<p><strong>Situation</strong>:</p>
+<ul class="simple">
+<li><p>Since the seminal PointCloud architecture [<a class="reference external" href="https://arxiv.org/abs/1612.00593">Qi 2016</a>] and the later [<a class="reference external" href="https://arxiv.org/abs/1706.02413">PointNet++</a>], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion.</p></li>
+<li><p>Our main requirements are:</p>
+<ol class="arabic simple">
+<li><p>Speed of inference, in order to operate at a national scale.</p></li>
+<li><p>performances in large-scale outdoor Lidar settings, on e.g. <a class="reference external" href="http://semantic-kitti.org/">SemanticKITTI</a> and <a class="reference external" href="http://semantic3d.net/">Semantic 3D</a> benchmarks, by opposition to e.g. the <a class="reference external" href="https://ieeexplore.ieee.org/document/7780539/">S3DIS</a> benchmark.</p></li>
+<li><p>performances on specific, urban classes such as buildings.</p></li>
+<li><p>Conceptual simplicity - following a simple hierarchical structure was preferred to more complex architectures.</p></li>
+</ol>
+</li>
+</ul>
+<p><strong>Strategy</strong>:</p>
+<ul class="simple">
+<li><p>We focused on the RandLA-Net architecture <a class="reference external" href="https://arxiv.org/abs/1911.11236">Hu 2020</a>.</p>
+<ul>
+<li><p>It was specifically conceived by authors with requirements (1) and (2) in mind.</p></li>
+<li><p>It meets requirement (2), by setting SOTA results on both Semantic3D and SemanticKITTI datasets. In particular, it takes the first place from the KPConv architecture by <a class="reference external" href="https://arxiv.org/abs/1904.08889">Thomas et al. 2019</a> on Semantic3D, and is in particular superior on class <code class="docutils literal notranslate"><span class="pre">buildings</span></code>, meeting requirement (3).</p></li>
+<li><p>The official RandLA-Net implementation is ~4 times faster than KPConv on SemanticKITTI, meeting requirement (1).</p></li>
+<li><p>It is conceptually simple, basically a PointNet++ like encoder-decoder architecture, with random samplings and explicit encoding of local geometric structures.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="subsampling-is-important-to-improve-point-cloud-structure">
 <h2>Subsampling is important to improve point cloud structure<a class="headerlink" href="#subsampling-is-important-to-improve-point-cloud-structure" title="Permalink to this headline"></a></h2>
 <p><strong>Situation</strong>:</p>
 <ul class="simple">
-<li><p>Point Cloud data, and aerial Lidar data, represent rich data with a level of detail that might hinder the detection of  objects with generally simple structures such as buildings, ground, and trees. On the other hand, smaller, more variate objects might benefit from denser point clouds.</p></li>
-<li><p>Another point to consider is that some 3D semantic segmentation architectures - including the RandLa-Net architecture we leverage - need fixed size point cloud. This means that either subsampling or padding are required. This kind of implementation reduces flexibility and is suboptimal, but to our knowledge there are no alternative RandLa-Net implementation in pytorch that can accept different-size point clouds within the same batch.</p></li>
+<li><p>Point Cloud data, and aerial Lidar data, represent rich data with a level of detail that might hinder the detection of objects with generally simple structures such as buildings and ground. On the other hand, smaller, more intricate objects might benefit from denser point clouds.</p></li>
+<li><p>Until V3.0.*, we experimented with a RandLA-Net architecture implemented in pytorch by <a class="reference external" href="https://github.com/aRI0U/RandLA-Net-pytorch/">aRI0U</a>, which needed fixed size point cloud. Subsampling was thus required. This kind of implementation reduces flexibility and is suboptimal. There was no alternative RandLa-Net implementation in pytorch that can accept different-size point clouds within the same batch.</p></li>
 </ul>
 <p><strong>Strategy</strong>:</p>
 <ul class="simple">
 <li><p>We leverage torch_geometric <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/modules/transforms.html#torch_geometric.transforms.GridSampling">GridSampling</a> and <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/modules/transforms.html#torch_geometric.transforms.FixedPoints">FixedPoints</a> to (i) simplify local point structures with a 0.25m resolution, and (ii) get a fixed size point cloud that can be fed to the mmodel. Grid Sampling has the effect of reducing point cloud size by around a third, with most reductions expected to occur in vegetation.</p></li>
+</ul>
+<p><strong>Next Steps</strong>:</p>
+<ul class="simple">
+<li><p>In V3.0.*, we implement our own version of RandLA-Net. Using the capabilities of pytorch-geometric, it accepts variable size point clouds, and also follows the authors paper more closely. We also contribute it to the pytorch-geometric community (see this <a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/pull/5117">pull request</a>) and benefit from their feedback. We are in the process of specifying a configuration and transforms to use fuller point clouds, taking into account memory limitations. If this works, this will become the defaut.</p></li>
 </ul>
 </section>
 <section id="speed-is-of-the-essence">
@@ -185,7 +217,7 @@
 </ul>
 <p><strong>Strategy</strong>:</p>
 <ul class="simple">
-<li><p>During test and validation phases, we <strong>do</strong> interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in <code class="docutils literal notranslate"><span class="pre">eval</span></code> mode only, and is also leveraged during inference.</p></li>
+<li><p>During test and validation phases, we <strong>do</strong> interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in <code class="docutils literal notranslate"><span class="pre">eval</span></code> mode only, and is of course also leveraged during inference.</p></li>
 </ul>
 </section>
 </section>

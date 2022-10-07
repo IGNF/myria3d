@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Default configuration &mdash; myria3d 2.4.5 documentation</title>
+  <title>Default configuration &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -235,17 +237,7 @@
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopySampledPos</span><span class="w"></span>
 <span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
-<span class="w">    </span><span class="nt">augmentations</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">x_flip</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.RandomFlip</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
-<span class="w">        </span><span class="nt">p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
-<span class="w">      </span><span class="nt">y_flip</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.RandomFlip</span><span class="w"></span>
-<span class="w">        </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">        </span><span class="nt">p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">augmentations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
 <span class="w">    </span><span class="nt">normalizations</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">NullifyLowestZ</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.NullifyLowestZ</span><span class="w"></span>
@@ -279,7 +271,7 @@
 <span class="w">  </span><span class="nt">subtile_overlap_predict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.subtile_overlap}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
 <span class="w">  </span><span class="nt">num_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">  </span><span class="nt">prefetch_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">  </span><span class="nt">prefetch_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
 <span class="nt">dataset_description</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">_convert_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span><span class="w"></span>
 <span class="w">  </span><span class="nt">classification_preprocessing_dict</span><span class="p">:</span><span class="w"></span>
@@ -341,11 +333,6 @@
 <span class="w">  </span><span class="nt">log_iou_by_class</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.callbacks.logging_callbacks.LogIoUByClass</span><span class="w"></span>
 <span class="w">    </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
-<span class="w">    </span><span class="nt">interpolator</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.models.interpolation.Interpolator</span><span class="w"></span>
-<span class="w">      </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.interpolation_k}</span><span class="w"></span>
-<span class="w">      </span><span class="nt">classification_dict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
-<span class="w">      </span><span class="nt">probas_to_save</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.probas_to_save}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">model_checkpoint</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytorch_lightning.callbacks.ModelCheckpoint</span><span class="w"></span>
 <span class="w">    </span><span class="nt">monitor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">val/loss_epoch</span><span class="w"></span>
@@ -391,8 +378,8 @@
 <span class="w">    </span><span class="nt">num_neighbors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span><span class="w"></span>
 <span class="w">    </span><span class="nt">decimation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
 <span class="w">    </span><span class="nt">dropout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
-<span class="w">    </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.interpolation_k}</span><span class="w"></span>
-<span class="w">    </span><span class="nt">num_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
+<span class="w">  </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${predict.interpolation_k}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">num_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
 <span class="w">  </span><span class="nt">iou</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">functools.partial</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
@@ -420,7 +407,7 @@
 <span class="w">  </span><span class="nt">gpus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
 <span class="w">  </span><span class="nt">probas_to_save</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span><span class="w"></span>
 <span class="w">  </span><span class="nt">subtile_overlap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
-<span class="w">  </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span><span class="w"></span>
+<span class="w">  </span><span class="nt">interpolation_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"></span>
 </pre></div>
 </div>
 </section>

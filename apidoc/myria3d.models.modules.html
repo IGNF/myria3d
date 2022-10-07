@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.modules &mdash; myria3d 2.4.5 documentation</title>
+  <title>myria3d.models.modules &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -153,68 +155,14 @@
              
   <section id="myria3d-models-modules">
 <h1>myria3d.models.modules<a class="headerlink" href="#myria3d-models-modules" title="Permalink to this headline"></a></h1>
-<section id="randla-net">
-<h2>RandLA-Net<a class="headerlink" href="#randla-net" title="Permalink to this headline"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="myria3d.models.modules.randla_net.RandLANet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.modules.randla_net.</span></span><span class="sig-name descname"><span class="pre">RandLANet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hparams_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/randla_net.html#RandLANet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.randla_net.RandLANet" title="Permalink to this definition"></a></dt>
-<dd><p>An implementation of randLa-Net which follows the original paper.</p>
-<p>RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds
-at <a class="reference external" href="https://arxiv.org/abs/1911.11236">https://arxiv.org/abs/1911.11236</a></p>
-<p>Our modifications:
-- fc_start = nn.Linear(d_in, d_in * 2) instead of self.fc_start = nn.Linear(d_in, 8) to avoid
-information bottleneck in cases where d_in is above 8.
-- Use pytorch-geometric instead of torch_points_kernels for GPU support, and
-ease of installation of dependencies.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning">
-<span class="sig-name descname"><span class="pre">change_num_class_for_finetuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/randla_net.html#RandLANet.change_num_class_for_finetuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning" title="Permalink to this definition"></a></dt>
-<dd><p>Change end layer output number of classes if new_num_classes is different.
-This method is used for finetuning.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes"></span><strong>new_num_classes</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – new number of classes for finetuning pretrained model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.modules.randla_net.RandLANet.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/randla_net.html#RandLANet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.randla_net.RandLANet.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Forward pass.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="myria3d.models.modules.randla_net.RandLANet.forward.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.randla_net.RandLANet.forward.params.batch">¶</a> (<em>pytorch_geometric.Data</em>) – Subtile information with shape (B*N, 3+F).</p></li>
-<li><p><span class="target" id="myria3d.models.modules.randla_net.RandLANet.forward.params.Attributes"></span><strong>Attributes</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.randla_net.RandLANet.forward.params.Attributes">¶</a> – pos (B*N, 3) and x (B*N, F) which contains cloud XYZ positions and features.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>classification logits for each point, with shape (B*num_classes,C)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitd542aab ))">torch.Tensor</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.modules.randla_net.RandLANet.set_fc_end">
-<span class="sig-name descname"><span class="pre">set_fc_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/modules/randla_net.html#RandLANet.set_fc_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.modules.randla_net.RandLANet.set_fc_end" title="Permalink to this definition"></a></dt>
-<dd><p>Build the final fully connected layer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.d_in"></span><strong>d_in</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.d_in">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – number of input features</p></li>
-<li><p><span class="target" id="myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.dropout"></span><strong>dropout</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.dropout">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – dropout level in final FC layer</p></li>
-<li><p><span class="target" id="myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes"></span><strong>num_classes</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – number of output classes</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="pytorch-geometric-randla-net">
+<h2>(Pytorch-Geometric) RandLA-Net<a class="headerlink" href="#pytorch-geometric-randla-net" title="Permalink to this headline"></a></h2>
+<p>Our own implementation of RandLA-Net, to process full point clouds of different sizes, making the best use of the <a class="reference external" href="https://github.com/pyg-team/pytorch_geometric">pytorch-geometric framework</a>.
+Soon to be added to the framework <a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/pull/5117">as an example</a>.</p>
+</section>
+<section id="legacy-randla-net">
+<h2>(Legacy) RandLA-Net<a class="headerlink" href="#legacy-randla-net" title="Permalink to this headline"></a></h2>
+<p>An open source implementation from <a class="reference external" href="https://github.com/aRI0U/RandLA-Net-pytorch/">aRI0U</a>. Only accepts fixed-sized point clouds.</p>
 </section>
 </section>
 

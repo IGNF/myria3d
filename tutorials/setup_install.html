@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; myria3d 2.4.5 documentation</title>
+  <title>Installation &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -159,27 +161,21 @@
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline"></a></h3>
 <p>We use <a class="reference external" href="https://www.anaconda.com/products/individual">anaconda</a> to manage virtual environments.
 This makes installing pytorch-related libraries way easier than using pure pip installs.</p>
-<p>If you want to use a gpu to speed up model training and inference, make sure that the cuda toolkit is installed on your machine.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt install nvidia-cuda-toolkit
-</pre></div>
-</div>
-<p>The  <a class="reference external" href="https://github.com/IGNF/myria3d/setup_env/">bash</a> directory contains everything you need to setup a compatible pytorch virtual environement.
-You can get it by by cloning the entire project with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/IGNF/myria3d
-<span class="nb">cd</span> myria3d
-</pre></div>
-</div>
-<p>or by manually downloading its content.</p>
+<p>We enable CUDA-acceleration in pytorch as part of the defaut virtual environment recipe (see below).</p>
 </section>
 <section id="environment-installation">
 <h3>Environment Installation<a class="headerlink" href="#environment-installation" title="Permalink to this headline"></a></h3>
-<p>To install the environment, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> setup_env/setup_env.sh
+<p>To install the environment, follow these instructions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install mamba to create the environment faster</span>
+conda install -y mamba -n base -c conda-forge
+<span class="c1"># Build it with mamba</span>
+mamba env create -f environment.yml
+<span class="c1"># activate it</span>
+conda activate myria3d
 </pre></div>
 </div>
-<p>If you do have CUDA, <a class="reference external" href="https://varhowto.com/check-cuda-version/">check you CUDA version</a> and be sure <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> version in <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> matches yours.</p>
-<p>If you do not have CUDA installed, you need comment out <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> dependency and <code class="docutils literal notranslate"><span class="pre">FORCE_CUDA:</span> <span class="pre">1</span></code> environement variable in <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code></p>
-<p>Finally, activate the created environmnt by running</p>
+<p>Nota: if you do have CUDA, <a class="reference external" href="https://varhowto.com/check-cuda-version/">check you CUDA version</a> and be sure <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> version in <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> matches yours. Adapt if needed (including sources for torch-geometric’s dependencies given as wheels).</p>
+<p>Finally, activate the created environment by running</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate myria3d
 </pre></div>
 </div>

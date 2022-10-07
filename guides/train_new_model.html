@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to train new models &mdash; myria3d 2.4.5 documentation</title>
+  <title>How to train new models &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -174,9 +176,9 @@ To overfit on a single batch for 30 epochs, run:</p>
 </section>
 <section id="training">
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
-<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> to specify your classification task - see config <code class="docutils literal notranslate"><span class="pre">20220607_151_dalles_proto.yaml</span></code> for an example.</p>
+<p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR_pyg_randla_net.yaml</span></code>). In particular, you will need to define <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> to specify your classification task - see config <code class="docutils literal notranslate"><span class="pre">20220607_151_dalles_proto.yaml</span></code> for an example.</p>
 <p>To run the full training and validation for French Lidar HD, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR_pyg_randla_net
 </pre></div>
 </div>
 <p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOGS_DIR</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
@@ -185,10 +187,16 @@ To overfit on a single batch for 30 epochs, run:</p>
 <p>Pytorch Lightning support au <a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find">automated learning rate finder</a>, by means of an Learning Rate-range test (see section 3.3 in <a class="reference external" href="https://arxiv.org/pdf/1506.01186.pdf">this paper</a> for reference).
 You can perfom this automatically before training by setting <code class="docutils literal notranslate"><span class="pre">trainer.auto_lr_find=true</span></code> when calling training on your dataset. The best learning rate will be logged and results saved as an image, so that you do not need to perform this test more than once.</p>
 </section>
+<section id="multi-gpus">
+<h3>Multi-GPUs<a class="headerlink" href="#multi-gpus" title="Permalink to this headline"></a></h3>
+<p>Multi-GPUs training is supported. Refer to e.g. experiment file <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR_pyg_randla_net-MultiGPU.yaml</span></code> for pytorch lightning flags to activate it.
+Multi-GPUs training effectively reduces training time by the number of GPUs used. Batch size might need to be reduced to keep a constant number of steps per epoch in DDP.</p>
+</section>
 </section>
 <section id="testing-the-model">
 <h2>Testing the model<a class="headerlink" href="#testing-the-model" title="Permalink to this headline"></a></h2>
-<p>To evaluate per-class IoU on unseen, annotated data, run:</p>
+<p>Test will be automatically performed after each training, using best checkpointeded model.</p>
+<p>To manually evaluate per-class IoU on the test set, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
 --config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> <span class="se">\</span>
 --config-name <span class="o">{</span>config.yaml<span class="o">}</span> <span class="se">\</span>
@@ -197,8 +205,11 @@ model.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">
 trainer.gpus<span class="o">={</span><span class="m">0</span> <span class="k">for</span> none, <span class="o">[</span>i<span class="o">]</span> to use GPU number i<span class="o">}</span> <span class="se">\</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">config-path</span></code> and <code class="docutils literal notranslate"><span class="pre">config-name</span></code> means you are using the saved configuration from your training, which contains the path to the prepared HDF5 dataset.
-If you are using the default configuration, you do not need those.</p>
+<p>ARguments <code class="docutils literal notranslate"><span class="pre">config-path</span></code> and <code class="docutils literal notranslate"><span class="pre">config-name</span></code> means you are using the saved configuration from your training, which contains the path to the prepared HDF5 dataset.</p>
+<p>If you are using defaut configurations, you can call test using a custom experiment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span><span class="nb">test</span>
+</pre></div>
+</div>
 </section>
 <section id="inference">
 <h2>Inference<a class="headerlink" href="#inference" title="Permalink to this headline"></a></h2>

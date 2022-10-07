@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 2.4.5 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -193,20 +195,28 @@ hydra.run.dir<span class="o">={</span>path/for/hydra/logs<span class="o">}</span
 <p>To run inference:</p>
 <ul class="simple">
 <li><p>Mount the needed volumes with the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option.</p></li>
-<li><p>Always set <code class="docutils literal notranslate"><span class="pre">--ipc=host</span></code> to allow multithreading in pytorch dataloader (as mentionned in <a class="reference external" href="https://github.com/pytorch/pytorch#using-pre-built-images">Pytorch’s README</a>).</p></li>
+<li><p>Always set <code class="docutils literal notranslate"><span class="pre">--ipc=host</span></code> to allow multithreading (used in pytorch dataloader, as mentionned in <a class="reference external" href="https://github.com/pytorch/pytorch#using-pre-built-images">Pytorch’s README</a>).</p></li>
 <li><p>Increase the shared memory with <code class="docutils literal notranslate"><span class="pre">--shm-size=2gb</span></code> (which should be enough for 1km*1km point French “Lidar HD” clouds).</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">--gpus=all</span></code> to make gpus visible to the container if available.</p></li>
 </ul>
+<p>See <a class="reference external" href="https://github.com/anibali/docker-pytorch#running-pytorch-scripts">docker-pytorch README</a> for more details plus an additional option to specify user id at runtime.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># specify your paths here as needed</span>
-docker run -v <span class="o">{</span>local_inputs<span class="o">}</span>:/inputs/ -v <span class="o">{</span>local_output<span class="o">}</span>:/outputs/ --ipc<span class="o">=</span>host --shm-size<span class="o">=</span>2gb myria3d.predict <span class="o">{</span>...options...<span class="o">}</span>
+docker run <span class="se">\</span>
+-v <span class="o">{</span>local_inputs<span class="o">}</span>:/inputs/ <span class="se">\</span>
+-v <span class="o">{</span>local_output<span class="o">}</span>:/outputs/ <span class="se">\</span>
+--ipc<span class="o">=</span>host <span class="se">\</span>
+--gpus<span class="o">=</span>all <span class="se">\</span>
+--shm-size<span class="o">=</span>2gb <span class="se">\</span>
+myria3d.predict <span class="o">{</span>...config paths <span class="p">&amp;</span> options...<span class="o">}</span>
 </pre></div>
 </div>
 </section>
-<section id="specific-options">
-<h2>Specific options<a class="headerlink" href="#specific-options" title="Permalink to this headline"></a></h2>
-<section id="output-format">
-<h3>Output format<a class="headerlink" href="#output-format" title="Permalink to this headline"></a></h3>
-<p>By default, the predicted classification is stored in a new PRedictedClassification format, which is not a config parameter at the moment. The probability <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a> is also stored, as a proxy for prediction uncertainty.</p>
-<p>What one can control is for which classes to save the probabilities. This is achieved with a <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save</span></code> config parameter, which can be either the <code class="docutils literal notranslate"><span class="pre">all</span></code> keyword (to save probabilities for all classes) or a list of specific classes (e.g. <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save=[building,vegetation]</span></code> - notice the absence of space between class names).</p>
+<section id="additional-options-for-prediction">
+<h2>Additional options for prediction<a class="headerlink" href="#additional-options-for-prediction" title="Permalink to this headline"></a></h2>
+<section id="output-dimensions">
+<h3>Output dimensions<a class="headerlink" href="#output-dimensions" title="Permalink to this headline"></a></h3>
+<p>By default, the predicted classification is stored in a new <code class="docutils literal notranslate"><span class="pre">PredictedClassification</span></code> LAS dimension. The <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a> of probabilities is also stored and used as a limited proxy for prediction uncertainty.</p>
+<p>One can control for which classes to save the probabilities. This is achieved with a <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save</span></code> config parameter, which can be either the <code class="docutils literal notranslate"><span class="pre">all</span></code> keyword (to save probabilities for all classes) or a list of specific classes (e.g. <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save=[building,vegetation]</span></code> - note the absence of space between class names).</p>
 </section>
 <section id="receptive-field-overlap-at-inference-time">
 <h3>Receptive field overlap at inference time<a class="headerlink" href="#receptive-field-overlap-at-inference-time" title="Permalink to this headline"></a></h3>

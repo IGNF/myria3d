@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; myria3d 2.4.5 documentation</title>
+  <title>Index &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -52,7 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +78,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -88,8 +89,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/configs.html">Default configuration</a></li>
@@ -102,12 +103,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -151,82 +153,32 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
- | <a href="#B"><strong>B</strong></a>
- | <a href="#C"><strong>C</strong></a>
+ <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
- | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
- | <a href="#T"><strong>T</strong></a>
- | <a href="#V"><strong>V</strong></a>
- | <a href="#Y"><strong>Y</strong></a>
  
 </div>
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward.params.Attributes">Attributes (myria3d.models.modules.randla_net.RandLANet.forward parameter)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="B">B</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward.params.batch">batch (myria3d.models.model.Model.forward parameter)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step.params.batch">(myria3d.models.model.Model.predict_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step.params.batch">(myria3d.models.model.Model.test_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.batch">(myria3d.models.model.Model.training_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.batch">(myria3d.models.model.Model.validation_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward.params.batch">(myria3d.models.modules.randla_net.RandLANet.forward parameter)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.batch_idx">batch_idx (myria3d.models.model.Model.training_step parameter)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.batch_idx">(myria3d.models.model.Model.validation_step parameter)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning">change_num_class_for_finetuning() (myria3d.models.modules.randla_net.RandLANet method)</a>
-</li>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.ChannelNames">ChannelNames (class in myria3d.models.interpolation)</a>
-</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.compute">compute() (myria3d.callbacks.logging_callbacks.SingleClassIoU method)</a>
 </li>
-      <li><a href="apidoc/scripts.html#myria3d.train.train.params.config">config (myria3d.train.train parameter)</a>
+      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.extras.params.config">config (myria3d.utils.utils.extras parameter)</a>
 
       <ul>
-        <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.extras.params.config">(myria3d.utils.utils.extras parameter)</a>
-</li>
         <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.config">(myria3d.utils.utils.print_config parameter)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.configure_optimizers">configure_optimizers() (myria3d.models.model.Model method)</a>
-</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.confmat">confmat (myria3d.callbacks.logging_callbacks.SingleClassIoU attribute)</a>
 </li>
   </ul></td>
@@ -235,13 +187,7 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.d_in">d_in (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.define_device_from_config_param">define_device_from_config_param() (in module myria3d.utils.utils)</a>
-</li>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.dropout">dropout (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -265,16 +211,10 @@
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
-      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in myria3d.callbacks.finetuning_callbacks)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward">forward() (myria3d.models.model.Model method)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.forward">(myria3d.models.modules.randla_net.RandLANet method)</a>
+      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in myria3d.callbacks.finetuning_callbacks)</a>
 </li>
-      </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">freeze_before_training() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
   </ul></td>
@@ -317,8 +257,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/scripts.html#run.main">main() (in module run)</a>
 </li>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model">Model (class in myria3d.models.model)</a>
-</li>
       <li>
     module
 
@@ -331,10 +269,6 @@
 </li>
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a>
 </li>
-        <li><a href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">myria3d.models.interpolation</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#module-myria3d.models.model">myria3d.models.model</a>
-</li>
         <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a>
 </li>
         <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a>
@@ -344,10 +278,6 @@
         <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a>
 </li>
         <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a>
-</li>
-        <li><a href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a>
-</li>
-        <li><a href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a>
 </li>
         <li><a href="apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a>
 </li>
@@ -368,6 +298,8 @@
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     myria3d.callbacks.finetuning_callbacks
 
@@ -375,27 +307,11 @@
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     myria3d.callbacks.logging_callbacks
 
       <ul>
         <li><a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">module</a>
-</li>
-      </ul></li>
-      <li>
-    myria3d.models.interpolation
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">module</a>
-</li>
-      </ul></li>
-      <li>
-    myria3d.models.model
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#module-myria3d.models.model">module</a>
 </li>
       </ul></li>
       <li>
@@ -434,20 +350,6 @@
 </li>
       </ul></li>
       <li>
-    myria3d.predict
-
-      <ul>
-        <li><a href="apidoc/scripts.html#module-myria3d.predict">module</a>
-</li>
-      </ul></li>
-      <li>
-    myria3d.train
-
-      <ul>
-        <li><a href="apidoc/scripts.html#module-myria3d.train">module</a>
-</li>
-      </ul></li>
-      <li>
     myria3d.utils.utils
 
       <ul>
@@ -457,27 +359,11 @@
   </ul></td>
 </tr></table>
 
-<h2 id="N">N</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning.params.new_num_classes">new_num_classes (myria3d.models.modules.randla_net.RandLANet.change_num_class_for_finetuning parameter)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end.params.num_classes">num_classes (myria3d.models.modules.randla_net.RandLANet.set_fc_end parameter)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_fit_start">on_fit_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_fit_start">(myria3d.models.model.Model method)</a>
 </li>
-      </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath.on_init_end">on_init_end() (myria3d.callbacks.comet_callbacks.LogLogsPath method)</a>
 
       <ul>
@@ -496,22 +382,16 @@
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">on_validation_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_validation_epoch_end">on_validation_epoch_end() (myria3d.models.model.Model method)</a>
-</li>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_validation_epoch_end.params.outputs">outputs (myria3d.models.model.Model.on_validation_epoch_end parameter)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step">predict_step() (myria3d.models.model.Model method)</a>
+      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">print_config() (in module myria3d.utils.utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">print_config() (in module myria3d.utils.utils)</a>
-</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.printed and in what order.">printed and in what order. (myria3d.utils.utils.print_config parameter)</a>
 </li>
   </ul></td>
@@ -520,8 +400,6 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet">RandLANet (class in myria3d.models.modules.randla_net)</a>
-</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.resolve">resolve (myria3d.utils.utils.print_config parameter)</a>
 </li>
   </ul></td>
@@ -539,54 +417,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.randla_net.RandLANet.set_fc_end">set_fc_end() (myria3d.models.modules.randla_net.RandLANet method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.setup">setup() (myria3d.models.model.Model method)</a>
-</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in myria3d.callbacks.logging_callbacks)</a>
 </li>
-  </ul></td>
-</tr></table>
-
-<h2 id="T">T</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step">test_step() (myria3d.models.model.Model method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/scripts.html#myria3d.train.train">train() (in module myria3d.train)</a>
-</li>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step">training_step() (myria3d.models.model.Model method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="V">V</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step">validation_step() (myria3d.models.model.Model method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="Y">Y</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward.params.y">y (myria3d.models.model.Model.forward parameter)</a>
-
-      <ul>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step.params.y">(myria3d.models.model.Model.predict_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step.params.y">(myria3d.models.model.Model.test_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.y">(myria3d.models.model.Model.training_step parameter)</a>
-</li>
-        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.y">(myria3d.models.model.Model.validation_step parameter)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 

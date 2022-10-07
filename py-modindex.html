@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Module Index &mdash; myria3d 2.4.5 documentation</title>
+  <title>Python Module Index &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/scripts.html">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -155,10 +157,8 @@
 
    <div class="modindex-jumpbox">
    <a href="#cap-c"><strong>c</strong></a> | 
-   <a href="#cap-m"><strong>m</strong></a> | 
    <a href="#cap-p"><strong>p</strong></a> | 
    <a href="#cap-r"><strong>r</strong></a> | 
-   <a href="#cap-t"><strong>t</strong></a> | 
    <a href="#cap-u"><strong>u</strong></a>
    </div>
 
@@ -188,62 +188,38 @@
        <a href="apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks"><code class="xref">myria3d.callbacks.logging_callbacks</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-m"><td></td><td>
-       <strong>m</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-2" style="display: none" alt="-" /></td>
-       <td>
-       <code class="xref">myria3d.models</code></td><td>
-       <em></em></td></tr>
-     <tr class="cg-2">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="apidoc/myria3d.model.html#module-myria3d.models.interpolation"><code class="xref">myria3d.models.interpolation</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-2">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="apidoc/myria3d.model.html#module-myria3d.models.model"><code class="xref">myria3d.models.model</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-p"><td></td><td>
        <strong>p</strong></td><td></td></tr>
      <tr>
        <td><img src="_static/minus.png" class="toggler"
-              id="toggle-3" style="display: none" alt="-" /></td>
+              id="toggle-2" style="display: none" alt="-" /></td>
        <td>
        <code class="xref">myria3d.pctl</code></td><td>
        <em></em></td></tr>
-     <tr class="cg-3">
+     <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader"><code class="xref">myria3d.pctl.dataloader</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-3">
+     <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule"><code class="xref">myria3d.pctl.datamodule</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-3">
+     <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset"><code class="xref">myria3d.pctl.dataset</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-3">
+     <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform"><code class="xref">myria3d.pctl.points_pre_transform</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-3">
+     <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms"><code class="xref">myria3d.pctl.transforms</code></a></td><td>
-       <em></em></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="apidoc/scripts.html#module-myria3d.predict"><code class="xref">myria3d.predict</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-r"><td></td><td>
@@ -254,23 +230,15 @@
        <a href="apidoc/scripts.html#module-run"><code class="xref">run</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-t"><td></td><td>
-       <strong>t</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="apidoc/scripts.html#module-myria3d.train"><code class="xref">myria3d.train</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-u"><td></td><td>
        <strong>u</strong></td><td></td></tr>
      <tr>
        <td><img src="_static/minus.png" class="toggler"
-              id="toggle-4" style="display: none" alt="-" /></td>
+              id="toggle-3" style="display: none" alt="-" /></td>
        <td>
        <code class="xref">myria3d.utils</code></td><td>
        <em></em></td></tr>
-     <tr class="cg-4">
+     <tr class="cg-3">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="apidoc/myria3d.utils.html#module-myria3d.utils.utils"><code class="xref">myria3d.utils.utils</code></a></td><td>

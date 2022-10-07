@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scripts &mdash; myria3d 2.4.5 documentation</title>
+  <title>Scripts &mdash; myria3d 3.0.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#specific-options">Specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -81,6 +81,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
@@ -91,8 +92,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.predict">myria3d.predict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
@@ -105,12 +106,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#interpolation">Interpolation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#randla-net">RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.models.modules.html#legacy-randla-net">(Legacy) RandLA-Net</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.callbacks.html">myria3d.callbacks</a><ul>
@@ -164,50 +166,11 @@
 </dd></dl>
 
 </section>
-<section id="module-myria3d.train">
-<span id="myria3d-train"></span><h2>myria3d.train<a class="headerlink" href="#module-myria3d.train" title="Permalink to this headline"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="myria3d.train.train">
-<span class="sig-prename descclassname"><span class="pre">myria3d.train.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></span><a class="reference internal" href="../_modules/myria3d/train.html#train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.train.train" title="Permalink to this definition"></a></dt>
-<dd><p>Training pipeline (+ Test, + Finetuning)</p>
-<p>Instantiates all PyTorch Lightning objects from config, then perform one of the following
-task based on parameter <cite>task.task_name</cite>:</p>
-<dl class="simple">
-<dt>fit:</dt><dd><p>Fits a neural network - train on a prepared training set and validate on a prepared validation set.
-Optionnaly, resume a checkpointed training by specifying config.model.ckpt_path.</p>
-</dd>
-<dt>test:</dt><dd><p>Tests a trained neural network on the test dataset of a prepared dataset (i.e. the <cite>test</cite> subdir
-which contains LAS files with a classification).</p>
-</dd>
-<dt>finetune:</dt><dd><p>Finetunes a checkpointed neural network on a prepared dataset, which muste be specified
-in config.model.ckpt_path.
-In contrast to using fit, finetuning resumes training with altered conditions. This leads to a new,
-distinct training, and training state is reset (e.g. epoch starts from 0).</p>
-</dd>
-</dl>
-<p>Typical use case are</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>a different learning rate (config.model.lr) or a different scheduler (e.g. stronger config.model.lr_scheduler.patience)</p></li>
-<li><p>a different number of classes to predict, in order to e.g. specialize a base model.         This is done by specifying a new config.dataset_description as well as the corresponding config.model.num_classes.         for RecudeLROnPlateau scheduler). Additionnaly, a specific callback must be activated to change neural net output layer         after loading its weights. See configs/experiment/RandLaNetDebugFineTune.yaml for an example.</p></li>
-</ul>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.train.train.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#myria3d.train.train.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>lightning trainer.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Trainer</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="myria3d-train">
+<h2>myria3d.train<a class="headerlink" href="#myria3d-train" title="Permalink to this headline"></a></h2>
 </section>
-<section id="module-myria3d.predict">
-<span id="myria3d-predict"></span><h2>myria3d.predict<a class="headerlink" href="#module-myria3d.predict" title="Permalink to this headline"></a></h2>
+<section id="myria3d-predict">
+<h2>myria3d.predict<a class="headerlink" href="#myria3d-predict" title="Permalink to this headline"></a></h2>
 </section>
 </section>
 
