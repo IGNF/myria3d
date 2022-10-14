@@ -58,7 +58,7 @@ class RandLANet(nn.Module):
         )
         self.set_fc_end(self.d_in, self.dropout, self.num_classes)
 
-    def forward(self, batch):
+    def forward(self, x, pos, batch, ptr):
         """Forward pass.
 
         Args:
@@ -70,8 +70,8 @@ class RandLANet(nn.Module):
 
         """
         # to to transform to standard batch-like format
-        long_input = torch.cat([batch.pos, batch.x], axis=1)
-        chunks = torch.split(long_input, len(batch.pos) // batch.num_graphs)
+        long_input = torch.cat([pos, x], axis=1)
+        chunks = torch.split(long_input, len(pos) // (batch.max() + 1))
         input = torch.stack(chunks)  # B, N, 3+F
 
         N = input.size(1)

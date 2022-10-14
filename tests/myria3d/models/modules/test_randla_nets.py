@@ -23,17 +23,19 @@ def test_fake_run_randlanet(num_graphs):
         "dropout": 0.0,
         "num_classes": num_classes,
     }
-    batch = Batch()
-    batch.num_graphs = num_graphs
+    data = Batch()
     num_points = 12500
-    batch.pos = torch.rand(
-        (num_points * batch.num_graphs, num_euclidian_dimensions)
+    data.batch = torch.concat(
+        [torch.full((num_points,), i) for i in range(num_graphs)]
     )
-    batch.x = torch.rand((num_points * batch.num_graphs, num_features))
+    data.pos = torch.rand(
+        (num_points * data.num_graphs, num_euclidian_dimensions)
+    )
+    data.x = torch.rand((num_points * data.num_graphs, num_features))
     model = RandLANet(**hparams_net)
-    output = model(batch)
+    output = model(data.x, data.pos, data.batch, None)
     assert output.shape == torch.Size(
-        [num_points * batch.num_graphs, num_classes]
+        [num_points * data.num_graphs, num_classes]
     )
 
 
