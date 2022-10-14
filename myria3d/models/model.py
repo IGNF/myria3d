@@ -92,7 +92,7 @@ class Model(LightningModule):
             torch.Tensor (B*N,C): logits
 
         """
-        logits = self.model(batch)
+        logits = self.model(batch.x, batch.pos, batch.batch, batch.ptr)
         if self.training or "copies" not in batch:
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
