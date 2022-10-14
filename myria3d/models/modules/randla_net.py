@@ -17,7 +17,9 @@ class RandLANet(nn.Module):
 
     def __init__(self, **kwargs: dict):
         super(RandLANet, self).__init__()
-        self.d_in = kwargs.get("d_in", 6)  # xyz + features
+        self.d_in = kwargs.get("d_in", 6) + 3
+        # features and add three for positions,
+        # as this implementation stack positions to features
         self.num_neighbors = kwargs.get("num_neighbors", 16)
         self.decimation = kwargs.get("decimation", 4)
         self.dropout = kwargs.get("dropout", 0.0)
@@ -28,7 +30,8 @@ class RandLANet(nn.Module):
 
         self.fc_start = nn.Linear(self.d_in, self.d_in * 2)
         self.bn_start = nn.Sequential(
-            nn.BatchNorm2d(self.d_in * 2, eps=1e-6, momentum=0.99), nn.LeakyReLU(0.2)
+            nn.BatchNorm2d(self.d_in * 2, eps=1e-6, momentum=0.99),
+            nn.LeakyReLU(0.2),
         )
 
         # encoding layers
@@ -102,11 +105,15 @@ class RandLANet(nn.Module):
         for mlp in self.decoder:
             _, neighbors = knn_compact(
                 pos[:, : N // decimation_ratio],  # original set
-                pos[:, : self.decimation * N // decimation_ratio],  # upsampled set
+                pos[
+                    :, : self.decimation * N // decimation_ratio
+                ],  # upsampled set
                 single_neighbor,
             )  # shape (B, N', 1)
             neighbors = neighbors.to(x.device)
-            extended_neighbors = neighbors.unsqueeze(1).expand(-1, x.size(1), -1, 1)
+            extended_neighbors = neighbors.unsqueeze(1).expand(
+                -1, x.size(1), -1, 1
+            )
 
             x_neighbors = torch.gather(x, -2, extended_neighbors)
 
@@ -185,7 +192,9 @@ class SharedMLP(nn.Module):
             padding_mode=padding_mode,
         )
         self.batch_norm = (
-            nn.BatchNorm2d(out_channels, eps=1e-6, momentum=0.99) if bn else None
+            nn.BatchNorm2d(out_channels, eps=1e-6, momentum=0.99)
+            if bn
+            else None
         )
         self.activation_fn = activation_fn
 
@@ -236,8 +245,12 @@ class LocalSpatialEncoding(nn.Module):
         # idx(B, N, K), pos(B, N, 3)
         # neighbors[b, i, n, k] = pos[b, idx[b, n, k], i] = extended_coords[b, i, extended_idx[b, i, n, k], k]
         extended_idx = idx.unsqueeze(1).expand(B, 3, N, K)
-        extended_coords = pos.transpose(-2, -1).unsqueeze(-1).expand(B, 3, N, K)
-        neighbors = torch.gather(extended_coords, 2, extended_idx)  # shape (B, 3, N, K)
+        extended_coords = (
+            pos.transpose(-2, -1).unsqueeze(-1).expand(B, 3, N, K)
+        )
+        neighbors = torch.gather(
+            extended_coords, 2, extended_idx
+        )  # shape (B, 3, N, K)
         neighbors = neighbors.to(pos.device)
 
         # relative point position encoding
@@ -251,7 +264,9 @@ class LocalSpatialEncoding(nn.Module):
             dim=-3,
         )
         concat = concat.to(pos.device)
-        return torch.cat((self.mlp(concat), features.expand(B, -1, N, K)), dim=-3)
+        return torch.cat(
+            (self.mlp(concat), features.expand(B, -1, N, K)), dim=-3
+        )
 
 
 class AttentivePooling(nn.Module):
@@ -279,7 +294,9 @@ class AttentivePooling(nn.Module):
         scores = self.score_fn(x.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)
 
         # sum over the neighbors
-        features = torch.sum(scores * x, dim=-1, keepdim=True)  # shape (B, d_in, N, 1)
+        features = torch.sum(
+            scores * x, dim=-1, keepdim=True
+        )  # shape (B, d_in, N, 1)
 
         return self.mlp(features)
 
@@ -290,7 +307,9 @@ class LocalFeatureAggregation(nn.Module):
 
         self.num_neighbors = num_neighbors
 
-        self.mlp1 = SharedMLP(d_in, d_out // 2, activation_fn=nn.LeakyReLU(0.2))
+        self.mlp1 = SharedMLP(
+            d_in, d_out // 2, activation_fn=nn.LeakyReLU(0.2)
+        )
         self.mlp2 = SharedMLP(d_out, 2 * d_out)
         self.shortcut = SharedMLP(d_in, 2 * d_out, bn=True)
 
@@ -390,13 +409,20 @@ def knn_compact(
     y_idx = y_idx_long.view(compact_shape_y)
 
     # Remove offset in indices (to get range [0;batch_size[ for each batch)
-    x_idx = x_idx - x_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
-    y_idx = y_idx - y_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
+    x_idx = (
+        x_idx - x_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
+    )
+    y_idx = (
+        y_idx - y_idx.min(dim=1, keepdim=True)[0].min(dim=-1, keepdim=True)[0]
+    )
     return y_idx, x_idx
 
 
 def get_batch_tensor_by_enumeration(pos_x):
     """Get pyg batch tensor (e.g. [0,0,1,1,2,2,...,B-1,B-1] )shape B,N,... to (N,...)."""
     return torch.cat(
-        [torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)]
+        [
+            torch.full((len(sample_pos),), i)
+            for i, sample_pos in enumerate(pos_x)
+        ]
     )
