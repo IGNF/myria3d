@@ -1,7 +1,6 @@
 # @package _global_
 defaults:
-  - override /model: pyg_randla_net_model.yaml
-  - override /datamodule/transforms/augmentations: light.yaml
+  - RandLaNet_base_run_FR_pyg_randla_net.yaml
   - override /model/criterion: WeightedCrossEntropyLoss.yaml
 
 logger:
@@ -10,20 +9,3 @@ logger:
 
 dataset_description:
   class_weights: [0.19,0.08,0.08,0.36,1.13,3.11,2.05]
-
-trainer:
-  num_sanity_val_steps: 2
-  min_epochs: 100
-  max_epochs: 150
-  # gpus: [1]
-
-model:
-  lr_scheduler:
-    cooldown: 5
-
-callbacks:
-  early_stopping:
-    patience: 20
-
-predict:
-  interpolation_k: 10
