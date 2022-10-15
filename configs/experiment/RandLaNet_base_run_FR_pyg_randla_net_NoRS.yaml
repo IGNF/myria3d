@@ -1,7 +1,7 @@
 # @package _global_
 defaults:
+  - RandLaNet_base_run_FR_pyg_randla_net.yaml
   - override /datamodule/transforms/preparations: no_random_subsampling.yaml
-  - override /datamodule/transforms/augmentations: light.yaml
 
 logger:
   comet:
@@ -18,8 +18,3 @@ trainer:
   max_epochs: 150
   accumulate_grad_batches: 3  # b/c larger clouds will not fit in memory with original BS.
   # gpus: [1]
-
-callbacks:
-  early_stopping:
-    patience: 20
-
