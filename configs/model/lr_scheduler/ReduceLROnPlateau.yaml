@@ -3,6 +3,6 @@ _args_:
   - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
 mode: "min"
 factor: 0.5  # halving
-patience: 5  # val epochs
+patience: 20  # val epochs
 cooldown: 5  # val epochs
 verbose: true  # print when reducing LR
