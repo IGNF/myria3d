@@ -16,7 +16,6 @@ trainer:
 callbacks:
   early_stopping:
     patience: 20
-    cooldown: 5
 
 predict:
   interpolation_k: 10
