@@ -3,12 +3,12 @@ from typing import Tuple
 
 import torch
 import torch.nn.functional as F
-from torch import Tensor
-from torch.nn import Sequential, Linear
+from torch import Tensor, LongTensor
+from torch.nn import Linear
 from tqdm import tqdm
 import torch_geometric.transforms as T
 from torch_geometric.loader import DataLoader
-from torch_geometric.nn import MLP, global_max_pool
+from torch_geometric.nn import MLP
 from torch_geometric.utils import softmax
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
@@ -18,7 +18,6 @@ from torch_scatter import scatter
 from torchmetrics.functional import jaccard_index
 from torch_geometric.datasets import ShapeNet
 
-from torch import Tensor, LongTensor
 from numbers import Number
 
 

@@ -38,23 +38,23 @@ jobs:
 
     # Always run with --ipc=host and --shm-size=2gb (at least) to enable sufficient shared memory when predicting on large data
     # predict.subtile_overlap specifies overlap between adjacent samples (in meters).
-    # - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
-    #   run: >
-    #     docker run
-    #     -v /var/data/cicd/CICD_github_assets/myria3d_V3.0.2/inputs/:/inputs/
-    #     -v /var/data/cicd/CICD_github_assets/myria3d_V3.0.2/outputs/:/outputs/
-    #     --ipc=host
-    #     --shm-size=2gb
-    #     myria3d
-    #     python /app/myria3d/predict.py
-    #     --config-path /inputs/
-    #     --config-name proto151_V0.0_epoch_80_Myria3DV3.0.0_predict_config_Myria3DV3.0.0.yaml
-    #     predict.ckpt_path=/inputs/proto151_V0.0_epoch_80_Myria3DV3.0.0.ckpt
-    #     predict.src_las=/inputs/792000_6272000_subset_buildings.las
-    #     predict.output_dir=/outputs/
-    #     predict.subtile_overlap=25
-    #     datamodule.batch_size=20
-    #     hydra.run.dir=/app
+    - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
+      run: >
+        docker run
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.1.0/inputs/:/inputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.1.0/outputs/:/outputs/
+        --ipc=host
+        --shm-size=2gb
+        myria3d
+        python /app/myria3d/predict.py
+        --config-path /inputs/
+        --config-name proto151_V2.0_epoch_100_Myria3DV3.0.2_predict_config_V3.0.2.yaml
+        predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.0.2.ckpt
+        predict.src_las=/inputs/792000_6272000_subset_buildings.las
+        predict.output_dir=/outputs/
+        predict.subtile_overlap=25
+        datamodule.batch_size=10
+        hydra.run.dir=/app
 
     - name: Check code neatness (linter)
       run: docker run myria3d flake8
