@@ -1,13 +1,14 @@
 import os.path as osp
+from typing import Tuple
 
 import torch
 import torch.nn.functional as F
-from torch import Tensor
-from torch.nn import Sequential, Linear
+from torch import Tensor, LongTensor
+from torch.nn import Linear
 from tqdm import tqdm
 import torch_geometric.transforms as T
 from torch_geometric.loader import DataLoader
-from torch_geometric.nn import MLP, global_max_pool
+from torch_geometric.nn import MLP
 from torch_geometric.utils import softmax
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
@@ -16,6 +17,8 @@ from torch_geometric.nn.unpool import knn_interpolate
 from torch_scatter import scatter
 from torchmetrics.functional import jaccard_index
 from torch_geometric.datasets import ShapeNet
+
+from numbers import Number
 
 
 class PyGRandLANet(torch.nn.Module):
@@ -28,12 +31,14 @@ class PyGRandLANet(torch.nn.Module):
         return_logits: bool = False,
     ):
         super().__init__()
-        # An option to return logits instead of probas
+
         self.decimation = decimation
+        # An option to return logits instead of probas
         self.return_logits = return_logits
 
-        # Authors use 8, which might become a bottleneck if num_classes>8 or num_features>8,
-        # and even for the final MLP.
+        # Authors use 8, which is a bottleneck
+        # for the final MLP, and also when num_classes>8
+        # or num_features>8.
         d_bottleneck = max(32, num_classes, num_features)
 
         self.fc0 = Linear(num_features, d_bottleneck)
@@ -46,27 +51,25 @@ class PyGRandLANet(torch.nn.Module):
         self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
         self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
         self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
-        self.mlp_end = Sequential(
-            SharedMLP([d_bottleneck, 64, 32], dropout=[0.0, 0.5]),
-            Linear(32, num_classes),
+        self.mlp_classif = SharedMLP(
+            [d_bottleneck, 64, 32], dropout=[0.0, 0.5]
         )
+        self.fc_classif = Linear(32, num_classes)
 
-    def forward(self, batch):
-        ptr = batch.ptr.clone()
-        pos_and_x = torch.cat([batch.pos, batch.x], axis=1)
-        in_0 = (self.fc0(pos_and_x), batch.pos, batch.batch)
+    def forward(self, x, pos, batch, ptr):
+        x = x if x is not None else pos
 
-        b1_out = self.block1(*in_0)
-        b1_out_decimated, ptr = decimate(b1_out, ptr, self.decimation)
+        b1_out = self.block1(self.fc0(x), pos, batch)
+        b1_out_decimated, ptr1 = decimate(b1_out, ptr, self.decimation)
 
         b2_out = self.block2(*b1_out_decimated)
-        b2_out_decimated, ptr = decimate(b2_out, ptr, self.decimation)
+        b2_out_decimated, ptr2 = decimate(b2_out, ptr1, self.decimation)
 
         b3_out = self.block3(*b2_out_decimated)
-        b3_out_decimated, ptr = decimate(b3_out, ptr, self.decimation)
+        b3_out_decimated, ptr3 = decimate(b3_out, ptr2, self.decimation)
 
         b4_out = self.block4(*b3_out_decimated)
-        b4_out_decimated, ptr = decimate(b4_out, ptr, self.decimation)
+        b4_out_decimated, _ = decimate(b4_out, ptr3, self.decimation)
 
         mlp_out = (
             self.mlp_summit(b4_out_decimated[0]),
@@ -79,62 +82,47 @@ class PyGRandLANet(torch.nn.Module):
         fp2_out = self.fp2(*fp3_out, *b1_out_decimated)
         fp1_out = self.fp1(*fp2_out, *b1_out)
 
-        logits = self.mlp_end(fp1_out[0])
+        x = self.mlp_classif(fp1_out[0])
+        logits = self.fc_classif(x)
 
         if self.return_logits:
             return logits
 
         probas = logits.log_softmax(dim=-1)
-
         return probas
 
 
 # Default activation, BatchNorm, and resulting MLP used by RandLA-Net authors
 lrelu02_kwargs = {"negative_slope": 0.2}
 
-
 bn099_kwargs = {"momentum": 0.01, "eps": 1e-6}
 
 
 class SharedMLP(MLP):
-    """SharedMLP with new defauts BN and Activation following tensorflow implementation."""
+    """SharedMLP following RandLA-Net paper."""
 
-    # def __init__(self, *args, **kwargs):
-    #     # BN + Act always active even at last layer.
-    #     kwargs["plain_last"] = False
-    #     # LeakyRelu with 0.2 slope by default.
-    #     kwargs["act"] = kwargs.get("act", "LeakyReLU")
-    #     kwargs["act_kwargs"] = kwargs.get("act_kwargs", lrelu02_kwargs)
-    #     # BatchNorm with 1-0.99=0.01 momentum and 1e-6 eps by defaut. (pytorch momentum != tensorflow momentum)
-    #     kwargs["norm_kwargs"] = kwargs.get("norm_kwargs", bn099_kwargs)
-    #     super().__init__(*args, **kwargs)
-
-    def __init__(self, *args, act="LeakyReLU", act_kwargs=lrelu02_kwargs, norm_kwargs=bn099_kwargs, **kwargs):
-        # plain_last=False: BN + Act always active even at last layer.
-        # act="LeakyReLU": LeakyRelu with 0.2 slope by default.
-        # norm_kwargs=bn099_kwargs: BatchNorm with 1-0.99=0.01 momentum and 1e-6 eps by defaut. (pytorch momentum != tensorflow momentum)
-        super().__init__(*args, plain_last=False, act=act, act_kwargs=act_kwargs, norm_kwargs=norm_kwargs, **kwargs)
-
-
-class GlobalPooling(torch.nn.Module):
-    """Global Pooling to adapt RandLA-Net to a classification task."""
-
-    def forward(self, x, pos, batch):
-        x = global_max_pool(x, batch)
-        pos = pos.new_zeros((x.size(0), 3))
-        batch = torch.arange(x.size(0), device=batch.device)
-        return x, pos, batch
+    def __init__(self, *args, **kwargs):
+        # BN + Act always active even at last layer.
+        kwargs["plain_last"] = False
+        # LeakyRelu with 0.2 slope by default.
+        kwargs["act"] = kwargs.get("act", "LeakyReLU")
+        kwargs["act_kwargs"] = kwargs.get("act_kwargs", lrelu02_kwargs)
+        # BatchNorm with 1 - 0.99 = 0.01 momentum
+        # and 1e-6 eps by defaut (tensorflow momentum != pytorch momentum)
+        kwargs["norm_kwargs"] = kwargs.get("norm_kwargs", bn099_kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class LocalFeatureAggregation(MessagePassing):
     """Positional encoding of points in a neighborhood."""
 
-    def __init__(self, d_out, num_neighbors):
+    def __init__(self, channels):
         super().__init__(aggr="add")
-        self.mlp_encoder = SharedMLP([10, d_out // 2])
-        self.mlp_attention = SharedMLP([d_out, d_out], bias=False, act=None, norm=None)
-        self.mlp_post_attention = SharedMLP([d_out, d_out])
-        self.num_neighbors = num_neighbors
+        self.mlp_encoder = SharedMLP([10, channels // 2])
+        self.mlp_attention = SharedMLP(
+            [channels, channels], bias=False, act=None, norm=None
+        )
+        self.mlp_post_attention = SharedMLP([channels, channels])
 
     def forward(self, edge_index, x, pos):
         out = self.propagate(edge_index, x=x, pos=pos)  # N, d_out
@@ -144,15 +132,18 @@ class LocalFeatureAggregation(MessagePassing):
     def message(
         self, x_j: Tensor, pos_i: Tensor, pos_j: Tensor, index: Tensor
     ) -> Tensor:
-        """
-        Local Spatial Encoding (locSE) and attentive pooling of features.
+        """Local Spatial Encoding (locSE) and attentive pooling of features.
+
         Args:
             x_j (Tensor): neighboors features (K,d)
             pos_i (Tensor): centroid position (repeated) (K,3)
             pos_j (Tensor): neighboors positions (K,3)
-            index (Tensor): index of centroid positions (e.g. [0,...,0,1,...,1,...,N,...,N])
+            index (Tensor): index of centroid positions
+                (e.g. [0,...,0,1,...,1,...,N,...,N])
+
         returns:
             (Tensor): locSE weighted by feature attention scores.
+
         """
         # Encode local neighboorhod structural information
         pos_diff = pos_j - pos_i
@@ -161,16 +152,19 @@ class LocalFeatureAggregation(MessagePassing):
             [pos_i, pos_j, pos_diff, distance], dim=1
         )  # N * K, d
         local_spatial_encoding = self.mlp_encoder(relative_infos)  # N * K, d
-        local_features = torch.cat([x_j, local_spatial_encoding], dim=1)  # N * K, 2d
+        local_features = torch.cat(
+            [x_j, local_spatial_encoding], dim=1
+        )  # N * K, 2d
 
-        # Attention will weight the different features of x along the neighborhood dimension.
+        # Attention will weight the different features of x
+        # along the neighborhood dimension.
         att_features = self.mlp_attention(local_features)  # N * K, d_out
         att_scores = softmax(att_features, index=index)  # N * K, d_out
 
         return att_scores * local_features  # N * K, d_out
 
 
-class DilatedResidualBlock(MessagePassing):
+class DilatedResidualBlock(torch.nn.Module):
     def __init__(
         self,
         num_neighbors,
@@ -189,8 +183,8 @@ class DilatedResidualBlock(MessagePassing):
         # MLP on output
         self.mlp2 = SharedMLP([d_out // 2, d_out], act=None)
 
-        self.lfa1 = LocalFeatureAggregation(d_out // 4, num_neighbors)
-        self.lfa2 = LocalFeatureAggregation(d_out // 2, num_neighbors)
+        self.lfa1 = LocalFeatureAggregation(d_out // 4)
+        self.lfa2 = LocalFeatureAggregation(d_out // 2)
 
         self.lrelu = torch.nn.LeakyReLU(**lrelu02_kwargs)
 
@@ -207,35 +201,64 @@ class DilatedResidualBlock(MessagePassing):
         return x, pos, batch
 
 
-def get_decimation_idx(ptr, decimation):
-    """Subsamples each point cloud by a decimation factor.
-    Decimation happens separately for each cloud to prevent emptying point clouds by accident.
+def decimation_indices(
+    ptr: LongTensor, decimation_factor: Number
+) -> Tuple[Tensor, LongTensor]:
+    """Get indices which downsample each point cloud by a decimation factor.
+
+    Decimation happens separately for each cloud to prevent emptying smaller
+    point clouds. Empty clouds are prevented: clouds will have a least
+    one node after decimation.
+
+    Args:
+        ptr (LongTensor): indices of samples in the batch.
+        decimation_factor (Number): value to divide number of nodes with.
+            Should be higher than 1 for downsampling.
+
+    :rtype: (:class:`Tensor`, :class:`LongTensor`): indices for downsampling
+        and resulting updated ptr.
+
     """
+    if decimation_factor < 1:
+        raise ValueError(
+            "Argument `decimation_factor` should be higher than (or equal to) "
+            f"1 for downsampling. (Current value: {decimation_factor})"
+        )
+
     batch_size = ptr.size(0) - 1
-    num_nodes = torch.Tensor([ptr[i + 1] - ptr[i] for i in range(batch_size)]).long()
-    decimated_num_nodes = num_nodes // decimation
-    # Always keep at least one node
-    decimated_num_nodes = torch.max(
-        torch.ones_like(decimated_num_nodes), decimated_num_nodes
+    bincount = ptr[1:] - ptr[:-1]
+    decimated_bincount = torch.div(
+        bincount, decimation_factor, rounding_mode="floor"
+    )
+    # Decimation should not empty clouds completely.
+    decimated_bincount = torch.max(
+        torch.ones_like(decimated_bincount), decimated_bincount
     )
     idx_decim = torch.cat(
         [
-            (ptr[i] + torch.randperm(decimated_num_nodes[i], device=ptr.device))
+            (
+                ptr[i]
+                + torch.randperm(bincount[i], device=ptr.device)[
+                    : decimated_bincount[i]
+                ]
+            )
             for i in range(batch_size)
         ],
         dim=0,
     )
-    # Update the ptr for future decimations
+    # Get updated ptr (e.g. for future decimations)
     ptr_decim = ptr.clone()
     for i in range(batch_size):
-        ptr_decim[i + 1] = ptr_decim[i] + decimated_num_nodes[i]
+        ptr_decim[i + 1] = ptr_decim[i] + decimated_bincount[i]
+
     return idx_decim, ptr_decim
 
 
-def decimate(b_out, ptr, decimation):
-    decimation_idx, decimation_ptr = get_decimation_idx(ptr, decimation)
-    b_out_decim = tuple(t[decimation_idx] for t in b_out)
-    return b_out_decim, decimation_ptr
+def decimate(tensors, ptr: Tensor, decimation_factor: int):
+    """Decimate each element of the given tuple of tensors."""
+    idx_decim, ptr_decim = decimation_indices(ptr, decimation_factor)
+    tensors_decim = tuple(tensor[idx_decim] for tensor in tensors)
+    return tensors_decim, ptr_decim
 
 
 class FPModule(torch.nn.Module):
@@ -257,7 +280,12 @@ def main():
     category = "Airplane"  # Pass in `None` to train on all categories.
     category_num_classes = 4  # 4 for Airplane - see ShapeNet for details
     path = osp.join(
-        osp.dirname(osp.realpath(__file__)), "..", "..", "..", "data", "ShapeNet"
+        osp.dirname(osp.realpath(__file__)),
+        "..",
+        "..",
+        "..",
+        "data",
+        "ShapeNet",
     )
     transform = T.Compose(
         [
@@ -275,9 +303,15 @@ def main():
         transform=transform,
         pre_transform=pre_transform,
     )
-    test_dataset = ShapeNet(path, category, split="test", pre_transform=pre_transform)
-    train_loader = DataLoader(train_dataset, batch_size=12, shuffle=True, num_workers=6)
-    test_loader = DataLoader(test_dataset, batch_size=12, shuffle=False, num_workers=6)
+    test_dataset = ShapeNet(
+        path, category, split="test", pre_transform=pre_transform
+    )
+    train_loader = DataLoader(
+        train_dataset, batch_size=12, shuffle=True, num_workers=6
+    )
+    test_loader = DataLoader(
+        test_dataset, batch_size=12, shuffle=False, num_workers=6
+    )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = PyGRandLANet(3, category_num_classes).to(device)
@@ -290,7 +324,7 @@ def main():
         for i, data in tqdm(enumerate(train_loader)):
             data = data.to(device)
             optimizer.zero_grad()
-            out = model(data)
+            out = model(data.x, data.pos, data.batch, data.ptr)
             loss = F.nll_loss(out, data.y)
             loss.backward()
             optimizer.step()
@@ -313,7 +347,7 @@ def main():
         y_map = torch.empty(loader.dataset.num_classes, device=device).long()
         for data in loader:
             data = data.to(device)
-            outs = model(data)
+            outs = model(data.x, data.pos, data.batch, data.ptr)
 
             sizes = (data.ptr[1:] - data.ptr[:-1]).tolist()
             for out, y, category in zip(

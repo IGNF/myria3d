@@ -24,6 +24,37 @@ class ToTensor(BaseTransform):
         return data
 
 
+def subsample_data(data, num_nodes, choice):
+    for key, item in data:
+        if key == "num_nodes":
+            data.num_nodes = choice.size(0)
+        elif bool(re.search("edge", key)):
+            continue
+        elif (
+            torch.is_tensor(item)
+            and item.size(0) == num_nodes
+            and item.size(0) != 1
+        ):
+            data[key] = item[choice]
+    return data
+
+
+class MaximumNumNodes(BaseTransform):
+    def __init__(self, num: int):
+        self.num = num
+
+    def __call__(self, data):
+        num_nodes = data.num_nodes
+
+        if num_nodes <= self.num:
+            return data
+
+        choice = torch.randperm(data.num_nodes)[: self.num]
+        data = subsample_data(data, num_nodes, choice)
+
+        return data
+
+
 class MinimumNumNodes(BaseTransform):
     def __init__(self, num: int):
         self.num = num
@@ -35,21 +66,14 @@ class MinimumNumNodes(BaseTransform):
             return data
 
         choice = torch.cat(
-            [torch.randperm(num_nodes) for _ in range(math.ceil(self.num / num_nodes))],
+            [
+                torch.randperm(num_nodes)
+                for _ in range(math.ceil(self.num / num_nodes))
+            ],
             dim=0,
         )[: self.num]
 
-        for key, item in data:
-            if key == "num_nodes":
-                data.num_nodes = choice.size(0)
-            elif bool(re.search("edge", key)):
-                continue
-            elif (
-                torch.is_tensor(item)
-                and item.size(0) == num_nodes
-                and item.size(0) != 1
-            ):
-                data[key] = item[choice]
+        data = subsample_data(data, num_nodes, choice)
 
         return data
 
@@ -99,7 +123,9 @@ class StandardizeRGBAndIntensity(BaseTransform):
         data.x[:, idx] = self.standardize_channel(data.x[:, idx])
         return data
 
-    def standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
+    def standardize_channel(
+        self, channel_data: torch.Tensor, clamp_sigma: int = 3
+    ):
         """Sample-wise standardization y* = (y-y_mean)/y_std. clamping to ignore large values."""
         mean = channel_data.mean()
         std = channel_data.std() + 10**-6
@@ -162,7 +188,9 @@ class TargetTransform(BaseTransform):
 
         # Set to attribute to log potential type errors
         self.classification_dict = classification_dict
-        self.classification_preprocessing_dict = classification_preprocessing_dict
+        self.classification_preprocessing_dict = (
+            classification_preprocessing_dict
+        )
 
     def __call__(self, data: Data):
         data.y = self.transform(data.y)
@@ -189,7 +217,10 @@ class TargetTransform(BaseTransform):
 
     def _set_preprocessing_mapper(self, classification_preprocessing_dict):
         """Set mapper from source classification code to another code."""
-        d = {key: value for key, value in classification_preprocessing_dict.items()}
+        d = {
+            key: value
+            for key, value in classification_preprocessing_dict.items()
+        }
         self.preprocessing_mapper = np.vectorize(
             lambda class_code: d.get(class_code, class_code)
         )
@@ -198,6 +229,8 @@ class TargetTransform(BaseTransform):
         """Set mapper from source classification code to consecutive integers."""
         d = {
             class_code: class_index
-            for class_index, class_code in enumerate(classification_dict.keys())
+            for class_index, class_code in enumerate(
+                classification_dict.keys()
+            )
         }
         self.mapper = np.vectorize(lambda class_code: d.get(class_code))

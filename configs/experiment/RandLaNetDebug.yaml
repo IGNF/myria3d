@@ -1,6 +1,8 @@
 # @package _global_
 
-# Nota : call "python myria3d/pctl/dataset/toy_dataset.py" to create a toy dataset before running this.
+# Nota : may need to call
+#   python myria3d/pctl/dataset/toy_dataset.py
+# to create a toy dataset before running this.
 
 logger:
   comet:

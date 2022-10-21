@@ -12,7 +12,3 @@ trainer:
   accelerator: gpu
   num_processes: 2
   gpus: 2
-  
-datamodule:
-  # You may want to divide batch size by number of gpus to keep number of steps by epoch unchanged.
-  batch_size: 16
