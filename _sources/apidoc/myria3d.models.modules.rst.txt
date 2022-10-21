@@ -9,11 +9,3 @@ Soon to be added to the framework `as an example <https://github.com/pyg-team/py
 
 .. autoclass:: myria3d.models.modules.pyg_randla_net.PyGRandLANet
    :members:
-
-(Legacy) RandLA-Net
---------------------------------------------------
-
-An open source implementation from `aRI0U <https://github.com/aRI0U/RandLA-Net-pytorch/>`_. Only accepts fixed-sized point clouds.
-
-.. autoclass:: myria3d.models.modules.randla_net.RandLANet
-   :members:
