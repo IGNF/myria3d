@@ -4,16 +4,13 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
-from myria3d.models.modules.randla_net import (
-    RandLANet,
-    get_batch_tensor_by_enumeration,
-)
+
 from myria3d.utils import utils
 from torch_geometric.nn import knn_interpolate
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = [RandLANet, PyGRandLANet]
+MODEL_ZOO = [PyGRandLANet]
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -92,7 +89,7 @@ class Model(LightningModule):
             torch.Tensor (B*N,C): logits
 
         """
-        logits = self.model(batch)
+        logits = self.model(batch.x, batch.pos, batch.batch, batch.ptr)
         if self.training or "copies" not in batch:
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
@@ -102,7 +99,9 @@ class Model(LightningModule):
         # During evaluation on test data and inference, we interpolate predictions back to original positions
         # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
         logits = logits.cpu()
-        batch_y = get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
+        batch_y = self._get_batch_tensor_by_enumeration(
+            batch.idx_in_original_cloud
+        )
         logits = knn_interpolate(
             logits.cpu(),
             batch.copies["pos_sampled_copy"].cpu(),
@@ -256,3 +255,16 @@ class Model(LightningModule):
             "lr_scheduler": self.hparams.lr_scheduler(optimizer),
             "monitor": self.hparams.monitor,
         }
+
+    def _get_batch_tensor_by_enumeration(
+        self, pos_x: torch.Tensor
+    ) -> torch.Tensor:
+        """Get batch tensor (e.g. [0,0,1,1,2,2,...,B-1,B-1] )
+        from shape B,N,... to shape (N,...).
+        """
+        return torch.cat(
+            [
+                torch.full((len(sample_pos),), i)
+                for i, sample_pos in enumerate(pos_x)
+            ]
+        )
