@@ -1,12 +1,21 @@
-import comet_ml  # noqa
 import dotenv
 import hydra
 from omegaconf import DictConfig
-
+from enum import Enum
+from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
+from myria3d.pctl.dataset.hdf5 import create_hdf5
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
 dotenv.load_dotenv(override=True)
+
+
+class TASK_NAMES(Enum):
+    FIT = "fit"
+    TEST = "test"
+    FINETUNE = "finetune"
+    PREDICT = "predict"
+    HDF5 = "create_hdf5"
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
@@ -37,12 +46,25 @@ def main(config: DictConfig):
         utils.print_config(config, resolve=False)
 
     task_name = config.task.get("task_name")
-    if "fit" in task_name or "test" in task_name or "finetune" in task_name:
+    if task_name in [TASK_NAMES.FIT.value, TASK_NAMES.TEST.value, TASK_NAMES.FINETUNE.value]:
         """Training, evaluation, testing, or finetuning of a neural network."""
         return train(config)
-    elif config.task.get("task_name") == "predict":
+    elif task_name == TASK_NAMES.PREDICT.value:
         """Infer probabilities and automate semantic segmentation decisions on unseen data."""
         return predict(config)
+    elif task_name == TASK_NAMES.HDF5.value:
+        """Build an HDF5 file from a directory with las files."""
+        las_paths_by_split_dict = get_las_paths_by_split_dict(config.datamodule.get("data_dir"), config.datamodule.get("split_csv_path"))
+        create_hdf5(
+            las_paths_by_split_dict=las_paths_by_split_dict,
+            hdf5_file_path=config.datamodule.get("hdf5_file_path"),
+            tile_width=config.datamodule.get("tile_width"),
+            subtile_width=config.datamodule.get("subtile_width"),
+            subtile_shape=config.datamodule.get("subtile_shape"),
+            pre_filter=hydra.utils.instantiate(config.datamodule.get("pre_filter")),
+            subtile_overlap_train=config.datamodule.get("subtile_overlap_train"),
+            points_pre_transform=hydra.utils.instantiate(config.datamodule.get("points_pre_transform"))
+        )
 
 
 if __name__ == "__main__":

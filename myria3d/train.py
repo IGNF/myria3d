@@ -21,7 +21,7 @@ from pytorch_lightning import (
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 from myria3d.models.model import Model
-
+from run import TASK_NAMES
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -111,7 +111,7 @@ def train(config: DictConfig) -> Trainer:
     )
 
     task_name = config.task.get("task_name")
-    if "fit" in task_name:
+    if task_name == TASK_NAMES.FIT.value:
         if config.trainer.auto_lr_find:
             log.info("Finding best lr with auto_lr_find!")
             # Run learn ing rate finder
@@ -148,7 +148,7 @@ def train(config: DictConfig) -> Trainer:
         )
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
         log.info("End of training and validating!")
-    if "test" in task_name or "fit" in task_name:
+    if task_name in [TASK_NAMES.FIT.value, TASK_NAMES.TEST.value]:
         log.info("Starting testing!")
         if trainer.checkpoint_callback.best_model_path:
             log.info(
@@ -163,7 +163,7 @@ def train(config: DictConfig) -> Trainer:
         )
         log.info("End of testing!")
 
-    if "finetune" in task_name:
+    if task_name == TASK_NAMES.FINETUNE.value:
         log.info("Starting finetuning pretrained model on new data!")
         # Instantiates the Model but overwrites everything with current config,
         # except module related params (nnet architecture)

@@ -7,6 +7,8 @@ import numpy as np
 from shapely.geometry import Point
 from scipy.spatial import cKDTree
 from tqdm import tqdm
+import pandas as pd
+
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
 SHAPE_TYPE = Union[Literal["disk"], Literal["square"]]
@@ -148,3 +150,25 @@ def make_circle_wkt(center, subtile_width):
     half = subtile_width / 2
     wkt = Point(center).buffer(half).wkt
     return wkt
+
+
+def get_las_paths_by_split_dict(data_dir: str, split_csv_path: str) -> LAS_PATHS_BY_SPLIT_DICT_TYPE:
+    las_paths_by_split_dict: LAS_PATHS_BY_SPLIT_DICT_TYPE = {}
+    split_df = pd.read_csv(split_csv_path)
+    for phase in ["train", "val", "test"]:
+        basenames = split_df[
+            split_df.split == phase
+        ].basename.tolist()
+        las_paths_by_split_dict[phase] = [
+            find_file_in_dir(data_dir, b) for b in basenames
+        ]
+
+    if not las_paths_by_split_dict:
+        raise FileNotFoundError(
+            (
+                f"No basename found while parsing directory {data_dir}"
+                f"using {split_csv_path} as split CSV."
+            )
+        )
+
+    return las_paths_by_split_dict
