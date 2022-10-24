@@ -1,8 +1,10 @@
+import os
 import os.path as osp
+import copy
 from numbers import Number
 from typing import Callable, List, Optional
 import h5py
-
+from tqdm import tqdm
 import torch
 from torch_geometric.data import Data
 from torch.utils.data import Dataset
@@ -12,7 +14,7 @@ from myria3d.pctl.dataset.utils import (
     SPLIT_TYPE,
     LAS_PATHS_BY_SPLIT_DICT_TYPE,
     pre_filter_below_n_points,
-    create_hdf5,
+    split_cloud_into_samples
 )
 from myria3d.utils import utils
 
@@ -200,3 +202,96 @@ class HDF5Dataset(Dataset):
                 data=self._samples_hdf5_paths,
             )
         return self._samples_hdf5_paths
+
+
+def create_hdf5(
+    las_paths_by_split_dict: dict,
+    hdf5_file_path: str,
+    tile_width: Number = 1000,
+    subtile_width: Number = 50,
+    subtile_shape: SHAPE_TYPE = "square",
+    pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
+    subtile_overlap_train: Number = 0,
+    points_pre_transform: Callable = lidar_hd_pre_transform
+):
+
+    """Create a HDF5 dataset file from las.
+    Args:
+        split (str): specifies either "train", "val", or "test" split.
+        las_path (str): path to point cloud.
+
+        las_paths_by_split_dict ([LAS_PATHS_BY_SPLIT_DICT_TYPE]): should look like
+                las_paths_by_split_dict = {'train': ['dir/las1.las','dir/las2.las'], 'val': [...], , 'test': [...]},
+        hdf5_file_path (str): path to HDF5 dataset,
+        tile_width (Number, optional): width of a LAS tile. 1000 by default,
+        subtile_width: (Number, optional): effective width of a subtile (i.e. receptive field). 50 by default,
+        subtile_shape (SHAPE_TYPE, optional): Shape of subtile could be either "square" or "disk". "square" by default ,
+        pre_filter: Function to filter out specific subtiles. "pre_filter_below_n_points" by default,
+        subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. 0 by default,
+        points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.
+    """
+    os.makedirs(os.path.dirname(hdf5_file_path), exist_ok=True)
+    for split, las_paths in las_paths_by_split_dict.items():
+        with h5py.File(hdf5_file_path, "a") as f:
+            if split not in f:
+                f.create_group(split)
+        for las_path in tqdm(las_paths, desc=f"Preparing {split} set..."):
+
+            basename = os.path.basename(las_path)
+
+            # Delete dataset for incomplete LAS entry, to start from scratch.
+            # Useful in case data preparation was interrupted.
+            with h5py.File(hdf5_file_path, "a") as hdf5_file:
+                if basename in hdf5_file[split] and "is_complete" not in hdf5_file[split][basename].attrs:
+                    del hdf5_file[basename]
+                    # Parse and add subtiles to split group.
+            with h5py.File(hdf5_file_path, "a") as hdf5_file:
+                if basename in hdf5_file[split]:
+                    continue
+
+                subtile_overlap = subtile_overlap_train if split == "train" else 0  # No overlap at eval time.
+                for sample_number, (sample_idx, sample_points) in enumerate(split_cloud_into_samples(
+                    las_path,
+                    tile_width,
+                    subtile_width,
+                    subtile_shape,
+                    subtile_overlap,
+                )):
+                    if not points_pre_transform:
+                        continue
+                    data = points_pre_transform(sample_points)
+                    if pre_filter is not None and pre_filter(data):
+                        # e.g. pre_filter spots situations where num_nodes is too small.
+                        continue
+                    hdf5_path = os.path.join(split, basename, str(sample_number).zfill(5))
+                    hd5f_path_x = os.path.join(hdf5_path, "x")
+                    hdf5_file.create_dataset(
+                        hd5f_path_x,
+                        data.x.shape,
+                        dtype="f",
+                        data=data.x,
+                    )
+                    hdf5_file[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(
+                        data.x_features_names
+                    )
+                    hdf5_file.create_dataset(
+                        os.path.join(hdf5_path, "pos"),
+                        data.pos.shape,
+                        dtype="f",
+                        data=data.pos,
+                    )
+                    hdf5_file.create_dataset(
+                        os.path.join(hdf5_path, "y"),
+                        data.y.shape,
+                        dtype="i",
+                        data=data.y,
+                    )
+                    hdf5_file.create_dataset(
+                        os.path.join(hdf5_path, "idx_in_original_cloud"),
+                        sample_idx.shape,
+                        dtype="i",
+                        data=sample_idx,
+                    )
+
+                # A termination flag to report that all samples for this point cloud were included in the df5 file.
+                hdf5_file[split][basename].attrs["is_complete"] = True

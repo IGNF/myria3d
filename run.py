@@ -2,7 +2,8 @@ import dotenv
 import hydra
 from omegaconf import DictConfig
 from enum import Enum
-from myria3d.pctl.dataset.utils import create_hdf5, get_las_paths_by_split_dict
+from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
+from myria3d.pctl.dataset.hdf5 import create_hdf5
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
@@ -14,7 +15,7 @@ class TASK_NAMES(Enum):
     TEST = "test"
     FINETUNE = "finetune"
     PREDICT = "predict"
-    HDF5 = "hdf5"
+    HDF5 = "create_hdf5"
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
@@ -52,7 +53,7 @@ def main(config: DictConfig):
         """Infer probabilities and automate semantic segmentation decisions on unseen data."""
         return predict(config)
     elif task_name == TASK_NAMES.HDF5.value:
-        """build an HDF5 file from a directory with las files"""
+        """Build an HDF5 file from a directory with las files."""
         las_paths_by_split_dict = get_las_paths_by_split_dict(config.datamodule.get("data_dir"), config.datamodule.get("split_csv_path"))
         create_hdf5(
             las_paths_by_split_dict=las_paths_by_split_dict,
