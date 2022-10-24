@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training &mdash; myria3d 3.1.0 documentation</title>
+  <title>Preparing data for training &mdash; myria3d 3.1.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -91,7 +91,7 @@
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#run">run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-predict">myria3d.predict</a></li>
 </ul>
@@ -170,6 +170,7 @@
 </ul>
 <p>These will be composed into a single file dataset for which you can specify a path via the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter. This happens on the fly, therefore a first training might take some time, but this should only happens once.</p>
 <p>Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.</p>
+<p>It’s also possible to create the hdf5 file without a whole training, just fill the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter as before to specify the file path, but use <code class="docutils literal notranslate"><span class="pre">task=create_hdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">task=fit</span></code>.</p>
 </section>
 <section id="getting-started-quickly-with-a-toy-dataset">
 <h2>Getting started quickly with a toy dataset<a class="headerlink" href="#getting-started-quickly-with-a-toy-dataset" title="Permalink to this headline"></a></h2>
