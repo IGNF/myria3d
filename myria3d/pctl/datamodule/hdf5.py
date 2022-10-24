@@ -2,7 +2,6 @@ from numbers import Number
 from typing import Callable, Dict, Optional, List
 from matplotlib import pyplot as plt
 from numpy.typing import ArrayLike
-import pandas as pd
 from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
 from myria3d.utils import utils
 from pytorch_lightning import LightningDataModule
@@ -11,9 +10,8 @@ from torch_geometric.data import Data
 
 from myria3d.pctl.dataset.iterable import InferenceDataset
 from myria3d.pctl.dataset.utils import (
-    LAS_PATHS_BY_SPLIT_DICT_TYPE,
     SHAPE_TYPE,
-    find_file_in_dir,
+    get_las_paths_by_split_dict,
     pre_filter_below_n_points,
 )
 from myria3d.pctl.dataset.hdf5 import HDF5Dataset
@@ -49,7 +47,7 @@ class HDF5LidarDataModule(LightningDataModule):
         self.data_dir = data_dir
         self.hdf5_file_path = hdf5_file_path
         self._dataset = None  # will be set by self.dataset property
-        self.las_paths_by_split_dict = None  # Will be set from split_csv
+        self.las_paths_by_split_dict = {}  # Will be set from split_csv
 
         self.points_pre_transform = points_pre_transform
         self.pre_filter = pre_filter
@@ -74,7 +72,6 @@ class HDF5LidarDataModule(LightningDataModule):
         self.preparation_predict_transform: TRANSFORMS_LIST = t.get(
             "preparations_predict_list", []
         )
-
         self.augmentation_transform: TRANSFORMS_LIST = t.get(
             "augmentations_list", []
         )
@@ -106,30 +103,13 @@ class HDF5LidarDataModule(LightningDataModule):
         """Prepare dataset containing train, val, test data."""
 
         if stage in ["fit", "test"] or stage is None:
-            las_paths_by_split_dict: Optional[
-                LAS_PATHS_BY_SPLIT_DICT_TYPE
-            ] = None
             if self.split_csv_path and self.data_dir:
-                las_paths_by_split_dict = {}
-                split_df = pd.read_csv(self.split_csv_path)
-                for phase in ["train", "val", "test"]:
-                    basenames = split_df[
-                        split_df.split == phase
-                    ].basename.tolist()
-                    las_paths_by_split_dict[phase] = [
-                        find_file_in_dir(self.data_dir, b) for b in basenames
-                    ]
-                if not len(las_paths_by_split_dict):
-                    raise FileNotFoundError(
-                        (
-                            f"No basename found while parsing directory {self.data_dir}"
-                            f"using {self.split_csv_path} as split CSV."
-                        )
-                    )
+                las_paths_by_split_dict = get_las_paths_by_split_dict(self.data_dir, self.split_csv_path)
             else:
                 log.warning(
                     "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
                 )
+                las_paths_by_split_dict = None
         # Create the dataset in prepare_data, so that it is done one a single GPU.
         self.las_paths_by_split_dict = las_paths_by_split_dict
         self.dataset
