@@ -11,11 +11,16 @@ train:
     _target_: torch_geometric.transforms.GridSampling
     _args_:
       - 0.25
-
+  
   MinimumNumNodes:
     _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
     _args_:
       - 300
+
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
 
   Center:
     _target_: torch_geometric.transforms.Center
@@ -43,6 +48,11 @@ eval:
     _args_:
       - 300
 
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
+
   # For interpolation
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos
@@ -63,6 +73,11 @@ predict:
     _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
     _args_:
       - 300
+
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
 
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos
