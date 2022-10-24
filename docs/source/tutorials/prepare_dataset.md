@@ -22,7 +22,7 @@ These will be composed into a single file dataset for which you can specify a pa
 Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.
 
 
-It's also possible to create the hdf5 file without a whole training, just fill the `datamodule.hdf5_file_path` parameter as before to specify the file path, but `task=create_hdf5` instead of `task=fit`.
+It's also possible to create the hdf5 file without a whole training, just fill the `datamodule.hdf5_file_path` parameter as before to specify the file path, but use `task=create_hdf5` instead of `task=fit`.
 
 
 ## Getting started quickly with a toy dataset
