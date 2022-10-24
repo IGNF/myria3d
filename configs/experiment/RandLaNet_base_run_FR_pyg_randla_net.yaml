@@ -13,9 +13,5 @@ trainer:
   max_epochs: 150
   # gpus: [1]
 
-callbacks:
-  early_stopping:
-    patience: 20
-
 predict:
   interpolation_k: 10
