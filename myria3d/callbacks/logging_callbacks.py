@@ -1,11 +1,12 @@
 from typing import Any, Dict, Optional
 
 import pytorch_lightning as pl
+import torch
 from pytorch_lightning import Callback
 from pytorch_lightning.utilities.types import STEP_OUTPUT
-import torch
 from torchmetrics import JaccardIndex
 from torchmetrics.functional.classification.jaccard import _jaccard_from_confmat
+
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)

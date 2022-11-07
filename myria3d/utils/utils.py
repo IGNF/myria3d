@@ -6,9 +6,9 @@ from typing import List, Sequence
 import pytorch_lightning as pl
 import rich.syntax
 import rich.tree
+import torch
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.utilities import rank_zero_only
-import torch
 
 
 def get_logger(name=__name__) -> logging.Logger:

@@ -1,8 +1,9 @@
-import pytest
-from pytorch_lightning import seed_everything
-import sh
 from typing import List
+
+import pytest
+import sh
 from hydra import compose, initialize
+from pytorch_lightning import seed_everything
 
 from myria3d.pctl.dataset.toy_dataset import make_toy_dataset_from_test_file
 

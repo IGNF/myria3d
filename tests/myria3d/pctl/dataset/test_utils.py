@@ -1,6 +1,7 @@
-from myria3d.pctl.dataset.utils import get_mosaic_of_centers
-import pytest
 import numpy as np
+import pytest
+
+from myria3d.pctl.dataset.utils import get_mosaic_of_centers
 
 
 @pytest.mark.parametrize(
