@@ -1,15 +1,17 @@
 from numbers import Number
 from typing import Callable, Optional
-from numpy.typing import ArrayLike
+
 import torch
-from torch_geometric.data import Data
+from numpy.typing import ArrayLike
 from torch.utils.data.dataset import IterableDataset
-from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from torch_geometric.data import Data
+
 from myria3d.pctl.dataset.utils import (
     SHAPE_TYPE,
     pre_filter_below_n_points,
     split_cloud_into_samples,
 )
+from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
 
 
 class InferenceDataset(IterableDataset):

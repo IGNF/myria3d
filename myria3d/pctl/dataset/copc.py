@@ -1,16 +1,15 @@
-from abc import abstractmethod
 import os
 import os.path as osp
-from typing import List
+from abc import abstractmethod
 from numbers import Number
+from typing import List
 
 import numpy as np
 import pdal
 import torch
-
+from torch.utils.data import Dataset
 from torch_geometric.data import Data
 from tqdm import tqdm
-from torch.utils.data import Dataset
 
 from .utils import (
     find_file_in_dir,

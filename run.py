@@ -1,9 +1,11 @@
+from enum import Enum
+
 import dotenv
 import hydra
 from omegaconf import DictConfig
-from enum import Enum
-from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
+
 from myria3d.pctl.dataset.hdf5 import create_hdf5
+from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
@@ -30,9 +32,9 @@ def main(config: DictConfig):
 
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
-    from myria3d.utils import utils
-    from myria3d.train import train
     from myria3d.predict import predict
+    from myria3d.train import train
+    from myria3d.utils import utils
 
     # A couple of optional utilities:
     # - disabling python warnings

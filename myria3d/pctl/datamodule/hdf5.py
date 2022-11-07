@@ -1,20 +1,21 @@
 from numbers import Number
-from typing import Callable, Dict, Optional, List
+from typing import Callable, Dict, List, Optional
+
 from matplotlib import pyplot as plt
 from numpy.typing import ArrayLike
-from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
-from myria3d.utils import utils
 from pytorch_lightning import LightningDataModule
-from torch_geometric.transforms import Compose
 from torch_geometric.data import Data
+from torch_geometric.transforms import Compose
 
+from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
+from myria3d.pctl.dataset.hdf5 import HDF5Dataset
 from myria3d.pctl.dataset.iterable import InferenceDataset
 from myria3d.pctl.dataset.utils import (
     SHAPE_TYPE,
     get_las_paths_by_split_dict,
     pre_filter_below_n_points,
 )
-from myria3d.pctl.dataset.hdf5 import HDF5Dataset
+from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
