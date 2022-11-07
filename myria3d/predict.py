@@ -1,17 +1,17 @@
-from glob import glob
 import os
 import os.path as osp
+import sys
+from glob import glob
+
 import hydra
 import torch
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, LightningModule
 from tqdm import tqdm
-import sys
 
 sys.path.append(osp.dirname(osp.dirname(__file__)))
-from myria3d.utils import utils  # noqa
 from myria3d.models.interpolation import Interpolator  # noqa
-
+from myria3d.utils import utils  # noqa
 
 log = utils.get_logger(__name__)
 
@@ -86,8 +86,8 @@ def main(config: DictConfig):
     """
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
-    from myria3d.utils import utils
     from myria3d.predict import predict
+    from myria3d.utils import utils
 
     # You can safely get rid of this line if you don't want those
     utils.extras(config)

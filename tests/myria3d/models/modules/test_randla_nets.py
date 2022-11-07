@@ -1,6 +1,7 @@
 import pytest
 import torch
 from torch_geometric.data import Batch, Data
+
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 
 

@@ -7,9 +7,9 @@ except ImportError:
     )
 
 import os
+import warnings
 from pathlib import Path
 from typing import Optional
-import warnings
 
 from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import CometLogger, LoggerCollection

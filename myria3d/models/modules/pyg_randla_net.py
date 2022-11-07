@@ -1,24 +1,22 @@
 import os.path as osp
+from numbers import Number
 from typing import Tuple
 
 import torch
 import torch.nn.functional as F
-from torch import Tensor, LongTensor
-from torch.nn import Linear
-from tqdm import tqdm
 import torch_geometric.transforms as T
+from torch import LongTensor, Tensor
+from torch.nn import Linear
+from torch_geometric.datasets import ShapeNet
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import MLP
-from torch_geometric.utils import softmax
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
 from torch_geometric.nn.unpool import knn_interpolate
-
+from torch_geometric.utils import softmax
 from torch_scatter import scatter
 from torchmetrics.functional import jaccard_index
-from torch_geometric.datasets import ShapeNet
-
-from numbers import Number
+from tqdm import tqdm
 
 
 class PyGRandLANet(torch.nn.Module):

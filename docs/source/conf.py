@@ -12,11 +12,10 @@
 #
 import os
 import sys
-import yaml
 
+import yaml
 from hydra import compose, initialize
 from omegaconf import OmegaConf
-
 
 rel_root_path = "./../../"
 abs_root_path = os.path.abspath(rel_root_path)

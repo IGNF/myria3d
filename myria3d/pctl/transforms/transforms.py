@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from torch_geometric.data import Data
 from torch_geometric.transforms import BaseTransform
+
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)

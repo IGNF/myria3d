@@ -1,9 +1,10 @@
-from enum import Enum
 import logging
 import os
+from enum import Enum
 from typing import Dict, List, Literal, Union
-import pdal
+
 import numpy as np
+import pdal
 import torch
 from torch.distributions import Categorical
 from torch_scatter import scatter_sum

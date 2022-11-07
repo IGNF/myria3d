@@ -1,21 +1,23 @@
+import copy
 import os
 import os.path as osp
-import copy
 from numbers import Number
 from typing import Callable, List, Optional
+
 import h5py
-from tqdm import tqdm
 import torch
-from torch_geometric.data import Data
 from torch.utils.data import Dataset
-from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from torch_geometric.data import Data
+from tqdm import tqdm
+
 from myria3d.pctl.dataset.utils import (
+    LAS_PATHS_BY_SPLIT_DICT_TYPE,
     SHAPE_TYPE,
     SPLIT_TYPE,
-    LAS_PATHS_BY_SPLIT_DICT_TYPE,
     pre_filter_below_n_points,
-    split_cloud_into_samples
+    split_cloud_into_samples,
 )
+from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
