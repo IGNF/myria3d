@@ -1,3 +1,9 @@
+try:
+    # It is safer to import comet before all other imports.
+    import comet_ml  # noqa
+except ImportError:
+    print("Warning: package comet_ml not found. This may break things if you use a comet callback.")
+
 from enum import Enum
 
 import dotenv
