@@ -2,9 +2,7 @@ try:
     # It is safer to import comet before all other imports.
     import comet_ml  # noqa
 except ImportError:
-    print(
-        "Warning: package comet_ml not found. This may break things if you use a comet callback."
-    )
+    print("Warning: package comet_ml not found. This may break things if you use a comet callback.")
 
 import copy
 import os
@@ -96,9 +94,7 @@ def train(config: DictConfig) -> Trainer:
 
     # Init lightning trainer
     log.info(f"Instantiating trainer <{config.trainer._target_}>")
-    trainer: Trainer = hydra.utils.instantiate(
-        config.trainer, callbacks=callbacks, logger=logger
-    )
+    trainer: Trainer = hydra.utils.instantiate(config.trainer, callbacks=callbacks, logger=logger)
 
     # Send some parameters from config to all lightning loggers
     log.info("Logging hyperparameters!")
@@ -144,24 +140,16 @@ def train(config: DictConfig) -> Trainer:
             log.info(f"Best lr with auto_lr_find is {new_lr}")
 
         log.info("Starting training and validating!")
-        trainer.fit(
-            model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path
-        )
+        trainer.fit(model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path)
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
         log.info("End of training and validating!")
     if task_name in [TASK_NAMES.FIT.value, TASK_NAMES.TEST.value]:
         log.info("Starting testing!")
         if trainer.checkpoint_callback.best_model_path:
-            log.info(
-                f"Test will use just-trained best model checkpointed at \n {trainer.checkpoint_callback.best_model_path}"
-            )
+            log.info(f"Test will use just-trained best model checkpointed at \n {trainer.checkpoint_callback.best_model_path}")
             config.model.ckpt_path = trainer.checkpoint_callback.best_model_path
-        log.info(
-            f"Test will use specified model checkpointed at \n {config.model.ckpt_path}"
-        )
-        trainer.test(
-            model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path
-        )
+        log.info(f"Test will use specified model checkpointed at \n {config.model.ckpt_path}")
+        trainer.test(model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path)
         log.info("End of testing!")
 
     if task_name == TASK_NAMES.FINETUNE.value:
