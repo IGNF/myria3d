@@ -8,7 +8,7 @@ from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 from myria3d.pctl.dataset.utils import pdal_read_las_array
 from myria3d.predict import predict
 from myria3d.train import train
-from tests.conftest import make_default_hydra_cfg, run_hydra_decorated_command
+from tests.conftest import make_default_hydra_cfg, run_hydra_decorated_command, run_command
 from tests.runif import RunIf
 
 """
@@ -75,11 +75,11 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
     command = [
         "run.py",
-        "experiment=predict",
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "predict.probas_to_save=[building,unclassified]",
+        "task.task_name='predict'",
     ]
     run_hydra_decorated_command(command)
 

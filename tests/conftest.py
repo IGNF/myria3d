@@ -1,4 +1,5 @@
 from typing import List
+import os
 
 import pytest
 import sh
@@ -55,7 +56,7 @@ def run_command(command: List[str]):
 def run_hydra_decorated_command(command: List[str]):
     """Default method for executing hydra decorated shell commands with pytest."""
     hydra_specific_paths = [
-        "hydra.run.dir=tests/logs/runs/${now:%Y-%m-%d}/${now:%H-%M-%S}",
-        "hydra.sweep.dir=tests/logs/multiruns/${now:%Y-%m-%d}/${now:%H-%M-%S}",
+        "hydra.run.dir=" + os.getcwd(),
     ]
+
     run_command(command + hydra_specific_paths)

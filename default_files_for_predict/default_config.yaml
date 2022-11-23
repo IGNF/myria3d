@@ -1,0 +1,270 @@
+seed: 12345
+work_dir: ${hydra:runtime.cwd}
+debug: false
+print_config: true
+ignore_warnings: true
+trainer:
+  _target_: pytorch_lightning.Trainer
+  gpus:
+  - 0
+  - 1
+  min_epochs: 100
+  max_epochs: 150
+  log_every_n_steps: 1
+  weights_summary: null
+  progress_bar_refresh_rate: 1
+  auto_lr_find: false
+  num_sanity_val_steps: 2
+  accumulate_grad_batches: 3
+  strategy: ddp
+  accelerator: gpu
+  num_processes: 2
+datamodule:
+  transforms:
+    preparations:
+      train:
+        TargetTransform:
+          _target_: myria3d.pctl.transforms.transforms.TargetTransform
+          _args_:
+          - ${dataset_description.classification_preprocessing_dict}
+          - ${dataset_description.classification_dict}
+        GridSampling:
+          _target_: torch_geometric.transforms.GridSampling
+          _args_:
+          - 0.25
+        MinimumNumNodes:
+          _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
+          _args_:
+          - 300
+        MaximumNumNodes:
+          _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+          _args_:
+          - 1000000
+        Center:
+          _target_: torch_geometric.transforms.Center
+      eval:
+        TargetTransform:
+          _target_: myria3d.pctl.transforms.transforms.TargetTransform
+          _args_:
+          - ${dataset_description.classification_preprocessing_dict}
+          - ${dataset_description.classification_dict}
+        CopyFullPreparedTargets:
+          _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
+        CopyFullPos:
+          _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+        GridSampling:
+          _target_: torch_geometric.transforms.GridSampling
+          _args_:
+          - 0.25
+        MinimumNumNodes:
+          _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
+          _args_:
+          - 300
+        MaximumNumNodes:
+          _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+          _args_:
+          - 1000000
+        CopySampledPos:
+          _target_: myria3d.pctl.transforms.transforms.CopySampledPos
+        Center:
+          _target_: torch_geometric.transforms.Center
+      predict:
+        CopyFullPos:
+          _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+        GridSampling:
+          _target_: torch_geometric.transforms.GridSampling
+          _args_:
+          - 0.25
+        MinimumNumNodes:
+          _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
+          _args_:
+          - 300
+        MaximumNumNodes:
+          _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+          _args_:
+          - 1000000
+        CopySampledPos:
+          _target_: myria3d.pctl.transforms.transforms.CopySampledPos
+        Center:
+          _target_: torch_geometric.transforms.Center
+    augmentations:
+      x_flip:
+        _target_: torch_geometric.transforms.RandomFlip
+        _args_:
+        - 0
+        p: 0.5
+      y_flip:
+        _target_: torch_geometric.transforms.RandomFlip
+        _args_:
+        - 1
+        p: 0.5
+    normalizations:
+      NullifyLowestZ:
+        _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
+      NormalizePos:
+        _target_: myria3d.pctl.transforms.transforms.NormalizePos
+        subtile_width: 50
+      StandardizeRGBAndIntensity:
+        _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity
+    augmentations_list: '${oc.dict.values: datamodule.transforms.augmentations}'
+    preparations_train_list: '${oc.dict.values: datamodule.transforms.preparations.train}'
+    preparations_eval_list: '${oc.dict.values: datamodule.transforms.preparations.eval}'
+    preparations_predict_list: '${oc.dict.values: datamodule.transforms.preparations.predict}'
+    normalizations_list: '${oc.dict.values: datamodule.transforms.normalizations}'
+  _target_: myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule
+  data_dir: null
+  split_csv_path: null
+  hdf5_file_path: /var/data/cgaydon/data/20220607_151_dalles_proto.myria3d-V2.4.hdf5
+  points_pre_transform:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}
+  pre_filter:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
+    min_num_nodes: 50
+  tile_width: 1000
+  subtile_width: 100
+  subtile_shape: square
+  subtile_overlap_train: 0
+  subtile_overlap_predict: ${predict.subtile_overlap}
+  batch_size: 15
+  num_workers: 3
+  prefetch_factor: 3
+dataset_description:
+  _convert_: all
+  classification_preprocessing_dict:
+    3: 5
+    4: 5
+    160: 64
+    161: 64
+    162: 64
+    0: 1
+    7: 1
+    46: 1
+    47: 1
+    48: 1
+    49: 1
+    50: 1
+    51: 1
+    52: 1
+    53: 1
+    54: 1
+    55: 1
+    56: 1
+    57: 1
+    58: 1
+    64: 1
+    65: 1
+    66: 1
+    67: 1
+    77: 1
+    155: 1
+    204: 1
+  classification_dict:
+    1: unclassified
+    2: ground
+    5: vegetation
+    6: building
+    9: water
+    17: bridge
+    64: lasting_above
+  class_weights:
+  - 0.25
+  - 0.1
+  - 0.1
+  - 0.5
+  - 2.0
+  - 2.0
+  - 2.0
+  d_in: 9
+  num_classes: 7
+callbacks:
+  log_code:
+    _target_: myria3d.callbacks.comet_callbacks.LogCode
+    code_dir: ${work_dir}/myria3d
+  log_logs_dir:
+    _target_: myria3d.callbacks.comet_callbacks.LogLogsPath
+  lr_monitor:
+    _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: step
+    log_momentum: true
+  log_iou_by_class:
+    _target_: myria3d.callbacks.logging_callbacks.LogIoUByClass
+    classification_dict: ${dataset_description.classification_dict}
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    monitor: val/loss_epoch
+    mode: min
+    save_top_k: 1
+    save_last: true
+    verbose: true
+    dirpath: checkpoints/
+    filename: epoch_{epoch:03d}
+    auto_insert_metric_name: false
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val/loss_epoch
+    mode: min
+    patience: 6
+    min_delta: 0
+model:
+  optimizer:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:torch.optim.Adam}
+    lr: ${model.lr}
+  lr_scheduler:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
+    mode: min
+    factor: 0.5
+    patience: 20
+    cooldown: 5
+    verbose: true
+  criterion:
+    _target_: torch.nn.CrossEntropyLoss
+    label_smoothing: 0.0
+  _target_: myria3d.models.model.Model
+  d_in: ${dataset_description.d_in}
+  num_classes: ${dataset_description.num_classes}
+  ckpt_path: null
+  neural_net_class_name: PyGRandLANet
+  neural_net_hparams:
+    num_features: ${model.d_in}
+    num_classes: ${model.num_classes}
+    num_neighbors: 16
+    decimation: 4
+    return_logits: true
+  interpolation_k: ${predict.interpolation_k}
+  num_workers: 4
+  iou:
+    _target_: functools.partial
+    _args_:
+    - ${get_method:torchmetrics.JaccardIndex}
+    - ${model.num_classes}
+    absent_score: 1.0
+  momentum: 0.9
+  monitor: val/loss_epoch
+  lr: 0.003933709606504788
+logger:
+  comet:
+    _target_: pytorch_lightning.loggers.comet.CometLogger
+    api_key: ${oc.env:COMET_API_TOKEN}
+    workspace: ${oc.env:COMET_WORKSPACE}
+    project_name: ${oc.env:COMET_PROJECT_NAME}
+    experiment_name: '[V3.0.2-BS10xMAX1000000pts] RandLaNet_base_run_FR_pyg_randla_net_NoRS'
+    auto_log_co2: false
+    disabled: false
+task:
+  task_name: predict
+predict:
+  src_las: /path/to/input.las
+  output_dir: /path/to/output_dir/
+  ckpt_path: default_files_for_predict/default_checkpoint.ckpt
+  gpus: 0
+  probas_to_save: [building,vegetation,unclassified]
+  subtile_overlap: 0
+  interpolation_k: 10
