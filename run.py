@@ -21,6 +21,7 @@ dotenv.load_dotenv(override=True)
 
 DEFAULT_DIRECTORY = "default_files_for_predict"
 DEFAULT_CONFIG_FILE = "default_config.yaml"
+DEFAULT_CHECKPOINT = "default_checkpoint.ckpt"
 
 
 class TASK_NAMES(Enum):
@@ -68,7 +69,7 @@ def main(config: DictConfig):
         hydra.initialize(config_path=DEFAULT_DIRECTORY)
         overrides = sys.argv[1:]  # we will use the default config file but we have to transfert the user's overrides to it
         config = hydra.compose(config_name=DEFAULT_CONFIG_FILE, overrides=overrides)
-        config.predict.ckpt_path = os.path.join(hydra.utils.get_original_cwd(), config.predict.ckpt_path)
+        config.predict.ckpt_path = os.path.join(hydra.utils.get_original_cwd(), DEFAULT_DIRECTORY, DEFAULT_CHECKPOINT)
         # Pretty print config using Rich library
         if config.get("print_config"):
             utils.print_config(config, resolve=False)
