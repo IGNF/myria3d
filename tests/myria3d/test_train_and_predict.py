@@ -8,7 +8,7 @@ from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 from myria3d.pctl.dataset.utils import pdal_read_las_array
 from myria3d.predict import predict
 from myria3d.train import train
-from tests.conftest import make_default_hydra_cfg, run_hydra_decorated_command, run_command
+from tests.conftest import make_default_hydra_cfg, run_hydra_decorated_command
 from tests.runif import RunIf
 
 """

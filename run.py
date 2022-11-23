@@ -16,6 +16,7 @@ dotenv.load_dotenv(override=True)
 DEFAULT_DIRECTORY = "default_files_for_predict"
 DEFAULT_CONFIG_FILE = "default_config.yaml"
 
+
 class TASK_NAMES(Enum):
     FIT = "fit"
     TEST = "test"
