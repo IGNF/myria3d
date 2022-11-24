@@ -39,7 +39,7 @@ log = utils.get_logger(__name__)
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
-def launch_train(config: DictConfig):   # pragma: no cover
+def launch_train(config: DictConfig):  # pragma: no cover  (it's just an initialyzer of a class/method tested elsewhere)
     """Training, evaluation, testing, or finetuning of a neural network."""
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
@@ -65,7 +65,6 @@ def launch_predict(config: DictConfig):
     new_chekpoint_path = os.path.join(hydra.utils.get_original_cwd(), DEFAULT_DIRECTORY, DEFAULT_CHECKPOINT)
     overrides.append(f"predict.ckpt_path={new_chekpoint_path}")
     config = hydra.compose(config_name=DEFAULT_CONFIG_FILE, overrides=overrides)
-    print("checkpoint 1: ", config.predict.ckpt_path)
     # Pretty print config using Rich library
     if config.get("print_config"):
         utils.print_config(config, resolve=False)
@@ -73,7 +72,7 @@ def launch_predict(config: DictConfig):
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
-def launch_hdf5(config: DictConfig):    # pragma: no cover
+def launch_hdf5(config: DictConfig):  # pragma: no cover  (it's just an initialyzer of a class/method tested elsewhere)
     """Build an HDF5 file from a directory with las files."""
 
     # Pretty print config using Rich library
