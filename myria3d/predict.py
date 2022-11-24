@@ -37,6 +37,7 @@ def predict(config: DictConfig) -> str:
     """
 
     # Those are the 2 needed inputs, in addition to the hydra config.
+    print("checkpoint: ", config.predict.ckpt_path)
     assert os.path.exists(config.predict.ckpt_path)
     assert os.path.exists(config.predict.src_las)
 
