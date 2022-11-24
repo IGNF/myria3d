@@ -68,8 +68,10 @@ def main(config: DictConfig):
         hydra.core.global_hydra.GlobalHydra.instance().clear()
         hydra.initialize(config_path=DEFAULT_DIRECTORY)
         overrides = sys.argv[1:]  # we will use the default config file but we have to transfert the user's overrides to it
+        new_chekpoint_path = os.path.join(hydra.utils.get_original_cwd(), DEFAULT_DIRECTORY, DEFAULT_CHECKPOINT)
+        overrides.append(f"predict.ckpt_path={new_chekpoint_path}")
         config = hydra.compose(config_name=DEFAULT_CONFIG_FILE, overrides=overrides)
-        config.predict.ckpt_path = os.path.join(hydra.utils.get_original_cwd(), DEFAULT_DIRECTORY, DEFAULT_CHECKPOINT)
+        # config.predict.ckpt_path = os.path.join(hydra.utils.get_original_cwd(), DEFAULT_DIRECTORY, DEFAULT_CHECKPOINT)
         print("checkpoint 1: ", config.predict.ckpt_path)
         # Pretty print config using Rich library
         if config.get("print_config"):
