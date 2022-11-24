@@ -39,7 +39,7 @@ log = utils.get_logger(__name__)
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
-def launch_train(config: DictConfig):
+def launch_train(config: DictConfig):   # pragma: no cover
     """Training, evaluation, testing, or finetuning of a neural network."""
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
@@ -73,7 +73,7 @@ def launch_predict(config: DictConfig):
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
-def launch_hdf5(config: DictConfig):
+def launch_hdf5(config: DictConfig):    # pragma: no cover
     """Build an HDF5 file from a directory with las files."""
 
     # Pretty print config using Rich library
