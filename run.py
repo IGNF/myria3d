@@ -70,6 +70,7 @@ def main(config: DictConfig):
         overrides = sys.argv[1:]  # we will use the default config file but we have to transfert the user's overrides to it
         config = hydra.compose(config_name=DEFAULT_CONFIG_FILE, overrides=overrides)
         config.predict.ckpt_path = os.path.join(hydra.utils.get_original_cwd(), DEFAULT_DIRECTORY, DEFAULT_CHECKPOINT)
+        print("checkpoint 1: ", config.predict.ckpt_path)
         # Pretty print config using Rich library
         if config.get("print_config"):
             utils.print_config(config, resolve=False)
