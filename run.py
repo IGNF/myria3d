@@ -110,7 +110,5 @@ if __name__ == "__main__":
             launch_hdf5()
 
     except NameError as e:
-        log.error(
-            'a task name must be defined, with the argument "task.task_name=..."'
-        )
+        log.error('a task name must be defined, with the argument "task.task_name=..."')
         raise e
