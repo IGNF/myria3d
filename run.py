@@ -17,7 +17,7 @@ from myria3d.pctl.dataset.hdf5 import create_hdf5
 from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
-DEFAULT_DIRECTORY = "default_files_for_predict"
+DEFAULT_DIRECTORY = "default_files_for_predict/"
 DEFAULT_CONFIG_FILE = "default_config.yaml"
 DEFAULT_CHECKPOINT = "default_checkpoint.ckpt"
 DEFAULT_ENV = "default.env"
@@ -54,9 +54,15 @@ def launch_predict(config: DictConfig):
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
     from myria3d.predict import predict
+
+    # hydra changes current directory, so we make sure the checkpoint has an absolute path
+    if not os.path.isabs(config.predict.ckpt_path):
+        config.predict.ckpt_path = os.path.join(os.path.dirname(__file__), config.predict.ckpt_path)
+
     # Pretty print config using Rich library
     if config.get("print_config"):
         utils.print_config(config, resolve=False)
+
     return predict(config)
 
 
