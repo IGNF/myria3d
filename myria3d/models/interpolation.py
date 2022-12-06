@@ -136,6 +136,9 @@ class Interpolator:
                 f"Saving predicted classes to channel {self.predicted_classification_channel}."
                 "Channel name can be changed by setting `predict.interpolator.predicted_classification_channel`."
             )
+            del preds
+
+        del logits
 
         if self.entropy_channel:
             las[self.entropy_channel] = Categorical(probs=probas).entropy()
