@@ -1,6 +1,5 @@
 import logging
 import os
-from enum import Enum
 from typing import Dict, List, Literal, Optional, Union
 
 import numpy as np
