@@ -53,7 +53,7 @@ def pdal_read_las_array(las_path: str):
         np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.
 
     """
-    p1 = pdal.Pipeline() | get_pdal_reader(las_path)
+    p1 = pdal.Pipeline() | pdal.Reader.las(filename=las_path)
     p1.execute()
     return p1.arrays[0]
 

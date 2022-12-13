@@ -10,7 +10,7 @@ neural_net_class_name: ???
 neural_net_hparams: ???
 
 # Interpolation params
-interpolation_k: ${predict.interpolator.interpolation_k}  # interpolation at eval time
+interpolation_k: ${predict.interpolation_k}  # interpolation at eval time
 num_workers: 4  # for knn_interpolate
 
 ## Evaluation metric - partial for triple (train/val/test) init
