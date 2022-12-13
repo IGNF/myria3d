@@ -51,12 +51,19 @@ def predict(config: DictConfig) -> str:
     model.to(device)
     model.eval()
 
-    itp = hydra.utils.instantiate(config.predict.interpolator)
+    # TODO: Interpolator could be instantiated directly via hydra.
+    itp = Interpolator(
+        interpolation_k=config.predict.interpolation_k,
+        classification_dict=config.dataset_description.get("classification_dict"),
+        probas_to_save=config.predict.probas_to_save,
+    )
 
     for batch in tqdm(datamodule.predict_dataloader()):
         batch.to(device)
         logits = model.predict_step(batch)["logits"]
         itp.store_predictions(logits, batch.idx_in_original_cloud)
 
-    out_f = itp.reduce_predictions_and_save(config.predict.src_las, config.predict.output_dir)
+    out_f = itp.reduce_predictions_and_save(
+        config.predict.src_las, config.predict.output_dir
+    )
     return out_f

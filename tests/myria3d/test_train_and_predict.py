@@ -29,8 +29,12 @@ def one_epoch_trained_RandLaNet_checkpoint(toy_dataset_hdf5_path, tmpdir_factory
 
     """
     tmpdir = tmpdir_factory.mktemp("training_logs_dir")
-    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(toy_dataset_hdf5_path, tmpdir)
-    cfg_one_epoch = make_default_hydra_cfg(overrides=["experiment=RandLaNetDebug"] + tmp_paths_overrides)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        toy_dataset_hdf5_path, tmpdir
+    )
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=["experiment=RandLaNetDebug"] + tmp_paths_overrides
+    )
     trainer = train(cfg_one_epoch)
     return trainer.checkpoint_callback.best_model_path
 
@@ -45,11 +49,16 @@ def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_facto
 
     """
     tmpdir = tmpdir_factory.mktemp("training_logs_dir")
-    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(toy_dataset_hdf5_path, tmpdir)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        toy_dataset_hdf5_path, tmpdir
+    )
     # We will always use the first GPU id for tests, because it always exists if there are some GPUs.
     # Attention to concurrency with other processes using the GPU when running tests.
     gpu_id = 0
-    cfg_one_epoch = make_default_hydra_cfg(overrides=["experiment=RandLaNetDebug", f"trainer.gpus=[{gpu_id}]"] + tmp_paths_overrides)
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=["experiment=RandLaNetDebug", f"trainer.gpus=[{gpu_id}]"]
+        + tmp_paths_overrides
+    )
     train(cfg_one_epoch)
 
 
@@ -69,12 +78,14 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
-        "predict.interpolator.probas_to_save=[building,unclassified]",
+        "predict.probas_to_save=[building,unclassified]",
     ]
     run_hydra_decorated_command(command)
 
 
-def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
+def test_RandLaNet_predict_with_invariance_checks(
+    one_epoch_trained_RandLaNet_checkpoint, tmpdir
+):
     """Train a model for one epoch, and run test and predict functions using the trained model.
 
     Args:
@@ -83,7 +94,9 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
         tmpdir (fixture -> str): temporary directory.
 
     """
-    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths("placeholder_because_no_need_for_a_dataset_here", tmpdir)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        "placeholder_because_no_need_for_a_dataset_here", tmpdir
+    )
     # Run prediction
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
@@ -91,7 +104,7 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
             f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
             f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
-            "predict.interpolator.probas_to_save=[building,unclassified]",
+            "predict.probas_to_save=[building,unclassified]",
         ]
         + tmp_paths_overrides
     )
@@ -114,7 +127,9 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
     check_las_invariance(TOY_LAS_DATA, path_to_output_las)
 
 
-def test_run_test_with_trained_model_on_toy_dataset_on_cpu(one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir):
+def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
+):
     _run_test_right_after_training(
         one_epoch_trained_RandLaNet_checkpoint,
         toy_dataset_hdf5_path,
@@ -124,7 +139,9 @@ def test_run_test_with_trained_model_on_toy_dataset_on_cpu(one_epoch_trained_Ran
 
 
 @RunIf(min_gpus=1)
-def test_run_test_with_trained_model_on_toy_dataset_on_gpu(one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir):
+def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
+):
     _run_test_right_after_training(
         one_epoch_trained_RandLaNet_checkpoint,
         toy_dataset_hdf5_path,
@@ -151,7 +168,9 @@ def _run_test_right_after_training(
     # Run testing on toy testset with trainer.test(...)
     # function's name is train, but under the hood and thanks to configuration,
     # trainer.test(...) is called.
-    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(toy_dataset_hdf5_path, tmpdir)
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        toy_dataset_hdf5_path, tmpdir
+    )
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=test",  # sets task.task_name to "test"
@@ -214,7 +233,9 @@ def check_las_invariance(las_path_1: str, las_path_2: str):
         assert pytest.approx(np.sum(a2[d]), rel_tolerance) == np.sum(a1[d])
 
 
-def _make_list_of_necesary_hydra_overrides_with_tmp_paths(toy_dataset_hdf5_path: str, tmpdir: str):
+def _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+    toy_dataset_hdf5_path: str, tmpdir: str
+):
     """Get list of overrides for hydra, the ones that are always needed when calling train/test.
 
     Args:

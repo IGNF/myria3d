@@ -42,14 +42,14 @@ jobs:
     - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
       run: >
         docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_V3.2.0/inputs/:/inputs/
-        -v /var/data/cicd/CICD_github_assets/myria3d_V3.2.0/outputs/:/outputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.1.0/inputs/:/inputs/
+        -v /var/data/cicd/CICD_github_assets/myria3d_V3.1.0/outputs/:/outputs/
         --ipc=host
         --shm-size=2gb
         myria3d
         python run.py
         --config-path /inputs/
-        --config-name proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.2.0.yaml
+        --config-name proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.1.0
         predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
