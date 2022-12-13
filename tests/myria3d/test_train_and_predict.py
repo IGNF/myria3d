@@ -79,6 +79,7 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "predict.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
     ]
     run_hydra_decorated_command(command)
 
