@@ -78,7 +78,7 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
-        "predict.probas_to_save=[building,unclassified]",
+        "+predict.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]
     run_hydra_decorated_command(command)
@@ -105,7 +105,8 @@ def test_RandLaNet_predict_with_invariance_checks(
             f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
             f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
-            "predict.probas_to_save=[building,unclassified]",
+            "+predict.probas_to_save=[building,unclassified]",
+            "+predict.interpolator.interpolation_k=predict.interpolation_k",
         ]
         + tmp_paths_overrides
     )
