@@ -109,6 +109,9 @@ if __name__ == "__main__":
         elif task_name == TASK_NAMES.HDF5.value:
             launch_hdf5()
 
+        else:
+            log.warning("No task selected!!!")
+
     except NameError as e:
         log.error('a task name must be defined, with the argument "task.task_name=..."')
         raise e
