@@ -39,7 +39,7 @@ datamodule:
         MaximumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
           _args_:
-          - 1000000
+          - 40000
         Center:
           _target_: torch_geometric.transforms.Center
       eval:
@@ -63,7 +63,7 @@ datamodule:
         MaximumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
           _args_:
-          - 1000000
+          - 40000
         CopySampledPos:
           _target_: myria3d.pctl.transforms.transforms.CopySampledPos
         Center:
@@ -82,7 +82,7 @@ datamodule:
         MaximumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
           _args_:
-          - 1000000
+          - 40000
         CopySampledPos:
           _target_: myria3d.pctl.transforms.transforms.CopySampledPos
         Center:
@@ -103,7 +103,7 @@ datamodule:
         _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
       NormalizePos:
         _target_: myria3d.pctl.transforms.transforms.NormalizePos
-        subtile_width: 50
+        subtile_width: ${datamodule.subtile_width}
       StandardizeRGBAndIntensity:
         _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity
     augmentations_list: '${oc.dict.values: datamodule.transforms.augmentations}'
@@ -125,11 +125,11 @@ datamodule:
     - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
     min_num_nodes: 50
   tile_width: 1000
-  subtile_width: 100
+  subtile_width: 50
   subtile_shape: square
   subtile_overlap_train: 0
   subtile_overlap_predict: ${predict.subtile_overlap}
-  batch_size: 15
+  batch_size: 10
   num_workers: 3
   prefetch_factor: 3
 dataset_description:
@@ -238,7 +238,7 @@ model:
     num_neighbors: 16
     decimation: 4
     return_logits: true
-  interpolation_k: ${predict.interpolation_k}
+  interpolation_k: ${predict.interpolator.interpolation_k}
   num_workers: 4
   iou:
     _target_: functools.partial
@@ -255,7 +255,7 @@ logger:
     api_key: ${oc.env:COMET_API_TOKEN}
     workspace: ${oc.env:COMET_WORKSPACE}
     project_name: ${oc.env:COMET_PROJECT_NAME}
-    experiment_name: '[V3.0.2-BS10xMAX1000000pts] RandLaNet_base_run_FR_pyg_randla_net_NoRS'
+    experiment_name: '[V3.0.2-BS10xMAX40000pts] RandLaNet_base_run_FR_pyg_randla_net_NoRS'
     auto_log_co2: false
     disabled: false
 task:
@@ -263,8 +263,13 @@ task:
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
-  ckpt_path: default_files_for_predict/default_checkpoint.ckpt
-  gpus: 0
-  probas_to_save: [building,vegetation,unclassified]
+  ckpt_path: /path/to/lightning_model.ckpt
   subtile_overlap: 0
-  interpolation_k: 10
+  gpus: 0
+  interpolator:
+    _target_: myria3d.models.interpolation.Interpolator
+    interpolation_k: 10
+    classification_dict: ${dataset_description.classification_dict}
+    probas_to_save: [building,ground,vegetation,unclassified]
+    predicted_classification_channel: confidence
+    entropy_channel: entropy
