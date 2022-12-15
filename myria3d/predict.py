@@ -55,7 +55,7 @@ def predict(config: DictConfig) -> str:
     itp = Interpolator(
         interpolation_k=config.predict.interpolator.interpolation_k,
         classification_dict=config.dataset_description.get("classification_dict"),
-        probas_to_save=config.predict.probas_to_save,
+        probas_to_save=config.predict.interpolator.probas_to_save,
     )
 
     for batch in tqdm(datamodule.predict_dataloader()):
