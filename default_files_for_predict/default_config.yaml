@@ -263,7 +263,7 @@ task:
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
-  ckpt_path: /path/to/lightning_model.ckpt
+  ckpt_path: default_files_for_predict/default_checkpoint.ckpt
   subtile_overlap: 0
   gpus: 0
   interpolator:
