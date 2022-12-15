@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 3.1.2 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 3.2.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -214,8 +214,9 @@ myria3d.predict <span class="o">{</span>...config paths <span class="p">&amp;</s
 <h2>Additional options for prediction<a class="headerlink" href="#additional-options-for-prediction" title="Permalink to this headline"></a></h2>
 <section id="output-dimensions">
 <h3>Output dimensions<a class="headerlink" href="#output-dimensions" title="Permalink to this headline"></a></h3>
-<p>By default, the predicted classification is stored in a new <code class="docutils literal notranslate"><span class="pre">PredictedClassification</span></code> LAS dimension. The <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a> of probabilities is also stored and used as a limited proxy for prediction uncertainty.</p>
-<p>One can control for which classes to save the probabilities. This is achieved with a <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save</span></code> config parameter, which can be either the <code class="docutils literal notranslate"><span class="pre">all</span></code> keyword (to save probabilities for all classes) or a list of specific classes (e.g. <code class="docutils literal notranslate"><span class="pre">predict.probas_to_save=[building,vegetation]</span></code> - note the absence of space between class names).</p>
+<p>By default, the predicted classification is stored in a new <code class="docutils literal notranslate"><span class="pre">PredictedClassification</span></code> LAS dimension. The <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a> of probabilities is also stored in a new <code class="docutils literal notranslate"><span class="pre">entropy</span></code> LAS dimension. It can be used as a very limited proxy of uncertainty.</p>
+<p>Change params <code class="docutils literal notranslate"><span class="pre">predict.interpolator.predicted_classification_channel</span></code> and <code class="docutils literal notranslate"><span class="pre">predict.interpolator.entropy_channel</span></code> to change name of output dimensions. Set to <code class="docutils literal notranslate"><span class="pre">null</span></code> to disable saving these dimensions.</p>
+<p>One can control for which classes to save the probabilities. This is achieved with a <code class="docutils literal notranslate"><span class="pre">predict.interpolator.probas_to_save</span></code> config parameter, which can be either the <code class="docutils literal notranslate"><span class="pre">all</span></code> keyword (to save probabilities for all classes) or a list of specific classes (e.g. <code class="docutils literal notranslate"><span class="pre">predict.interpolator.probas_to_save=[building,vegetation]</span></code> - note the absence of space between class names).</p>
 </section>
 <section id="receptive-field-overlap-at-inference-time">
 <h3>Receptive field overlap at inference time<a class="headerlink" href="#receptive-field-overlap-at-inference-time" title="Permalink to this headline"></a></h3>
