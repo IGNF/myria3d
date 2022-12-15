@@ -56,6 +56,7 @@ jobs:
         predict.subtile_overlap=25
         datamodule.batch_size=10
         +predict.interpolator.interpolation_k=predict.interpolation_k
+        +predict.interpolator.probas_to_save=[building,unclassified]
         task.task_name=predict
 
     - name: Check code neatness (linter)
