@@ -1,4 +1,4 @@
-__version__: "3.2.2"
+__version__: "3.2.3"
 __name__: "myria3d"
 __url__: "https://github.com/IGNF/myria3d"
 __description__: "Multiclass Semantic Segmentation for Lidar Point Cloud"
