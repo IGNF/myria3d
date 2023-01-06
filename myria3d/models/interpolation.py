@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class ChannelNames(Enum):
     """Names of custom additional LAS channel."""
 
-    PredictedClassification = "PredictedClassification"
+    PredictedClassification = "confidence"
     ProbasEntropy = "entropy"
 
 
