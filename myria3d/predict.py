@@ -56,6 +56,8 @@ def predict(config: DictConfig) -> str:
         interpolation_k=config.predict.interpolator.interpolation_k,
         classification_dict=config.dataset_description.get("classification_dict"),
         probas_to_save=config.predict.interpolator.probas_to_save,
+        predicted_classification_channel=config.predict.interpolator.get("predicted_classification_channel", "PredictedClassification"),
+        entropy_channel=config.predict.interpolator.get("entropy_channel", "entropy"),
     )
 
     for batch in tqdm(datamodule.predict_dataloader()):
