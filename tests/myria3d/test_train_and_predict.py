@@ -116,7 +116,7 @@ def test_RandLaNet_predict_with_invariance_checks(
     assert osp.isfile(path_to_output_las)
 
     # Check the format of the predicted las in terms of extra dimensions
-    DIMS_ALWAYS_THERE = ["confidence", "entropy"]
+    DIMS_ALWAYS_THERE = ["PredictedClassification", "entropy"]
     DIMS_CHOSEN_IN_CONFIG = ["building", "unclassified"]
     check_las_contains_dims(
         path_to_output_las,
