@@ -49,8 +49,8 @@ jobs:
         myria3d
         python run.py
         --config-path /inputs/
-        --config-name proto151_V2.0_epoch_100_Myria3DV3.2.0_predict_config_V3.2.0
-        predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.2.0.ckpt
+        --config-name proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.2.0
+        predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
         predict.subtile_overlap=25
