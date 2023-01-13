@@ -263,7 +263,7 @@ task:
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
-  ckpt_path: default_files_for_predict/default_checkpoint.ckpt
+  ckpt_path: trained_model_assets/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
   subtile_overlap: 0
   gpus: 0
   interpolator:

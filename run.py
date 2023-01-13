@@ -8,18 +8,20 @@ from enum import Enum
 
 import os
 import sys
+from glob import glob
 import dotenv
 import hydra
 from omegaconf import DictConfig
+from tqdm import tqdm
 
 from myria3d.utils import utils
 from myria3d.pctl.dataset.hdf5 import create_hdf5
 from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
-DEFAULT_DIRECTORY = "default_files_for_predict/"
+DEFAULT_DIRECTORY = "trained_model_assets/"
 DEFAULT_CONFIG_FILE = "default_config.yaml"
-DEFAULT_CHECKPOINT = "default_checkpoint.ckpt"
+DEFAULT_CHECKPOINT = "proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt"
 DEFAULT_ENV = "default.env"
 
 
@@ -63,7 +65,10 @@ def launch_predict(config: DictConfig):
     if config.get("print_config"):
         utils.print_config(config, resolve=False)
 
-    return predict(config)
+    # Iterate over the files and predict.
+    src_las_iterable = glob(config.predict.src_las)
+    for config.predict.src_las in tqdm(src_las_iterable):
+        predict(config)
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml")
@@ -110,7 +115,7 @@ if __name__ == "__main__":
             launch_hdf5()
 
         else:
-            log.warning("No task selected!!!")
+            log.warning("Task unknown")
 
     except NameError as e:
         log.error('a task name must be defined, with the argument "task.task_name=..."')
