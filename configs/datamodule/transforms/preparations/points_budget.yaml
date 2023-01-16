@@ -1,11 +1,16 @@
 # default preparations with grid sampling and random sampling.
 
 train:
+
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
       - ${dataset_description.classification_preprocessing_dict}
       - ${dataset_description.classification_dict}
+
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
+    classes_to_drop: ${dataset_description.classes_to_drop}
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -26,6 +31,7 @@ train:
     _target_: torch_geometric.transforms.Center
 
 eval:
+
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
@@ -34,6 +40,10 @@ eval:
 
   CopyFullPreparedTargets:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
+
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
+    classes_to_drop: ${dataset_description.classes_to_drop}
 
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
@@ -61,8 +71,13 @@ eval:
     _target_: torch_geometric.transforms.Center
   
 predict:
+
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
+    classes_to_drop: ${dataset_description.classes_to_drop}
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling

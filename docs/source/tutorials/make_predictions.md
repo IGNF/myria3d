@@ -76,3 +76,9 @@ To improve spatial regularity of the predicted probabilities, one can make infer
 
 To define an overlap between successive 50m*50m receptive fields, set `predict.subtile_overlap={value}`.
 This, however, comes with a large computation price. For instance, `predict.subtile_overlap=25` means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.
+
+### Ignoring artefacts points during inference
+
+Lidar acquisition may have produced artefacts points. If these points were identified with one (or several) classification code(s), they can be ignored during inference. These points will still be present in the output cloud, but will not negatively disturb model inference. Note that they will still have class probabilities, obtained from their non-artefacts closest neighboors.
+
+In the configuration, data transforms are used to drop these points according to the `dataset_description.classes_to_drop` parameter. By default, `dataset_description.classes_to_drop=[65]` where 65 is the defaut code used to flag artefact. Note: you may need to use quotes when overriding this parameter via CLI.
