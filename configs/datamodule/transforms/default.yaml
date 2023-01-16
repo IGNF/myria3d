@@ -1,5 +1,5 @@
 defaults:
-  - preparations: default.yaml
+  - preparations: points_budget.yaml
   - augmentations: none.yaml
   - normalizations: default.yaml
 

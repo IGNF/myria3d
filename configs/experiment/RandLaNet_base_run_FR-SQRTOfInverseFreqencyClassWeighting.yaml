@@ -1,11 +1,12 @@
 # @package _global_
 defaults:
-  - RandLaNet_base_run_FR_pyg_randla_net.yaml
+  - RandLaNet_base_run_FR.yaml
   - override /model/criterion: WeightedCrossEntropyLoss.yaml
 
 logger:
   comet:
-    experiment_name: "RandLaNet_base_run_FR_pyg_randla_net-SQRT-ICFW"
+    experiment_name: "RandLaNet_base_run_FR-SQRT-ICFW"
 
 dataset_description:
+  # Sqrt(Inverse Frequency) of classes in defaut dataset (a.k.a. `151proto`).
   class_weights: [0.19,0.08,0.08,0.36,1.13,3.11,2.05]
