@@ -219,7 +219,7 @@ model:
     num_neighbors: 16
     decimation: 4
     dropout: 0.5
-  interpolation_k: ${predict.interpolation_k}
+  interpolation_k: ${predict.interpolator.interpolation_k}
   num_workers: 4
   iou:
     _target_: functools.partial
@@ -248,4 +248,5 @@ predict:
   gpus: 0
   probas_to_save: all
   subtile_overlap: 0
-  interpolation_k: 10
+  interpolator:
+    interpolation_k: 10
