@@ -66,7 +66,7 @@ myria3d.predict {...config paths & options...}
 
 By default, the predicted classification is stored in a new `PredictedClassification` LAS dimension. The [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) of probabilities is also stored and used as a limited proxy for prediction uncertainty.
 
-One can control for which classes to save the probabilities. This is achieved with a `predict.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.probas_to_save=[building,vegetation]` - note the absence of space between class names).
+One can control for which classes to save the probabilities. This is achieved with a `predict.interpolator.probas_to_save` config parameter, which can be either the `all` keyword (to save probabilities for all classes) or a list of specific classes (e.g. `predict.interpolator.probas_to_save=[building,vegetation]` - note the absence of space between class names).
 
 ### Receptive field overlap at inference time
 
