@@ -248,4 +248,5 @@ predict:
   gpus: 0
   probas_to_save: all
   subtile_overlap: 0
-  interpolation_k: 10
+  interpolator:
+    interpolation_k: 10
