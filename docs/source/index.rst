@@ -10,8 +10,8 @@ Myria3D > Documentation
    :maxdepth: 1
    :caption: Getting Started
 
-   tutorials/install_on_linux.md
-   tutorials/install_on_wsl2.md
+   tutorials/install_on_linux
+   tutorials/install_on_wsl2
    tutorials/prepare_dataset
    tutorials/make_predictions
 
