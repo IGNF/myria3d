@@ -1,6 +1,6 @@
 # Performing inference on new data
 
-Refer to [this tutorial](./setup_install.md) for how to setup a virtual environment and install the library.
+Refer to [this tutorial](./install_on_linux.md) for how to setup a virtual environment and install the library.
 
 To run inference, you will need:
 - A source cloud point in LAS format on which to infer classes and probabilites. Sample data from the French "Lidar HD" project can be downloaded at [this address](https://geoservices.ign.fr/lidarhd).
