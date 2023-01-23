@@ -1,3 +1,5 @@
+# Simple install with
+# mamba env create -f environment.yml
 name: myria3d
 channels:
   - conda-forge
@@ -48,7 +50,9 @@ dependencies:
       - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_sparse-0.6.14-cp39-cp39-linux_x86_64.whl
       - git+https://github.com/pyg-team/pytorch_geometric.git@2.1.0
       # Nota: if libcusparse.so.11. errors occur, run
-      # export LD_LIBRARY_PATH="/home/user/miniconda/envs/lib:$LD_LIBRARY_PATH" 
+      # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH" 
+      # ou
+      # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH" 
       # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
       # --------- Visualization --------- #
       - pandas==1.4.*
