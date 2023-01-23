@@ -159,7 +159,7 @@ dataset_description:
   - 2.0
   - 2.0
   - 2.0
-  d_in: 12
+  d_in: 9
   num_classes: 7
 callbacks:
   log_code:
@@ -202,8 +202,8 @@ model:
     - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
     mode: min
     factor: 0.5
-    patience: 5
-    cooldown: 0
+    patience: 20
+    cooldown: 5
     verbose: true
   criterion:
     _target_: torch.nn.CrossEntropyLoss
@@ -212,13 +212,13 @@ model:
   d_in: ${dataset_description.d_in}
   num_classes: ${dataset_description.num_classes}
   ckpt_path: null
-  neural_net_class_name: RandLANet
+  neural_net_class_name: PyGRandLANet
   neural_net_hparams:
+    num_features: ${model.d_in}
     num_classes: ${model.num_classes}
-    d_in: ${model.d_in}
     num_neighbors: 16
     decimation: 4
-    dropout: 0.5
+    return_logits: true
   interpolation_k: ${predict.interpolator.interpolation_k}
   num_workers: 4
   iou:
@@ -229,7 +229,7 @@ model:
     absent_score: 1.0
   momentum: 0.9
   monitor: val/loss_epoch
-  lr: 0.004566395347136576
+  lr: 0.003933709606504788
 logger:
   comet:
     _target_: pytorch_lightning.loggers.comet.CometLogger
@@ -246,7 +246,11 @@ predict:
   output_dir: /path/to/output_dir/
   ckpt_path: /path/to/lightning_model.ckpt
   gpus: 0
-  probas_to_save: all
   subtile_overlap: 0
   interpolator:
+    _target_: myria3d.models.interpolation.Interpolator
     interpolation_k: 10
+    classification_dict: ${dataset_description.classification_dict}
+    probas_to_save: all
+    predicted_classification_channel: PredictedClassification
+    entropy_channel: entropy
