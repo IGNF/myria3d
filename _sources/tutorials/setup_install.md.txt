@@ -1,4 +1,4 @@
-# Install Myria3D on Linux
+# Installation
 
 ## Setting up a virtual environment
 
