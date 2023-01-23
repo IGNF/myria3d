@@ -2,7 +2,7 @@
 
 Myria3D is a deep learning library designed with a focused scope: the multiclass semantic segmentation of large scale, high density aerial Lidar points cloud.
 
-For Windows users it is quite tricky to get everything working in Myria3D. It's best to use Windows Subsystem for Linux (WSL2) to get the most out of this library if you want to work on Windows. While setting up WSL and installing Myria3D is not that difficult, if you want to utilize GPU, it becomes much more challenging. This guide tries to address the necessary steps that needs to be taken to get a properly working environment with GPU support. 
+For Windows users it is quite tricky to get everything working in Myria3D. Some of the dependencies do not yet support Windows or leads to various version mismatch problems during installation. It's best to use Windows Subsystem for Linux (WSL2) to get the most out of this library if you want to work on Windows. While setting up WSL and installing Myria3D is not that difficult, if you want to utilize GPU, it becomes much more challenging. This guide tries to address the necessary steps that needs to be taken to get a properly working environment with GPU support. 
 
 ## [Setting up WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)
 
