@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 3.2.0 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 3.2.5 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -165,26 +165,22 @@
 <h2>Run inference from installed package<a class="headerlink" href="#run-inference-from-installed-package" title="Permalink to this headline"></a></h2>
 <p>From the package root, run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> to install the package locally and freeze its current version.</p>
 <p>Then, fill out the {missing parameters} below and run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m myria3d.predict <span class="se">\</span>
---config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> <span class="se">\</span>
---config-name <span class="o">{</span>config.yaml<span class="o">}</span> <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
+task.task_name<span class="o">=</span>predict <span class="se">\</span>
 predict.src_las<span class="o">={</span>/path/to/cloud.las<span class="o">}</span> <span class="se">\</span>
 predict.output_dir<span class="o">={</span>/path/to/out/dir/<span class="o">}</span> <span class="se">\</span>
-predict.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">}</span> <span class="se">\</span>
 predict.gpus<span class="o">={</span><span class="m">0</span> <span class="k">for</span> none, <span class="o">[</span>i<span class="o">]</span> to use GPU number i<span class="o">}</span> <span class="se">\</span>
-datamodule.batch_size<span class="o">={</span>N<span class="o">}</span> <span class="se">\</span>
-hydra.run.dir<span class="o">={</span>path/for/hydra/logs<span class="o">}</span>
+datamodule.batch_size<span class="o">={</span>N<span class="o">}</span>
 </pre></div>
 </div>
 <p>To show you current inference config, simply add a <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m myria3d.predict --config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> --config-name <span class="o">{</span>config.yaml<span class="o">}</span> --help
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py task.task_name<span class="o">=</span>predict --help
 </pre></div>
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">predict.src_las</span></code> may be any valid glob pattern (e.g. <code class="docutils literal notranslate"><span class="pre">/path/to/multiple_files/*.las</span></code>), in order to <strong>predict on multiple files successively</strong>.</p>
 </section>
 <section id="run-inference-from-sources">
 <h2>Run inference from sources<a class="headerlink" href="#run-inference-from-sources" title="Permalink to this headline"></a></h2>
-<p>From the line for package-based inference above, simply change <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">myria3d.predict</span></code> to <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">run.py</span></code> to run directly from sources.</p>
 <p>In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of your configuration file and commenting out the lines containing <code class="docutils literal notranslate"><span class="pre">oc.env</span></code> logic.</p>
 </section>
 <section id="run-inference-from-within-a-docker-image">

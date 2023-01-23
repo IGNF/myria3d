@@ -14,28 +14,23 @@ From the package root, run `pip install -e .` to install the package locally and
 Then, fill out the {missing parameters} below and run: 
 
 ```bash
-python -m myria3d.predict \
---config-path {/path/to/.hydra} \
---config-name {config.yaml} \
+python run.py \
+task.task_name=predict \
 predict.src_las={/path/to/cloud.las} \
 predict.output_dir={/path/to/out/dir/} \
-predict.ckpt_path={/path/to/checkpoint.ckpt} \
 predict.gpus={0 for none, [i] to use GPU number i} \
-datamodule.batch_size={N} \
-hydra.run.dir={path/for/hydra/logs}
+datamodule.batch_size={N}
 ```
 
 To show you current inference config, simply add a `--help` flag:
 
 ```bash
-python -m myria3d.predict --config-path {/path/to/.hydra} --config-name {config.yaml} --help
+python run.py task.task_name=predict --help
 ```
 
 Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multiple_files/*.las`), in order to **predict on multiple files successively**.
 
 ## Run inference from sources
-
-From the line for package-based inference above, simply change `python -m myria3d.predict` to `python run.py` to run directly from sources.
 
 In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of your configuration file and commenting out the lines containing `oc.env` logic.
 
