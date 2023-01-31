@@ -5,13 +5,8 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # 160: antenna -> lasting_above
 # 161: wind_turbines -> lasting_above
 # 162: pylon -> lasting_above
-
-# Noise points have class 65 - this will be the defaut for inference in production.
-# Dropped points will be ignored in the inference process but still included in the final output cloud.
-classes_to_drop: [65]
-# Reduced classification dict:
-# classification_preprocessing_dict: {3: 5, 4: 5, 64:1, 65:1, 160: 64, 161: 64, 162: 64}
-# Complete classification dict since some trash classes are leftover.
+# 65: noise --> -1 (to ignore them in inference process, but tey will still be included in the final output cloud).
+# Some trash classes were left in this dataset We do not drop them (i.e. map them to -1) to avoid unintended conflict in production.
 classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1, 7: 1, 46: 1, 47: 1, 48: 1, 49: 1, 50: 1, 51: 1, 52: 1, 53: 1, 54: 1, 55: 1, 56: 1, 57: 1, 58: 1, 64: 1, 66: 1, 67: 1, 77: 1, 155: 1, 204: 1}
 
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).

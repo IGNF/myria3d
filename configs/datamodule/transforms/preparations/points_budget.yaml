@@ -10,7 +10,6 @@ train:
 
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
-    classes_to_drop: ${dataset_description.classes_to_drop}
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -38,15 +37,14 @@ eval:
       - ${dataset_description.classification_preprocessing_dict}
       - ${dataset_description.classification_dict}
 
-  CopyFullPreparedTargets:
-    _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
-
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
-    classes_to_drop: ${dataset_description.classes_to_drop}
 
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  CopyFullPreparedTargets:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -63,7 +61,6 @@ eval:
     _args_:
       - 40000
 
-  # For interpolation
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos
 
@@ -72,12 +69,11 @@ eval:
   
 predict:
 
-  CopyFullPos:
-    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
-
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
-    classes_to_drop: ${dataset_description.classes_to_drop}
+
+  CopyFullPos:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling

@@ -79,6 +79,6 @@ This, however, comes with a large computation price. For instance, `predict.subt
 
 ### Ignoring artefacts points during inference
 
-Lidar acquisition may have produced artefacts points. If these points were identified with one (or several) classification code(s), they can be ignored during inference. These points will still be present in the output cloud, but will not negatively disturb model inference. Note that they will still have class probabilities, obtained from their non-artefacts closest neighboors.
+Lidar acquisition may have produced artefacts points. If these points were identified with one (or several) classification code(s), they can be ignored during inference. These points will still be present in the output cloud, but will not negatively disturb model inference. They will keep their original class in the predicted classification dim. They will have null probas and entropy.
 
-In the configuration, data transforms are used to drop these points according to the `dataset_description.classes_to_drop` parameter. By default, `dataset_description.classes_to_drop=[65]` where 65 is the defaut code used to flag artefact. Note: you may need to use quotes when overriding this parameter via CLI.
+In the configuration, data transforms are used to drop points with a class 65. By convention, 65 will flag Lidar artefacts points. Additional classes may be mapped to 65 to be ignored during inference as well, via the `dataset_description.classification_preprocessing_dict` parameter. Note: you may need to use quotes when overriding this parameter via CLI.

@@ -59,21 +59,23 @@ class Interpolator:
         Args:
             filepath (str): Path to LAS for which predictions are made.
         """
-        # self.current_f = filepath
+        # We do not reset the dims we create channel.
+        # Slight risk of interaction with previous values, but it is expected that all non-artefacts values are updated.
+
         pipeline = get_pdal_reader(src_las)
         for proba_channel_to_create in self.probas_to_save:
             pipeline |= pdal.Filter.ferry(dimensions=f"=>{proba_channel_to_create}")
             pipeline |= pdal.Filter.assign(value=f"{proba_channel_to_create}=0")
 
         if self.predicted_classification_channel:
-            # Copy from Classification to preserve data type.
+            # Copy from Classification to preserve data type
+            # Also preserves values of artefacts.
             if self.predicted_classification_channel != "Classification":
                 pipeline |= pdal.Filter.ferry(dimensions=f"Classification=>{self.predicted_classification_channel}")
-            # Reset channel.
-            pipeline |= pdal.Filter.assign(value=f"{self.predicted_classification_channel}=0")
 
         if self.entropy_channel:
-            pipeline |= pdal.Filter.ferry(dimensions=f"=>{self.entropy_channel}") | pdal.Filter.assign(value=f"{self.entropy_channel}=0")
+            pipeline |= pdal.Filter.ferry(dimensions=f"=>{self.entropy_channel}")
+            pipeline |= pdal.Filter.assign(value=f"{self.entropy_channel}=0")
 
         pipeline.execute()
         return pipeline.arrays[0]
@@ -99,12 +101,14 @@ class Interpolator:
         del self.idx_in_full_cloud_list
 
         # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
-        # scatter_sum reorders logitsbased on index,they therefore match las order.
+        # scatter_sum reorders logits based on index,they therefore match las order.
         reduced_logits = torch.zeros((nb_points, logits.size(1)))
         scatter_sum(logits, torch.from_numpy(idx_in_full_cloud), out=reduced_logits, dim=0)
         # reduced_logits contains logits ordered by their idx in original cloud !
-        # Warning : some points may not contain any predictions if they were in small areas.
-        return reduced_logits
+        # We need to select the points for which we have a prediction via idx_in_full_cloud.
+        # NB1 : some points may not contain any predictions if they were in small areas.
+
+        return reduced_logits[idx_in_full_cloud], idx_in_full_cloud
 
     @torch.no_grad()
     def reduce_predictions_and_save(self, raw_path: str, output_dir: str) -> str:
@@ -122,7 +126,7 @@ class Interpolator:
         basename = os.path.basename(raw_path)
         # Read number of points only from las metadata in order to minimize memory usage
         nb_points = get_pdal_info_metadata(raw_path)["count"]
-        logits = self.reduce_predicted_logits(nb_points)
+        logits, idx_in_full_cloud = self.reduce_predicted_logits(nb_points)
 
         probas = torch.nn.Softmax(dim=1)(logits)
 
@@ -137,10 +141,12 @@ class Interpolator:
 
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
-                las[class_name] = probas[:, idx]
+                # NB: Values for which we do not have a prediction (i.e. artefacts) get null probabilities.
+                las[class_name][idx_in_full_cloud] = probas[:, idx]
 
         if self.predicted_classification_channel:
-            las[self.predicted_classification_channel] = preds
+            # NB: Values for which we do not have a prediction (i.e. artefacts) keep their original class.
+            las[self.predicted_classification_channel][idx_in_full_cloud] = preds
             log.info(
                 f"Saving predicted classes to channel {self.predicted_classification_channel}."
                 "Channel name can be changed by setting `predict.interpolator.predicted_classification_channel`."
@@ -148,11 +154,14 @@ class Interpolator:
             del preds
 
         if self.entropy_channel:
-            las[self.entropy_channel] = Categorical(probs=probas).entropy()
+            # NB: Values for which we do not have a prediction (i.e. artefacts) get null entropy.
+            las[self.entropy_channel][idx_in_full_cloud] = Categorical(probs=probas).entropy()
             log.info(
                 f"Saving Shannon entropy of probabilities to channel {self.entropy_channel}."
                 "Channel name can be changed by setting `predict.interpolator.entropy_channel`"
             )
+        del idx_in_full_cloud
+
         os.makedirs(output_dir, exist_ok=True)
         out_f = os.path.join(output_dir, basename)
         out_f = os.path.abspath(out_f)

@@ -11,6 +11,8 @@ from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
+COMMON_CODE_FOR_ALL_ARTEFACTS = 65
+
 
 class ToTensor(BaseTransform):
     """Turn np.arrays specified by their keys into Tensor."""
@@ -214,24 +216,18 @@ class TargetTransform(BaseTransform):
     def _set_mapper(self, classification_dict):
         """Set mapper from source classification code to consecutive integers."""
         d = {class_code: class_index for class_index, class_code in enumerate(classification_dict.keys())}
+        d.update({65: 65})  # code -1 is for artefacts and is used in DropPointsByClass.
         self.mapper = np.vectorize(lambda class_code: d.get(class_code))
 
 
 class DropPointsByClass(BaseTransform):
-    """Drop points"""
-
-    def __init__(self, classes_to_drop=None):
-        self.classes_to_drop = classes_to_drop
-        if np.isscalar(self.classes_to_drop):
-            self.classes_to_drop = [self.classes_to_drop]
-        if self.classes_to_drop:
-            self.classes_to_drop = torch.Tensor(self.classes_to_drop)
+    """Drop points with class -1 (i.e. artefacts that would have been mapped to code -1)"""
 
     def __call__(self, data):
-        if self.classes_to_drop:
-            choice = torch.logical_not(torch.isin(data.y, self.classes_to_drop))
-            data = subsample_data(data, num_nodes=data.num_nodes, choice=choice)
+        points_to_drop = torch.isin(data.y, COMMON_CODE_FOR_ALL_ARTEFACTS)
+        if points_to_drop.sum() > 0:
+            points_to_keep = torch.logical_not(points_to_drop)
+            data = subsample_data(data, num_nodes=data.num_nodes, choice=points_to_keep)
+            # Here we also subsample these idx since we do not need to interpolate these points back
+            data.idx_in_original_cloud = data.idx_in_original_cloud[points_to_keep]
         return data
-
-    def __repr__(self):
-        return "{}()".format(self.__class__.__name__)

@@ -10,7 +10,6 @@ train:
 
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
-    classes_to_drop: ${dataset_description.classes_to_drop}
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -29,21 +28,20 @@ train:
 
 eval:
 
+  CopyFullPos:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
       - ${dataset_description.classification_preprocessing_dict}
       - ${dataset_description.classification_dict}
 
-  DropPointsByClass:
-    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
-    classes_to_drop: ${dataset_description.classes_to_drop}
-
   CopyFullPreparedTargets:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
 
-  CopyFullPos:
-    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
@@ -71,7 +69,6 @@ predict:
 
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
-    classes_to_drop: ${dataset_description.classes_to_drop}
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
