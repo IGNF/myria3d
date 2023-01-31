@@ -35,7 +35,7 @@ def test_DropPointsByClass():
     y = torch.Tensor([1, 65, 65, 2, 65])
     x = torch.rand((5, 3))
     data = torch_geometric.data.Data(x=x, y=y)
-    drop_transforms = DropPointsByClass([65])
+    drop_transforms = DropPointsByClass()
     transformed_data = drop_transforms(data)
     assert torch.equal(transformed_data.y, torch.Tensor([1, 2]))
     assert transformed_data.x.size(0) == 2
@@ -47,13 +47,3 @@ def test_DropPointsByClass():
     transformed_data = drop_transforms(data)
     assert torch.equal(data.x, transformed_data.x)
     assert torch.equal(data.y, transformed_data.y)
-
-
-def test_DropPointsByClass_creation():
-    scalar = 42
-    a = DropPointsByClass(scalar)
-    b = DropPointsByClass([scalar])
-    assert torch.equal(a.classes_to_drop, b.classes_to_drop)
-
-    c = DropPointsByClass(None)
-    assert c.classes_to_drop is None

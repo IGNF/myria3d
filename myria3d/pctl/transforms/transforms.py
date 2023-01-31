@@ -229,5 +229,6 @@ class DropPointsByClass(BaseTransform):
             points_to_keep = torch.logical_not(points_to_drop)
             data = subsample_data(data, num_nodes=data.num_nodes, choice=points_to_keep)
             # Here we also subsample these idx since we do not need to interpolate these points back
-            data.idx_in_original_cloud = data.idx_in_original_cloud[points_to_keep]
+            if "idx_in_original_cloud" in data:
+                data.idx_in_original_cloud = data.idx_in_original_cloud[points_to_keep]
         return data
