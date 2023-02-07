@@ -1,15 +1,15 @@
 # Performing inference on new data
 
-Refer to [this tutorial](./install_on_linux.md) for how to setup a virtual environment and install the library.
+Refer to the tutorials ([Linux](./install_on_linux.md), [Windows](./install_on_wsl2.md)) for installation instructions.
 
 To run inference, you will need:
 - A source cloud point in LAS format on which to infer classes and probabilites. Sample data from the French "Lidar HD" project can be downloaded at [this address](https://geoservices.ign.fr/lidarhd).
 - A checkpoint of a trained lightning module implementing model logic (class `myria3d.models.model.Model`)
 - A minimal yaml configuration specifying parameters. We use [hydra](https://hydra.cc/) to manage configurations, and this yaml results from the model training. The `datamodule` and `model` parameters groups must match dataset characteristics and model training settings.  The `predict` parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal). For hints on what to modify, see the `experiment/predict.yaml` file.
 
-## Run inference from installed package
+> **A default model and its configuration are embedded directly in code under folder `trained_model_assets`.** They are expected to always be compatible with the code base, and updated as needed in case of e.g. change of configuration format or model implementation.
 
-From the package root, run `pip install -e .` to install the package locally and freeze its current version.
+## Run inference from source
 
 Then, fill out the {missing parameters} below and run: 
 
@@ -56,7 +56,7 @@ docker run \
 --ipc=host \
 --gpus=all \
 --shm-size=2gb \
-myria3d.predict {...config paths & options...}
+python run.py {...config paths & options...}
 ```
 
 ## Additional options for prediction
