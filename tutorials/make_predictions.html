@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 3.2.5 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 3.3.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,12 +55,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-inference-from-source">Run inference from source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#additional-options-for-prediction">Additional options for prediction</a></li>
@@ -162,16 +162,18 @@
              
   <section id="performing-inference-on-new-data">
 <h1>Performing inference on new data<a class="headerlink" href="#performing-inference-on-new-data" title="Permalink to this headline"></a></h1>
-<p>Refer to <a class="reference internal" href="install_on_linux.html"><span class="doc std std-doc">this tutorial</span></a> for how to setup a virtual environment and install the library.</p>
+<p>Refer to the tutorials (<a class="reference internal" href="install_on_linux.html"><span class="doc std std-doc">Linux</span></a>, <a class="reference internal" href="install_on_wsl2.html"><span class="doc std std-doc">Windows</span></a>) for installation instructions.</p>
 <p>To run inference, you will need:</p>
 <ul class="simple">
 <li><p>A source cloud point in LAS format on which to infer classes and probabilites. Sample data from the French “Lidar HD” project can be downloaded at <a class="reference external" href="https://geoservices.ign.fr/lidarhd">this address</a>.</p></li>
 <li><p>A checkpoint of a trained lightning module implementing model logic (class <code class="docutils literal notranslate"><span class="pre">myria3d.models.model.Model</span></code>)</p></li>
 <li><p>A minimal yaml configuration specifying parameters. We use <a class="reference external" href="https://hydra.cc/">hydra</a> to manage configurations, and this yaml results from the model training. The <code class="docutils literal notranslate"><span class="pre">datamodule</span></code> and <code class="docutils literal notranslate"><span class="pre">model</span></code> parameters groups must match dataset characteristics and model training settings.  The <code class="docutils literal notranslate"><span class="pre">predict</span></code> parameters group specifies path to models and data as well as batch size (N=50 works well, the larger the faster) and use of gpu (optionnal). For hints on what to modify, see the <code class="docutils literal notranslate"><span class="pre">experiment/predict.yaml</span></code> file.</p></li>
 </ul>
-<section id="run-inference-from-installed-package">
-<h2>Run inference from installed package<a class="headerlink" href="#run-inference-from-installed-package" title="Permalink to this headline"></a></h2>
-<p>From the package root, run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> to install the package locally and freeze its current version.</p>
+<blockquote>
+<div><p><strong>A default model and its configuration are embedded directly in code under folder <code class="docutils literal notranslate"><span class="pre">trained_model_assets</span></code>.</strong> They are expected to always be compatible with the code base, and updated as needed in case of e.g. change of configuration format or model implementation.</p>
+</div></blockquote>
+<section id="run-inference-from-source">
+<h2>Run inference from source<a class="headerlink" href="#run-inference-from-source" title="Permalink to this headline"></a></h2>
 <p>Then, fill out the {missing parameters} below and run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
 task.task_name<span class="o">=</span>predict <span class="se">\</span>
@@ -210,7 +212,7 @@ docker run <span class="se">\</span>
 --ipc<span class="o">=</span>host <span class="se">\</span>
 --gpus<span class="o">=</span>all <span class="se">\</span>
 --shm-size<span class="o">=</span>2gb <span class="se">\</span>
-myria3d.predict <span class="o">{</span>...config paths <span class="p">&amp;</span> options...<span class="o">}</span>
+python run.py <span class="o">{</span>...config paths <span class="p">&amp;</span> options...<span class="o">}</span>
 </pre></div>
 </div>
 </section>
@@ -227,6 +229,11 @@ myria3d.predict <span class="o">{</span>...config paths <span class="p">&amp;</s
 <p>To improve spatial regularity of the predicted probabilities, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level.</p>
 <p>To define an overlap between successive 50m*50m receptive fields, set <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap={value}</span></code>.
 This, however, comes with a large computation price. For instance, <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap=25</span></code> means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.</p>
+</section>
+<section id="ignoring-artefacts-points-during-inference">
+<h3>Ignoring artefacts points during inference<a class="headerlink" href="#ignoring-artefacts-points-during-inference" title="Permalink to this headline"></a></h3>
+<p>Lidar acquisition may have produced artefacts points. If these points were identified with one (or several) classification code(s), they can be ignored during inference. These points will still be present in the output cloud, but will not negatively disturb model inference. They will keep their original class in the predicted classification dim. They will have null probas and entropy.</p>
+<p>In the configuration, data transforms are used to drop points with a class 65. By convention, 65 will flag Lidar artefacts points. Additional classes may be mapped to 65 to be ignored during inference as well, via the <code class="docutils literal notranslate"><span class="pre">dataset_description.classification_preprocessing_dict</span></code> parameter. Note: you may need to use quotes when overriding this parameter via CLI.</p>
 </section>
 </section>
 </section>

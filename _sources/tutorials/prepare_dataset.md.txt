@@ -6,10 +6,16 @@ The loading function is dataset dependant, and is `lidar_hd_pre_transform` by de
 
 It is adapted to the French Lidar HD data provided by IGN (see [the official page](https://geoservices.ign.fr/lidarhd) - link in French). Return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.
 
-You may want to implement your own logic (e.g. with custom, additional features) in directory `points_pre_transform`. It then needs to be referenced similarly to `lidar_hd_pre_transform`.
+You may want to implement your own logic (e.g. with custom, additional features) in directory `points_pre_transform`. It then needs to be referenced similarly to `lidar_hd_pre_transform`. 
+
+If you use your own classification convention , you will need to create a `dataset_description` configuration (for an example see `configs/dataset_description/20220607_151_dalles_proto.yaml`).
+
+Additionnaly, you can control cloud sampling parameters via two configurations:
+- `configs/datamodule/transforms/preparations/points_budget.yaml`: (defaut) allows variable cloud size within lower and higher boundaries. 
+- `configs/datamodule/transforms/preparations/fixed_num_points.yaml`: (alternative) samples all clouds to a fixed size, allowing for duplicated points.
 
 
-## Using your own data
+## Preparing the dataset
 
 Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m*50m was a good balance between context and memory intensity. For faster training, this split can be done once, to avoid loading large file in memory multiple times.
 
@@ -21,8 +27,7 @@ These will be composed into a single file dataset for which you can specify a pa
 
 Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.
 
-
-It's also possible to create the hdf5 file without a whole training, just fill the `datamodule.hdf5_file_path` parameter as before to specify the file path, but use `task=create_hdf5` instead of `task=fit`.
+It's also possible to create the hdf5 file without training any model: just fill the `datamodule.hdf5_file_path` parameter as before to specify the file path, but use `task=create_hdf5` instead of `task=fit`.
 
 
 ## Getting started quickly with a toy dataset

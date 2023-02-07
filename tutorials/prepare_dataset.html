@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training &mdash; myria3d 3.2.5 documentation</title>
+  <title>Preparing data for training &mdash; myria3d 3.3.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,12 +55,12 @@
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Preparing data for training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preparing-the-dataset">Preparing the dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-source">Run inference from source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 <li class="toctree-l2"><a class="reference internal" href="make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
@@ -167,9 +167,15 @@
 <p>The loading function is dataset dependant, and is <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code> by default. The function takes points loaded from a LAS file via pdal as input, and returns a <code class="docutils literal notranslate"><span class="pre">pytorch_geometric.Data</span></code> object following the standard naming convention of <code class="docutils literal notranslate"><span class="pre">pytorch_geometric</span></code>, plus a list of features names for later use in transforms.</p>
 <p>It is adapted to the French Lidar HD data provided by IGN (see <a class="reference external" href="https://geoservices.ign.fr/lidarhd">the official page</a> - link in French). Return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.</p>
 <p>You may want to implement your own logic (e.g. with custom, additional features) in directory <code class="docutils literal notranslate"><span class="pre">points_pre_transform</span></code>. It then needs to be referenced similarly to <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code>.</p>
+<p>If you use your own classification convention , you will need to create a <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> configuration (for an example see <code class="docutils literal notranslate"><span class="pre">configs/dataset_description/20220607_151_dalles_proto.yaml</span></code>).</p>
+<p>Additionnaly, you can control cloud sampling parameters via two configurations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/datamodule/transforms/preparations/points_budget.yaml</span></code>: (defaut) allows variable cloud size within lower and higher boundaries.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs/datamodule/transforms/preparations/fixed_num_points.yaml</span></code>: (alternative) samples all clouds to a fixed size, allowing for duplicated points.</p></li>
+</ul>
 </section>
-<section id="using-your-own-data">
-<h2>Using your own data<a class="headerlink" href="#using-your-own-data" title="Permalink to this headline"></a></h2>
+<section id="preparing-the-dataset">
+<h2>Preparing the dataset<a class="headerlink" href="#preparing-the-dataset" title="Permalink to this headline"></a></h2>
 <p>Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m*50m was a good balance between context and memory intensity. For faster training, this split can be done once, to avoid loading large file in memory multiple times.</p>
 <p>To perform a training, you will need to specify these parameters of the datamodule config group:</p>
 <ul class="simple">
@@ -178,7 +184,7 @@
 </ul>
 <p>These will be composed into a single file dataset for which you can specify a path via the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter. This happens on the fly, therefore a first training might take some time, but this should only happens once.</p>
 <p>Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.</p>
-<p>It’s also possible to create the hdf5 file without a whole training, just fill the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter as before to specify the file path, but use <code class="docutils literal notranslate"><span class="pre">task=create_hdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">task=fit</span></code>.</p>
+<p>It’s also possible to create the hdf5 file without training any model: just fill the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter as before to specify the file path, but use <code class="docutils literal notranslate"><span class="pre">task=create_hdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">task=fit</span></code>.</p>
 </section>
 <section id="getting-started-quickly-with-a-toy-dataset">
 <h2>Getting started quickly with a toy dataset<a class="headerlink" href="#getting-started-quickly-with-a-toy-dataset" title="Permalink to this headline"></a></h2>

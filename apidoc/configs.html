@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Default configuration &mdash; myria3d 3.2.5 documentation</title>
+  <title>Default configuration &mdash; myria3d 3.3.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -55,12 +55,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#using-your-own-data">Using your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-installed-package">Run inference from installed package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
@@ -191,16 +191,20 @@
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_preprocessing_dict}</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
+<span class="w">        </span><span class="nt">DropPointsByClass</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.DropPointsByClass</span><span class="w"></span>
 <span class="w">        </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
-<span class="w">        </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MinimumNumNodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.MinimumNumNodes</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
-<span class="w">          </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">          </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MaximumNumNodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.MaximumNumNodes</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40000</span><span class="w"></span>
 <span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
 <span class="w">      </span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
@@ -209,37 +213,45 @@
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_preprocessing_dict}</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.classification_dict}</span><span class="w"></span>
-<span class="w">        </span><span class="nt">CopyFullPreparedTargets</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPreparedTargets</span><span class="w"></span>
+<span class="w">        </span><span class="nt">DropPointsByClass</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.DropPointsByClass</span><span class="w"></span>
 <span class="w">        </span><span class="nt">CopyFullPos</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPos</span><span class="w"></span>
+<span class="w">        </span><span class="nt">CopyFullPreparedTargets</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPreparedTargets</span><span class="w"></span>
 <span class="w">        </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
-<span class="w">        </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MinimumNumNodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.MinimumNumNodes</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
-<span class="w">          </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">          </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MaximumNumNodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.MaximumNumNodes</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40000</span><span class="w"></span>
 <span class="w">        </span><span class="nt">CopySampledPos</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopySampledPos</span><span class="w"></span>
 <span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.Center</span><span class="w"></span>
 <span class="w">      </span><span class="nt">predict</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">DropPointsByClass</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.DropPointsByClass</span><span class="w"></span>
 <span class="w">        </span><span class="nt">CopyFullPos</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopyFullPos</span><span class="w"></span>
 <span class="w">        </span><span class="nt">GridSampling</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.GridSampling</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.25</span><span class="w"></span>
-<span class="w">        </span><span class="nt">FixedPoints</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch_geometric.transforms.FixedPoints</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MinimumNumNodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.MinimumNumNodes</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12500</span><span class="w"></span>
-<span class="w">          </span><span class="nt">replace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">          </span><span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MaximumNumNodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.MaximumNumNodes</span><span class="w"></span>
+<span class="w">          </span><span class="nt">_args_</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40000</span><span class="w"></span>
 <span class="w">        </span><span class="nt">CopySampledPos</span><span class="p">:</span><span class="w"></span>
 <span class="w">          </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.pctl.transforms.transforms.CopySampledPos</span><span class="w"></span>
 <span class="w">        </span><span class="nt">Center</span><span class="p">:</span><span class="w"></span>
@@ -303,7 +315,6 @@
 <span class="w">    </span><span class="nt">57</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">    </span><span class="nt">58</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">    </span><span class="nt">64</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">    </span><span class="nt">65</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">    </span><span class="nt">66</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">    </span><span class="nt">67</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 <span class="w">    </span><span class="nt">77</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
@@ -374,6 +385,7 @@
 <span class="w">  </span><span class="nt">criterion</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">torch.nn.CrossEntropyLoss</span><span class="w"></span>
 <span class="w">    </span><span class="nt">label_smoothing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ignore_index</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">65</span><span class="w"></span>
 <span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myria3d.models.model.Model</span><span class="w"></span>
 <span class="w">  </span><span class="nt">d_in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.d_in}</span><span class="w"></span>
 <span class="w">  </span><span class="nt">num_classes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${dataset_description.num_classes}</span><span class="w"></span>
