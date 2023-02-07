@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
 import numpy as np
 import pdal
@@ -86,7 +86,7 @@ class Interpolator:
         self.idx_in_full_cloud_list += idx_in_original_cloud
 
     @torch.no_grad()
-    def reduce_predicted_logits(self, nb_points) -> torch.Tensor:
+    def reduce_predicted_logits(self, nb_points) -> Tuple[torch.Tensor, np.ndarray]:
         """Interpolate logits to points without predictions using an inverse-distance weightning scheme.
 
         Returns:
