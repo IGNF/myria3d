@@ -1,5 +1,6 @@
 _target_: torch.nn.CrossEntropyLoss
 label_smoothing: 0.0
+ignore_index: 65  # artefacts are mapped to 65 by convention
 weight:
   _target_: torch.FloatTensor
   _args_: 

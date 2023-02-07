@@ -3,12 +3,12 @@
 # Nota : call "python myria3d/pctl/dataset/toy_dataset.py" to create a toy dataset before running this.
 defaults:
   - override /model: pyg_randla_net_model.yaml
-  - override /datamodule/transforms/preparations: no_random_subsampling.yaml
+  - override /datamodule/transforms/augmentations: none.yaml
 
 
 logger:
   comet:
-    experiment_name: "RandLaNetOverfit"
+    experiment_name: "RandLaNet-Overfit"
 
 trainer:
   min_epochs: 100

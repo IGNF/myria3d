@@ -1,53 +1,66 @@
 # default preparations with grid sampling and random sampling.
 
 train:
+
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
       - ${dataset_description.classification_preprocessing_dict}
       - ${dataset_description.classification_dict}
 
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
+
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
     _args_:
       - 0.25
-
-  FixedPoints:
-    _target_: torch_geometric.transforms.FixedPoints
+  
+  MinimumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
     _args_:
-      - 12500
-    replace: False
-    allow_duplicates: True
+      - 300
+
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
 
   Center:
     _target_: torch_geometric.transforms.Center
 
 eval:
+
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
       - ${dataset_description.classification_preprocessing_dict}
       - ${dataset_description.classification_dict}
 
-  CopyFullPreparedTargets:
-    _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
 
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  CopyFullPreparedTargets:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
     _args_:
       - 0.25
 
-  FixedPoints:
-    _target_: torch_geometric.transforms.FixedPoints
+  MinimumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
     _args_:
-      - 12500
-    replace: False
-    allow_duplicates: True
+      - 300
 
-  # For interpolation
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
+
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos
 
@@ -55,6 +68,10 @@ eval:
     _target_: torch_geometric.transforms.Center
   
 predict:
+
+  DropPointsByClass:
+    _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
+
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 
@@ -63,12 +80,15 @@ predict:
     _args_:
       - 0.25
 
-  FixedPoints:
-    _target_: torch_geometric.transforms.FixedPoints
+  MinimumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
     _args_:
-      - 12500
-    replace: False
-    allow_duplicates: True
+      - 300
+
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
 
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos

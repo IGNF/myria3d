@@ -20,12 +20,8 @@ class InferenceDataset(IterableDataset):
     def __init__(
         self,
         las_file: str,
-        points_pre_transform: Callable[
-            [ArrayLike], Data
-        ] = lidar_hd_pre_transform,
-        pre_filter: Optional[
-            Callable[[Data], bool]
-        ] = pre_filter_below_n_points,
+        points_pre_transform: Callable[[ArrayLike], Data] = lidar_hd_pre_transform,
+        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
         transform: Optional[Callable[[Data], Data]] = None,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
@@ -57,7 +53,7 @@ class InferenceDataset(IterableDataset):
         ):
             sample_data = self.points_pre_transform(sample_points)
             sample_data["x"] = torch.from_numpy(sample_data["x"])
-            # sample_data["y"] = torch.from_numpy(sample_data["y"])  # No need in inference.
+            sample_data["y"] = torch.LongTensor(sample_data["y"])  # Need input classification for DropPointsByClass
             sample_data["pos"] = torch.from_numpy(sample_data["pos"])
             # for final interpolation - should be kept as a np.ndarray to be batched as a list later.
             sample_data["idx_in_original_cloud"] = idx_in_original_cloud

@@ -11,6 +11,8 @@ from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
+COMMON_CODE_FOR_ALL_ARTEFACTS = 65
+
 
 class ToTensor(BaseTransform):
     """Turn np.arrays specified by their keys into Tensor."""
@@ -26,16 +28,13 @@ class ToTensor(BaseTransform):
 
 
 def subsample_data(data, num_nodes, choice):
+    # TODO: get num_nodes from data.num_nodes instead to simplify signature
     for key, item in data:
         if key == "num_nodes":
             data.num_nodes = choice.size(0)
         elif bool(re.search("edge", key)):
             continue
-        elif (
-            torch.is_tensor(item)
-            and item.size(0) == num_nodes
-            and item.size(0) != 1
-        ):
+        elif torch.is_tensor(item) and item.size(0) == num_nodes and item.size(0) != 1:
             data[key] = item[choice]
     return data
 
@@ -67,10 +66,7 @@ class MinimumNumNodes(BaseTransform):
             return data
 
         choice = torch.cat(
-            [
-                torch.randperm(num_nodes)
-                for _ in range(math.ceil(self.num / num_nodes))
-            ],
+            [torch.randperm(num_nodes) for _ in range(math.ceil(self.num / num_nodes))],
             dim=0,
         )[: self.num]
 
@@ -124,9 +120,7 @@ class StandardizeRGBAndIntensity(BaseTransform):
         data.x[:, idx] = self.standardize_channel(data.x[:, idx])
         return data
 
-    def standardize_channel(
-        self, channel_data: torch.Tensor, clamp_sigma: int = 3
-    ):
+    def standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):
         """Sample-wise standardization y* = (y-y_mean)/y_std. clamping to ignore large values."""
         mean = channel_data.mean()
         std = channel_data.std() + 10**-6
@@ -189,9 +183,7 @@ class TargetTransform(BaseTransform):
 
         # Set to attribute to log potential type errors
         self.classification_dict = classification_dict
-        self.classification_preprocessing_dict = (
-            classification_preprocessing_dict
-        )
+        self.classification_preprocessing_dict = classification_preprocessing_dict
 
     def __call__(self, data: Data):
         data.y = self.transform(data.y)
@@ -218,20 +210,25 @@ class TargetTransform(BaseTransform):
 
     def _set_preprocessing_mapper(self, classification_preprocessing_dict):
         """Set mapper from source classification code to another code."""
-        d = {
-            key: value
-            for key, value in classification_preprocessing_dict.items()
-        }
-        self.preprocessing_mapper = np.vectorize(
-            lambda class_code: d.get(class_code, class_code)
-        )
+        d = {key: value for key, value in classification_preprocessing_dict.items()}
+        self.preprocessing_mapper = np.vectorize(lambda class_code: d.get(class_code, class_code))
 
     def _set_mapper(self, classification_dict):
         """Set mapper from source classification code to consecutive integers."""
-        d = {
-            class_code: class_index
-            for class_index, class_code in enumerate(
-                classification_dict.keys()
-            )
-        }
+        d = {class_code: class_index for class_index, class_code in enumerate(classification_dict.keys())}
+        d.update({65: 65})  # code -1 is for artefacts and is used in DropPointsByClass.
         self.mapper = np.vectorize(lambda class_code: d.get(class_code))
+
+
+class DropPointsByClass(BaseTransform):
+    """Drop points with class -1 (i.e. artefacts that would have been mapped to code -1)"""
+
+    def __call__(self, data):
+        points_to_drop = torch.isin(data.y, COMMON_CODE_FOR_ALL_ARTEFACTS)
+        if points_to_drop.sum() > 0:
+            points_to_keep = torch.logical_not(points_to_drop)
+            data = subsample_data(data, num_nodes=data.num_nodes, choice=points_to_keep)
+            # Here we also subsample these idx since we do not need to interpolate these points back
+            if "idx_in_original_cloud" in data:
+                data.idx_in_original_cloud = data.idx_in_original_cloud[points_to_keep]
+        return data

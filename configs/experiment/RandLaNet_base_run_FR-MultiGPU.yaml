@@ -1,6 +1,6 @@
 # @package _global_
 defaults:
-  - RandLaNet_base_run_FR_pyg_randla_net.yaml
+  - RandLaNet_base_run_FR.yaml
 
 logger:
   comet:

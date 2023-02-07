@@ -28,6 +28,8 @@ datamodule:
           _args_:
           - ${dataset_description.classification_preprocessing_dict}
           - ${dataset_description.classification_dict}
+        DropPointsByClass:
+          _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
         GridSampling:
           _target_: torch_geometric.transforms.GridSampling
           _args_:
@@ -48,10 +50,12 @@ datamodule:
           _args_:
           - ${dataset_description.classification_preprocessing_dict}
           - ${dataset_description.classification_dict}
-        CopyFullPreparedTargets:
-          _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
+        DropPointsByClass:
+          _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
         CopyFullPos:
           _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+        CopyFullPreparedTargets:
+          _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
         GridSampling:
           _target_: torch_geometric.transforms.GridSampling
           _args_:
@@ -69,6 +73,8 @@ datamodule:
         Center:
           _target_: torch_geometric.transforms.Center
       predict:
+        DropPointsByClass:
+          _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
         CopyFullPos:
           _target_: myria3d.pctl.transforms.transforms.CopyFullPos
         GridSampling:
@@ -156,7 +162,6 @@ dataset_description:
     57: 1
     58: 1
     64: 1
-    65: 1
     66: 1
     67: 1
     77: 1
@@ -270,6 +275,6 @@ predict:
     _target_: myria3d.models.interpolation.Interpolator
     interpolation_k: 10
     classification_dict: ${dataset_description.classification_dict}
-    probas_to_save: [building,ground,vegetation,unclassified]
+    probas_to_save: [building,ground]
     predicted_classification_channel: confidence
     entropy_channel: entropy
