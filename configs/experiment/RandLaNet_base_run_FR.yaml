@@ -1,6 +1,5 @@
 # @package _global_
 defaults:
-  - RandLaNet_base_run_FR.yaml
   - override /datamodule/transforms/augmentations: light.yaml
 
 logger:
