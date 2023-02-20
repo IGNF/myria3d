@@ -32,7 +32,7 @@ Although the library can be extended with new neural network architectures or ne
 > &rarr; A stable, production-ready version of Myria3D is tracked by a [Production Release](https://github.com/IGNF/myria3d/releases/tag/prod-release-tag). In the release's assets are a trained multiclass segmentation model as well as the necessary configuration file to perform inference on French "Lidar HD" data. Those assets are provided for convenience, and are subject to change in time to reflect latest model training.
 ___
 
-Please cite Myria3D if it helped your own research. Here is an example BibTex entry.
+Please cite Myria3D if it helped your own research. Here is an example BibTex entry:
 ```
 @misc{gaydon2022myria3d,
   title={Myria3D},
