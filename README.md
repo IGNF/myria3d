@@ -30,3 +30,15 @@ Although the library can be extended with new neural network architectures or ne
 > &rarr; For installation and usage, please refer to [**Documentation**](https://ignf.github.io/myria3d/).
 
 > &rarr; A stable, production-ready version of Myria3D is tracked by a [Production Release](https://github.com/IGNF/myria3d/releases/tag/prod-release-tag). In the release's assets are a trained multiclass segmentation model as well as the necessary configuration file to perform inference on French "Lidar HD" data. Those assets are provided for convenience, and are subject to change in time to reflect latest model training.
+___
+
+Please cite Myria3D if it helped your own research. Here is an example BibTex entry:
+```
+@misc{gaydon2022myria3d,
+  title={Myria3D: Deep Learning for the Semantic Segmentation of Aerial Lidar Point Clouds},
+  url={https://github.com/IGNF/myria3d},
+  author={Charles Gaydon},
+  year={2022},
+  note={IGN (French Mapping Agency)},
+}
+```
