@@ -40,6 +40,5 @@ Please cite Myria3D if it helped your own research. Here is an example BibTex en
   author={Charles Gaydon},
   year={2022},
   note={IGN (French Mapping Agency)},
-  annote={Deep Learning for the Semantic Segmentation of Aerial, High Density Lidar Point Clouds, in the context of a Nationwide Acquisition Program.}
 }
 ```
