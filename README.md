@@ -35,7 +35,7 @@ ___
 Please cite Myria3D if it helped your own research. Here is an example BibTex entry:
 ```
 @misc{gaydon2022myria3d,
-  title={Myria3D: Deep Learning for the Semantic Segmentation of Aerial, High Density Lidar Point Clouds.},
+  title={Myria3D: Deep Learning for the Semantic Segmentation of Aerial, High Density Lidar Point Clouds},
   url={https://github.com/IGNF/myria3d},
   author={Charles Gaydon},
   year={2022},
