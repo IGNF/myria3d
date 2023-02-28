@@ -18,11 +18,11 @@ class CustomCompose(BaseTransform):
         for transform in self.transforms:
             if isinstance(data, (list, tuple)):
                 data = [transform(d) for d in data]
-                data = [d for d in data if d is not None]
+                data = [d for d in data if d is not None and d.num_nodes != 0]
                 if len(data) == 0:
                     return None
             else:
                 data = transform(data)
-                if data is None:
+                if data is None or data.num_nodes == 0:
                     return None
         return data

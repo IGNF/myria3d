@@ -8,6 +8,7 @@ from torch_geometric.data import Data
 from torch_geometric.transforms import Compose
 
 from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
+from myria3d.pctl.transforms.compose import CustomCompose
 from myria3d.pctl.dataset.hdf5 import HDF5Dataset
 from myria3d.pctl.dataset.iterable import InferenceDataset
 from myria3d.pctl.dataset.utils import (
@@ -96,7 +97,7 @@ class HDF5LidarDataModule(LightningDataModule):
 
     @property
     def predict_transform(self) -> Compose:
-        return Compose(
+        return CustomCompose(
             self.preparation_predict_transform + self.normalization_transform
         )
 
