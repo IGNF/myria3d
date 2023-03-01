@@ -65,6 +65,9 @@ class InferenceDataset(IterableDataset):
             if self.transform:
                 sample_data = self.transform(sample_data)
 
+            if sample_data is None:
+                continue
+
             if self.pre_filter and self.pre_filter(sample_data):
                 # e.g. not enough points in this receptive field.
                 continue
