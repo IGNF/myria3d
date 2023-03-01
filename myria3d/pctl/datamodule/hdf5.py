@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 from numpy.typing import ArrayLike
 from pytorch_lightning import LightningDataModule
 from torch_geometric.data import Data
-from torch_geometric.transforms import Compose
 
 from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
 from myria3d.pctl.transforms.compose import CustomCompose
