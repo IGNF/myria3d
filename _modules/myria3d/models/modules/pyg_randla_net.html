@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>myria3d.models.modules.pyg_randla_net &mdash; myria3d 3.3.2 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> myria3d
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/development.html">Developer’s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#code-versionning">Code versionning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">myria3d</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>myria3d.models.modules.pyg_randla_net</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for myria3d.models.modules.pyg_randla_net</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">torch_geometric.transforms</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">LongTensor</span><span class="p">,</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Linear</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.datasets</span> <span class="kn">import</span> <span class="n">ShapeNet</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.loader</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn</span> <span class="kn">import</span> <span class="n">MLP</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn.conv</span> <span class="kn">import</span> <span class="n">MessagePassing</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn.pool</span> <span class="kn">import</span> <span class="n">knn_graph</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn.unpool</span> <span class="kn">import</span> <span class="n">knn_interpolate</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.utils</span> <span class="kn">import</span> <span class="n">softmax</span>
+<span class="kn">from</span> <span class="nn">torch_scatter</span> <span class="kn">import</span> <span class="n">scatter</span>
+<span class="kn">from</span> <span class="nn">torchmetrics.functional</span> <span class="kn">import</span> <span class="n">jaccard_index</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+
+<div class="viewcode-block" id="PyGRandLANet"><a class="viewcode-back" href="../../../../apidoc/myria3d.models.modules.html#myria3d.models.modules.pyg_randla_net.PyGRandLANet">[docs]</a><span class="k">class</span> <span class="nc">PyGRandLANet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">decimation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">num_neighbors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="n">return_logits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">decimation</span> <span class="o">=</span> <span class="n">decimation</span>
+        <span class="c1"># An option to return logits instead of probas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_logits</span> <span class="o">=</span> <span class="n">return_logits</span>
+
+        <span class="c1"># Authors use 8, which is a bottleneck</span>
+        <span class="c1"># for the final MLP, and also when num_classes&gt;8</span>
+        <span class="c1"># or num_features&gt;8.</span>
+        <span class="n">d_bottleneck</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">num_features</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc0</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">num_features</span><span class="p">,</span> <span class="n">d_bottleneck</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block1</span> <span class="o">=</span> <span class="n">DilatedResidualBlock</span><span class="p">(</span><span class="n">num_neighbors</span><span class="p">,</span> <span class="n">d_bottleneck</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block2</span> <span class="o">=</span> <span class="n">DilatedResidualBlock</span><span class="p">(</span><span class="n">num_neighbors</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block3</span> <span class="o">=</span> <span class="n">DilatedResidualBlock</span><span class="p">(</span><span class="n">num_neighbors</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block4</span> <span class="o">=</span> <span class="n">DilatedResidualBlock</span><span class="p">(</span><span class="n">num_neighbors</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_summit</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp4</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">512</span> <span class="o">+</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp3</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">256</span> <span class="o">+</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp2</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">128</span> <span class="o">+</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp1</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">32</span> <span class="o">+</span> <span class="mi">32</span><span class="p">,</span> <span class="n">d_bottleneck</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_classif</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">d_bottleneck</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span> <span class="n">dropout</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc_classif</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PyGRandLANet.forward"><a class="viewcode-back" href="../../../../apidoc/myria3d.models.modules.html#myria3d.models.modules.pyg_randla_net.PyGRandLANet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pos</span>
+
+        <span class="n">b1_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc0</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+        <span class="n">b1_out_decimated</span><span class="p">,</span> <span class="n">ptr1</span> <span class="o">=</span> <span class="n">decimate</span><span class="p">(</span><span class="n">b1_out</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decimation</span><span class="p">)</span>
+
+        <span class="n">b2_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block2</span><span class="p">(</span><span class="o">*</span><span class="n">b1_out_decimated</span><span class="p">)</span>
+        <span class="n">b2_out_decimated</span><span class="p">,</span> <span class="n">ptr2</span> <span class="o">=</span> <span class="n">decimate</span><span class="p">(</span><span class="n">b2_out</span><span class="p">,</span> <span class="n">ptr1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decimation</span><span class="p">)</span>
+
+        <span class="n">b3_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block3</span><span class="p">(</span><span class="o">*</span><span class="n">b2_out_decimated</span><span class="p">)</span>
+        <span class="n">b3_out_decimated</span><span class="p">,</span> <span class="n">ptr3</span> <span class="o">=</span> <span class="n">decimate</span><span class="p">(</span><span class="n">b3_out</span><span class="p">,</span> <span class="n">ptr2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decimation</span><span class="p">)</span>
+
+        <span class="n">b4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block4</span><span class="p">(</span><span class="o">*</span><span class="n">b3_out_decimated</span><span class="p">)</span>
+        <span class="n">b4_out_decimated</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">decimate</span><span class="p">(</span><span class="n">b4_out</span><span class="p">,</span> <span class="n">ptr3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decimation</span><span class="p">)</span>
+
+        <span class="n">mlp_out</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mlp_summit</span><span class="p">(</span><span class="n">b4_out_decimated</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">b4_out_decimated</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">b4_out_decimated</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">fp4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp4</span><span class="p">(</span><span class="o">*</span><span class="n">mlp_out</span><span class="p">,</span> <span class="o">*</span><span class="n">b3_out_decimated</span><span class="p">)</span>
+        <span class="n">fp3_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp3</span><span class="p">(</span><span class="o">*</span><span class="n">fp4_out</span><span class="p">,</span> <span class="o">*</span><span class="n">b2_out_decimated</span><span class="p">)</span>
+        <span class="n">fp2_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp2</span><span class="p">(</span><span class="o">*</span><span class="n">fp3_out</span><span class="p">,</span> <span class="o">*</span><span class="n">b1_out_decimated</span><span class="p">)</span>
+        <span class="n">fp1_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp1</span><span class="p">(</span><span class="o">*</span><span class="n">fp2_out</span><span class="p">,</span> <span class="o">*</span><span class="n">b1_out</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_classif</span><span class="p">(</span><span class="n">fp1_out</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc_classif</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_logits</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logits</span>
+
+        <span class="n">probas</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">probas</span></div></div>
+
+
+<span class="c1"># Default activation, BatchNorm, and resulting MLP used by RandLA-Net authors</span>
+<span class="n">lrelu02_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;negative_slope&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">}</span>
+
+<span class="n">bn099_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;eps&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">SharedMLP</span><span class="p">(</span><span class="n">MLP</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;SharedMLP following RandLA-Net paper.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># BN + Act always active even at last layer.</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;plain_last&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># LeakyRelu with 0.2 slope by default.</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;act&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;act&quot;</span><span class="p">,</span> <span class="s2">&quot;LeakyReLU&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;act_kwargs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;act_kwargs&quot;</span><span class="p">,</span> <span class="n">lrelu02_kwargs</span><span class="p">)</span>
+        <span class="c1"># BatchNorm with 1 - 0.99 = 0.01 momentum</span>
+        <span class="c1"># and 1e-6 eps by defaut (tensorflow momentum != pytorch momentum)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;norm_kwargs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;norm_kwargs&quot;</span><span class="p">,</span> <span class="n">bn099_kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">LocalFeatureAggregation</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Positional encoding of points in a neighborhood.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aggr</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="n">channels</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_attention</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">channels</span><span class="p">,</span> <span class="n">channels</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_post_attention</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">channels</span><span class="p">,</span> <span class="n">channels</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>  <span class="c1"># N, d_out</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_post_attention</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>  <span class="c1"># N, d_out</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x_j</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">pos_i</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">pos_j</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Local Spatial Encoding (locSE) and attentive pooling of features.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_j (Tensor): neighboors features (K,d)</span>
+<span class="sd">            pos_i (Tensor): centroid position (repeated) (K,3)</span>
+<span class="sd">            pos_j (Tensor): neighboors positions (K,3)</span>
+<span class="sd">            index (Tensor): index of centroid positions</span>
+<span class="sd">                (e.g. [0,...,0,1,...,1,...,N,...,N])</span>
+
+<span class="sd">        returns:</span>
+<span class="sd">            (Tensor): locSE weighted by feature attention scores.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Encode local neighboorhod structural information</span>
+        <span class="n">pos_diff</span> <span class="o">=</span> <span class="n">pos_j</span> <span class="o">-</span> <span class="n">pos_i</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">pos_diff</span> <span class="o">*</span> <span class="n">pos_diff</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">relative_infos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">pos_i</span><span class="p">,</span> <span class="n">pos_j</span><span class="p">,</span> <span class="n">pos_diff</span><span class="p">,</span> <span class="n">distance</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># N * K, d</span>
+        <span class="n">local_spatial_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder</span><span class="p">(</span><span class="n">relative_infos</span><span class="p">)</span>  <span class="c1"># N * K, d</span>
+        <span class="n">local_features</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x_j</span><span class="p">,</span> <span class="n">local_spatial_encoding</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># N * K, 2d</span>
+
+        <span class="c1"># Attention will weight the different features of x</span>
+        <span class="c1"># along the neighborhood dimension.</span>
+        <span class="n">att_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_attention</span><span class="p">(</span><span class="n">local_features</span><span class="p">)</span>  <span class="c1"># N * K, d_out</span>
+        <span class="n">att_scores</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">att_features</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>  <span class="c1"># N * K, d_out</span>
+
+        <span class="k">return</span> <span class="n">att_scores</span> <span class="o">*</span> <span class="n">local_features</span>  <span class="c1"># N * K, d_out</span>
+
+
+<span class="k">class</span> <span class="nc">DilatedResidualBlock</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_neighbors</span><span class="p">,</span>
+        <span class="n">d_in</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">d_out</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_neighbors</span> <span class="o">=</span> <span class="n">num_neighbors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_in</span> <span class="o">=</span> <span class="n">d_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_out</span> <span class="o">=</span> <span class="n">d_out</span>
+
+        <span class="c1"># MLP on input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp1</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">d_in</span><span class="p">,</span> <span class="n">d_out</span> <span class="o">//</span> <span class="mi">8</span><span class="p">])</span>
+        <span class="c1"># MLP on input, and the result is summed with the output of mlp2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shortcut</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">d_in</span><span class="p">,</span> <span class="n">d_out</span><span class="p">],</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># MLP on output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp2</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">d_out</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">d_out</span><span class="p">],</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lfa1</span> <span class="o">=</span> <span class="n">LocalFeatureAggregation</span><span class="p">(</span><span class="n">d_out</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lfa2</span> <span class="o">=</span> <span class="n">LocalFeatureAggregation</span><span class="p">(</span><span class="n">d_out</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lrelu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="o">**</span><span class="n">lrelu02_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="n">edge_index</span> <span class="o">=</span> <span class="n">knn_graph</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_neighbors</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="n">batch</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">shortcut_of_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shortcut</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># N, d_out</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># N, d_out//8</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lfa1</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>  <span class="c1"># N, d_out//2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lfa2</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>  <span class="c1"># N, d_out//2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># N, d_out</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lrelu</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">shortcut_of_x</span><span class="p">)</span>  <span class="c1"># N, d_out</span>
+
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span>
+
+
+<span class="k">def</span> <span class="nf">decimation_indices</span><span class="p">(</span>
+    <span class="n">ptr</span><span class="p">:</span> <span class="n">LongTensor</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">:</span> <span class="n">Number</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">LongTensor</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get indices which downsample each point cloud by a decimation factor.</span>
+
+<span class="sd">    Decimation happens separately for each cloud to prevent emptying smaller</span>
+<span class="sd">    point clouds. Empty clouds are prevented: clouds will have a least</span>
+<span class="sd">    one node after decimation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ptr (LongTensor): indices of samples in the batch.</span>
+<span class="sd">        decimation_factor (Number): value to divide number of nodes with.</span>
+<span class="sd">            Should be higher than 1 for downsampling.</span>
+
+<span class="sd">    :rtype: (:class:`Tensor`, :class:`LongTensor`): indices for downsampling</span>
+<span class="sd">        and resulting updated ptr.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">decimation_factor</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Argument `decimation_factor` should be higher than (or equal to) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;1 for downsampling. (Current value: </span><span class="si">{</span><span class="n">decimation_factor</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">ptr</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">bincount</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">ptr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">decimated_bincount</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span>
+        <span class="n">bincount</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># Decimation should not empty clouds completely.</span>
+    <span class="n">decimated_bincount</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">decimated_bincount</span><span class="p">),</span> <span class="n">decimated_bincount</span>
+    <span class="p">)</span>
+    <span class="n">idx_decim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">ptr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">bincount</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">ptr</span><span class="o">.</span><span class="n">device</span><span class="p">)[</span>
+                    <span class="p">:</span> <span class="n">decimated_bincount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Get updated ptr (e.g. for future decimations)</span>
+    <span class="n">ptr_decim</span> <span class="o">=</span> <span class="n">ptr</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">ptr_decim</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptr_decim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">decimated_bincount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">idx_decim</span><span class="p">,</span> <span class="n">ptr_decim</span>
+
+
+<span class="k">def</span> <span class="nf">decimate</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decimate each element of the given tuple of tensors.&quot;&quot;&quot;</span>
+    <span class="n">idx_decim</span><span class="p">,</span> <span class="n">ptr_decim</span> <span class="o">=</span> <span class="n">decimation_indices</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">)</span>
+    <span class="n">tensors_decim</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tensor</span><span class="p">[</span><span class="n">idx_decim</span><span class="p">]</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tensors_decim</span><span class="p">,</span> <span class="n">ptr_decim</span>
+
+
+<span class="k">class</span> <span class="nc">FPModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Upsampling with a skip connection.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">nn</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn</span> <span class="o">=</span> <span class="n">nn</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">x_skip</span><span class="p">,</span> <span class="n">pos_skip</span><span class="p">,</span> <span class="n">batch_skip</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">knn_interpolate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pos_skip</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_skip</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">x_skip</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos_skip</span><span class="p">,</span> <span class="n">batch_skip</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="s2">&quot;Airplane&quot;</span>  <span class="c1"># Pass in `None` to train on all categories.</span>
+    <span class="n">category_num_classes</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># 4 for Airplane - see ShapeNet for details</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+        <span class="s2">&quot;..&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;..&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;..&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ShapeNet&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">T</span><span class="o">.</span><span class="n">RandomJitter</span><span class="p">(</span><span class="mf">0.01</span><span class="p">),</span>
+            <span class="n">T</span><span class="o">.</span><span class="n">RandomRotate</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">T</span><span class="o">.</span><span class="n">RandomRotate</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">T</span><span class="o">.</span><span class="n">RandomRotate</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">pre_transform</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">NormalizeScale</span><span class="p">()</span>
+    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">ShapeNet</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">,</span>
+        <span class="n">split</span><span class="o">=</span><span class="s2">&quot;trainval&quot;</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+        <span class="n">pre_transform</span><span class="o">=</span><span class="n">pre_transform</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">ShapeNet</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">pre_transform</span><span class="o">=</span><span class="n">pre_transform</span>
+    <span class="p">)</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">6</span>
+    <span class="p">)</span>
+    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">6</span>
+    <span class="p">)</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PyGRandLANet</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">category_num_classes</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">train</span><span class="p">():</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="n">correct_nodes</span> <span class="o">=</span> <span class="n">total_nodes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">batch</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">nll_loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">correct_nodes</span> <span class="o">+=</span> <span class="n">out</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">total_nodes</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span><span class="si">}</span><span class="s2">] Loss: </span><span class="si">{</span><span class="n">total_loss</span> <span class="o">/</span> <span class="mi">10</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Train Acc: </span><span class="si">{</span><span class="n">correct_nodes</span> <span class="o">/</span> <span class="n">total_nodes</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">total_loss</span> <span class="o">=</span> <span class="n">correct_nodes</span> <span class="o">=</span> <span class="n">total_nodes</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="n">ious</span><span class="p">,</span> <span class="n">categories</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">y_map</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">outs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">batch</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span>
+
+            <span class="n">sizes</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">out</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">category</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ShapeNet</span><span class="o">.</span><span class="n">seg_classes</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">category</span><span class="p">]</span>
+                <span class="n">part</span> <span class="o">=</span> <span class="n">ShapeNet</span><span class="o">.</span><span class="n">seg_classes</span><span class="p">[</span><span class="n">category</span><span class="p">]</span>
+                <span class="n">part</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="n">y_map</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="n">iou</span> <span class="o">=</span> <span class="n">jaccard_index</span><span class="p">(</span>
+                    <span class="n">out</span><span class="p">[:,</span> <span class="n">part</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">y_map</span><span class="p">[</span><span class="n">y</span><span class="p">],</span>
+                    <span class="n">num_classes</span><span class="o">=</span><span class="n">part</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="n">absent_score</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ious</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iou</span><span class="p">)</span>
+
+            <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">category</span><span class="p">)</span>
+
+        <span class="n">iou</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">ious</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">mean_iou</span> <span class="o">=</span> <span class="n">scatter</span><span class="p">(</span><span class="n">iou</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span>  <span class="c1"># Per-category IoU.</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean_iou</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>  <span class="c1"># Global IoU.</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">()</span>
+        <span class="n">iou</span> <span class="o">=</span> <span class="n">test</span><span class="p">(</span><span class="n">test_loader</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">, Test IoU: </span><span class="si">{</span><span class="n">iou</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

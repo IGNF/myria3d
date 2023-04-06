@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
@@ -99,26 +100,26 @@
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-datamodule-hdf5">myria3d.pctl.datamodule.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-dataset-hdf5">myria3d.pctl.dataset.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-dataset-iterable">myria3d.pctl.dataset.iterable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-dataset-toy-dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-dataloader-dataloader">myria3d.pctl.dataloader.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-points-pre-transform-lidar-hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-transforms-compose">myria3d.pctl.transforms.compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#myria3d-pctl-transforms-transforms">myria3d.pctl.transforms.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.models.model">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-myria3d.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
@@ -166,8 +167,180 @@
              
   <section id="myria3d-models">
 <h1>myria3d.models<a class="headerlink" href="#myria3d-models" title="Permalink to this headline"></a></h1>
-<section id="model">
-<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.models.model">
+<span id="model"></span><h2>Model<a class="headerlink" href="#module-myria3d.models.model" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.models.model.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model" title="Permalink to this definition"></a></dt>
+<dd><p>This LightningModule implements the logic for model trainin, validation, tests, and prediction.</p>
+<p>It is fully initialized by named parameters for maximal flexibility with hydra configs.</p>
+<p>During training and validation, IoU is calculed based on sumbsampled points only, and is therefore
+an approximation.
+At test time, IoU is calculated considering all the points. To keep this module light, a callback
+takes care of the interpolation of predictions between all points.</p>
+<dl class="simple">
+<dt>Read the Pytorch Lightning docs:</dt><dd><p><a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html">https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.configure_optimizers">
+<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.configure_optimizers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.configure_optimizers" title="Permalink to this definition"></a></dt>
+<dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An optimizer, or a config of a scheduler and an optimizer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><span class="pre">torch.Tensor</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Forward pass of neural network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.models.model.Model.forward.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.forward.params.batch">¶</a> (<em>Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.forward.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.forward.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>targets
+torch.Tensor (B*N,C): logits</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (2.1.0a0+git007587a ))">torch.Tensor</a> (B*N,1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.on_fit_start">
+<span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_fit_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_fit_start" title="Permalink to this definition"></a></dt>
+<dd><p>On fit start: get the experiment for easier access.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.on_validation_epoch_end">
+<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_validation_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_validation_epoch_end" title="Permalink to this definition"></a></dt>
+<dd><p>At the end of a validation epoch, compute the IoU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="myria3d.models.model.Model.on_validation_epoch_end.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.on_validation_epoch_end.params.outputs">¶</a> – output of validation_step</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.predict_step">
+<span class="sig-name descname"><span class="pre">predict_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.predict_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.predict_step" title="Permalink to this definition"></a></dt>
+<dd><p>Prediction step.</p>
+<p>Move to CPU to avoid acucmulation of predictions into gpu memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.models.model.Model.predict_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.predict_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.predict_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.predict_step.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionnary with predicted logits as well as input batch.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup stage: prepare to compute IoU and loss.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.test_step">
+<span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.test_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.test_step" title="Permalink to this definition"></a></dt>
+<dd><p>Test step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.models.model.Model.test_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.test_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.test_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.test_step.params.y">¶</a> (<em>and</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.training_step">
+<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.training_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.training_step" title="Permalink to this definition"></a></dt>
+<dd><p>Training step.</p>
+<p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.models.model.Model.training_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.training_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.training_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.training_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.training_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.training_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – batch identified (unused)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dict containing the loss, logits, and targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.models.model.Model.validation_step">
+<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.validation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.validation_step" title="Permalink to this definition"></a></dt>
+<dd><p>Validation step.</p>
+<p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.models.model.Model.validation_step.params.batch"></span><strong>batch</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_step.params.batch">¶</a> (<em>torch_geometric.data.Batch</em>) – Batch of data including x (features), pos (xyz positions),</p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.validation_step.params.y"></span><strong>y</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_step.params.y">¶</a> (<em>and</em>) – </p></li>
+<li><p><span class="target" id="myria3d.models.model.Model.validation_step.params.batch_idx"></span><strong>batch_idx</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.validation_step.params.batch_idx">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – batch identified (unused)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dict containing the loss, logits, and targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.models.model.get_neural_net_class">
+<span class="sig-prename descclassname"><span class="pre">myria3d.models.model.</span></span><span class="sig-name descname"><span class="pre">get_neural_net_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/master/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><span class="pre">torch.nn.modules.module.Module</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#get_neural_net_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.get_neural_net_class" title="Permalink to this definition"></a></dt>
+<dd><p>A Class Factory to class of neural net based on class name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="myria3d.models.model.get_neural_net_class.params.class_name"></span><strong>class_name</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.get_neural_net_class.params.class_name">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the class to get.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CLass of requested neural network.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-myria3d.models.interpolation">
 <span id="interpolation"></span><h2>Interpolation<a class="headerlink" href="#module-myria3d.models.interpolation" title="Permalink to this headline"></a></h2>

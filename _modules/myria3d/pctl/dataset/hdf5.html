@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.3.2 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> myria3d
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/development.html">Developer’s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#code-versionning">Code versionning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">myria3d</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>myria3d.pctl.dataset.hdf5</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for myria3d.pctl.dataset.hdf5</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">,</span>
+    <span class="n">SHAPE_TYPE</span><span class="p">,</span>
+    <span class="n">SPLIT_TYPE</span><span class="p">,</span>
+    <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
+    <span class="n">split_cloud_into_samples</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">myria3d.pctl.points_pre_transform.lidar_hd</span> <span class="kn">import</span> <span class="n">lidar_hd_pre_transform</span>
+<span class="kn">from</span> <span class="nn">myria3d.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="HDF5Dataset"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.HDF5Dataset">[docs]</a><span class="k">class</span> <span class="nc">HDF5Dataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Single-file HDF5 dataset for collections of large LAS tiles.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">hdf5_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">las_paths_by_split_dict</span><span class="p">:</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">,</span>
+        <span class="n">points_pre_transform</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">lidar_hd_pre_transform</span><span class="p">,</span>
+        <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="n">subtile_overlap_train</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">subtile_shape</span><span class="p">:</span> <span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;square&quot;</span><span class="p">,</span>
+        <span class="n">pre_filter</span><span class="o">=</span><span class="n">pre_filter_below_n_points</span><span class="p">,</span>
+        <span class="n">train_transform</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">eval_transform</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization, taking care of HDF5 dataset preparation if needed, and indexation of its content.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            las_paths_by_split_dict (Optional[LAS_PATHS_BY_SPLIT_DICT_TYPE]): should look like</span>
+<span class="sd">                las_paths_by_split_dict = {&#39;train&#39;: [&#39;dir/las1.las&#39;,&#39;dir/las2.las&#39;], &#39;val&#39;: [...], , &#39;test&#39;: [...]}</span>
+<span class="sd">            hdf5_file_path (str): path to HDF5 dataset</span>
+<span class="sd">            points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.</span>
+<span class="sd">            tile_width (Number, optional): width of a LAS tile. Defaults to 1000.</span>
+<span class="sd">            subtile_width (Number, optional): effective width of a subtile (i.e. receptive field). Defaults to 50.</span>
+<span class="sd">            subtile_shape (SHAPE_TYPE, optional): Shape of subtile could be either &quot;square&quot; or &quot;disk&quot;. Defaults to &quot;square&quot;.</span>
+<span class="sd">            subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. Defaults to 0.</span>
+<span class="sd">            pre_filter (_type_, optional): Function to filter out specific subtiles. Defaults to None.</span>
+<span class="sd">            train_transform (List[Callable], optional): Transforms to apply to a sample for training. Defaults to None.</span>
+<span class="sd">            eval_transform (List[Callable], optional): Transforms to apply to a sample for evaluation (test/val sets). Defaults to None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span> <span class="o">=</span> <span class="n">points_pre_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span> <span class="o">=</span> <span class="n">pre_filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_transform</span> <span class="o">=</span> <span class="n">train_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_transform</span> <span class="o">=</span> <span class="n">eval_transform</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_width</span> <span class="o">=</span> <span class="n">tile_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">=</span> <span class="n">subtile_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap_train</span> <span class="o">=</span> <span class="n">subtile_overlap_train</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_shape</span> <span class="o">=</span> <span class="n">subtile_shape</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span> <span class="o">=</span> <span class="n">hdf5_file_path</span>
+
+        <span class="c1"># Instantiates these to null;</span>
+        <span class="c1"># They are loaded within __getitem__ to support multi-processing training.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">las_paths_by_split_dict</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Add data for all LAS Files into a single hdf5 file.</span>
+        <span class="n">create_hdf5</span><span class="p">(</span>
+            <span class="n">las_paths_by_split_dict</span><span class="p">,</span>
+            <span class="n">hdf5_file_path</span><span class="p">,</span>
+            <span class="n">tile_width</span><span class="p">,</span>
+            <span class="n">subtile_width</span><span class="p">,</span>
+            <span class="n">subtile_shape</span><span class="p">,</span>
+            <span class="n">pre_filter</span><span class="p">,</span>
+            <span class="n">subtile_overlap_train</span><span class="p">,</span>
+            <span class="n">points_pre_transform</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Use property once to be sure that samples are all indexed into the hdf5 file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Data</span><span class="p">]:</span>
+        <span class="n">sample_hdf5_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data</span><span class="p">(</span><span class="n">sample_hdf5_path</span><span class="p">)</span>
+
+        <span class="c1"># filter if empty</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Transforms, including sampling and some augmentations.</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_transform</span>
+        <span class="k">if</span> <span class="n">sample_hdf5_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sample_hdf5_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">):</span>
+            <span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_transform</span>
+        <span class="k">if</span> <span class="n">transform</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># filter if empty</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_hdf5_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Loads a Data object from the HDF5 dataset.</span>
+
+<span class="sd">        Opening the file has a high cost so we do it only once and store the opened files as a singleton</span>
+<span class="sd">        for each process within __get_item__ and not in __init__ to support for Multi-GPU.</span>
+
+<span class="sd">        See https://discuss.pytorch.org/t/dataloader-when-num-worker-0-there-is-bug/25643/16?u=piojanu.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="n">grp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">sample_hdf5_path</span><span class="p">]</span>
+        <span class="c1"># [...] needed to make a copy of content and avoid closing HDF5.</span>
+        <span class="c1"># Nota: idx_in_original_cloud SHOULD be np.ndarray, in order to be batched into a list,</span>
+        <span class="c1"># which serves to keep track of indivual sample sizes in a simpler way for interpolation.</span>
+        <span class="k">return</span> <span class="n">Data</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="o">...</span><span class="p">]),</span>
+            <span class="n">pos</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][</span><span class="o">...</span><span class="p">]),</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="o">...</span><span class="p">]),</span>
+            <span class="n">idx_in_original_cloud</span><span class="o">=</span><span class="n">grp</span><span class="p">[</span><span class="s2">&quot;idx_in_original_cloud&quot;</span><span class="p">][</span><span class="o">...</span><span class="p">],</span>
+            <span class="n">x_features_names</span><span class="o">=</span><span class="n">grp</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;x_features_names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="c1"># num_nodes=grp[&quot;pos&quot;][...].shape[0],  # Not needed - performed under the hood.</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">traindata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_subset</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_subset</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">testdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_subset</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_split_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split</span><span class="p">:</span> <span class="n">SPLIT_TYPE</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a sub-dataset of a specific (train/val/test) split.&quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">split</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">samples_hdf5_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Index all samples in the dataset, if not already done before.&quot;&quot;&quot;</span>
+        <span class="c1"># Use existing if already loaded as variable.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span>
+
+        <span class="c1"># Load as variable if already indexed in hdf5 file. Need to decode b-string.</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;samples_hdf5_paths&quot;</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample_path</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample_path</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="s2">&quot;samples_hdf5_paths&quot;</span><span class="p">]]</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span>
+
+        <span class="c1"># Otherwise, index samples, and add the index as an attribute to the HDF5 file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">split</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">sample_number</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">sample_number</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
+            <span class="c1"># special type to avoid silent string truncation in hdf5 datasets.</span>
+            <span class="n">variable_lenght_str_datatype</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">special_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+            <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                <span class="s2">&quot;samples_hdf5_paths&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">),),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">variable_lenght_str_datatype</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span></div>
+
+
+<div class="viewcode-block" id="create_hdf5"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5">[docs]</a><span class="k">def</span> <span class="nf">create_hdf5</span><span class="p">(</span>
+    <span class="n">las_paths_by_split_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">hdf5_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">subtile_shape</span><span class="p">:</span> <span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;square&quot;</span><span class="p">,</span>
+    <span class="n">pre_filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Data</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
+    <span class="n">subtile_overlap_train</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">points_pre_transform</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">lidar_hd_pre_transform</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Create a HDF5 dataset file from las.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        split (str): specifies either &quot;train&quot;, &quot;val&quot;, or &quot;test&quot; split.</span>
+<span class="sd">        las_path (str): path to point cloud.</span>
+
+<span class="sd">        las_paths_by_split_dict ([LAS_PATHS_BY_SPLIT_DICT_TYPE]): should look like</span>
+<span class="sd">                las_paths_by_split_dict = {&#39;train&#39;: [&#39;dir/las1.las&#39;,&#39;dir/las2.las&#39;], &#39;val&#39;: [...], , &#39;test&#39;: [...]},</span>
+<span class="sd">        hdf5_file_path (str): path to HDF5 dataset,</span>
+<span class="sd">        tile_width (Number, optional): width of a LAS tile. 1000 by default,</span>
+<span class="sd">        subtile_width: (Number, optional): effective width of a subtile (i.e. receptive field). 50 by default,</span>
+<span class="sd">        subtile_shape (SHAPE_TYPE, optional): Shape of subtile could be either &quot;square&quot; or &quot;disk&quot;. &quot;square&quot; by default ,</span>
+<span class="sd">        pre_filter: Function to filter out specific subtiles. &quot;pre_filter_below_n_points&quot; by default,</span>
+<span class="sd">        subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. 0 by default,</span>
+<span class="sd">        points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">split</span><span class="p">,</span> <span class="n">las_paths</span> <span class="ow">in</span> <span class="n">las_paths_by_split_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">split</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">las_path</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">las_paths</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">split</span><span class="si">}</span><span class="s2"> set...&quot;</span><span class="p">):</span>
+
+            <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
+
+            <span class="c1"># Delete dataset for incomplete LAS entry, to start from scratch.</span>
+            <span class="c1"># Useful in case data preparation was interrupted.</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;is_complete&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">basename</span><span class="p">]</span>
+                    <span class="c1"># Parse and add subtiles to split group.</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">subtile_overlap</span> <span class="o">=</span> <span class="n">subtile_overlap_train</span> <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># No overlap at eval time.</span>
+                <span class="k">for</span> <span class="n">sample_number</span><span class="p">,</span> <span class="p">(</span><span class="n">sample_idx</span><span class="p">,</span> <span class="n">sample_points</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                    <span class="n">split_cloud_into_samples</span><span class="p">(</span>
+                        <span class="n">las_path</span><span class="p">,</span>
+                        <span class="n">tile_width</span><span class="p">,</span>
+                        <span class="n">subtile_width</span><span class="p">,</span>
+                        <span class="n">subtile_shape</span><span class="p">,</span>
+                        <span class="n">subtile_overlap</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">points_pre_transform</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">points_pre_transform</span><span class="p">(</span><span class="n">sample_points</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pre_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pre_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                        <span class="c1"># e.g. pre_filter spots situations where num_nodes is too small.</span>
+                        <span class="k">continue</span>
+                    <span class="n">hdf5_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">sample_number</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+                    <span class="n">hd5f_path_x</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+                    <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                        <span class="n">hd5f_path_x</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;f&quot;</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">hdf5_file</span><span class="p">[</span><span class="n">hd5f_path_x</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;x_features_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">)</span>
+                    <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;f&quot;</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;i&quot;</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">&quot;idx_in_original_cloud&quot;</span><span class="p">),</span>
+                        <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;i&quot;</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">sample_idx</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># A termination flag to report that all samples for this point cloud were included in the df5 file.</span>
+                <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_complete&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

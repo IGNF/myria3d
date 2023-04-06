@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
@@ -99,26 +100,26 @@
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.train">myria3d.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-datamodule-hdf5">myria3d.pctl.datamodule.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataset-hdf5">myria3d.pctl.dataset.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataset-iterable">myria3d.pctl.dataset.iterable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataset-toy-dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataloader-dataloader">myria3d.pctl.dataloader.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-points-pre-transform-lidar-hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-transforms-compose">myria3d.pctl.transforms.compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-transforms-transforms">myria3d.pctl.transforms.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.model">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
@@ -167,17 +168,367 @@
   <section id="myria3d-pctl">
 <h1>myria3d.pctl<a class="headerlink" href="#myria3d-pctl" title="Permalink to this headline"></a></h1>
 <p>Objects relative to the preprocessing and loading of Lidar data.</p>
-<section id="myria3d-pctl-datamodule-hdf5">
-<h2>myria3d.pctl.datamodule.hdf5<a class="headerlink" href="#myria3d-pctl-datamodule-hdf5" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.datamodule.hdf5">
+<span id="myria3d-pctl-datamodule-hdf5"></span><h2>myria3d.pctl.datamodule.hdf5<a class="headerlink" href="#module-myria3d.pctl.datamodule.hdf5" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.datamodule.hdf5.</span></span><span class="sig-name descname"><span class="pre">HDF5LidarDataModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule" title="Permalink to this definition"></a></dt>
+<dd><p>Datamodule to feed train and validation data to the model.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.dataset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#myria3d.pctl.dataset.hdf5.HDF5Dataset" title="myria3d.pctl.dataset.hdf5.HDF5Dataset"><span class="pre">myria3d.pctl.dataset.hdf5.HDF5Dataset</span></a></em><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Abstraction to ease HDF5 dataset instantiation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>las_paths_by_split_dict</strong> (<em>LAS_PATHS_BY_SPLIT_DICT_TYPE</em><em>, </em><em>optional</em>) – Maps split (val/train/test) to file path.
+If specified, the hdf5 file is created at dataset initialization time.
+Otherwise,a precomputed HDF5 file is used directly without I/O to the HDF5 file.
+This is usefule for multi-GPU training, where data creation is performed in prepare_data method, and the dataset
+is then loaded again in each GPU in setup method.
+Defaults to None.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the dataset with train, val, and test data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#myria3d.pctl.dataset.hdf5.HDF5Dataset" title="myria3d.pctl.dataset.hdf5.HDF5Dataset">HDF5Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.predict_dataloader">
+<span class="sig-name descname"><span class="pre">predict_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.predict_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.predict_dataloader" title="Permalink to this definition"></a></dt>
+<dd><p>Implement one or multiple PyTorch DataLoaders for prediction.</p>
+<p>It’s recommended that all data downloads and preparation happen in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a>.</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></p></li>
+<li><p>…</p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train_dataloader()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">val_dataloader()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">test_dataloader()</span></code></a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Lightning adds the correct sampler for distributed and arbitrary hardware
+There is no need to set it yourself.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <a class="reference external" href="https://pytorch.org/docs/master/data.html#torch.utils.data.DataLoader" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a> or a sequence of them specifying prediction samples.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the case where you return multiple prediction dataloaders, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">predict()</span></code>
+will have an argument <code class="docutils literal notranslate"><span class="pre">dataloader_idx</span></code> which matches the order here.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="Permalink to this definition"></a></dt>
+<dd><p>Prepare dataset containing train, val, test data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate the (already prepared) dataset (called on all GPUs).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader">
+<span class="sig-name descname"><span class="pre">test_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.test_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader" title="Permalink to this definition"></a></dt>
+<dd><p>Implement one or multiple PyTorch DataLoaders for testing.</p>
+<p>The dataloader you return will not be reloaded unless you set
+<code class="xref py py-paramref docutils literal notranslate"><span class="pre">reload_dataloaders_every_n_epochs</span></code> to
+a postive integer.</p>
+<p>For data processing use the following pattern:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>download in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
+<li><p>process and split in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
+</ul>
+</div></blockquote>
+<p>However, the above are only necessary for distributed processing.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>do not assign state in prepare_data</p>
+</div>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></p></li>
+<li><p>…</p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train_dataloader()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">val_dataloader()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">test_dataloader()</span></code></a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Lightning adds the correct sampler for distributed and arbitrary hardware.
+There is no need to set it yourself.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <a class="reference external" href="https://pytorch.org/docs/master/data.html#torch.utils.data.DataLoader" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a> or a sequence of them specifying testing samples.</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                                    <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,))])</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;/path/to/mnist/&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+                    <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loader</span>
+
+<span class="c1"># can also return multiple dataloaders</span>
+<span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">loader_a</span><span class="p">,</span> <span class="n">loader_b</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">loader_n</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you don’t need a test dataset and a <code class="xref py py-meth docutils literal notranslate"><span class="pre">test_step()</span></code>, you don’t need to implement
+this method.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the case where you return multiple test dataloaders, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">test_step()</span></code>
+will have an argument <code class="docutils literal notranslate"><span class="pre">dataloader_idx</span></code> which matches the order here.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader">
+<span class="sig-name descname"><span class="pre">train_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.train_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader" title="Permalink to this definition"></a></dt>
+<dd><p>Implement one or more PyTorch DataLoaders for training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A collection of <a class="reference external" href="https://pytorch.org/docs/master/data.html#torch.utils.data.DataLoader" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a> specifying training samples.
+In the case of multiple dataloaders, please see this <span class="xref std std-ref">page</span>.</p>
+</dd>
+</dl>
+<p>The dataloader you return will not be reloaded unless you set
+<code class="xref py py-paramref docutils literal notranslate"><span class="pre">reload_dataloaders_every_n_epochs</span></code> to
+a positive integer.</p>
+<p>For data processing use the following pattern:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>download in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
+<li><p>process and split in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
+</ul>
+</div></blockquote>
+<p>However, the above are only necessary for distributed processing.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>do not assign state in prepare_data</p>
+</div>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></p></li>
+<li><p>…</p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train_dataloader()</span></code></a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Lightning adds the correct sampler for distributed and arbitrary hardware.
+There is no need to set it yourself.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># single dataloader</span>
+<span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                                    <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,))])</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;/path/to/mnist/&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+                    <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">loader</span>
+
+<span class="c1"># multiple dataloaders, return as list</span>
+<span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">mnist</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">cifar</span> <span class="o">=</span> <span class="n">CIFAR</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">mnist_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">mnist</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">cifar_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">cifar</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="c1"># each batch will be a list of tensors: [batch_mnist, batch_cifar]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">mnist_loader</span><span class="p">,</span> <span class="n">cifar_loader</span><span class="p">]</span>
+
+<span class="c1"># multiple dataloader, return as dict</span>
+<span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">mnist</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">cifar</span> <span class="o">=</span> <span class="n">CIFAR</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">mnist_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">mnist</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">cifar_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">cifar</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="c1"># each batch will be a dict of tensors: {&#39;mnist&#39;: batch_mnist, &#39;cifar&#39;: batch_cifar}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;mnist&#39;</span><span class="p">:</span> <span class="n">mnist_loader</span><span class="p">,</span> <span class="s1">&#39;cifar&#39;</span><span class="p">:</span> <span class="n">cifar_loader</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader">
+<span class="sig-name descname"><span class="pre">val_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.val_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader" title="Permalink to this definition"></a></dt>
+<dd><p>Implement one or multiple PyTorch DataLoaders for validation.</p>
+<p>The dataloader you return will not be reloaded unless you set
+<code class="xref py py-paramref docutils literal notranslate"><span class="pre">reload_dataloaders_every_n_epochs</span></code> to
+a positive integer.</p>
+<p>It’s recommended that all data downloads and preparation happen in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a>.</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></p></li>
+<li><p>…</p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train_dataloader()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">val_dataloader()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">test_dataloader()</span></code></a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Lightning adds the correct sampler for distributed and arbitrary hardware
+There is no need to set it yourself.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <a class="reference external" href="https://pytorch.org/docs/master/data.html#torch.utils.data.DataLoader" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a> or a sequence of them specifying validation samples.</p>
+</dd>
+</dl>
+<p>Examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                                    <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,))])</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;/path/to/mnist/&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loader</span>
+
+<span class="c1"># can also return multiple dataloaders</span>
+<span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">loader_a</span><span class="p">,</span> <span class="n">loader_b</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">loader_n</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you don’t need a validation dataset and a <code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code>, you don’t need to
+implement this method.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the case where you return multiple validation dataloaders, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code>
+will have an argument <code class="docutils literal notranslate"><span class="pre">dataloader_idx</span></code> which matches the order here.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="myria3d-pctl-dataset-hdf5">
-<h2>myria3d.pctl.dataset.hdf5<a class="headerlink" href="#myria3d-pctl-dataset-hdf5" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.dataset.hdf5">
+<span id="myria3d-pctl-dataset-hdf5"></span><h2>myria3d.pctl.dataset.hdf5<a class="headerlink" href="#module-myria3d.pctl.dataset.hdf5" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.hdf5.HDF5Dataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.hdf5.</span></span><span class="sig-name descname"><span class="pre">HDF5Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">hdf5_file_path:</span> <span class="pre">str,</span> <span class="pre">las_paths_by_split_dict:</span> <span class="pre">typing.Dict[typing.Union[typing.Literal['train'],</span> <span class="pre">typing.Literal['val'],</span> <span class="pre">typing.Literal['test']],</span> <span class="pre">typing.List[str]],</span> <span class="pre">points_pre_transform:</span> <span class="pre">typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">lidar_hd_pre_transform&gt;,</span> <span class="pre">tile_width:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">1000,</span> <span class="pre">subtile_width:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">50,</span> <span class="pre">subtile_overlap_train:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">subtile_shape:</span> <span class="pre">typing.Union[typing.Literal['disk'],</span> <span class="pre">typing.Literal['square']]</span> <span class="pre">=</span> <span class="pre">'square',</span> <span class="pre">pre_filter=&lt;function</span> <span class="pre">pre_filter_below_n_points&gt;,</span> <span class="pre">train_transform:</span> <span class="pre">typing.Optional[typing.List[typing.Callable]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">eval_transform:</span> <span class="pre">typing.Optional[typing.List[typing.Callable]]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/hdf5.html#HDF5Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.hdf5.HDF5Dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Single-file HDF5 dataset for collections of large LAS tiles.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.hdf5.HDF5Dataset.samples_hdf5_paths">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">samples_hdf5_paths</span></span><a class="headerlink" href="#myria3d.pctl.dataset.hdf5.HDF5Dataset.samples_hdf5_paths" title="Permalink to this definition"></a></dt>
+<dd><p>Index all samples in the dataset, if not already done before.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.hdf5.create_hdf5">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.hdf5.</span></span><span class="sig-name descname"><span class="pre">create_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">las_paths_by_split_dict:</span> <span class="pre">dict,</span> <span class="pre">hdf5_file_path:</span> <span class="pre">str,</span> <span class="pre">tile_width:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">1000,</span> <span class="pre">subtile_width:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">50,</span> <span class="pre">subtile_shape:</span> <span class="pre">typing.Union[typing.Literal['disk'],</span> <span class="pre">typing.Literal['square']]</span> <span class="pre">=</span> <span class="pre">'square',</span> <span class="pre">pre_filter:</span> <span class="pre">typing.Optional[typing.Callable[[torch_geometric.data.data.Data],</span> <span class="pre">bool]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">pre_filter_below_n_points&gt;,</span> <span class="pre">subtile_overlap_train:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">points_pre_transform:</span> <span class="pre">typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">lidar_hd_pre_transform&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/hdf5.html#create_hdf5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.hdf5.create_hdf5" title="Permalink to this definition"></a></dt>
+<dd><p>Create a HDF5 dataset file from las.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.split"></span><strong>split</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.split">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – specifies either “train”, “val”, or “test” split.</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.las_path"></span><strong>las_path</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.las_path">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – path to point cloud.</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.las_paths_by_split_dict"></span><strong>las_paths_by_split_dict</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.las_paths_by_split_dict">¶</a> (<em>[</em><em>LAS_PATHS_BY_SPLIT_DICT_TYPE</em><em>]</em>) – should look like
+las_paths_by_split_dict = {‘train’: [‘dir/las1.las’,’dir/las2.las’], ‘val’: […], , ‘test’: […]},</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.hdf5_file_path"></span><strong>hdf5_file_path</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.hdf5_file_path">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – path to HDF5 dataset,</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.tile_width"></span><strong>tile_width</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.tile_width">¶</a> (<em>Number</em><em>, </em><em>optional</em>) – width of a LAS tile. 1000 by default,</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_width"></span><strong>subtile_width</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_width">¶</a> – (Number, optional): effective width of a subtile (i.e. receptive field). 50 by default,</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_shape"></span><strong>subtile_shape</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_shape">¶</a> (<em>SHAPE_TYPE</em><em>, </em><em>optional</em>) – Shape of subtile could be either “square” or “disk”. “square” by default ,</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.pre_filter"></span><strong>pre_filter</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.pre_filter">¶</a> – Function to filter out specific subtiles. “pre_filter_below_n_points” by default,</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_overlap_train"></span><strong>subtile_overlap_train</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_overlap_train">¶</a> (<em>Number</em><em>, </em><em>optional</em>) – Overlap for data augmentation of train set. 0 by default,</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.hdf5.create_hdf5.params.points_pre_transform"></span><strong>points_pre_transform</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.hdf5.create_hdf5.params.points_pre_transform">¶</a> (<em>Callable</em>) – Function to turn pdal points into a pyg Data object.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="myria3d-pctl-dataset-iterable">
-<h2>myria3d.pctl.dataset.iterable<a class="headerlink" href="#myria3d-pctl-dataset-iterable" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.dataset.iterable">
+<span id="myria3d-pctl-dataset-iterable"></span><h2>myria3d.pctl.dataset.iterable<a class="headerlink" href="#module-myria3d.pctl.dataset.iterable" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.iterable.InferenceDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.iterable.</span></span><span class="sig-name descname"><span class="pre">InferenceDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">las_file:</span> <span class="pre">str,</span> <span class="pre">points_pre_transform:</span> <span class="pre">typing.Callable[[typing.Union[int,</span> <span class="pre">float,</span> <span class="pre">complex,</span> <span class="pre">str,</span> <span class="pre">bytes,</span> <span class="pre">numpy.generic,</span> <span class="pre">typing.Sequence[typing.Union[int,</span> <span class="pre">float,</span> <span class="pre">complex,</span> <span class="pre">str,</span> <span class="pre">bytes,</span> <span class="pre">numpy.generic]],</span> <span class="pre">typing.Sequence[typing.Sequence[typing.Any]],</span> <span class="pre">numpy.typing._array_like._SupportsArray]],</span> <span class="pre">torch_geometric.data.data.Data]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">lidar_hd_pre_transform&gt;,</span> <span class="pre">pre_filter:</span> <span class="pre">typing.Optional[typing.Callable[[torch_geometric.data.data.Data],</span> <span class="pre">bool]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">pre_filter_below_n_points&gt;,</span> <span class="pre">transform:</span> <span class="pre">typing.Optional[typing.Callable[[torch_geometric.data.data.Data],</span> <span class="pre">torch_geometric.data.data.Data]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">tile_width:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">1000,</span> <span class="pre">subtile_width:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">50,</span> <span class="pre">subtile_overlap:</span> <span class="pre">numbers.Number</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">subtile_shape:</span> <span class="pre">typing.Union[typing.Literal['disk'],</span> <span class="pre">typing.Literal['square']]</span> <span class="pre">=</span> <span class="pre">'square'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/iterable.html#InferenceDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.iterable.InferenceDataset" title="Permalink to this definition"></a></dt>
+<dd><p>Iterable dataset to load samples from a single las file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.iterable.InferenceDataset.get_iterator">
+<span class="sig-name descname"><span class="pre">get_iterator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/iterable.html#InferenceDataset.get_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.iterable.InferenceDataset.get_iterator" title="Permalink to this definition"></a></dt>
+<dd><p>Yield subtiles from all tiles in an exhaustive fashion.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="myria3d-pctl-dataset-toy-dataset">
-<h2>myria3d.pctl.dataset.toy_dataset<a class="headerlink" href="#myria3d-pctl-dataset-toy-dataset" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.dataset.toy_dataset">
+<span id="myria3d-pctl-dataset-toy-dataset"></span><h2>myria3d.pctl.dataset.toy_dataset<a class="headerlink" href="#module-myria3d.pctl.dataset.toy_dataset" title="Permalink to this headline"></a></h2>
+<p>Generation of a toy dataset for testing purposes.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.toy_dataset.</span></span><span class="sig-name descname"><span class="pre">make_toy_dataset_from_test_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/toy_dataset.html#make_toy_dataset_from_test_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file" title="Permalink to this definition"></a></dt>
+<dd><p>Prepare a toy dataset from a single, small LAS file.</p>
+<p>The file is first duplicated to get 2 LAS in each split (train/val/test),
+and then each file is splitted into .data files, resulting in a training-ready
+dataset loacted in td_prepared</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.src_las_path"></span><strong>src_las_path</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.src_las_path">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – input, small LAS file to generate toy dataset from</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.split_csv"></span><strong>split_csv</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.split_csv">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to csv with a <cite>basename</cite> (e.g. ‘123_456.las’) and</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.`split`"></span><strong>`split`</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.`split`">¶</a> (<em>a</em>) – </p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.prepared_data_dir"></span><strong>prepared_data_dir</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.prepared_data_dir">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – where to copy files (<cite>raw</cite> subfolder) and to prepare</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.files"></span><strong>files</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.files">¶</a> (<em>dataset</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>path to directory containing prepared dataset.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-myria3d.pctl.dataset.utils">
 <span id="myria3d-pctl-dataset-utils"></span><h2>myria3d.pctl.dataset.utils<a class="headerlink" href="#module-myria3d.pctl.dataset.utils" title="Permalink to this headline"></a></h2>
@@ -273,17 +624,136 @@
 </dd></dl>
 
 </section>
-<section id="myria3d-pctl-dataloader-dataloader">
-<h2>myria3d.pctl.dataloader.dataloader<a class="headerlink" href="#myria3d-pctl-dataloader-dataloader" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.dataloader.dataloader">
+<span id="myria3d-pctl-dataloader-dataloader"></span><h2>myria3d.pctl.dataloader.dataloader<a class="headerlink" href="#module-myria3d.pctl.dataloader.dataloader" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.dataloader.dataloader.GeometricNoneProofCollater">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataloader.dataloader.</span></span><span class="sig-name descname"><span class="pre">GeometricNoneProofCollater</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">follow_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataloader/dataloader.html#GeometricNoneProofCollater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataloader.dataloader.GeometricNoneProofCollater" title="Permalink to this definition"></a></dt>
+<dd><p>A Collater that returns None when given empty batch.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.dataloader.dataloader.GeometricNoneProofDataloader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataloader.dataloader.</span></span><span class="sig-name descname"><span class="pre">GeometricNoneProofDataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataloader/dataloader.html#GeometricNoneProofDataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataloader.dataloader.GeometricNoneProofDataloader" title="Permalink to this definition"></a></dt>
+<dd><p>Torch geometric’s dataloader is a simple torch Dataloader with a different Collater.</p>
+<p>This overrides the collater with a NoneProof one that will not fail if some Data is None.</p>
+</dd></dl>
+
 </section>
-<section id="myria3d-pctl-points-pre-transform-lidar-hd">
-<h2>myria3d.pctl.points_pre_transform.lidar_hd<a class="headerlink" href="#myria3d-pctl-points-pre-transform-lidar-hd" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.points_pre_transform.lidar_hd">
+<span id="myria3d-pctl-points-pre-transform-lidar-hd"></span><h2>myria3d.pctl.points_pre_transform.lidar_hd<a class="headerlink" href="#module-myria3d.pctl.points_pre_transform.lidar_hd" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.points_pre_transform.lidar_hd.</span></span><span class="sig-name descname"><span class="pre">lidar_hd_pre_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/points_pre_transform/lidar_hd.html#lidar_hd_pre_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform" title="Permalink to this definition"></a></dt>
+<dd><p>Turn pdal points into torch-geometric Data object.</p>
+<p>Builds a composite (average) color channel on the fly.     Calculate NDVI on the fly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform.params.las_filepath"></span><strong>las_filepath</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform.params.las_filepath">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – path to the LAS file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the point cloud formatted for later deep learning training.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Data</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="myria3d-pctl-transforms-compose">
-<h2>myria3d.pctl.transforms.compose<a class="headerlink" href="#myria3d-pctl-transforms-compose" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.transforms.compose">
+<span id="myria3d-pctl-transforms-compose"></span><h2>myria3d.pctl.transforms.compose<a class="headerlink" href="#module-myria3d.pctl.transforms.compose" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.compose.CustomCompose">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.compose.</span></span><span class="sig-name descname"><span class="pre">CustomCompose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/compose.html#CustomCompose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.compose.CustomCompose" title="Permalink to this definition"></a></dt>
+<dd><p>Composes several transforms together.
+Edited to bypass downstream transforms if None is returned by a transform.
+:param _sphinx_paramlinks_myria3d.pctl.transforms.compose.CustomCompose.transforms: List of transforms to compose.
+:type _sphinx_paramlinks_myria3d.pctl.transforms.compose.CustomCompose.transforms: List[Callable]</p>
+</dd></dl>
+
 </section>
-<section id="myria3d-pctl-transforms-transforms">
-<h2>myria3d.pctl.transforms.transforms<a class="headerlink" href="#myria3d-pctl-transforms-transforms" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.transforms.transforms">
+<span id="myria3d-pctl-transforms-transforms"></span><h2>myria3d.pctl.transforms.transforms<a class="headerlink" href="#module-myria3d.pctl.transforms.transforms" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.CopyFullPos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">CopyFullPos</span></span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#CopyFullPos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.CopyFullPos" title="Permalink to this definition"></a></dt>
+<dd><p>Make a copy of the original positions - to be used for test and inference.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.CopyFullPreparedTargets">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">CopyFullPreparedTargets</span></span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#CopyFullPreparedTargets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.CopyFullPreparedTargets" title="Permalink to this definition"></a></dt>
+<dd><p>Make a copy of all, prepared targets - to be used for test.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.CopySampledPos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">CopySampledPos</span></span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#CopySampledPos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.CopySampledPos" title="Permalink to this definition"></a></dt>
+<dd><p>Make a copy of the unormalized positions of subsampled points - to be used for test and inference.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.DropPointsByClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">DropPointsByClass</span></span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#DropPointsByClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.DropPointsByClass" title="Permalink to this definition"></a></dt>
+<dd><p>Drop points with class -1 (i.e. artefacts that would have been mapped to code -1)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.MaximumNumNodes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">MaximumNumNodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#MaximumNumNodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.MaximumNumNodes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.MinimumNumNodes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">MinimumNumNodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#MinimumNumNodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.MinimumNumNodes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.NormalizePos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">NormalizePos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subtile_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#NormalizePos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.NormalizePos" title="Permalink to this definition"></a></dt>
+<dd><p>Normalizes xy in [-1;1] range by scaling the whole point cloud (including z dim).
+XY are expected to be centered on zéro.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.NullifyLowestZ">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">NullifyLowestZ</span></span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#NullifyLowestZ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.NullifyLowestZ" title="Permalink to this definition"></a></dt>
+<dd><p>Center on x and y axis only. Set lowest z to 0.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">StandardizeRGBAndIntensity</span></span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#StandardizeRGBAndIntensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize RGB and log(Intensity) features.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity.standardize_channel">
+<span class="sig-name descname"><span class="pre">standardize_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (2.1.0a0+git007587a ))"><span class="pre">torch.Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clamp_sigma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#StandardizeRGBAndIntensity.standardize_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity.standardize_channel" title="Permalink to this definition"></a></dt>
+<dd><p>Sample-wise standardization y* = (y-y_mean)/y_std. clamping to ignore large values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.TargetTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">TargetTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classification_preprocessing_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#TargetTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.TargetTransform" title="Permalink to this definition"></a></dt>
+<dd><p>Make target vector based on input classification dictionnary.</p>
+<p>Example:
+Source : y = [6,6,17,9,1]
+Pre-processed:
+- classification_preprocessing_dict = {17:1, 9:1}
+- y’ = [6,6,1,1,1]
+Mapped to consecutive integers:
+- classification_dict = {1:”unclassified”, 6:”building”}
+- y’’ = [1,1,0,0,0]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="myria3d.pctl.transforms.transforms.ToTensor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.pctl.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ToTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['pos',</span> <span class="pre">'x',</span> <span class="pre">'y']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/transforms/transforms.html#ToTensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.transforms.transforms.ToTensor" title="Permalink to this definition"></a></dt>
+<dd><p>Turn np.arrays specified by their keys into Tensor.</p>
+</dd></dl>
+
 </section>
 </section>
 
