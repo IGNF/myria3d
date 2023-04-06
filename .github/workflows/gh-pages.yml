@@ -6,6 +6,7 @@ on:
   push:         # <- trigger when we call push
     branches:
       - main  # <- but only on main branch
+      - Fix-Documentation-Env
 
 jobs:
 
@@ -38,26 +39,9 @@ jobs:
             # Environment to create and activate for next steps
             activate-environment: myria3d
 
-      # Cache the conda environment
-      # See https://github.com/conda-incubator/setup-miniconda#caching-environments
-      - name: Get Date
-        id: get-date
-        run: echo "::set-output name=today::$(/bin/date -u '+%Y%m%d')"
-        shell: bash
 
-      - name: Cache conda environment
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.CONDA }}/envs
-          key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles('environment.yml') }}
-        env:
-          # Increase this value to reset cache if env has not changed.
-          CACHE_NUMBER: 0
-        id: cache
-
-      - name: Update environment if there was no cached env.
+      - name: Update myria3d environment using the
         run: mamba env update -n myria3d -f environment.yml
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: List installed packages
         run: mamba list
