@@ -6,7 +6,6 @@ on:
   push:         # <- trigger when we call push
     branches:
       - main  # <- but only on main branch
-      - Fix-Documentation-Env
 
 jobs:
 
