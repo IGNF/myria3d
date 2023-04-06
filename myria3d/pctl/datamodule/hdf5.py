@@ -31,9 +31,7 @@ class HDF5LidarDataModule(LightningDataModule):
         split_csv_path: str,
         hdf5_file_path: str,
         points_pre_transform: Optional[Callable[[ArrayLike], Data]] = None,
-        pre_filter: Optional[
-            Callable[[Data], bool]
-        ] = pre_filter_below_n_points,
+        pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_shape: SHAPE_TYPE = "square",
@@ -64,41 +62,23 @@ class HDF5LidarDataModule(LightningDataModule):
         self.prefetch_factor = prefetch_factor
 
         t = transforms
-        self.preparation_train_transform: TRANSFORMS_LIST = t.get(
-            "preparations_train_list", []
-        )
-        self.preparation_eval_transform: TRANSFORMS_LIST = t.get(
-            "preparations_eval_list", []
-        )
-        self.preparation_predict_transform: TRANSFORMS_LIST = t.get(
-            "preparations_predict_list", []
-        )
-        self.augmentation_transform: TRANSFORMS_LIST = t.get(
-            "augmentations_list", []
-        )
-        self.normalization_transform: TRANSFORMS_LIST = t.get(
-            "normalizations_list", []
-        )
+        self.preparation_train_transform: TRANSFORMS_LIST = t.get("preparations_train_list", [])
+        self.preparation_eval_transform: TRANSFORMS_LIST = t.get("preparations_eval_list", [])
+        self.preparation_predict_transform: TRANSFORMS_LIST = t.get("preparations_predict_list", [])
+        self.augmentation_transform: TRANSFORMS_LIST = t.get("augmentations_list", [])
+        self.normalization_transform: TRANSFORMS_LIST = t.get("normalizations_list", [])
 
     @property
     def train_transform(self) -> CustomCompose:
-        return CustomCompose(
-            self.preparation_train_transform
-            + self.normalization_transform
-            + self.augmentation_transform
-        )
+        return CustomCompose(self.preparation_train_transform + self.normalization_transform + self.augmentation_transform)
 
     @property
     def eval_transform(self) -> CustomCompose:
-        return CustomCompose(
-            self.preparation_eval_transform + self.normalization_transform
-        )
+        return CustomCompose(self.preparation_eval_transform + self.normalization_transform)
 
     @property
     def predict_transform(self) -> CustomCompose:
-        return CustomCompose(
-            self.preparation_predict_transform + self.normalization_transform
-        )
+        return CustomCompose(self.preparation_predict_transform + self.normalization_transform)
 
     def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
@@ -107,9 +87,7 @@ class HDF5LidarDataModule(LightningDataModule):
             if self.split_csv_path and self.data_dir:
                 las_paths_by_split_dict = get_las_paths_by_split_dict(self.data_dir, self.split_csv_path)
             else:
-                log.warning(
-                    "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
-                )
+                log.warning("cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used.")
                 las_paths_by_split_dict = None
         # Create the dataset in prepare_data, so that it is done one a single GPU.
         self.las_paths_by_split_dict = las_paths_by_split_dict
@@ -204,6 +182,7 @@ class HDF5LidarDataModule(LightningDataModule):
         Args:
             data (Data): data, usually post-transform to show their effect.
             color (Tensor, optional): array with which to color the graph.
+
         """
 
         # creating an empty canvas

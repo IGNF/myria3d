@@ -74,9 +74,7 @@ class HDF5Dataset(Dataset):
         self._samples_hdf5_paths = None
 
         if not las_paths_by_split_dict:
-            log.warning(
-                "No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used."
-            )
+            log.warning("No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used.")
             return
 
         # Add data for all LAS Files into a single hdf5 file.
@@ -88,7 +86,7 @@ class HDF5Dataset(Dataset):
             subtile_shape,
             pre_filter,
             subtile_overlap_train,
-            points_pre_transform
+            points_pre_transform,
         )
 
         # Use property once to be sure that samples are all indexed into the hdf5 file.
@@ -104,17 +102,13 @@ class HDF5Dataset(Dataset):
 
         # Transforms, including sampling and some augmentations.
         transform = self.train_transform
-        if sample_hdf5_path.startswith("val") or sample_hdf5_path.startswith(
-            "test"
-        ):
+        if sample_hdf5_path.startswith("val") or sample_hdf5_path.startswith("test"):
             transform = self.eval_transform
-        if transform :
+        if transform:
             data = transform(data)
 
         # filter if empty
-        if not data or (
-            self.pre_filter and self.pre_filter(data)
-        ):
+        if not data or (self.pre_filter and self.pre_filter(data)):
             return None
 
         return data
@@ -161,11 +155,7 @@ class HDF5Dataset(Dataset):
 
     def _get_split_subset(self, split: SPLIT_TYPE):
         """Get a sub-dataset of a specific (train/val/test) split."""
-        indices = [
-            idx
-            for idx, p in enumerate(self.samples_hdf5_paths)
-            if p.startswith(split)
-        ]
+        indices = [idx for idx, p in enumerate(self.samples_hdf5_paths) if p.startswith(split)]
         return torch.utils.data.Subset(self, indices)
 
     @property
@@ -178,10 +168,7 @@ class HDF5Dataset(Dataset):
         # Load as variable if already indexed in hdf5 file. Need to decode b-string.
         with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
             if "samples_hdf5_paths" in hdf5_file:
-                self._samples_hdf5_paths = [
-                    sample_path.decode("utf-8")
-                    for sample_path in hdf5_file["samples_hdf5_paths"]
-                ]
+                self._samples_hdf5_paths = [sample_path.decode("utf-8") for sample_path in hdf5_file["samples_hdf5_paths"]]
                 return self._samples_hdf5_paths
 
         # Otherwise, index samples, and add the index as an attribute to the HDF5 file.
@@ -214,10 +201,11 @@ def create_hdf5(
     subtile_shape: SHAPE_TYPE = "square",
     pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
     subtile_overlap_train: Number = 0,
-    points_pre_transform: Callable = lidar_hd_pre_transform
+    points_pre_transform: Callable = lidar_hd_pre_transform,
 ):
 
     """Create a HDF5 dataset file from las.
+
     Args:
         split (str): specifies either "train", "val", or "test" split.
         las_path (str): path to point cloud.
@@ -231,6 +219,7 @@ def create_hdf5(
         pre_filter: Function to filter out specific subtiles. "pre_filter_below_n_points" by default,
         subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. 0 by default,
         points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.
+
     """
     os.makedirs(os.path.dirname(hdf5_file_path), exist_ok=True)
     for split, las_paths in las_paths_by_split_dict.items():
@@ -252,13 +241,15 @@ def create_hdf5(
                     continue
 
                 subtile_overlap = subtile_overlap_train if split == "train" else 0  # No overlap at eval time.
-                for sample_number, (sample_idx, sample_points) in enumerate(split_cloud_into_samples(
-                    las_path,
-                    tile_width,
-                    subtile_width,
-                    subtile_shape,
-                    subtile_overlap,
-                )):
+                for sample_number, (sample_idx, sample_points) in enumerate(
+                    split_cloud_into_samples(
+                        las_path,
+                        tile_width,
+                        subtile_width,
+                        subtile_shape,
+                        subtile_overlap,
+                    )
+                ):
                     if not points_pre_transform:
                         continue
                     data = points_pre_transform(sample_points)
@@ -273,9 +264,7 @@ def create_hdf5(
                         dtype="f",
                         data=data.x,
                     )
-                    hdf5_file[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(
-                        data.x_features_names
-                    )
+                    hdf5_file[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(data.x_features_names)
                     hdf5_file.create_dataset(
                         os.path.join(hdf5_path, "pos"),
                         data.pos.shape,
