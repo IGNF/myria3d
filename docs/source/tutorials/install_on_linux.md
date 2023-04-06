@@ -52,3 +52,11 @@ Alternatively, you can install from sources directly in editable mode with
 ```bash
 pip install --editable .
 ```
+
+        
+## Troubleshooting
+
+- *OSError(libcusparse.so.11 cannot open shared object file no such file or directory)* ([**](https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625))
+    - open the .bashrc file from your Ubuntu home directory and at the end of the file, add the following line (replace anaconda3 with miniconda3 if needed)
+
+            export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/myria3d/lib:$LD_LIBRARY_PATH" 
