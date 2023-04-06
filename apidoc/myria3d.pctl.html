@@ -106,11 +106,15 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-datamodule">myria3d.pctl.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataloader">myria3d.pctl.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-points-pre-transform">myria3d.pctl.points_pre_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-transforms">myria3d.pctl.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-datamodule-hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataset-hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataset-iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataset-toy-dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataloader-dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-points-pre-transform-lidar-hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-transforms-compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-transforms-transforms">myria3d.pctl.transforms.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
@@ -163,11 +167,20 @@
   <section id="myria3d-pctl">
 <h1>myria3d.pctl<a class="headerlink" href="#myria3d-pctl" title="Permalink to this headline"></a></h1>
 <p>Objects relative to the preprocessing and loading of Lidar data.</p>
-<section id="myria3d-pctl-datamodule">
-<h2>myria3d.pctl.datamodule<a class="headerlink" href="#myria3d-pctl-datamodule" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-datamodule-hdf5">
+<h2>myria3d.pctl.datamodule.hdf5<a class="headerlink" href="#myria3d-pctl-datamodule-hdf5" title="Permalink to this headline"></a></h2>
+</section>
+<section id="myria3d-pctl-dataset-hdf5">
+<h2>myria3d.pctl.dataset.hdf5<a class="headerlink" href="#myria3d-pctl-dataset-hdf5" title="Permalink to this headline"></a></h2>
+</section>
+<section id="myria3d-pctl-dataset-iterable">
+<h2>myria3d.pctl.dataset.iterable<a class="headerlink" href="#myria3d-pctl-dataset-iterable" title="Permalink to this headline"></a></h2>
+</section>
+<section id="myria3d-pctl-dataset-toy-dataset">
+<h2>myria3d.pctl.dataset.toy_dataset<a class="headerlink" href="#myria3d-pctl-dataset-toy-dataset" title="Permalink to this headline"></a></h2>
 </section>
 <section id="module-myria3d.pctl.dataset.utils">
-<span id="myria3d-pctl-dataset"></span><h2>myria3d.pctl.dataset<a class="headerlink" href="#module-myria3d.pctl.dataset.utils" title="Permalink to this headline"></a></h2>
+<span id="myria3d-pctl-dataset-utils"></span><h2>myria3d.pctl.dataset.utils<a class="headerlink" href="#module-myria3d.pctl.dataset.utils" title="Permalink to this headline"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.find_file_in_dir">
 <span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">find_file_in_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#find_file_in_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.find_file_in_dir" title="Permalink to this definition"></a></dt>
@@ -260,14 +273,17 @@
 </dd></dl>
 
 </section>
-<section id="myria3d-pctl-dataloader">
-<h2>myria3d.pctl.dataloader<a class="headerlink" href="#myria3d-pctl-dataloader" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-dataloader-dataloader">
+<h2>myria3d.pctl.dataloader.dataloader<a class="headerlink" href="#myria3d-pctl-dataloader-dataloader" title="Permalink to this headline"></a></h2>
 </section>
-<section id="myria3d-pctl-points-pre-transform">
-<h2>myria3d.pctl.points_pre_transform<a class="headerlink" href="#myria3d-pctl-points-pre-transform" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-points-pre-transform-lidar-hd">
+<h2>myria3d.pctl.points_pre_transform.lidar_hd<a class="headerlink" href="#myria3d-pctl-points-pre-transform-lidar-hd" title="Permalink to this headline"></a></h2>
 </section>
-<section id="myria3d-pctl-transforms">
-<h2>myria3d.pctl.transforms<a class="headerlink" href="#myria3d-pctl-transforms" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-transforms-compose">
+<h2>myria3d.pctl.transforms.compose<a class="headerlink" href="#myria3d-pctl-transforms-compose" title="Permalink to this headline"></a></h2>
+</section>
+<section id="myria3d-pctl-transforms-transforms">
+<h2>myria3d.pctl.transforms.transforms<a class="headerlink" href="#myria3d-pctl-transforms-transforms" title="Permalink to this headline"></a></h2>
 </section>
 </section>
 
