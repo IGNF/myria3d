@@ -13,7 +13,6 @@ from myria3d.pctl.dataset.utils import get_pdal_info_metadata, get_pdal_reader
 log = logging.getLogger(__name__)
 
 
-@torch.no_grad()
 class Interpolator:
     """A class to load, update with classification, update with probas (optionnal), and save a LAS."""
 

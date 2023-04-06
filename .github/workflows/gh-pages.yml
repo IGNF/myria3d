@@ -50,7 +50,7 @@ jobs:
 
       - name: "Build Sphinx Doc"
         working-directory: ./docs/
-        run: make html
+        run: LD_LIBRARY_PATH="/miniconda/lib/:$LD_LIBRARY_PATH" make html
 
       # 3. Déploiement sur les Github Pages
       - name: "Deploy Github Pages"
