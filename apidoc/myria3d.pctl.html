@@ -106,11 +106,11 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configs.html">Default configuration</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-datamodule">myria3d.pctl.datamodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-dataloader">myria3d.pctl.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-points-pre-transform">myria3d.pctl.points_pre_transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#myria3d-pctl-transforms">myria3d.pctl.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myria3d.model.html">myria3d.models</a><ul>
@@ -163,20 +163,111 @@
   <section id="myria3d-pctl">
 <h1>myria3d.pctl<a class="headerlink" href="#myria3d-pctl" title="Permalink to this headline"></a></h1>
 <p>Objects relative to the preprocessing and loading of Lidar data.</p>
-<section id="module-myria3d.pctl.datamodule">
-<span id="myria3d-pctl-datamodule"></span><h2>myria3d.pctl.datamodule<a class="headerlink" href="#module-myria3d.pctl.datamodule" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-datamodule">
+<h2>myria3d.pctl.datamodule<a class="headerlink" href="#myria3d-pctl-datamodule" title="Permalink to this headline"></a></h2>
 </section>
-<section id="module-myria3d.pctl.dataset">
-<span id="myria3d-pctl-dataset"></span><h2>myria3d.pctl.dataset<a class="headerlink" href="#module-myria3d.pctl.dataset" title="Permalink to this headline"></a></h2>
+<section id="module-myria3d.pctl.dataset.utils">
+<span id="myria3d-pctl-dataset"></span><h2>myria3d.pctl.dataset<a class="headerlink" href="#module-myria3d.pctl.dataset.utils" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.find_file_in_dir">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">find_file_in_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#find_file_in_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.find_file_in_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Query files matching a basename in input_data_dir and its subdirectories.
+:param _sphinx_paramlinks_myria3d.pctl.dataset.utils.find_file_in_dir.input_data_dir: data directory
+:type _sphinx_paramlinks_myria3d.pctl.dataset.utils.find_file_in_dir.input_data_dir: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>first file path matching the query.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.get_pdal_info_metadata">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">get_pdal_info_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">las_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#get_pdal_info_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.get_pdal_info_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Read las metadata using pdal info
+:param _sphinx_paramlinks_myria3d.pctl.dataset.utils.get_pdal_info_metadata.las_path: input LAS path to read.
+:type _sphinx_paramlinks_myria3d.pctl.dataset.utils.get_pdal_info_metadata.las_path: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary containing metadata from the las file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.get_pdal_reader">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">get_pdal_reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">las_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pdal.pipeline.Reader.las</span></span></span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#get_pdal_reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.get_pdal_reader" title="Permalink to this definition"></a></dt>
+<dd><p>Standard Reader which imposes Lamber 93 SRS.
+:param _sphinx_paramlinks_myria3d.pctl.dataset.utils.get_pdal_reader.las_path: input LAS path to read.
+:type _sphinx_paramlinks_myria3d.pctl.dataset.utils.get_pdal_reader.las_path: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>reader to use in a pipeline.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pdal.Reader.las</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.pdal_read_las_array">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">pdal_read_las_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">las_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#pdal_read_las_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.pdal_read_las_array" title="Permalink to this definition"></a></dt>
+<dd><p>Read LAS as a named array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="myria3d.pctl.dataset.utils.pdal_read_las_array.params.las_path"></span><strong>las_path</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.utils.pdal_read_las_array.params.las_path">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – input LAS path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>named array with all LAS dimensions, including extra ones, with dict-like access.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">pdal_read_las_array_as_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">las_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#pdal_read_las_array_as_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32" title="Permalink to this definition"></a></dt>
+<dd><p>Read LAS as a a named array, casted to floats.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="myria3d.pctl.dataset.utils.split_cloud_into_samples">
+<span class="sig-prename descclassname"><span class="pre">myria3d.pctl.dataset.utils.</span></span><span class="sig-name descname"><span class="pre">split_cloud_into_samples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">las_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.11)"><span class="pre">numbers.Number</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtile_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.11)"><span class="pre">numbers.Number</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.11)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'disk'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.11)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'square'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtile_overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.11)"><span class="pre">numbers.Number</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/dataset/utils.html#split_cloud_into_samples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.dataset.utils.split_cloud_into_samples" title="Permalink to this definition"></a></dt>
+<dd><p>Split LAS point cloud into samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="myria3d.pctl.dataset.utils.split_cloud_into_samples.params.las_path"></span><strong>las_path</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.las_path">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – path to raw LAS file</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.utils.split_cloud_into_samples.params.tile_width"></span><strong>tile_width</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.tile_width">¶</a> (<em>Number</em>) – width of input LAS file</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.utils.split_cloud_into_samples.params.subtile_width"></span><strong>subtile_width</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.subtile_width">¶</a> (<em>Number</em>) – width of receptive field ; may be increased for coverage in case of disk shape.</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.utils.split_cloud_into_samples.params.shape"></span><strong>shape</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.shape">¶</a> – “disk” or “square”</p></li>
+<li><p><span class="target" id="myria3d.pctl.dataset.utils.split_cloud_into_samples.params.subtile_overlap"></span><strong>subtile_overlap</strong><a class="paramlink headerlink reference internal" href="#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.subtile_overlap">¶</a> (<em>Number</em><em>, </em><em>optional</em>) – overlap between adjacent tiles. Defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><em>_type_</em> – idx_in_original_cloud, and points of sample in pdal input format casted as floats.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="module-myria3d.pctl.dataloader">
-<span id="myria3d-pctl-dataloader"></span><h2>myria3d.pctl.dataloader<a class="headerlink" href="#module-myria3d.pctl.dataloader" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-dataloader">
+<h2>myria3d.pctl.dataloader<a class="headerlink" href="#myria3d-pctl-dataloader" title="Permalink to this headline"></a></h2>
 </section>
-<section id="module-myria3d.pctl.points_pre_transform">
-<span id="myria3d-pctl-points-pre-transform"></span><h2>myria3d.pctl.points_pre_transform<a class="headerlink" href="#module-myria3d.pctl.points_pre_transform" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-points-pre-transform">
+<h2>myria3d.pctl.points_pre_transform<a class="headerlink" href="#myria3d-pctl-points-pre-transform" title="Permalink to this headline"></a></h2>
 </section>
-<section id="module-myria3d.pctl.transforms">
-<span id="myria3d-pctl-transforms"></span><h2>myria3d.pctl.transforms<a class="headerlink" href="#module-myria3d.pctl.transforms" title="Permalink to this headline"></a></h2>
+<section id="myria3d-pctl-transforms">
+<h2>myria3d.pctl.transforms<a class="headerlink" href="#myria3d-pctl-transforms" title="Permalink to this headline"></a></h2>
 </section>
 </section>
 
