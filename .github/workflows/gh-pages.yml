@@ -39,6 +39,8 @@ jobs:
             # Environment to create and activate for next steps
             activate-environment: myria3d
 
+      - name: Export for torch_geometric to find where cuda is.
+        run: export LD_LIBRARY_PATH="/miniconda/lib/:$LD_LIBRARY_PATH" && echo ${LD_LIBRARY_PATH}
 
       - name: Update myria3d environment using the
         run: mamba env update -n myria3d -f environment.yml
