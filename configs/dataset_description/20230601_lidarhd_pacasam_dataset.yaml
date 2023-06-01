@@ -1,0 +1,15 @@
+_convert_: all  # For omegaconf struct to be converted to python dictionnaries
+# classification_preprocessing_dict = {source_class_code_int: target_class_code_int},
+# 3: medium vegetation -> vegetation
+# 4: high vegetation -> vegetation
+# 0: no processing --> unclassified
+# 66: synthetic points --> noise (synthetic points are useful for specific modelling task on already classified data).
+# We set them to noise so that they are ignored during training.
+classification_preprocessing_dict: {3: 5, 4: 5, 0: 1, 66: 65}
+
+# classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
+classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge, 64: lasting_above, 66: 65}
+
+# Input and output dims of neural net are dataset dependant:
+d_in: 9
+num_classes: 7
