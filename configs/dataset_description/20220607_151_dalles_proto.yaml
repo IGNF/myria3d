@@ -5,9 +5,10 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # 160: antenna -> lasting_above
 # 161: wind_turbines -> lasting_above
 # 162: pylon -> lasting_above
-# 65: noise --> -1 (to ignore them in inference process, but tey will still be included in the final output cloud).
-# Some trash classes were left in this dataset We do not drop them (i.e. map them to -1) to avoid unintended conflict in production.
-classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1, 7: 1, 46: 1, 47: 1, 48: 1, 49: 1, 50: 1, 51: 1, 52: 1, 53: 1, 54: 1, 55: 1, 56: 1, 57: 1, 58: 1, 64: 1, 66: 1, 67: 1, 77: 1, 155: 1, 204: 1}
+# Note: other codes are also mapped to 1 (unclassified) : they were left in this dataset during its creation, and are a minority.
+# We do not drop them (i.e. we do not map them to the reserved noise code (65) during training) 
+# in order to avoid unintended conflict in production.
+classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1, 7: 1, 46: 1, 47: 1, 48: 1, 49: 1, 50: 1, 51: 1, 52: 1, 53: 1, 54: 1, 55: 1, 56: 1, 57: 1, 58: 1, 66: 1, 67: 1, 77: 1, 155: 1, 204: 1}
 
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge, 64: lasting_above}
