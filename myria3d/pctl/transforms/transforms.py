@@ -218,7 +218,7 @@ class TargetTransform(BaseTransform):
         d = {class_code: class_index for class_index, class_code in enumerate(classification_dict.keys())}
         # Here we update the dict so that code 65 remains unchanged.
         # Indeed, 65 is reserved for noise/artefacts points, that will be deleted by transform "DropPointsByClass".
-        d.update({65: 65})  
+        d.update({65: 65})
         self.mapper = np.vectorize(lambda class_code: d.get(class_code))
 
 
