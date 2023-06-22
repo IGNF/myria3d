@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Install Myria3D on WSL2 with CUDA support &mdash; myria3d 3.3.3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Preparing data for training" href="prepare_dataset.html" />
+    <link rel="prev" title="Install Myria3D on Linux" href="install_on_linux.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> myria3d
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install_on_linux.html">Install Myria3D on Linux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Install Myria3D on WSL2 with CUDA support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-wsl2">Setting up WSL2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-anaconda">Installing Anaconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-myria3d">Installing Myria3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-cuda-in-wsl">Install cuda in WSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-source">Run inference from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#code-versionning">Code versionning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">myria3d</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Install Myria3D on WSL2 with CUDA support</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/install_on_wsl2.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="install-myria3d-on-wsl2-with-cuda-support">
+<h1>Install Myria3D on WSL2 with CUDA support<a class="headerlink" href="#install-myria3d-on-wsl2-with-cuda-support" title="Permalink to this headline"></a></h1>
+<p>Myria3D is a deep learning library designed with a focused scope: the multiclass semantic segmentation of large scale, high density aerial Lidar points cloud.</p>
+<p>For Windows users it is quite tricky to get everything working in Myria3D. Some of the dependencies do not yet support Windows or leads to various version mismatch problems during installation. It’s best to use Windows Subsystem for Linux (WSL2) to get the most out of this library if you want to work on Windows. While setting up WSL and installing Myria3D is not that difficult, if you want to utilize GPU, it becomes much more challenging. This guide tries to address the necessary steps that needs to be taken to get a properly working environment with GPU support.</p>
+<section id="setting-up-wsl2">
+<h2><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Setting up WSL2</a><a class="headerlink" href="#setting-up-wsl2" title="Permalink to this headline"></a></h2>
+<p>Myria3D requires the latest Linux distros to work properly. That’s why it’s important to make sure that everything in the WSL is up to date.</p>
+<ol class="arabic">
+<li><p>You must be running Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11 to use the commands below. If you are on earlier versions please see the <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install-manual">manual install page</a>.</p></li>
+<li><p>Open PowerShell or Windows Command Prompt in administrator mode by right-clicking and selecting “Run as administrator”, enter the <code class="docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--install</span></code> command, then restart your machine.</p></li>
+<li><p>Ensure you have the latest WSL kernel:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> wsl.exe --update
+</pre></div>
+</div>
+</li>
+<li><p>This command will enable the features necessary to run WSL and install the Ubuntu distribution (default Ubuntu 22.04) of Linux.</p></li>
+<li><p>If you run <code class="docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--install</span></code> and see the WSL help text, that means WSL is already installed. In that case run <code class="docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--list</span> <span class="pre">--online</span></code> to see a list of available distros and run <code class="docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--install</span> <span class="pre">-d</span> <span class="pre">&lt;DistroName&gt;</span></code> to install a distro. In this case we need Ubuntu 22.04, so type:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> wsl --install -d Ubuntu
+</pre></div>
+</div>
+</li>
+<li><p>You need to update your libraries before moving forward by running</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> sudo apt update &amp;&amp; sudo apt upgrade
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="installing-anaconda">
+<h2><a class="reference external" href="https://docs.anaconda.com/anaconda/install/linux/">Installing Anaconda</a><a class="headerlink" href="#installing-anaconda" title="Permalink to this headline"></a></h2>
+<ol class="arabic">
+<li><p>In your browser, download the Anaconda installer for <a class="reference external" href="https://www.anaconda.com/products/distribution#linux">Linux</a>.</p></li>
+<li><p>It’s recommended to copy the downloaded file to your WSL home directory- <code class="docutils literal notranslate"><span class="pre">\\wsl.localhost\Ubuntu\home\&lt;username&gt;</span></code></p></li>
+<li><p>In the Ubuntu/ WSL terminal, run the following-</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> bash Anaconda3-2022.10-Linux-x86_64.sh
+</pre></div>
+</div>
+<p>Replace the <code class="docutils literal notranslate"><span class="pre">Anaconda3-2022.10-Linux-x86_64.sh</span></code> part with your downloaded file name.</p>
+</li>
+<li><p>Press Enter to review the license agreement. Then press and hold Enter to scroll.</p></li>
+<li><p>Enter “yes” to agree to the license agreement.</p></li>
+<li><p>Use Enter to accept the default install location, the installer displays PREFIX=/home/<USER>/anaconda&lt;2/3&gt; and continues the installation. It may take a few minutes to complete.</p></li>
+<li><p>The installer prompts you to choose whether to initialize Anaconda Distribution by running conda init. Anaconda recommends entering “yes”.</p></li>
+</ol>
+</section>
+<section id="installing-myria3d">
+<h2>Installing Myria3D<a class="headerlink" href="#installing-myria3d" title="Permalink to this headline"></a></h2>
+<ol class="arabic">
+<li><p>Clone the Myria3D main branch in your working directory using the following command</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git clone https://github.com/IGNF/myria3d.git
+</pre></div>
+</div>
+<p>After it’s done, navigate to the <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> file. You might need to make couple of changes here before installing the libararies.</p>
+</li>
+<li><p>Check the cuda version of your Windows system. You can find it easily by running <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> in your Windows command prompt.</p>
+<ul>
+<li><p>If the cuda version is 11.3.1 (or the same version stated in the environemnt.yml file), then you can carry on with the installation process without changing anything.</p></li>
+<li><p>If the cuda version is something else, then you need to cross-check with <a class="reference external" href="https://data.pyg.org/whl/">this repository</a> if it is supported. At the time of writing this documentation, cuda 9.2, 10.0, 10.1, 10.2, 11.1, 11.3, 11.5, 11.6, 11.7 these versions have corresonding PyG (PyTorch Geometric) libraries to run Myria3D.</p>
+<ul>
+<li><p>If your cuda version is supported, then follow the next steps, otherwise install a driver version that is supported. You can check <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id4">here</a> which driver version is required for the cuda version you need, then also check if that is supported by your GPU model.</p></li>
+<li><p>After you figured out and installed the compatible driver on your windows machine, you need to change the cuda version in the environment.yml file as well.</p></li>
+<li><p>Comment out the following line, as we are using WSL, we should not install the nvidia driver.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  conda-forge::cudatoolkit=11.3.1
+</pre></div>
+</div>
+</li>
+<li><p>Change the following links depending on which cuda version and pytorch version you are using</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  - --extra-index-url https://download.pytorch.org/whl/cu113
+
+  Wheels for torch-geometric optionnal dependencies
+  - https://data.pyg.org/whl/torch-1.11.0+cu113/torch_cluster-1.6.0-cp39-cp39-linux_x86_64.whl
+  - https://data.pyg.org/whl/torch-1.11.0+cu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
+  - https://data.pyg.org/whl/torch-1.11.0+cu113/torch_sparse-0.6.14-cp39-cp39-linux_x86_64.whl
+</pre></div>
+</div>
+</li>
+<li><p>Change the following link depending on your cuda version. Check the compatibility tables <a class="reference external" href="https://github.com/pyg-team/pytorch_geometric#pip-wheels">here</a> and change the git version accordingly. At the time of writing this, PyG (PyTorch Geometric) was in version PyG 2.2.0 and it supports cuda 10.2, 11.3, 11.6 and 11.7 on Linux. If you have any of these cuda, then change the git version to 2.2.0 otherwise keep it at 2.1.0</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  - git+https://github.com/pyg-team/pytorch_geometric.git@2.1.0
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>We use anaconda to manage virtual environments. This makes installing pytorch-related libraries way easier than using pure pip installs.</p></li>
+<li><p>To install the virtual environment, run the following commands within Ubuntu/ WSL terminal-</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> conda env create -f &quot;/PATH/TO/environment.yml&quot;
+</pre></div>
+</div>
+<p>It will take couple of minutes to download and install all the packages. After that activate the environment by running-</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> conda activate myria3d
+</pre></div>
+</div>
+</li>
+<li><p>Then install from a specific branch from github directly.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> pip install --upgrade https://github.com/IGNF/myria3d/tarball/main
+</pre></div>
+</div>
+<p>Alternatively, navigate your working directory to the cloned myria3d directory and install from sources directly in editable mode with</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> pip install -e .
+</pre></div>
+</div>
+</li>
+</ol>
+<p>At this point Myria3D is installed and you can move ahead with inference or testing using the method stated <a class="reference external" href="https://ignf.github.io/myria3d/tutorials/make_predictions.html">here</a> (CPU-only). CUDA toolkit for WSL is still not installed and because of that GPU will not be accessible to WSL yet. It will be done in the next section.</p>
+<p align="center" width="100%">
+    <img width="33%" src="https://docs.nvidia.com/cuda/wsl-user-guide/_images/wsl-launch-upt-0625-rz.png">
+</p>        
+</section>
+<section id="install-cuda-in-wsl">
+<h2><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2">Install cuda in WSL</a><a class="headerlink" href="#install-cuda-in-wsl" title="Permalink to this headline"></a></h2>
+<p><strong>Do not install any driver within the WSL environment. For building a CUDA application, you will need CUDA Toolkit.</strong> The latest NVIDIA Windows GPU Driver will fully support WSL 2. With CUDA support in the driver, existing applications (compiled elsewhere on a Linux system for the same target GPU) can run unmodified within the WSL environment. The CUDA WSL-Ubuntu local installer does not contain the NVIDIA Linux GPU driver, so by following the steps below, you will be able to get just the CUDA toolkit installed on WSL.</p>
+<ol class="arabic">
+<li><p>First, remove the old GPG key:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> sudo apt-key del 7fa2af80
+</pre></div>
+</div>
+</li>
+<li><p>Go to this <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">link</a> and choose the cuda toolkit version according to your Windows NVIDIA driver’s cuda version. For demonstration purposes, <a class="reference external" href="https://developer.nvidia.com/cuda-11-3-1-download-archive?target_os=Linux&amp;target_arch=x86_64&amp;Distribution=WSL-Ubuntu&amp;target_version=2.0&amp;target_type=deb_local">cudatoolkit 11.3.1</a> is shown here.</p></li>
+<li><p>Run the following commands <strong>one by one</strong>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
+ sudo mv cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
+ wget https://developer.download.nvidia.com/compute/cuda/11.3.1/local_installers/cuda-repo-wsl-ubuntu-11-3-local_11.3.1-1_amd64.deb
+ sudo dpkg -i cuda-repo-wsl-ubuntu-11-3-local_11.3.1-1_amd64.deb
+ sudo apt-key add /var/cuda-repo-wsl-ubuntu-11-3-local/7fa2af80.pub
+ sudo apt-get update
+ sudo apt-get -y install cuda
+</pre></div>
+</div>
+<p>If in any step there is an error, just run the commands that are shown on the terminal. For example <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-key</span> <span class="pre">add</span> <span class="pre">___</span></code> command might be shown on the terminal as the next step. If the links have some placeholder values, it’s better to just use commands shown on the terminal to be error-free.</p>
+<p>After running these commands cuda toolkit will be installed on WSL and Myria3D GPU functionalities can be used.</p>
+</li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p><em>OSError(libcusparse.so.11 cannot open shared object file no such file or directory)</em> (<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625">**</a>)</p>
+<ul>
+<li><p>open the .bashrc file from your Ubuntu home directory and at the end of the file, add the following line (replace anaconda3 with miniconda3 if needed)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  export LD_LIBRARY_PATH=&quot;/home/${USER}/anaconda3/envs/myria3d/lib:$LD_LIBRARY_PATH&quot; 
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><em>ImportError: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30’ not found</em> (<a class="reference external" href="https://askubuntu.com/a/582910">**</a>)</p>
+<ul>
+<li><p>run the following commands in your Ubuntu/ WSL terminal</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+  sudo apt-get update
+  sudo apt-get install --only-upgrade libstdc++6
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>GPU-related errors:</p>
+<ul>
+<li><p><em>RuntimeError: Found no NVIDIA driver on your system. Please check that you have an NVIDIA GPU and installed a driver from http://www.nvidia.com/Download/index.aspx</em></p></li>
+<li><p><em>Failed to initialize NVML: GPU access blocked by the operating system Failed to properly shut down NVML: GPU access blocked by the operating system</em></p></li>
+<li><p><em>Failed to initialize NVML: Driver/library version mismatch</em></p></li>
+<li><p>any other GPU related errors</p>
+<ul>
+<li><p>Make sure you followed the cuda installation part as well as the cuda toolkit version matching properly. If not, remove cuda completely and install again. <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#removing-cuda-toolkit-and-driver">**</a></p></li>
+<li><p>Make sure to open the command prompt in Admin mode <a class="reference external" href="https://forums.developer.nvidia.com/t/failed-to-properly-shut-down-nvml-gpu-access-blocked-by-the-operating-system/234413/5">**</a></p></li>
+<li><p>In some cases using the Admin mode blocks access to the GPU, use non-elevated command prompt if that occurs</p></li>
+<li><p>Restart your WSL and try again <a class="reference external" href="https://stackoverflow.com/a/43023000/8889660">**</a></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  wsl --shutdown
+</pre></div>
+</div>
+</li>
+<li><p>If the error persists then see if you have the correct GPU models. As of now, cuda toolkit in WSL is supported in <strong>NVIDIA GeForce Game Ready or NVIDIA RTX/Quadro card</strong>s only.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install_on_linux.html" class="btn btn-neutral float-left" title="Install Myria3D on Linux" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="prepare_dataset.html" class="btn btn-neutral float-right" title="Preparing data for training" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
