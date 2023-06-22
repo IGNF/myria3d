@@ -5,10 +5,11 @@ on:
   push:
     branches:
       - main
-  # UNCOMMENT TO TEST WORKFLOW FOR DOCUMENTATION BRANCHES.
-  pull_request:
-    branches:
-      - main
+
+  # UNCOMMENT TO DEBUG DOCUMENTATION
+  # pull_request:
+  #   branches:
+  #     - main
 
 jobs:
 
@@ -63,6 +64,6 @@ jobs:
       - name: "Deploy documentation on Github pages"
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          # BRANCH: gh-pages     # <- Branch where generated doc files will be commited
-          BRANCH: gh-pages-DEBUG
+          BRANCH: gh-pages     # <- Branch where generated doc files will be commited
+          # BRANCH: gh-pages-DEBUG    # <-- UNCOMMENT TO DEBUG DOCUMENTATION
           FOLDER: docs/build/html/  # <- Dir where .nojekyll is created and from which to deploy github pages.
