@@ -1,29 +1,34 @@
 # Workflow name
 name: "Documentation Build"
 
-# Event that must trigger the workflow
 on:
-  push:         # <- trigger when we call push
+  push:
     branches:
-      - main  # <- but only on main branch
+      - main
+  # UNCOMMENT TO TEST WORKFLOW FOR DOCUMENTATION BRANCHES.
+  pull_request:
+    branches:
+      - main
 
 jobs:
 
   build-and-deploy:
     runs-on: ubuntu-latest
+
     # Use bash instead of sh for conda activation
     defaults:
       run:
         shell: bash -l {0}
+
     # Task to do when launching the workflow
     steps:
 
       # 1. First get the repository source
 
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # 2. Sphinx part : install tool and dependencies
+      # 2. Setup virtual environment with mamba
       # See https://github.com/conda-incubator/setup-miniconda#caching-environments
 
       - name: Setup a conda-incubator with an empty conda env
@@ -33,24 +38,31 @@ jobs:
             miniforge-variant: Mambaforge
             miniforge-version: latest
             use-mamba: true
-            # For caching to work:
-            use-only-tar-bz2: true
             # Environment to create and activate for next steps
             activate-environment: myria3d
 
-      - name: Update myria3d environment using the
+      - name: Cache conda environment based on dependencies.
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CONDA }}/envs
+          key: conda-${{ hashFiles('environment.yml') }}
+        id: cache
+
+      - name: Update the (currently empty) myria3d environment, if a cache cannot be found.
+        if: steps.cache.outputs.cache-hit != 'true'
         run: mamba env update -n myria3d -f environment.yml
 
-      - name: "Build Sphinx Doc"
+      - name: "Build documentation"
         working-directory: ./docs/
         run: |
-          # Export for torch_geometric to find where cuda is
+          # Tell torch_geometric where to find cuda
           export LD_LIBRARY_PATH="/usr/share/miniconda3/envs/myria3d/lib:$LD_LIBRARY_PATH"
           make html
 
-      # 3. Déploiement sur les Github Pages
-      - name: "Deploy Github Pages"
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+      # 3. Déploy on Github Pages
+      - name: "Deploy documentation on Github pages"
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          BRANCH: gh-pages     # <- Branch where generated doc files will be commited
+          # BRANCH: gh-pages     # <- Branch where generated doc files will be commited
+          BRANCH: gh-pages-DEBUG
           FOLDER: docs/build/html/  # <- Dir where .nojekyll is created and from which to deploy github pages.
