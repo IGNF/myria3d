@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; myria3d 3.3.2 documentation</title>
+  <title>Index &mdash; myria3d 3.3.3 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -40,6 +40,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
@@ -96,22 +97,26 @@
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/configs.html">Default configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
@@ -160,33 +165,93 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#C"><strong>C</strong></a>
+ <a href="#Symbols"><strong>Symbols</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
  
 </div>
-<h2 id="C">C</h2>
+<h2 id="Symbols">Symbols</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.compute">compute() (myria3d.callbacks.logging_callbacks.SingleClassIoU method)</a>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.`split`">`split` (myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file parameter)</a>
 </li>
-      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.extras.params.config">config (myria3d.utils.utils.extras parameter)</a>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predictions_and_save.params.basename">basename (myria3d.models.interpolation.Interpolator.reduce_predictions_and_save parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward.params.batch">batch (myria3d.models.model.Model.forward parameter)</a>
 
       <ul>
-        <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.config">(myria3d.utils.utils.print_config parameter)</a>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step.params.batch">(myria3d.models.model.Model.predict_step parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step.params.batch">(myria3d.models.model.Model.test_step parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.batch">(myria3d.models.model.Model.training_step parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.batch">(myria3d.models.model.Model.validation_step parameter)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.batch_idx">batch_idx (myria3d.models.model.Model.training_step parameter)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.batch_idx">(myria3d.models.model.Model.validation_step parameter)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.get_neural_net_class.params.class_name">class_name (myria3d.models.model.get_neural_net_class parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.compute">compute() (myria3d.callbacks.logging_callbacks.SingleClassIoU method)</a>
+</li>
+      <li><a href="apidoc/scripts.html#myria3d.train.train.params.config">config (myria3d.train.train parameter)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.extras.params.config">(myria3d.utils.utils.extras parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.config">(myria3d.utils.utils.print_config parameter)</a>
+</li>
+      </ul></li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.configure_optimizers">configure_optimizers() (myria3d.models.model.Model method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU.confmat">confmat (myria3d.callbacks.logging_callbacks.SingleClassIoU attribute)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopyFullPos">CopyFullPos (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopyFullPreparedTargets">CopyFullPreparedTargets (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopySampledPos">CopySampledPos (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5">create_hdf5() (in module myria3d.pctl.dataset.hdf5)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.compose.CustomCompose">CustomCompose (class in myria3d.pctl.transforms.compose)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -194,7 +259,13 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.dataset">dataset (myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.define_device_from_config_param">define_device_from_config_param() (in module myria3d.utils.utils)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.DropPointsByClass">DropPointsByClass (class in myria3d.pctl.transforms.transforms)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -216,12 +287,28 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.fields">fields (myria3d.utils.utils.print_config parameter)</a>
 </li>
-      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.load_full_las_for_update.params.filepath">filepath (myria3d.models.interpolation.Interpolator.load_full_las_for_update parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.files">files (myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.find_file_in_dir">find_file_in_dir() (in module myria3d.pctl.dataset.utils)</a>
+</li>
+      <li><a href="apidoc/scripts.html#run.TASK_NAMES.FINETUNE">FINETUNE (run.TASK_NAMES attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.finetune_function">finetune_function() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
+</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze">FinetuningFreezeUnfreeze (class in myria3d.callbacks.finetuning_callbacks)</a>
 </li>
+      <li><a href="apidoc/scripts.html#run.TASK_NAMES.FIT">FIT (run.TASK_NAMES attribute)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward">forward() (myria3d.models.model.Model method)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.pyg_randla_net.PyGRandLANet.forward">(myria3d.models.modules.pyg_randla_net.PyGRandLANet method)</a>
+</li>
+      </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze.freeze_before_training">freeze_before_training() (myria3d.callbacks.finetuning_callbacks.FinetuningFreezeUnfreeze method)</a>
 </li>
   </ul></td>
@@ -230,13 +317,57 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataloader.dataloader.GeometricNoneProofCollater">GeometricNoneProofCollater (class in myria3d.pctl.dataloader.dataloader)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataloader.dataloader.GeometricNoneProofDataloader">GeometricNoneProofDataloader (class in myria3d.pctl.dataloader.dataloader)</a>
+</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.get_all_iou_by_class_object">get_all_iou_by_class_object() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
+</li>
+      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.get_comet_logger">get_comet_logger() (in module myria3d.callbacks.comet_callbacks)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.get_comet_logger">get_comet_logger() (in module myria3d.callbacks.comet_callbacks)</a>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.iterable.InferenceDataset.get_iterator">get_iterator() (myria3d.pctl.dataset.iterable.InferenceDataset method)</a>
 </li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.get_logger">get_logger() (in module myria3d.utils.utils)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.get_neural_net_class">get_neural_net_class() (in module myria3d.models.model)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_info_metadata">get_pdal_info_metadata() (in module myria3d.pctl.dataset.utils)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader">get_pdal_reader() (in module myria3d.pctl.dataset.utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/scripts.html#run.TASK_NAMES.HDF5">HDF5 (run.TASK_NAMES attribute)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.hdf5_file_path">hdf5_file_path (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.HDF5Dataset">HDF5Dataset (class in myria3d.pctl.dataset.hdf5)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule">HDF5LidarDataModule (class in myria3d.pctl.datamodule.hdf5)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.iterable.InferenceDataset">InferenceDataset (class in myria3d.pctl.dataset.iterable)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.find_file_in_dir.params.input_data_dir">input_data_dir (myria3d.pctl.dataset.utils.find_file_in_dir parameter)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predictions_and_save.params.interpolation">interpolation (myria3d.models.interpolation.Interpolator.reduce_predictions_and_save parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator">Interpolator (class in myria3d.models.interpolation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -244,12 +375,38 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform.params.las_filepath">las_filepath (myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.las_path">las_path (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_info_metadata.params.las_path">(myria3d.pctl.dataset.utils.get_pdal_info_metadata parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader.params.las_path">(myria3d.pctl.dataset.utils.get_pdal_reader parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array.params.las_path">(myria3d.pctl.dataset.utils.pdal_read_las_array parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.las_path">(myria3d.pctl.dataset.utils.split_cloud_into_samples parameter)</a>
+</li>
+      </ul></li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.las_paths_by_split_dict">las_paths_by_split_dict (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+      <li><a href="apidoc/scripts.html#run.launch_hdf5">launch_hdf5() (in module run)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/scripts.html#run.launch_predict">launch_predict() (in module run)</a>
+</li>
+      <li><a href="apidoc/scripts.html#run.launch_train">launch_train() (in module run)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform">lidar_hd_pre_transform() (in module myria3d.pctl.points_pre_transform.lidar_hd)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.load_full_las_for_update">load_full_las_for_update() (myria3d.models.interpolation.Interpolator method)</a>
+</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.log_hyperparameters">log_hyperparameters() (in module myria3d.utils.utils)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.log_iou">log_iou() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode">LogCode (class in myria3d.callbacks.comet_callbacks)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass">LogIoUByClass (class in myria3d.callbacks.logging_callbacks)</a>
@@ -262,6 +419,14 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file">make_toy_dataset_from_test_file() (in module myria3d.pctl.dataset.toy_dataset)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.MaximumNumNodes">MaximumNumNodes (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.MinimumNumNodes">MinimumNumNodes (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model">Model (class in myria3d.models.model)</a>
+</li>
       <li>
     module
 
@@ -276,19 +441,33 @@
 </li>
         <li><a href="apidoc/myria3d.model.html#module-myria3d.models.interpolation">myria3d.models.interpolation</a>
 </li>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a>
+        <li><a href="apidoc/myria3d.model.html#module-myria3d.models.model">myria3d.models.model</a>
 </li>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a>
 </li>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a>
 </li>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a>
 </li>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a>
+</li>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a>
 </li>
         <li><a href="apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a>
 </li>
+        <li><a href="apidoc/scripts.html#module-myria3d.train">myria3d.train</a>
+</li>
         <li><a href="apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a>
+</li>
+        <li><a href="apidoc/scripts.html#module-run">run</a>
 </li>
       </ul></li>
       <li>
@@ -329,38 +508,73 @@
 </li>
       </ul></li>
       <li>
-    myria3d.pctl.dataloader
+    myria3d.models.model
 
       <ul>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">module</a>
+        <li><a href="apidoc/myria3d.model.html#module-myria3d.models.model">module</a>
 </li>
       </ul></li>
       <li>
-    myria3d.pctl.datamodule
+    myria3d.pctl.dataloader.dataloader
 
       <ul>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">module</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">module</a>
 </li>
       </ul></li>
       <li>
-    myria3d.pctl.dataset
+    myria3d.pctl.datamodule.hdf5
 
       <ul>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">module</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">module</a>
 </li>
       </ul></li>
       <li>
-    myria3d.pctl.points_pre_transform
+    myria3d.pctl.dataset.hdf5
 
       <ul>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">module</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">module</a>
 </li>
       </ul></li>
       <li>
-    myria3d.pctl.transforms
+    myria3d.pctl.dataset.iterable
 
       <ul>
-        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">module</a>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.dataset.toy_dataset
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.dataset.utils
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.points_pre_transform.lidar_hd
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.transforms.compose
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.pctl.transforms.transforms
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">module</a>
 </li>
       </ul></li>
       <li>
@@ -368,6 +582,13 @@
 
       <ul>
         <li><a href="apidoc/scripts.html#module-myria3d.predict">module</a>
+</li>
+      </ul></li>
+      <li>
+    myria3d.train
+
+      <ul>
+        <li><a href="apidoc/scripts.html#module-myria3d.train">module</a>
 </li>
       </ul></li>
       <li>
@@ -380,11 +601,27 @@
   </ul></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.NormalizePos">NormalizePos (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.NullifyLowestZ">NullifyLowestZ (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_fit_start">on_fit_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_fit_start">(myria3d.models.model.Model method)</a>
 </li>
+      </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogLogsPath.on_init_end">on_init_end() (myria3d.callbacks.comet_callbacks.LogLogsPath method)</a>
 
       <ul>
@@ -393,15 +630,21 @@
       </ul></li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_batch_end">on_test_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_test_start">on_test_start() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_train_batch_end">on_train_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.LogCode.on_train_start">on_train_start() (myria3d.callbacks.comet_callbacks.LogCode method)</a>
 </li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.LogIoUByClass.on_validation_batch_end">on_validation_batch_end() (myria3d.callbacks.logging_callbacks.LogIoUByClass method)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_validation_epoch_end">on_validation_epoch_end() (myria3d.models.model.Model method)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predictions_and_save.params.output_dir">output_dir (myria3d.models.interpolation.Interpolator.reduce_predictions_and_save parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.on_validation_epoch_end.params.outputs">outputs (myria3d.models.model.Model.on_validation_epoch_end parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -409,11 +652,33 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">print_config() (in module myria3d.utils.utils)</a>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array">pdal_read_las_array() (in module myria3d.pctl.dataset.utils)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">pdal_read_las_array_as_float32() (in module myria3d.pctl.dataset.utils)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.points_pre_transform">points_pre_transform (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.pre_filter">pre_filter (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+      <li><a href="apidoc/scripts.html#run.TASK_NAMES.PREDICT">PREDICT (run.TASK_NAMES attribute)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.predict_dataloader">predict_dataloader() (myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step">predict_step() (myria3d.models.model.Model method)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data">prepare_data() (myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule method)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.prepared_data_dir">prepared_data_dir (myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">print_config() (in module myria3d.utils.utils)</a>
+</li>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.printed and in what order.">printed and in what order. (myria3d.utils.utils.print_config parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predictions_and_save.params.probabilities. Defaults to None.">probabilities. Defaults to None. (myria3d.models.interpolation.Interpolator.reduce_predictions_and_save parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.models.modules.html#myria3d.models.modules.pyg_randla_net.PyGRandLANet">PyGRandLANet (class in myria3d.models.modules.pyg_randla_net)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -421,16 +686,131 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predicted_logits">reduce_predicted_logits() (myria3d.models.interpolation.Interpolator method)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predictions_and_save">reduce_predictions_and_save() (myria3d.models.interpolation.Interpolator method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/myria3d.utils.html#myria3d.utils.utils.print_config.params.resolve">resolve (myria3d.utils.utils.print_config parameter)</a>
 </li>
+      <li>
+    run
+
+      <ul>
+        <li><a href="apidoc/scripts.html#module-run">module</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.HDF5Dataset.samples_hdf5_paths">samples_hdf5_paths (myria3d.pctl.dataset.hdf5.HDF5Dataset property)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.setup">setup() (myria3d.models.model.Model method)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup">(myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule method)</a>
+</li>
+      </ul></li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.shape">shape (myria3d.pctl.dataset.utils.split_cloud_into_samples parameter)</a>
+</li>
       <li><a href="apidoc/myria3d.callbacks.html#myria3d.callbacks.logging_callbacks.SingleClassIoU">SingleClassIoU (class in myria3d.callbacks.logging_callbacks)</a>
 </li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.split">split (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples">split_cloud_into_samples() (in module myria3d.pctl.dataset.utils)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.split_csv">split_csv (myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file parameter)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file.params.src_las_path">src_las_path (myria3d.pctl.dataset.toy_dataset.make_toy_dataset_from_test_file parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity.standardize_channel">standardize_channel() (myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity method)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity">StandardizeRGBAndIntensity (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.store_predictions">store_predictions() (myria3d.models.interpolation.Interpolator method)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.subtile_overlap">subtile_overlap (myria3d.pctl.dataset.utils.split_cloud_into_samples parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_overlap_train">subtile_overlap_train (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_shape">subtile_shape (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.subtile_width">subtile_width (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.subtile_width">(myria3d.pctl.dataset.utils.split_cloud_into_samples parameter)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.TargetTransform">TargetTransform (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/scripts.html#run.TASK_NAMES">TASK_NAMES (class in run)</a>
+</li>
+      <li><a href="apidoc/scripts.html#run.TASK_NAMES.TEST">TEST (run.TASK_NAMES attribute)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader">test_dataloader() (myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule method)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step">test_step() (myria3d.models.model.Model method)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5.params.tile_width">tile_width (myria3d.pctl.dataset.hdf5.create_hdf5 parameter)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples.params.tile_width">(myria3d.pctl.dataset.utils.split_cloud_into_samples parameter)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.ToTensor">ToTensor (class in myria3d.pctl.transforms.transforms)</a>
+</li>
+      <li><a href="apidoc/scripts.html#myria3d.train.train">train() (in module myria3d.train)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader">train_dataloader() (myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule method)</a>
+</li>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step">training_step() (myria3d.models.model.Model method)</a>
+</li>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.transforms.compose.CustomCompose.params.transforms">transforms (myria3d.pctl.transforms.compose.CustomCompose parameter)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader">val_dataloader() (myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step">validation_step() (myria3d.models.model.Model method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.forward.params.y">y (myria3d.models.model.Model.forward parameter)</a>
+
+      <ul>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.predict_step.params.y">(myria3d.models.model.Model.predict_step parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.test_step.params.y">(myria3d.models.model.Model.test_step parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.training_step.params.y">(myria3d.models.model.Model.training_step parameter)</a>
+</li>
+        <li><a href="apidoc/myria3d.model.html#myria3d.models.model.Model.validation_step.params.y">(myria3d.models.model.Model.validation_step parameter)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to train new models &mdash; myria3d 3.3.2 documentation</title>
+  <title>How to train new models &mdash; myria3d 3.3.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
@@ -99,22 +100,26 @@
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
@@ -177,7 +182,7 @@ Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html">
 <h2>Quick run<a class="headerlink" href="#quick-run" title="Permalink to this headline"></a></h2>
 <p>To test your setup and logging capabilities, you can try overfitting on a single batch of data from the toy dataset, created following instructions in <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="doc std std-doc">this page</span></a>).
 To overfit on a single batch for 30 epochs, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet-Overfit
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="nv">experiment</span><span class="o">=</span>RandLaNet-Overfit
 </pre></div>
 </div>
 </section>
@@ -185,7 +190,7 @@ To overfit on a single batch for 30 epochs, run:</p>
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h2>
 <p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> to specify your classification task - see config <code class="docutils literal notranslate"><span class="pre">20220607_151_dalles_proto.yaml</span></code> for an example.</p>
 <p>To run the full training and validation for French Lidar HD, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR
 </pre></div>
 </div>
 <p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOGS_DIR</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
@@ -204,17 +209,17 @@ Multi-GPUs training effectively reduces training time by the number of GPUs used
 <h2>Testing the model<a class="headerlink" href="#testing-the-model" title="Permalink to this headline"></a></h2>
 <p>Test will be automatically performed after each training, using best checkpointeded model.</p>
 <p>To manually evaluate per-class IoU on the test set, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
---config-path <span class="o">{</span>/path/to/.hydra<span class="o">}</span> <span class="se">\</span>
---config-name <span class="o">{</span>config.yaml<span class="o">}</span> <span class="se">\</span>
-task.task_name<span class="o">=</span><span class="s2">&quot;test&quot;</span> <span class="se">\</span>
-model.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">}</span> <span class="se">\</span>
-trainer.gpus<span class="o">={</span><span class="m">0</span> <span class="k">for</span> none, <span class="o">[</span>i<span class="o">]</span> to use GPU number i<span class="o">}</span> <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="se">\</span>
+--config-path<span class="w"> </span><span class="o">{</span>/path/to/.hydra<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+--config-name<span class="w"> </span><span class="o">{</span>config.yaml<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+task.task_name<span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="w"> </span><span class="se">\</span>
+model.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+trainer.gpus<span class="o">={</span><span class="m">0</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>none,<span class="w"> </span><span class="o">[</span>i<span class="o">]</span><span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>GPU<span class="w"> </span>number<span class="w"> </span>i<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <p>Arguments <code class="docutils literal notranslate"><span class="pre">config-path</span></code> and <code class="docutils literal notranslate"><span class="pre">config-name</span></code> means you are using the saved configuration from your training, which contains the path to the prepared HDF5 dataset.</p>
 <p>If you are using defaut configurations, you can call test using a custom experiment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="nv">experiment</span><span class="o">=</span><span class="nb">test</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="nv">experiment</span><span class="o">=</span><span class="nb">test</span>
 </pre></div>
 </div>
 </section>

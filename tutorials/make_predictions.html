@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 3.3.2 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 3.3.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install_on_linux.html">Install Myria3D on Linux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
@@ -99,22 +100,26 @@
 <p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#myria3d-train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule">myria3d.pctl.datamodule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset">myria3d.pctl.dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader">myria3d.pctl.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform">myria3d.pctl.points_pre_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms">myria3d.pctl.transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
 </ul>
 </li>
@@ -175,16 +180,16 @@
 <section id="run-inference-from-source">
 <h2>Run inference from source<a class="headerlink" href="#run-inference-from-source" title="Permalink to this headline"></a></h2>
 <p>Then, fill out the {missing parameters} below and run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py <span class="se">\</span>
-task.task_name<span class="o">=</span>predict <span class="se">\</span>
-predict.src_las<span class="o">={</span>/path/to/cloud.las<span class="o">}</span> <span class="se">\</span>
-predict.output_dir<span class="o">={</span>/path/to/out/dir/<span class="o">}</span> <span class="se">\</span>
-predict.gpus<span class="o">={</span><span class="m">0</span> <span class="k">for</span> none, <span class="o">[</span>i<span class="o">]</span> to use GPU number i<span class="o">}</span> <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="se">\</span>
+task.task_name<span class="o">=</span>predict<span class="w"> </span><span class="se">\</span>
+predict.src_las<span class="o">={</span>/path/to/cloud.las<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+predict.output_dir<span class="o">={</span>/path/to/out/dir/<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+predict.gpus<span class="o">={</span><span class="m">0</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>none,<span class="w"> </span><span class="o">[</span>i<span class="o">]</span><span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>GPU<span class="w"> </span>number<span class="w"> </span>i<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 datamodule.batch_size<span class="o">={</span>N<span class="o">}</span>
 </pre></div>
 </div>
 <p>To show you current inference config, simply add a <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run.py task.task_name<span class="o">=</span>predict --help
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span>task.task_name<span class="o">=</span>predict<span class="w"> </span>--help
 </pre></div>
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">predict.src_las</span></code> may be any valid glob pattern (e.g. <code class="docutils literal notranslate"><span class="pre">/path/to/multiple_files/*.las</span></code>), in order to <strong>predict on multiple files successively</strong>.</p>
@@ -206,13 +211,13 @@ datamodule.batch_size<span class="o">={</span>N<span class="o">}</span>
 </ul>
 <p>See <a class="reference external" href="https://github.com/anibali/docker-pytorch#running-pytorch-scripts">docker-pytorch README</a> for more details plus an additional option to specify user id at runtime.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># specify your paths here as needed</span>
-docker run <span class="se">\</span>
--v <span class="o">{</span>local_inputs<span class="o">}</span>:/inputs/ <span class="se">\</span>
--v <span class="o">{</span>local_output<span class="o">}</span>:/outputs/ <span class="se">\</span>
---ipc<span class="o">=</span>host <span class="se">\</span>
---gpus<span class="o">=</span>all <span class="se">\</span>
---shm-size<span class="o">=</span>2gb <span class="se">\</span>
-python run.py <span class="o">{</span>...config paths <span class="p">&amp;</span> options...<span class="o">}</span>
+docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span><span class="o">{</span>local_inputs<span class="o">}</span>:/inputs/<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span><span class="o">{</span>local_output<span class="o">}</span>:/outputs/<span class="w"> </span><span class="se">\</span>
+--ipc<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+--gpus<span class="o">=</span>all<span class="w"> </span><span class="se">\</span>
+--shm-size<span class="o">=</span>2gb<span class="w"> </span><span class="se">\</span>
+python<span class="w"> </span>run.py<span class="w"> </span><span class="o">{</span>...config<span class="w"> </span>paths<span class="w"> </span><span class="p">&amp;</span><span class="w"> </span>options...<span class="o">}</span>
 </pre></div>
 </div>
 </section>

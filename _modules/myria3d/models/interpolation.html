@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>myria3d.models.interpolation &mdash; myria3d 3.3.3 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> myria3d
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guides/development.html">Developer’s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#code-versionning">Code versionning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">myria3d</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>myria3d.models.interpolation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for myria3d.models.interpolation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pdal</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Categorical</span>
+<span class="kn">from</span> <span class="nn">torch_scatter</span> <span class="kn">import</span> <span class="n">scatter_sum</span>
+
+<span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.utils</span> <span class="kn">import</span> <span class="n">get_pdal_info_metadata</span><span class="p">,</span> <span class="n">get_pdal_reader</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Interpolator"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator">[docs]</a><span class="k">class</span> <span class="nc">Interpolator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to load, update with classification, update with probas (optionnal), and save a LAS.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">interpolation_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">classification_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">probas_to_save</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="n">predicted_classification_channel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PredictedClassification&quot;</span><span class="p">,</span>
+        <span class="n">entropy_channel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;entropy&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialization method.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            interpolation_k (int, optional): Number of Nearest-Neighboors for inverse-distance averaging of logits. Defaults 10.</span>
+<span class="sd">            classification_dict (Dict[int, str], optional): Mapper from classification code to class name (e.g. {6:building}). Defaults {}.</span>
+<span class="sd">            probas_to_save (List[str] or &quot;all&quot;, optional): Specific probabilities to save as new LAS dimensions.</span>
+<span class="sd">            Override with None for no saving of probabilities. Defaults to &quot;all&quot;.</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">interpolation_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span> <span class="o">=</span> <span class="n">classification_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span> <span class="o">=</span> <span class="n">predicted_classification_channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span> <span class="o">=</span> <span class="n">entropy_channel</span>
+
+        <span class="k">if</span> <span class="n">probas_to_save</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">probas_to_save</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span> <span class="o">=</span> <span class="n">probas_to_save</span>
+
+        <span class="c1"># Maps ascending index (0,1,2,...) back to conventionnal LAS classification codes (6=buildings, etc.)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverse_mapper</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">class_index</span><span class="p">:</span> <span class="n">class_code</span> <span class="k">for</span> <span class="n">class_index</span><span class="p">,</span> <span class="n">class_code</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Interpolator.load_full_las_for_update"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.load_full_las_for_update">[docs]</a>    <span class="k">def</span> <span class="nf">load_full_las_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_las</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads a LAS and adds necessary extradim.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): Path to LAS for which predictions are made.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We do not reset the dims we create channel.</span>
+        <span class="c1"># Slight risk of interaction with previous values, but it is expected that all non-artefacts values are updated.</span>
+
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">get_pdal_reader</span><span class="p">(</span><span class="n">src_las</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">proba_channel_to_create</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span><span class="p">:</span>
+            <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">ferry</span><span class="p">(</span><span class="n">dimensions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;=&gt;</span><span class="si">{</span><span class="n">proba_channel_to_create</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proba_channel_to_create</span><span class="si">}</span><span class="s2">=0&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span><span class="p">:</span>
+            <span class="c1"># Copy from Classification to preserve data type</span>
+            <span class="c1"># Also preserves values of artefacts.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span> <span class="o">!=</span> <span class="s2">&quot;Classification&quot;</span><span class="p">:</span>
+                <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">ferry</span><span class="p">(</span><span class="n">dimensions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Classification=&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="p">:</span>
+            <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">ferry</span><span class="p">(</span><span class="n">dimensions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;=&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="si">}</span><span class="s2">=0&quot;</span><span class="p">)</span>
+
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Interpolator.store_predictions"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.store_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">store_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">idx_in_original_cloud</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep a list of predictions made so far.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits</span> <span class="o">+=</span> <span class="p">[</span><span class="n">logits</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span> <span class="o">+=</span> <span class="n">idx_in_original_cloud</span></div>
+
+<div class="viewcode-block" id="Interpolator.reduce_predicted_logits"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predicted_logits">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">reduce_predicted_logits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_points</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate logits to points without predictions using an inverse-distance weightning scheme.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor, torch.Tensor: interpolated logits classification</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Concatenate elements from different batches</span>
+        <span class="n">logits</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">idx_in_full_cloud</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">)</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span>
+
+        <span class="c1"># We scatter_sum logits based on idx, in case there are multiple predictions for a point.</span>
+        <span class="c1"># scatter_sum reorders logits based on index,they therefore match las order.</span>
+        <span class="n">reduced_logits</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nb_points</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">scatter_sum</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">idx_in_full_cloud</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">reduced_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># reduced_logits contains logits ordered by their idx in original cloud !</span>
+        <span class="c1"># We need to select the points for which we have a prediction via idx_in_full_cloud.</span>
+        <span class="c1"># NB1 : some points may not contain any predictions if they were in small areas.</span>
+
+        <span class="k">return</span> <span class="n">reduced_logits</span><span class="p">[</span><span class="n">idx_in_full_cloud</span><span class="p">],</span> <span class="n">idx_in_full_cloud</span></div>
+
+<div class="viewcode-block" id="Interpolator.reduce_predictions_and_save"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.reduce_predictions_and_save">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">reduce_predictions_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate all predicted probabilites to their original points in LAS file, and save.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            interpolation (torch.Tensor, torch.Tensor): output of _interpolate, of which we need the logits.</span>
+<span class="sd">            basename: str: file basename to save it with the same one</span>
+<span class="sd">            output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,</span>
+<span class="sd">            and probabilities. Defaults to None.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: path of the updated, saved LAS file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">raw_path</span><span class="p">)</span>
+        <span class="c1"># Read number of points only from las metadata in order to minimize memory usage</span>
+        <span class="n">nb_points</span> <span class="o">=</span> <span class="n">get_pdal_info_metadata</span><span class="p">(</span><span class="n">raw_path</span><span class="p">)[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
+        <span class="n">logits</span><span class="p">,</span> <span class="n">idx_in_full_cloud</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_predicted_logits</span><span class="p">(</span><span class="n">nb_points</span><span class="p">)</span>
+
+        <span class="n">probas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)(</span><span class="n">logits</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span><span class="p">:</span>
+            <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_mapper</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">preds</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">logits</span>
+
+        <span class="c1"># Read las after fetching all information to write into it</span>
+        <span class="n">las</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_full_las_for_update</span><span class="p">(</span><span class="n">src_las</span><span class="o">=</span><span class="n">raw_path</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span><span class="p">:</span>
+                <span class="c1"># NB: Values for which we do not have a prediction (i.e. artefacts) get null probabilities.</span>
+                <span class="n">las</span><span class="p">[</span><span class="n">class_name</span><span class="p">][</span><span class="n">idx_in_full_cloud</span><span class="p">]</span> <span class="o">=</span> <span class="n">probas</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span><span class="p">:</span>
+            <span class="c1"># NB: Values for which we do not have a prediction (i.e. artefacts) keep their original class.</span>
+            <span class="n">las</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span><span class="p">][</span><span class="n">idx_in_full_cloud</span><span class="p">]</span> <span class="o">=</span> <span class="n">preds</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Saving predicted classes to channel </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">predicted_classification_channel</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot;Channel name can be changed by setting `predict.interpolator.predicted_classification_channel`.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">del</span> <span class="n">preds</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="p">:</span>
+            <span class="c1"># NB: Values for which we do not have a prediction (i.e. artefacts) get null entropy.</span>
+            <span class="n">las</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="p">][</span><span class="n">idx_in_full_cloud</span><span class="p">]</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">probas</span><span class="p">)</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Saving Shannon entropy of probabilities to channel </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot;Channel name can be changed by setting `predict.interpolator.entropy_channel`&quot;</span>
+            <span class="p">)</span>
+        <span class="k">del</span> <span class="n">idx_in_full_cloud</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">out_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+        <span class="n">out_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated LAS (</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">) will be saved to: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving...&quot;</span><span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Writer</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">out_f</span><span class="p">,</span> <span class="n">extra_dims</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">minor_version</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dataformat_id</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">las</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out_f</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

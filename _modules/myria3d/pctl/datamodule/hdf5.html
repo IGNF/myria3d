@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>myria3d.pctl.datamodule.hdf5 &mdash; myria3d 3.3.3 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> myria3d
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/train_new_model.html">How to train new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#quick-run">Quick run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/development.html">Developer’s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#code-versionning">Code versionning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/general_design.html">General design of the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/scripts.html">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.logging_callbacks">myria3d.callbacks.logging_callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">myria3d</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>myria3d.pctl.datamodule.hdf5</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for myria3d.pctl.datamodule.hdf5</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">ArrayLike</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning</span> <span class="kn">import</span> <span class="n">LightningDataModule</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
+
+<span class="kn">from</span> <span class="nn">myria3d.pctl.dataloader.dataloader</span> <span class="kn">import</span> <span class="n">GeometricNoneProofDataloader</span>
+<span class="kn">from</span> <span class="nn">myria3d.pctl.transforms.compose</span> <span class="kn">import</span> <span class="n">CustomCompose</span>
+<span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.hdf5</span> <span class="kn">import</span> <span class="n">HDF5Dataset</span>
+<span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.iterable</span> <span class="kn">import</span> <span class="n">InferenceDataset</span>
+<span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SHAPE_TYPE</span><span class="p">,</span>
+    <span class="n">get_las_paths_by_split_dict</span><span class="p">,</span>
+    <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">myria3d.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="HDF5LidarDataModule"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule">[docs]</a><span class="k">class</span> <span class="nc">HDF5LidarDataModule</span><span class="p">(</span><span class="n">LightningDataModule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Datamodule to feed train and validation data to the model.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">split_csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">hdf5_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">points_pre_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArrayLike</span><span class="p">],</span> <span class="n">Data</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pre_filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Data</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
+        <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="n">subtile_shape</span><span class="p">:</span> <span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;square&quot;</span><span class="p">,</span>
+        <span class="n">subtile_overlap_train</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">subtile_overlap_predict</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">prefetch_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">transforms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TRANSFORMS_LIST</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_csv_path</span> <span class="o">=</span> <span class="n">split_csv_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span> <span class="o">=</span> <span class="n">hdf5_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># will be set by self.dataset property</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Will be set from split_csv</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span> <span class="o">=</span> <span class="n">points_pre_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span> <span class="o">=</span> <span class="n">pre_filter</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_width</span> <span class="o">=</span> <span class="n">tile_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">=</span> <span class="n">subtile_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_shape</span> <span class="o">=</span> <span class="n">subtile_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap_train</span> <span class="o">=</span> <span class="n">subtile_overlap_train</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap_predict</span> <span class="o">=</span> <span class="n">subtile_overlap_predict</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">=</span> <span class="n">num_workers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span> <span class="o">=</span> <span class="n">prefetch_factor</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="n">transforms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_train_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation_eval_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_eval_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation_predict_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_predict_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;augmentations_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;normalizations_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">train_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transform</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eval_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation_eval_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">predict_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation_predict_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HDF5LidarDataModule.prepare_data"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare dataset containing train, val, test data.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">stage</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_csv_path</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">:</span>
+                <span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="n">get_las_paths_by_split_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_csv_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used.&quot;</span><span class="p">)</span>
+                <span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Create the dataset in prepare_data, so that it is done one a single GPU.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="n">las_paths_by_split_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span></div>
+
+    <span class="c1"># TODO: not needed ?</span>
+<div class="viewcode-block" id="HDF5LidarDataModule.setup"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate the (already prepared) dataset (called on all GPUs).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HDF5Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Abstraction to ease HDF5 dataset instantiation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            las_paths_by_split_dict (LAS_PATHS_BY_SPLIT_DICT_TYPE, optional): Maps split (val/train/test) to file path.</span>
+<span class="sd">                If specified, the hdf5 file is created at dataset initialization time.</span>
+<span class="sd">                Otherwise,a precomputed HDF5 file is used directly without I/O to the HDF5 file.</span>
+<span class="sd">                This is usefule for multi-GPU training, where data creation is performed in prepare_data method, and the dataset</span>
+<span class="sd">                is then loaded again in each GPU in setup method.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HDF5Dataset: the dataset with train, val, and test data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">HDF5Dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span><span class="p">,</span>
+            <span class="n">las_paths_by_split_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">las_paths_by_split_dict</span><span class="p">,</span>
+            <span class="n">points_pre_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span><span class="p">,</span>
+            <span class="n">tile_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_width</span><span class="p">,</span>
+            <span class="n">subtile_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span><span class="p">,</span>
+            <span class="n">subtile_overlap_train</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap_train</span><span class="p">,</span>
+            <span class="n">subtile_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_shape</span><span class="p">,</span>
+            <span class="n">pre_filter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span><span class="p">,</span>
+            <span class="n">train_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_transform</span><span class="p">,</span>
+            <span class="n">eval_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_transform</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+<div class="viewcode-block" id="HDF5LidarDataModule.train_dataloader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.train_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GeometricNoneProofDataloader</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">traindata</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5LidarDataModule.val_dataloader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.val_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GeometricNoneProofDataloader</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">valdata</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5LidarDataModule.test_dataloader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.test_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GeometricNoneProofDataloader</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">testdata</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># b/c iterable dataset</span>
+            <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_predict_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">las_file_to_predict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predict_dataset</span> <span class="o">=</span> <span class="n">InferenceDataset</span><span class="p">(</span>
+            <span class="n">las_file_to_predict</span><span class="p">,</span>
+            <span class="n">points_pre_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span><span class="p">,</span>
+            <span class="n">pre_filter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_transform</span><span class="p">,</span>
+            <span class="n">tile_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_width</span><span class="p">,</span>
+            <span class="n">subtile_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span><span class="p">,</span>
+            <span class="n">subtile_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_shape</span><span class="p">,</span>
+            <span class="n">subtile_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap_predict</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="HDF5LidarDataModule.predict_dataloader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.predict_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">predict_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GeometricNoneProofDataloader</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_dataset</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># always 1 because this is an iterable dataset</span>
+            <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_visualize_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helpful function to plot the graph, colored by class if not specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Data): data, usually post-transform to show their effect.</span>
+<span class="sd">            color (Tensor, optional): array with which to color the graph.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># creating an empty canvas</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+
+        <span class="c1"># defining the axes with the projection</span>
+        <span class="c1"># as 3D so as to plot 3D graphs</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span>
+
+        <span class="c1"># plotting a scatter plot with X-coordinate,</span>
+        <span class="c1"># Y-coordinate and Z-coordinate respectively</span>
+        <span class="c1"># and defining the points color as cividis</span>
+        <span class="c1"># and defining c as z which basically is a</span>
+        <span class="c1"># defination of 2D array in which rows are RGB</span>
+        <span class="c1"># or RGBA</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">color</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter3D</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;cividis&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Showing the above plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Institut National de l&#39;Information Géographique et Forestière.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
