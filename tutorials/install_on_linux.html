@@ -181,7 +181,13 @@ mamba env create -f environment.yml
 conda activate myria3d
 </pre></div>
 </div>
-<p>Nota: if you do have CUDA, <a class="reference external" href="https://varhowto.com/check-cuda-version/">check you CUDA version</a> and be sure <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> version in <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> matches yours. Adapt if needed (including sources for torch-geometric’s dependencies given as wheels).</p>
+<blockquote>
+<div><p>CUDA: if you have CUDA, <a class="reference external" href="https://varhowto.com/check-cuda-version/">check you CUDA version</a>, and check that the <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> version in <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> matches yours.
+You should in particular check the sources for torch-geometric’s dependencies, that are given via their wheels. Using an older cuda-toolkit will probably work on a newer system thanks to NVIDIA backward compatibility (check the <span class="xref myst">compatibility matrix</span>). For instance: installing pytorch-geometric wheels for Cuda 11.3 (<code class="docutils literal notranslate"><span class="pre">cu113</span></code>) will still work on a system with NVIDIA 12.1 installed if the NVIDIA drivers are recent enough (which is expected).</p>
+</div></blockquote>
+<blockquote>
+<div><p>If you want a CPU only version, you might edit <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> by removing the cuda-toolkit line and changing wheels for cpu versions.</p>
+</div></blockquote>
 <p>Finally, activate the created environment by running</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate myria3d
 </pre></div>
