@@ -20,7 +20,7 @@ from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
-DEFAULT_CONFIG_FILE = "proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.3.0.yaml"
+DEFAULT_CONFIG_FILE = "proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.4.0.yaml"
 DEFAULT_CHECKPOINT = "proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt"
 DEFAULT_ENV = "placeholder.env"
 
@@ -42,6 +42,7 @@ def launch_train(config: DictConfig):  # pragma: no cover  (it's just an initial
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
     from myria3d.train import train
+
     utils.extras(config)
 
     # Pretty print config using Rich library
@@ -88,7 +89,7 @@ def launch_hdf5(config: DictConfig):
         subtile_shape=config.datamodule.get("subtile_shape"),
         pre_filter=hydra.utils.instantiate(config.datamodule.get("pre_filter")),
         subtile_overlap_train=config.datamodule.get("subtile_overlap_train"),
-        points_pre_transform=hydra.utils.instantiate(config.datamodule.get("points_pre_transform"))
+        points_pre_transform=hydra.utils.instantiate(config.datamodule.get("points_pre_transform")),
     )
 
 

@@ -8,7 +8,11 @@ from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 from myria3d.pctl.dataset.utils import pdal_read_las_array
 from myria3d.predict import predict
 from myria3d.train import train
-from tests.conftest import make_default_hydra_cfg, run_hydra_decorated_command
+from tests.conftest import (
+    make_default_hydra_cfg,
+    run_hydra_decorated_command,
+    SINGLE_POINT_CLOUD,
+)
 from tests.runif import RunIf
 
 """
@@ -56,8 +60,7 @@ def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_facto
     # Attention to concurrency with other processes using the GPU when running tests.
     gpu_id = 0
     cfg_one_epoch = make_default_hydra_cfg(
-        overrides=["experiment=RandLaNetDebug", f"trainer.gpus=[{gpu_id}]"]
-        + tmp_paths_overrides
+        overrides=["experiment=RandLaNetDebug", f"trainer.gpus=[{gpu_id}]"] + tmp_paths_overrides
     )
     train(cfg_one_epoch)
 
@@ -84,9 +87,22 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     run_hydra_decorated_command(command)
 
 
-def test_RandLaNet_predict_with_invariance_checks(
-    one_epoch_trained_RandLaNet_checkpoint, tmpdir
-):
+def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
+    """Test running inference by CLI for cloud with a single point (edge case addressed in V3.4.0)"""
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_single_point_cloud = osp.abspath(SINGLE_POINT_CLOUD)
+    command = [
+        "run.py",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.src_las={abs_path_to_single_point_cloud}",
+        f"predict.output_dir={tmpdir}",
+        "+predict.interpolator.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
+    ]
+    run_hydra_decorated_command(command)
+
+
+def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     """Train a model for one epoch, and run test and predict functions using the trained model.
 
     Args:
@@ -235,9 +251,7 @@ def check_las_invariance(las_path_1: str, las_path_2: str):
         assert pytest.approx(np.sum(a2[d]), rel_tolerance) == np.sum(a1[d])
 
 
-def _make_list_of_necesary_hydra_overrides_with_tmp_paths(
-    toy_dataset_hdf5_path: str, tmpdir: str
-):
+def _make_list_of_necesary_hydra_overrides_with_tmp_paths(toy_dataset_hdf5_path: str, tmpdir: str):
     """Get list of overrides for hydra, the ones that are always needed when calling train/test.
 
     Args:
