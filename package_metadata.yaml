@@ -1,4 +1,4 @@
-__version__: "3.3.3"
+__version__: "3.4.0"
 __name__: "myria3d"
 __url__: "https://github.com/IGNF/myria3d"
 __description__: "Deep Learning for the Semantic Segmentation of Aerial Lidar Point Clouds"
