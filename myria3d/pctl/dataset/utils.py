@@ -31,9 +31,7 @@ def find_file_in_dir(data_dir: str, basename: str) -> str:
     return files[0]
 
 
-def get_mosaic_of_centers(
-    tile_width: Number, subtile_width: Number, subtile_overlap: Number = 0
-):
+def get_mosaic_of_centers(tile_width: Number, subtile_width: Number, subtile_overlap: Number = 0):
     if subtile_overlap < 0:
         raise ValueError("datamodule.subtile_overlap must be positive.")
 
@@ -63,9 +61,7 @@ def pdal_read_las_array(las_path: str):
 def pdal_read_las_array_as_float32(las_path: str):
     """Read LAS as a a named array, casted to floats."""
     arr = pdal_read_las_array(las_path)
-    all_floats = np.dtype(
-        {"names": arr.dtype.names, "formats": ["f4"] * len(arr.dtype.names)}
-    )
+    all_floats = np.dtype({"names": arr.dtype.names, "formats": ["f4"] * len(arr.dtype.names)})
     return arr.astype(all_floats)
 
 
@@ -101,6 +97,7 @@ def get_pdal_info_metadata(las_path: str) -> Dict:
 
     return json_info["metadata"]
 
+
 # hdf5, iterable
 
 
@@ -125,13 +122,9 @@ def split_cloud_into_samples(
 
     """
     points = pdal_read_las_array_as_float32(las_path)
-    pos = np.asarray(
-        [points["X"], points["Y"], points["Z"]], dtype=np.float32
-    ).transpose()
+    pos = np.asarray([points["X"], points["Y"], points["Z"]], dtype=np.float32).transpose()
     kd_tree = cKDTree(pos[:, :2] - pos[:, :2].min(axis=0))
-    XYs = get_mosaic_of_centers(
-        tile_width, subtile_width, subtile_overlap=subtile_overlap
-    )
+    XYs = get_mosaic_of_centers(tile_width, subtile_width, subtile_overlap=subtile_overlap)
     for center in tqdm(XYs, desc="Centers"):
         radius = subtile_width // 2  # Square receptive field.
         minkowski_p = np.inf
@@ -140,9 +133,7 @@ def split_cloud_into_samples(
             # Adapt radius to have complete coverage of the data, with a slight overlap between samples.
             minkowski_p = 2
             radius = radius * math.sqrt(2)
-        sample_idx = np.array(
-            kd_tree.query_ball_point(center, r=radius, p=minkowski_p)
-        )
+        sample_idx = np.array(kd_tree.query_ball_point(center, r=radius, p=minkowski_p))
         if not len(sample_idx):
             # no points in this receptive fields
             continue
@@ -150,7 +141,7 @@ def split_cloud_into_samples(
         yield sample_idx, sample_points
 
 
-def pre_filter_below_n_points(data, min_num_nodes=50):
+def pre_filter_below_n_points(data, min_num_nodes=1):
     return data.pos.shape[0] < min_num_nodes
 
 
@@ -175,19 +166,10 @@ def get_las_paths_by_split_dict(data_dir: str, split_csv_path: str) -> LAS_PATHS
     las_paths_by_split_dict: LAS_PATHS_BY_SPLIT_DICT_TYPE = {}
     split_df = pd.read_csv(split_csv_path)
     for phase in ["train", "val", "test"]:
-        basenames = split_df[
-            split_df.split == phase
-        ].basename.tolist()
-        las_paths_by_split_dict[phase] = [
-            find_file_in_dir(data_dir, b) for b in basenames
-        ]
+        basenames = split_df[split_df.split == phase].basename.tolist()
+        las_paths_by_split_dict[phase] = [find_file_in_dir(data_dir, b) for b in basenames]
 
     if not las_paths_by_split_dict:
-        raise FileNotFoundError(
-            (
-                f"No basename found while parsing directory {data_dir}"
-                f"using {split_csv_path} as split CSV."
-            )
-        )
+        raise FileNotFoundError((f"No basename found while parsing directory {data_dir}" f"using {split_csv_path} as split CSV."))
 
     return las_paths_by_split_dict
