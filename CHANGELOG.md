@@ -1,5 +1,8 @@
 # main
 
+# 3.4.5
+- Set a default task_name (fit) to avoid common error at lauch time.
+
 # 3.4.4
 - Remove duplicated experiment configuration
 
