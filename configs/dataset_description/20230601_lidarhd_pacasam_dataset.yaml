@@ -5,7 +5,8 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # 0: no processing --> unclassified
 # 66: synthetic points --> noise (synthetic points are useful for specific modelling task on already classified data).
 # We set them to noise so that they are ignored during training.
-classification_preprocessing_dict: {3: 5, 4: 5, 0: 1, 66: 65}
+# Codes that should not have been in the data: 100, 101.
+classification_preprocessing_dict: {3: 5, 4: 5, 0: 1, 66: 65, 100: 1, 101: 1}
 
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge, 64: lasting_above}
