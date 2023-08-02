@@ -2,13 +2,13 @@
 
 ## Peprocessing functions
 
-The loading function is dataset dependant, and is `lidar_hd_pre_transform` by default. The function takes points loaded from a LAS file via pdal as input, and returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a list of features names for later use in transforms.
+The loading function is dataset dependant, and is `lidar_hd_pre_transform` by default. The function takes points loaded from a LAS file via pdal as input, and returns a `pytorch_geometric.Data` object following the standard naming convention of `pytorch_geometric`, plus a list of features names for later use in transforms. In the loading function, the return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.
 
-It is adapted to the French Lidar HD data provided by IGN (see [the official page](https://geoservices.ign.fr/lidarhd) - link in French). Return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.
+Customization: You may want to implement your own logic (e.g. with custom, additional features) in directory `points_pre_transform`. It then needs to be referenced similarly to `lidar_hd_pre_transform`. 
 
-You may want to implement your own logic (e.g. with custom, additional features) in directory `points_pre_transform`. It then needs to be referenced similarly to `lidar_hd_pre_transform`. 
+The loading function is designed for the French Lidar HD data provided by IGN (see [the official page](https://geoservices.ign.fr/lidarhd) - link in French). Note that the clouds are shared without color information, and should be colorized (RGB+Infrared) to use myria3d. The [open-source ign-pdal-tools library](https://pypi.org/project/ign-pdal-tools/) is a convenient toolkit that can be used to colorize the raw clouds with IGN aerial imagery (see function 'pdaltools.color.color(...)').
 
-If you use your own classification convention , you will need to create a `dataset_description` configuration (for an example see `configs/dataset_description/20220607_151_dalles_proto.yaml`).
+Customization: If you use a different classification (e.g. additional classes), you will need to create a `dataset_description` configuration (similar to `configs/dataset_description/20220607_151_dalles_proto.yaml`).
 
 Additionnaly, you can control cloud sampling parameters via two configurations:
 - `configs/datamodule/transforms/preparations/points_budget.yaml`: (defaut) allows variable cloud size within lower and higher boundaries. 
