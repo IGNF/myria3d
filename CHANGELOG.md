@@ -1,5 +1,8 @@
 # main
 
+# 3.4.7
+- Remove tqdm when splitting a lidar tile to avoid cluttered logs during data preparation.
+
 # 3.4.6
 - Document the possible use of ign-pdal-tools for colorization.
 

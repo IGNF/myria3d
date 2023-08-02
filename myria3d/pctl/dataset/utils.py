@@ -11,7 +11,6 @@ import pandas as pd
 import pdal
 from scipy.spatial import cKDTree
 from shapely.geometry import Point
-from tqdm import tqdm
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
 SHAPE_TYPE = Union[Literal["disk"], Literal["square"]]
@@ -126,7 +125,7 @@ def split_cloud_into_samples(
     pos = np.asarray([points["X"], points["Y"], points["Z"]], dtype=np.float32).transpose()
     kd_tree = cKDTree(pos[:, :2] - pos[:, :2].min(axis=0))
     XYs = get_mosaic_of_centers(tile_width, subtile_width, subtile_overlap=subtile_overlap)
-    for center in tqdm(XYs, desc="Centers"):
+    for center in XYs:
         radius = subtile_width // 2  # Square receptive field.
         minkowski_p = np.inf
         if shape == "disk":
