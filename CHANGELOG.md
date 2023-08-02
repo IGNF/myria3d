@@ -1,5 +1,8 @@
 # main
 
+# 3.4.3
+- Remove outdated and incorrect hydra parameter in config.yaml
+
 # 3.4.2
 - Reconstruct absolute path of input LAS files explicitely, removing a costly glob operation.
 
