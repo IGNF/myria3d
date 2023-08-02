@@ -17,15 +17,17 @@ Additionnaly, you can control cloud sampling parameters via two configurations:
 
 ## Preparing the dataset
 
-Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m*50m was a good balance between context and memory intensity. For faster training, this split can be done once, to avoid loading large file in memory multiple times.
-
-To perform a training, you will need to specify these parameters of the datamodule config group:
-- `data_dir`: path to a directory in which a set of LAS files are stored (can be nested in subdirectories).
+To perform a training, you will need to specify these parameters in the datamodule config group:
+- `data_dir`: path to a directory in which a set of LAS files are stored. Clouds must be nested in subdirectories named according to their spli: train, val, or test.
 - `split_csv_path`: path to a CSV file with schema `basename,split`, specifying a train/val/test spit for your data.
 
-These will be composed into a single file dataset for which you can specify a path via the `datamodule.hdf5_file_path` parameter. This happens on the fly, therefore a first training might take some time, but this should only happens once.
+Under the hood, the path of each LAS file will be reconstructed like this: '{data_dir}/{split}/{basename}'.
 
-Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.
+Large input point clouds need to be divided in smaller clouds that can be digested by segmentation models. We found that a receptive field of 50m x 50m was a good balance between context and memory intensity. The division is performed once, to avoid loading large file in memory multiple times during training.
+
+After division, the smaller clouds are preprocessed (i.e. selection of specific LAS dimensions, on-the-fly creation of dimensions) and regrouped into a single HDF5 file whose path is specified via the `datamodule.hdf5_file_path` parameter. 
+
+The HDF5 dataset is created at training time. It should only happens once. Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough (there is no need for data_dir or split_csv_path parameters anymore).
 
 It's also possible to create the hdf5 file without training any model: just fill the `datamodule.hdf5_file_path` parameter as before to specify the file path, but use `task=create_hdf5` instead of `task=fit`.
 
