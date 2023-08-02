@@ -1,5 +1,8 @@
 # main
 
+# 3.4.4
+- Remove duplicated experiment configuration
+
 # 3.4.3
 - Remove outdated and incorrect hydra parameter in config.yaml
 
