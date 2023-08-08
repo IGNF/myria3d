@@ -1,5 +1,8 @@
 # main
 
+# 3.4.8
+- Raise an informative error in case of unexpected task_name.
+
 # 3.4.7
 - Remove tqdm when splitting a lidar tile to avoid cluttered logs during data preparation.
 

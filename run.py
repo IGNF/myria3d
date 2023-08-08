@@ -128,6 +128,7 @@ if __name__ == "__main__":
         launch_hdf5()
 
     else:
-        log.warning(
-            f"Task {task_name} is not known. Specify a valid task name via task.task_name=..."
+        choices = ", ".join(task.value for task in TASK_NAMES)
+        raise ValueError(
+            f"Task '{task_name}' is not known. Specify a valid task name via task.task_name. Valid choices are: {choices})"
         )
