@@ -169,8 +169,7 @@ def get_las_paths_by_split_dict(
     split_df = pd.read_csv(split_csv_path)
     for phase in ["train", "val", "test"]:
         basenames = split_df[split_df.split == phase].basename.tolist()
-        # Explicit data structure with ./val, ./train, ./test subfolder is required.
-        # TODO: indicate this in the doc as well.
+        # Reminder: an explicit data structure with ./val, ./train, ./test subfolder is required.
         las_paths_by_split_dict[phase] = [str(Path(data_dir) / phase / b) for b in basenames]
 
     if not las_paths_by_split_dict:
