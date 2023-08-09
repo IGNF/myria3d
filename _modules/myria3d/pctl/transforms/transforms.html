@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.transforms.transforms &mdash; myria3d 3.3.3 documentation</title>
+  <title>myria3d.pctl.transforms.transforms &mdash; myria3d 3.4.8 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -289,6 +289,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample-wise standardization y* = (y-y_mean)/y_std. clamping to ignore large values.&quot;&quot;&quot;</span>
         <span class="n">mean</span> <span class="o">=</span> <span class="n">channel_data</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
         <span class="n">std</span> <span class="o">=</span> <span class="n">channel_data</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">6</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">std</span><span class="p">):</span>
+            <span class="n">std</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="n">standard</span> <span class="o">=</span> <span class="p">(</span><span class="n">channel_data</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
         <span class="n">clamp</span> <span class="o">=</span> <span class="n">clamp_sigma</span> <span class="o">*</span> <span class="n">std</span>
         <span class="n">clamped</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">standard</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="n">clamp</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">clamp</span><span class="p">)</span>
@@ -342,7 +344,6 @@
         <span class="n">classification_preprocessing_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
         <span class="n">classification_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="p">):</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_preprocessing_mapper</span><span class="p">(</span><span class="n">classification_preprocessing_dict</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_mapper</span><span class="p">(</span><span class="n">classification_dict</span><span class="p">)</span>
 

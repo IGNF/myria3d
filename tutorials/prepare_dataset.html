@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training &mdash; myria3d 3.3.3 documentation</title>
+  <title>Preparing data for training &mdash; myria3d 3.4.8 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -169,10 +169,10 @@
 <h1>Preparing data for training<a class="headerlink" href="#preparing-data-for-training" title="Permalink to this headline"></a></h1>
 <section id="peprocessing-functions">
 <h2>Peprocessing functions<a class="headerlink" href="#peprocessing-functions" title="Permalink to this headline"></a></h2>
-<p>The loading function is dataset dependant, and is <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code> by default. The function takes points loaded from a LAS file via pdal as input, and returns a <code class="docutils literal notranslate"><span class="pre">pytorch_geometric.Data</span></code> object following the standard naming convention of <code class="docutils literal notranslate"><span class="pre">pytorch_geometric</span></code>, plus a list of features names for later use in transforms.</p>
-<p>It is adapted to the French Lidar HD data provided by IGN (see <a class="reference external" href="https://geoservices.ign.fr/lidarhd">the official page</a> - link in French). Return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.</p>
-<p>You may want to implement your own logic (e.g. with custom, additional features) in directory <code class="docutils literal notranslate"><span class="pre">points_pre_transform</span></code>. It then needs to be referenced similarly to <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code>.</p>
-<p>If you use your own classification convention , you will need to create a <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> configuration (for an example see <code class="docutils literal notranslate"><span class="pre">configs/dataset_description/20220607_151_dalles_proto.yaml</span></code>).</p>
+<p>The loading function is dataset dependant, and is <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code> by default. The function takes points loaded from a LAS file via pdal as input, and returns a <code class="docutils literal notranslate"><span class="pre">pytorch_geometric.Data</span></code> object following the standard naming convention of <code class="docutils literal notranslate"><span class="pre">pytorch_geometric</span></code>, plus a list of features names for later use in transforms. In the loading function, the return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.</p>
+<p>Customization: You may want to implement your own logic (e.g. with custom, additional features) in directory <code class="docutils literal notranslate"><span class="pre">points_pre_transform</span></code>. It then needs to be referenced similarly to <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code>.</p>
+<p>The loading function is designed for the French Lidar HD data provided by IGN (see <a class="reference external" href="https://geoservices.ign.fr/lidarhd">the official page</a> - link in French). Note that the clouds are shared without color information, and should be colorized (RGB+Infrared) to use myria3d. The <a class="reference external" href="https://pypi.org/project/ign-pdal-tools/">open-source ign-pdal-tools library</a> is a convenient toolkit that can be used to colorize the raw clouds with IGN aerial imagery (see function ‘pdaltools.color.color(…)’).</p>
+<p>Customization: If you use a different classification (e.g. additional classes), you will need to create a <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> configuration (similar to <code class="docutils literal notranslate"><span class="pre">configs/dataset_description/20220607_151_dalles_proto.yaml</span></code>).</p>
 <p>Additionnaly, you can control cloud sampling parameters via two configurations:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">configs/datamodule/transforms/preparations/points_budget.yaml</span></code>: (defaut) allows variable cloud size within lower and higher boundaries.</p></li>
@@ -181,14 +181,15 @@
 </section>
 <section id="preparing-the-dataset">
 <h2>Preparing the dataset<a class="headerlink" href="#preparing-the-dataset" title="Permalink to this headline"></a></h2>
-<p>Input point clouds need to be splitted in subtiles that can be digested by segmentation models. We found that a receptive field of 50m*50m was a good balance between context and memory intensity. For faster training, this split can be done once, to avoid loading large file in memory multiple times.</p>
-<p>To perform a training, you will need to specify these parameters of the datamodule config group:</p>
+<p>To perform a training, you will need to specify these parameters in the datamodule config group:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">data_dir</span></code>: path to a directory in which a set of LAS files are stored (can be nested in subdirectories).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_dir</span></code>: path to a directory in which a set of LAS files are stored. Clouds must be nested in subdirectories named according to their spli: train, val, or test.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">split_csv_path</span></code>: path to a CSV file with schema <code class="docutils literal notranslate"><span class="pre">basename,split</span></code>, specifying a train/val/test spit for your data.</p></li>
 </ul>
-<p>These will be composed into a single file dataset for which you can specify a path via the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter. This happens on the fly, therefore a first training might take some time, but this should only happens once.</p>
-<p>Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough.</p>
+<p>Under the hood, the path of each LAS file will be reconstructed like this: ‘{data_dir}/{split}/{basename}’.</p>
+<p>Large input point clouds need to be divided in smaller clouds that can be digested by segmentation models. We found that a receptive field of 50m x 50m was a good balance between context and memory intensity. The division is performed once, to avoid loading large file in memory multiple times during training.</p>
+<p>After division, the smaller clouds are preprocessed (i.e. selection of specific LAS dimensions, on-the-fly creation of dimensions) and regrouped into a single HDF5 file whose path is specified via the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter.</p>
+<p>The HDF5 dataset is created at training time. It should only happens once. Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough (there is no need for data_dir or split_csv_path parameters anymore).</p>
 <p>It’s also possible to create the hdf5 file without training any model: just fill the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter as before to specify the file path, but use <code class="docutils literal notranslate"><span class="pre">task=create_hdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">task=fit</span></code>.</p>
 </section>
 <section id="getting-started-quickly-with-a-toy-dataset">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.3.3 documentation</title>
+  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.4.8 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -166,6 +166,7 @@
 <span></span><span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
@@ -175,7 +176,6 @@
 <span class="kn">import</span> <span class="nn">pdal</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span>
 <span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Point</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]]</span>
 <span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;disk&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;square&quot;</span><span class="p">]]</span>
@@ -196,9 +196,7 @@
     <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<span class="k">def</span> <span class="nf">get_mosaic_of_centers</span><span class="p">(</span>
-    <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">subtile_overlap</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;datamodule.subtile_overlap must be positive.&quot;</span><span class="p">)</span>
 
@@ -228,9 +226,7 @@
 <div class="viewcode-block" id="pdal_read_las_array_as_float32"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a a named array, casted to floats.&quot;&quot;&quot;</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
-    <span class="n">all_floats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;f4&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)}</span>
-    <span class="p">)</span>
+    <span class="n">all_floats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">({</span><span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;f4&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)})</span>
     <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">all_floats</span><span class="p">)</span></div>
 
 
@@ -266,6 +262,7 @@
 
     <span class="k">return</span> <span class="n">json_info</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span></div>
 
+
 <span class="c1"># hdf5, iterable</span>
 
 
@@ -290,14 +287,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">points</span> <span class="o">=</span> <span class="n">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
     <span class="n">kd_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-    <span class="n">XYs</span> <span class="o">=</span> <span class="n">get_mosaic_of_centers</span><span class="p">(</span>
-        <span class="n">tile_width</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="o">=</span><span class="n">subtile_overlap</span>
-    <span class="p">)</span>
-    <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">XYs</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Centers&quot;</span><span class="p">):</span>
+    <span class="n">XYs</span> <span class="o">=</span> <span class="n">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="o">=</span><span class="n">subtile_overlap</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span> <span class="n">XYs</span><span class="p">:</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">subtile_width</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># Square receptive field.</span>
         <span class="n">minkowski_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;disk&quot;</span><span class="p">:</span>
@@ -305,9 +298,7 @@
             <span class="c1"># Adapt radius to have complete coverage of the data, with a slight overlap between samples.</span>
             <span class="n">minkowski_p</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="n">kd_tree</span><span class="o">.</span><span class="n">query_ball_point</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">minkowski_p</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kd_tree</span><span class="o">.</span><span class="n">query_ball_point</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">minkowski_p</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_idx</span><span class="p">):</span>
             <span class="c1"># no points in this receptive fields</span>
             <span class="k">continue</span>
@@ -315,7 +306,7 @@
         <span class="k">yield</span> <span class="n">sample_idx</span><span class="p">,</span> <span class="n">sample_points</span></div>
 
 
-<span class="k">def</span> <span class="nf">pre_filter_below_n_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_num_nodes</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">pre_filter_below_n_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_num_nodes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_num_nodes</span>
 
 
@@ -336,16 +327,15 @@
     <span class="k">return</span> <span class="n">wkt</span>
 
 
-<span class="k">def</span> <span class="nf">get_las_paths_by_split_dict</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_las_paths_by_split_dict</span><span class="p">(</span>
+    <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_csv_path</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">:</span>
     <span class="n">las_paths_by_split_dict</span><span class="p">:</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">split_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">split_csv_path</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]:</span>
-        <span class="n">basenames</span> <span class="o">=</span> <span class="n">split_df</span><span class="p">[</span>
-            <span class="n">split_df</span><span class="o">.</span><span class="n">split</span> <span class="o">==</span> <span class="n">phase</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="n">las_paths_by_split_dict</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">find_file_in_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">basenames</span>
-        <span class="p">]</span>
+        <span class="n">basenames</span> <span class="o">=</span> <span class="n">split_df</span><span class="p">[</span><span class="n">split_df</span><span class="o">.</span><span class="n">split</span> <span class="o">==</span> <span class="n">phase</span><span class="p">]</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># Reminder: an explicit data structure with ./val, ./train, ./test subfolder is required.</span>
+        <span class="n">las_paths_by_split_dict</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">phase</span> <span class="o">/</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">basenames</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">las_paths_by_split_dict</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
