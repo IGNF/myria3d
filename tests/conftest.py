@@ -8,6 +8,8 @@ from pytorch_lightning import seed_everything
 
 from myria3d.pctl.dataset.toy_dataset import make_toy_dataset_from_test_file
 
+SINGLE_POINT_CLOUD = "tests/data/single-point-cloud.laz"
+
 
 @pytest.fixture(scope="session")
 def toy_dataset_hdf5_path(tmpdir_factory):

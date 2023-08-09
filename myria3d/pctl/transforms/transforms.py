@@ -124,6 +124,8 @@ class StandardizeRGBAndIntensity(BaseTransform):
         """Sample-wise standardization y* = (y-y_mean)/y_std. clamping to ignore large values."""
         mean = channel_data.mean()
         std = channel_data.std() + 10**-6
+        if torch.isnan(std):
+            std = 1.0
         standard = (channel_data - mean) / std
         clamp = clamp_sigma * std
         clamped = torch.clamp(input=standard, min=-clamp, max=clamp)
@@ -177,7 +179,6 @@ class TargetTransform(BaseTransform):
         classification_preprocessing_dict: Dict[int, int],
         classification_dict: Dict[int, str],
     ):
-
         self._set_preprocessing_mapper(classification_preprocessing_dict)
         self._set_mapper(classification_dict)
 

@@ -129,7 +129,7 @@ datamodule:
     _target_: functools.partial
     _args_:
     - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
-    min_num_nodes: 50
+    min_num_nodes: 1
   tile_width: 1000
   subtile_width: 50
   subtile_shape: square
