@@ -2,6 +2,8 @@
 import numpy as np
 from torch_geometric.data import Data
 
+from colorsys import rgb_to_hsv
+
 COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0
 RETURN_NUMBER_NORMALIZATION_MAX_VALUE = 7.0
 
@@ -35,49 +37,85 @@ def lidar_hd_pre_transform(points):
     for color in ["Red", "Green", "Blue", "Infrared"]:
         assert points[color].max() <= COLORS_NORMALIZATION_MAX_VALUE
         points[color][:] = points[color] / COLORS_NORMALIZATION_MAX_VALUE
-        points[color][occluded_points] = 0.0
+        # points[color][occluded_points] = 0.0
 
-    # Additional features :
-    # Average color, that will be normalized on the fly based on single-sample
+    x_features_names = [
+        "Intensity",
+        "ReturnNumber",
+        "NumberOfReturns",
+        "Hue",
+        "Shade",
+        "Value",
+        "Infrared",
+        "rgb_avg",
+        "ndvi",
+    ]
+
+    # creating x
+
+    # # NDVI
+    ndvi = (points["Infrared"] - points["Red"]) / (
+        points["Infrared"] + points["Red"] + 10**-6
+    )
+
+    # # Average color, that will be normalized on the fly based on single-sample
     rgb_avg = (
         np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
         .transpose()
         .mean(axis=1)
     )
 
-    # NDVI
-    ndvi = (points["Infrared"] - points["Red"]) / (
-        points["Infrared"] + points["Red"] + 10**-6
-    )
+    # Pre-allocate memory
+    x = np.empty((points.shape[0], len(x_features_names)))
 
-    # todo
-    x = np.stack(
-        [
-            points[name]
-            for name in [
-                "Intensity",
-                "ReturnNumber",
-                "NumberOfReturns",
-                "Red",
-                "Green",
-                "Blue",
-                "Infrared",
+    # Fill x
+    for index, point in enumerate(points):
+        hue, shade, value = rgb_to_hsv(point["Red"], point["Green"], point["Blue"])
+        x[index] = [
+            point["Intensity"],
+            point["ReturnNumber"],
+            point["NumberOfReturns"],
+            hue,
+            shade,
+            value,
+            point["Infrared"],
+            rgb_avg[index],
+            ndvi[index]
             ]
-        ]
-        + [rgb_avg, ndvi],
-        axis=0,
-    ).transpose()
-    x_features_names = [
-        "Intensity",
-        "ReturnNumber",
-        "NumberOfReturns",
-        "Red",
-        "Green",
-        "Blue",
-        "Infrared",
-        "rgb_avg",
-        "ndvi",
-    ]
+    #     points["Infrared"] + points["Red"] + 10**-6
+
+
+    # # Additional features :
+    # # Average color, that will be normalized on the fly based on single-sample
+    # rgb_avg = (
+    #     np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
+    #     .transpose()
+    #     .mean(axis=1)
+    # )
+
+    # # NDVI
+    # ndvi = (points["Infrared"] - points["Red"]) / (
+    #     points["Infrared"] + points["Red"] + 10**-6
+    # )
+
+    # # todo
+    # x = np.stack(
+    #     [
+    #         points[name]
+    #         for name in [
+    #             "Intensity",
+    #             "ReturnNumber",
+    #             "NumberOfReturns",
+    #             "Red",
+    #             "Green",
+    #             "Blue",
+    #             "Infrared",
+    #         ]
+    #     ]
+    #     + [rgb_avg, ndvi],
+    #     axis=0,
+    # ).transpose()
+
     y = points["Classification"]
 
     data = Data(pos=pos, x=x, y=y, x_features_names=x_features_names)
