@@ -285,4 +285,6 @@ def create_hdf5(
                     )
 
                 # A termination flag to report that all samples for this point cloud were included in the df5 file.
-                hdf5_file[split][basename].attrs["is_complete"] = True
+                # Group may not have been created if source cloud had no patch passing the pre_filter step, hence the "if" here.
+                if basename in hdf5_file[split]:
+                    hdf5_file[split][basename].attrs["is_complete"] = True
