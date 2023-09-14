@@ -1,5 +1,8 @@
 # main
 
+### 3.4.9
+- Support edge-case where source LAZ has no valid subtile (i.e. pre_filter=False for all candidate subtiles) during hdf5 creation
+
 ### 3.4.8
 - Raise an informative error in case of unexpected task_name
 
