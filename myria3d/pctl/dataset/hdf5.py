@@ -234,7 +234,7 @@ def create_hdf5(
             # Useful in case data preparation was interrupted.
             with h5py.File(hdf5_file_path, "a") as hdf5_file:
                 if basename in hdf5_file[split] and "is_complete" not in hdf5_file[split][basename].attrs:
-                    del hdf5_file[basename]
+                    del hdf5_file[split][basename]
                     # Parse and add subtiles to split group.
             with h5py.File(hdf5_file_path, "a") as hdf5_file:
                 if basename in hdf5_file[split]:
