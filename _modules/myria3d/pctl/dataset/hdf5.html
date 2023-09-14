@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.4.8 documentation</title>
+  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.4.9 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -399,7 +399,7 @@
             <span class="c1"># Useful in case data preparation was interrupted.</span>
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;is_complete&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">basename</span><span class="p">]</span>
+                    <span class="k">del</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span>
                     <span class="c1"># Parse and add subtiles to split group.</span>
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]:</span>
@@ -450,7 +450,9 @@
                     <span class="p">)</span>
 
                 <span class="c1"># A termination flag to report that all samples for this point cloud were included in the df5 file.</span>
-                <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_complete&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
+                <span class="c1"># Group may not have been created if source cloud had no patch passing the pre_filter step, hence the &quot;if&quot; here.</span>
+                <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]:</span>
+                    <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_complete&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
 </pre></div>
 
            </div>
