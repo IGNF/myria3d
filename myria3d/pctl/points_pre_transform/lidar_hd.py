@@ -1,8 +1,11 @@
 # function to turn points loaded via pdal into a pyg Data object, with additional channels
+from colorsys import rgb_to_hsv
+from math import pi, sin, cos
+
 import numpy as np
 from torch_geometric.data import Data
 
-from colorsys import rgb_to_hsv
+
 
 COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0
 RETURN_NUMBER_NORMALIZATION_MAX_VALUE = 7.0
@@ -43,11 +46,13 @@ def lidar_hd_pre_transform(points):
         "Intensity",
         "ReturnNumber",
         "NumberOfReturns",
-        "Hue",
+        # "Hue",
+        "Cos_Hue",
+        "Sin_Hue",
         "Shade",
         "Value",
         "Infrared",
-        "rgb_avg",
+        # "rgb_avg",
         "ndvi",
     ]
 
@@ -59,11 +64,11 @@ def lidar_hd_pre_transform(points):
     )
 
     # # Average color, that will be normalized on the fly based on single-sample
-    rgb_avg = (
-        np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
-        .transpose()
-        .mean(axis=1)
-    )
+    # rgb_avg = (
+    #     np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
+    #     .transpose()
+    #     .mean(axis=1)
+    # )
 
     # Pre-allocate memory
     x = np.empty((points.shape[0], len(x_features_names)))
@@ -75,11 +80,13 @@ def lidar_hd_pre_transform(points):
             point["Intensity"],
             point["ReturnNumber"],
             point["NumberOfReturns"],
-            hue,
+            # hue,
+            cos(2 * pi * hue),
+            sin(2 * pi * hue),
             shade,
             value,
             point["Infrared"],
-            rgb_avg[index],
+            # rgb_avg[index],
             ndvi[index]
             ]
     #     points["Infrared"] + points["Red"] + 10**-6
