@@ -52,7 +52,7 @@ def lidar_hd_pre_transform(points):
         "Shade",
         "Value",
         "Infrared",
-        # "rgb_avg",
+        "rgb_avg",
         "ndvi",
     ]
 
@@ -63,12 +63,12 @@ def lidar_hd_pre_transform(points):
         points["Infrared"] + points["Red"] + 10**-6
     )
 
-    # # Average color, that will be normalized on the fly based on single-sample
-    # rgb_avg = (
-    #     np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
-    #     .transpose()
-    #     .mean(axis=1)
-    # )
+    # Average color, that will be normalized on the fly based on single-sample
+    rgb_avg = (
+        np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
+        .transpose()
+        .mean(axis=1)
+    )
 
     # Pre-allocate memory
     x = np.empty((points.shape[0], len(x_features_names)))
@@ -86,7 +86,7 @@ def lidar_hd_pre_transform(points):
             shade,
             value,
             point["Infrared"],
-            # rgb_avg[index],
+            rgb_avg[index],
             ndvi[index]
             ]
     #     points["Infrared"] + points["Red"] + 10**-6
