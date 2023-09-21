@@ -45,6 +45,8 @@ def lidar_hd_pre_transform(points):
         .mean(axis=1)
     )
 
+    points["ScanAngleRank"] = points["ScanAngleRank"] / 90
+
     # NDVI
     ndvi = (points["Infrared"] - points["Red"]) / (
         points["Infrared"] + points["Red"] + 10**-6
@@ -62,6 +64,7 @@ def lidar_hd_pre_transform(points):
                 "Green",
                 "Blue",
                 "Infrared",
+                "ScanAngleRank",
             ]
         ]
         + [rgb_avg, ndvi],
@@ -75,6 +78,7 @@ def lidar_hd_pre_transform(points):
         "Green",
         "Blue",
         "Infrared",
+        "ScanAngleRank",
         "rgb_avg",
         "ndvi",
     ]
