@@ -2,6 +2,9 @@
 import numpy as np
 from torch_geometric.data import Data
 
+from pgeof import pgeof
+from sklearn.neighbors import NearestNeighbors
+
 COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0
 RETURN_NUMBER_NORMALIZATION_MAX_VALUE = 7.0
 
@@ -49,6 +52,16 @@ def lidar_hd_pre_transform(points):
     ndvi = (points["Infrared"] - points["Red"]) / (
         points["Infrared"] + points["Red"] + 10**-6
     )
+
+    # geometry
+    k = 20
+    kneigh = NearestNeighbors(n_neighbors=k).fit(pos).kneighbors(pos)
+    nn_ptr = np.arange(pos.shape[0] + 1) * k
+    nn = kneigh[1].flatten()
+
+    geof = pgeof(
+        points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15,
+        verbose=True)
 
     # todo
     x = np.stack(
