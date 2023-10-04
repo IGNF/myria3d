@@ -1,6 +1,9 @@
 # main
 
 ### 3.4.11
+- Remove COPC datasets and dataloaders since they were abandonned and never used.
+
+### 3.4.11
 - Unification of max length of lines (99) by applying black everywhere.
 
 ### 3.4.10

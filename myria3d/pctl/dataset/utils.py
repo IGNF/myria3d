@@ -31,7 +31,9 @@ def find_file_in_dir(data_dir: str, basename: str) -> str:
     return files[0]
 
 
-def get_mosaic_of_centers(tile_width: Number, subtile_width: Number, subtile_overlap: Number = 0):
+def get_mosaic_of_centers(
+    tile_width: Number, subtile_width: Number, subtile_overlap: Number = 0
+):
     if subtile_overlap < 0:
         raise ValueError("datamodule.subtile_overlap must be positive.")
 
@@ -61,7 +63,9 @@ def pdal_read_las_array(las_path: str):
 def pdal_read_las_array_as_float32(las_path: str):
     """Read LAS as a a named array, casted to floats."""
     arr = pdal_read_las_array(las_path)
-    all_floats = np.dtype({"names": arr.dtype.names, "formats": ["f4"] * len(arr.dtype.names)})
+    all_floats = np.dtype(
+        {"names": arr.dtype.names, "formats": ["f4"] * len(arr.dtype.names)}
+    )
     return arr.astype(all_floats)
 
 
@@ -122,9 +126,13 @@ def split_cloud_into_samples(
 
     """
     points = pdal_read_las_array_as_float32(las_path)
-    pos = np.asarray([points["X"], points["Y"], points["Z"]], dtype=np.float32).transpose()
+    pos = np.asarray(
+        [points["X"], points["Y"], points["Z"]], dtype=np.float32
+    ).transpose()
     kd_tree = cKDTree(pos[:, :2] - pos[:, :2].min(axis=0))
-    XYs = get_mosaic_of_centers(tile_width, subtile_width, subtile_overlap=subtile_overlap)
+    XYs = get_mosaic_of_centers(
+        tile_width, subtile_width, subtile_overlap=subtile_overlap
+    )
     for center in XYs:
         radius = subtile_width // 2  # Square receptive field.
         minkowski_p = np.inf
@@ -145,23 +153,6 @@ def pre_filter_below_n_points(data, min_num_nodes=1):
     return data.pos.shape[0] < min_num_nodes
 
 
-# COPC
-
-
-def get_random_center_in_tile(tile_width, subtile_width):
-    return np.random.randint(
-        subtile_width / 4,
-        tile_width - (subtile_width / 4) + 1,
-        size=(2,),
-    )
-
-
-def make_circle_wkt(center, subtile_width):
-    half = subtile_width / 2
-    wkt = Point(center).buffer(half).wkt
-    return wkt
-
-
 def get_las_paths_by_split_dict(
     data_dir: str, split_csv_path: str
 ) -> LAS_PATHS_BY_SPLIT_DICT_TYPE:
@@ -170,7 +161,9 @@ def get_las_paths_by_split_dict(
     for phase in ["train", "val", "test"]:
         basenames = split_df[split_df.split == phase].basename.tolist()
         # Reminder: an explicit data structure with ./val, ./train, ./test subfolder is required.
-        las_paths_by_split_dict[phase] = [str(Path(data_dir) / phase / b) for b in basenames]
+        las_paths_by_split_dict[phase] = [
+            str(Path(data_dir) / phase / b) for b in basenames
+        ]
 
     if not las_paths_by_split_dict:
         raise FileNotFoundError(
