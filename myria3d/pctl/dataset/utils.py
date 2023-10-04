@@ -1,6 +1,5 @@
 import glob
 import json
-import math
 from pathlib import Path
 import subprocess as sp
 from numbers import Number
