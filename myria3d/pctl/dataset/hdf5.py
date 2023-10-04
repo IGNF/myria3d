@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 from myria3d.pctl.dataset.utils import (
     LAS_PATHS_BY_SPLIT_DICT_TYPE,
-    SHAPE_TYPE,
     SPLIT_TYPE,
     pre_filter_below_n_points,
     split_cloud_into_samples,
