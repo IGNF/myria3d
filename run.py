@@ -22,7 +22,7 @@ from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
-DEFAULT_CONFIG_FILE = "proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.4.0.yaml"
+DEFAULT_CONFIG_FILE = "proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.5.0.yaml"
 DEFAULT_CHECKPOINT = "proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt"
 DEFAULT_ENV = "placeholder.env"
 
@@ -96,7 +96,6 @@ def launch_hdf5(config: DictConfig):
         hdf5_file_path=config.datamodule.get("hdf5_file_path"),
         tile_width=config.datamodule.get("tile_width"),
         subtile_width=config.datamodule.get("subtile_width"),
-        subtile_shape=config.datamodule.get("subtile_shape"),
         pre_filter=hydra.utils.instantiate(config.datamodule.get("pre_filter")),
         subtile_overlap_train=config.datamodule.get("subtile_overlap_train"),
         points_pre_transform=hydra.utils.instantiate(
@@ -114,7 +113,11 @@ if __name__ == "__main__":
 
     log.info(f"Task: {task_name}")
 
-    if task_name in [TASK_NAMES.FIT.value, TASK_NAMES.TEST.value, TASK_NAMES.FINETUNE.value]:
+    if task_name in [
+        TASK_NAMES.FIT.value,
+        TASK_NAMES.TEST.value,
+        TASK_NAMES.FINETUNE.value,
+    ]:
         # load environment variables from `.env` file if it exists
         # recursively searches for `.env` in all folders starting from work dir
         dotenv.load_dotenv(override=True)

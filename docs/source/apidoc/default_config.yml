@@ -119,7 +119,6 @@ datamodule:
     min_num_nodes: 50
   tile_width: 1000
   subtile_width: 50
-  subtile_shape: square
   subtile_overlap_train: 0
   subtile_overlap_predict: ${predict.subtile_overlap}
   batch_size: 2
