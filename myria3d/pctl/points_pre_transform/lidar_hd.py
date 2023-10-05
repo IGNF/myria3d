@@ -54,14 +54,26 @@ def lidar_hd_pre_transform(points):
     )
 
     # geometry
-    k = 20
+    k = min(100, len(points))   # in case there are too few points
     kneigh = NearestNeighbors(n_neighbors=k).fit(pos).kneighbors(pos)
     nn_ptr = np.arange(pos.shape[0] + 1) * k
     nn = kneigh[1].flatten()
 
-    geof = pgeof(
-        points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15,
-        verbose=True)
+    # Make sure xyz are float32 and nn and nn_ptr are uint32
+    pos = pos.astype('float32')
+    nn_ptr = nn_ptr.astype('uint32')
+    nn = nn.astype('uint32')
+
+    # Make sure arrays are contiguous (C-order) and not Fortran-order
+    pos = np.ascontiguousarray(pos)
+    nn_ptr = np.ascontiguousarray(nn_ptr)
+    nn = np.ascontiguousarray(nn)  
+
+    # geof = pgeof(
+    #     points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15,
+    #     verbose=True)
+
+    geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True)
 
     # todo
     x = np.stack(
@@ -78,6 +90,16 @@ def lidar_hd_pre_transform(points):
             ]
         ]
         + [rgb_avg, ndvi],
+        + [
+            geof[0],    # linearity
+            geof[1],    # planarity
+            geof[2],    # scattering
+            geof[3],    # verticality
+            geof[4],    # normal_x
+            geof[5],    # normal_y
+            geof[6],    # normal_z
+
+        ],
         axis=0,
     ).transpose()
     x_features_names = [
@@ -90,6 +112,13 @@ def lidar_hd_pre_transform(points):
         "Infrared",
         "rgb_avg",
         "ndvi",
+        "linearity",
+        "planarity",
+        "scattering",
+        "verticality",
+        "normal_x",
+        "normal_y",
+        "normal_z",
     ]
     y = points["Classification"]
 
