@@ -89,7 +89,7 @@ def lidar_hd_pre_transform(points):
                 "Infrared",
             ]
         ]
-        + [rgb_avg, ndvi],
+        + [rgb_avg, ndvi]
         + [
             geof[0],    # linearity
             geof[1],    # planarity
