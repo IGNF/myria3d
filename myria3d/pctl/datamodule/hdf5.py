@@ -64,13 +64,19 @@ class HDF5LidarDataModule(LightningDataModule):
         t = transforms
         self.preparation_train_transform: TRANSFORMS_LIST = t.get("preparations_train_list", [])
         self.preparation_eval_transform: TRANSFORMS_LIST = t.get("preparations_eval_list", [])
-        self.preparation_predict_transform: TRANSFORMS_LIST = t.get("preparations_predict_list", [])
+        self.preparation_predict_transform: TRANSFORMS_LIST = t.get(
+            "preparations_predict_list", []
+        )
         self.augmentation_transform: TRANSFORMS_LIST = t.get("augmentations_list", [])
         self.normalization_transform: TRANSFORMS_LIST = t.get("normalizations_list", [])
 
     @property
     def train_transform(self) -> CustomCompose:
-        return CustomCompose(self.preparation_train_transform + self.normalization_transform + self.augmentation_transform)
+        return CustomCompose(
+            self.preparation_train_transform
+            + self.normalization_transform
+            + self.augmentation_transform
+        )
 
     @property
     def eval_transform(self) -> CustomCompose:
@@ -85,9 +91,13 @@ class HDF5LidarDataModule(LightningDataModule):
 
         if stage in ["fit", "test"] or stage is None:
             if self.split_csv_path and self.data_dir:
-                las_paths_by_split_dict = get_las_paths_by_split_dict(self.data_dir, self.split_csv_path)
+                las_paths_by_split_dict = get_las_paths_by_split_dict(
+                    self.data_dir, self.split_csv_path
+                )
             else:
-                log.warning("cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used.")
+                log.warning(
+                    "cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used."
+                )
                 las_paths_by_split_dict = None
         # Create the dataset in prepare_data, so that it is done one a single GPU.
         self.las_paths_by_split_dict = las_paths_by_split_dict

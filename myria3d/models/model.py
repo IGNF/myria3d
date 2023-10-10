@@ -62,9 +62,7 @@ class Model(LightningModule):
         # it also allows to access params with 'self.hparams' attribute
         self.save_hyperparameters()
 
-        neural_net_class = get_neural_net_class(
-            self.hparams.neural_net_class_name
-        )
+        neural_net_class = get_neural_net_class(self.hparams.neural_net_class_name)
         self.model = neural_net_class(**self.hparams.neural_net_hparams)
 
         self.softmax = nn.Softmax(dim=1)
@@ -100,9 +98,7 @@ class Model(LightningModule):
         # During evaluation on test data and inference, we interpolate predictions back to original positions
         # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
         logits = logits.cpu()
-        batch_y = self._get_batch_tensor_by_enumeration(
-            batch.idx_in_original_cloud
-        )
+        batch_y = self._get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
         logits = knn_interpolate(
             logits.cpu(),
             batch.copies["pos_sampled_copy"].cpu(),
@@ -139,9 +135,7 @@ class Model(LightningModule):
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
-        self.log(
-            "train/loss", loss, on_step=True, on_epoch=True, prog_bar=False
-        )
+        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
@@ -177,9 +171,7 @@ class Model(LightningModule):
         preds = torch.argmax(logits.detach(), dim=1)
         self.val_iou = self.val_iou.to(preds.device)
         self.val_iou(preds, targets)
-        self.log(
-            "val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True
-        )
+        self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_validation_epoch_end(self) -> None:
@@ -257,15 +249,8 @@ class Model(LightningModule):
             "monitor": self.hparams.monitor,
         }
 
-    def _get_batch_tensor_by_enumeration(
-        self, pos_x: torch.Tensor
-    ) -> torch.Tensor:
+    def _get_batch_tensor_by_enumeration(self, pos_x: torch.Tensor) -> torch.Tensor:
         """Get batch tensor (e.g. [0,0,1,1,2,2,...,B-1,B-1] )
         from shape B,N,... to shape (N,...).
         """
-        return torch.cat(
-            [
-                torch.full((len(sample_pos),), i)
-                for i, sample_pos in enumerate(pos_x)
-            ]
-        )
+        return torch.cat([torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)])

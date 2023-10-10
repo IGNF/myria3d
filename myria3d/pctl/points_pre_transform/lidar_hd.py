@@ -19,15 +19,11 @@ def lidar_hd_pre_transform(points):
 
     """
     # Positions and base features
-    pos = np.asarray(
-        [points["X"], points["Y"], points["Z"]], dtype=np.float32
-    ).transpose()
+    pos = np.asarray([points["X"], points["Y"], points["Z"]], dtype=np.float32).transpose()
     # normalization
     occluded_points = points["ReturnNumber"] > 1
 
-    points["ReturnNumber"] = (points["ReturnNumber"]) / (
-        RETURN_NUMBER_NORMALIZATION_MAX_VALUE
-    )
+    points["ReturnNumber"] = (points["ReturnNumber"]) / (RETURN_NUMBER_NORMALIZATION_MAX_VALUE)
     points["NumberOfReturns"] = (points["NumberOfReturns"]) / (
         RETURN_NUMBER_NORMALIZATION_MAX_VALUE
     )
@@ -46,9 +42,7 @@ def lidar_hd_pre_transform(points):
     )
 
     # NDVI
-    ndvi = (points["Infrared"] - points["Red"]) / (
-        points["Infrared"] + points["Red"] + 10**-6
-    )
+    ndvi = (points["Infrared"] - points["Red"]) / (points["Infrared"] + points["Red"] + 10**-6)
 
     # todo
     x = np.stack(

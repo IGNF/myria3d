@@ -74,7 +74,9 @@ class HDF5Dataset(Dataset):
         self._samples_hdf5_paths = None
 
         if not las_paths_by_split_dict:
-            log.warning("No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used.")
+            log.warning(
+                "No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used."
+            )
             return
 
         # Add data for all LAS Files into a single hdf5 file.
@@ -168,7 +170,9 @@ class HDF5Dataset(Dataset):
         # Load as variable if already indexed in hdf5 file. Need to decode b-string.
         with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
             if "samples_hdf5_paths" in hdf5_file:
-                self._samples_hdf5_paths = [sample_path.decode("utf-8") for sample_path in hdf5_file["samples_hdf5_paths"]]
+                self._samples_hdf5_paths = [
+                    sample_path.decode("utf-8") for sample_path in hdf5_file["samples_hdf5_paths"]
+                ]
                 return self._samples_hdf5_paths
 
         # Otherwise, index samples, and add the index as an attribute to the HDF5 file.
@@ -203,7 +207,6 @@ def create_hdf5(
     subtile_overlap_train: Number = 0,
     points_pre_transform: Callable = lidar_hd_pre_transform,
 ):
-
     """Create a HDF5 dataset file from las.
 
     Args:
@@ -227,20 +230,24 @@ def create_hdf5(
             if split not in f:
                 f.create_group(split)
         for las_path in tqdm(las_paths, desc=f"Preparing {split} set..."):
-
             basename = os.path.basename(las_path)
 
             # Delete dataset for incomplete LAS entry, to start from scratch.
             # Useful in case data preparation was interrupted.
             with h5py.File(hdf5_file_path, "a") as hdf5_file:
-                if basename in hdf5_file[split] and "is_complete" not in hdf5_file[split][basename].attrs:
+                if (
+                    basename in hdf5_file[split]
+                    and "is_complete" not in hdf5_file[split][basename].attrs
+                ):
                     del hdf5_file[split][basename]
                     # Parse and add subtiles to split group.
             with h5py.File(hdf5_file_path, "a") as hdf5_file:
                 if basename in hdf5_file[split]:
                     continue
 
-                subtile_overlap = subtile_overlap_train if split == "train" else 0  # No overlap at eval time.
+                subtile_overlap = (
+                    subtile_overlap_train if split == "train" else 0
+                )  # No overlap at eval time.
                 for sample_number, (sample_idx, sample_points) in enumerate(
                     split_cloud_into_samples(
                         las_path,
@@ -264,7 +271,9 @@ def create_hdf5(
                         dtype="f",
                         data=data.x,
                     )
-                    hdf5_file[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(data.x_features_names)
+                    hdf5_file[hd5f_path_x].attrs["x_features_names"] = copy.deepcopy(
+                        data.x_features_names
+                    )
                     hdf5_file.create_dataset(
                         os.path.join(hdf5_path, "pos"),
                         data.pos.shape,

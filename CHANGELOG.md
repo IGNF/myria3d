@@ -1,5 +1,8 @@
 # main
 
+### 3.4.11
+- Unification of max lenght of lines (99) by applying black everywhere.
+
 ### 3.4.10
 - Migrate from setup.cfg to pyproject.toml and .flake8.
 
