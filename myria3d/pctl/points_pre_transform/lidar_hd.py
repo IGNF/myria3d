@@ -73,7 +73,7 @@ def lidar_hd_pre_transform(points):
     #     points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15,
     #     verbose=True)
 
-    geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True)
+    geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True).transpose()
 
     # todo
     x = np.stack(
