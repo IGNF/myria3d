@@ -71,7 +71,7 @@ jobs:
         task.task_name=predict
 
     - name: Check code neatness (linter)
-      run: docker run myria3d flake8
+      run: docker run myria3d python -m flake8
 
     # Everything ran so we tag the valid docker image to keep it
     # This happens for push events, which are in particular 
