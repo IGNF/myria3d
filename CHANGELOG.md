@@ -1,5 +1,8 @@
 # main
 
+### 3.4.10
+- Migrate from setup.cfg to pyproject.toml and .flake8.
+
 ### 3.4.9
 - Support edge-case where source LAZ has no valid subtile (i.e. pre_filter=False for all candidate subtiles) during hdf5 creation
 
