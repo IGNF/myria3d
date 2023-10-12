@@ -175,7 +175,6 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">pdal</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span>
-<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Point</span>
 
 <span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]]</span>
 <span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;disk&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;square&quot;</span><span class="p">]]</span>
@@ -308,23 +307,6 @@
 
 <span class="k">def</span> <span class="nf">pre_filter_below_n_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_num_nodes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_num_nodes</span>
-
-
-<span class="c1"># COPC</span>
-
-
-<span class="k">def</span> <span class="nf">get_random_center_in_tile</span><span class="p">(</span><span class="n">tile_width</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
-        <span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
-        <span class="n">tile_width</span> <span class="o">-</span> <span class="p">(</span><span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">make_circle_wkt</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">):</span>
-    <span class="n">half</span> <span class="o">=</span> <span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">wkt</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">center</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">half</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span>
-    <span class="k">return</span> <span class="n">wkt</span>
 
 
 <span class="k">def</span> <span class="nf">get_las_paths_by_split_dict</span><span class="p">(</span>
