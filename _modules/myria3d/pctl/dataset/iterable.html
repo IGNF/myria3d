@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.iterable &mdash; myria3d 3.4.11 documentation</title>
+  <title>myria3d.pctl.dataset.iterable &mdash; myria3d 3.5.0 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -172,7 +172,6 @@
 <span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
 
 <span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SHAPE_TYPE</span><span class="p">,</span>
     <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
     <span class="n">split_cloud_into_samples</span><span class="p">,</span>
 <span class="p">)</span>
@@ -191,7 +190,6 @@
         <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
         <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">subtile_shape</span><span class="p">:</span> <span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;square&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">las_file</span> <span class="o">=</span> <span class="n">las_file</span>
 
@@ -201,7 +199,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">tile_width</span> <span class="o">=</span> <span class="n">tile_width</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span> <span class="o">=</span> <span class="n">subtile_width</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtile_shape</span> <span class="o">=</span> <span class="n">subtile_shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap</span> <span class="o">=</span> <span class="n">subtile_overlap</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -213,7 +210,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">las_file</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tile_width</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">subtile_shape</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">sample_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span><span class="p">(</span><span class="n">sample_points</span><span class="p">)</span>

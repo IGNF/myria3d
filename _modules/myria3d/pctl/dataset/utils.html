@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.4.11 documentation</title>
+  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.5.0 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -165,7 +165,6 @@
   <h1>Source code for myria3d.pctl.dataset.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
@@ -177,7 +176,6 @@
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span>
 
 <span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]]</span>
-<span class="n">SHAPE_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;disk&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;square&quot;</span><span class="p">]]</span>
 <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SPLIT_TYPE</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
 <span class="c1"># commons</span>
@@ -269,7 +267,6 @@
     <span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
     <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
-    <span class="n">shape</span><span class="p">:</span> <span class="n">SHAPE_TYPE</span><span class="p">,</span>
     <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Split LAS point cloud into samples.</span>
@@ -277,8 +274,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): path to raw LAS file</span>
 <span class="sd">        tile_width (Number): width of input LAS file</span>
-<span class="sd">        subtile_width (Number): width of receptive field ; may be increased for coverage in case of disk shape.</span>
-<span class="sd">        shape: &quot;disk&quot; or &quot;square&quot;</span>
+<span class="sd">        subtile_width (Number): width of receptive field.</span>
 <span class="sd">        subtile_overlap (Number, optional): overlap between adjacent tiles. Defaults to 0.</span>
 
 <span class="sd">    Yields:</span>
@@ -292,11 +288,6 @@
     <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span> <span class="n">XYs</span><span class="p">:</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">subtile_width</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># Square receptive field.</span>
         <span class="n">minkowski_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-        <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;disk&quot;</span><span class="p">:</span>
-            <span class="c1"># Disk receptive field.</span>
-            <span class="c1"># Adapt radius to have complete coverage of the data, with a slight overlap between samples.</span>
-            <span class="n">minkowski_p</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kd_tree</span><span class="o">.</span><span class="n">query_ball_point</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">minkowski_p</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_idx</span><span class="p">):</span>
             <span class="c1"># no points in this receptive fields</span>
