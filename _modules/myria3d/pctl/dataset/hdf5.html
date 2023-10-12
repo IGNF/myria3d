@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.4.9 documentation</title>
+  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.4.11 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -239,7 +239,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">las_paths_by_split_dict</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used.&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No las_paths_by_split_dict given, pre-computed HDF5 dataset is therefore used.&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Add data for all LAS Files into a single hdf5 file.</span>
@@ -333,7 +335,9 @@
         <span class="c1"># Load as variable if already indexed in hdf5 file. Need to decode b-string.</span>
         <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;samples_hdf5_paths&quot;</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample_path</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample_path</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="s2">&quot;samples_hdf5_paths&quot;</span><span class="p">]]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">sample_path</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample_path</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="s2">&quot;samples_hdf5_paths&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span>
 
         <span class="c1"># Otherwise, index samples, and add the index as an attribute to the HDF5 file.</span>
@@ -368,7 +372,6 @@
     <span class="n">subtile_overlap_train</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">points_pre_transform</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">lidar_hd_pre_transform</span><span class="p">,</span>
 <span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a HDF5 dataset file from las.</span>
 
 <span class="sd">    Args:</span>
@@ -392,20 +395,24 @@
             <span class="k">if</span> <span class="n">split</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">las_path</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">las_paths</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">split</span><span class="si">}</span><span class="s2"> set...&quot;</span><span class="p">):</span>
-
             <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
 
             <span class="c1"># Delete dataset for incomplete LAS entry, to start from scratch.</span>
             <span class="c1"># Useful in case data preparation was interrupted.</span>
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;is_complete&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="s2">&quot;is_complete&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+                <span class="p">):</span>
                     <span class="k">del</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span>
                     <span class="c1"># Parse and add subtiles to split group.</span>
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf5_file</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]:</span>
                     <span class="k">continue</span>
 
-                <span class="n">subtile_overlap</span> <span class="o">=</span> <span class="n">subtile_overlap_train</span> <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># No overlap at eval time.</span>
+                <span class="n">subtile_overlap</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">subtile_overlap_train</span> <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="p">)</span>  <span class="c1"># No overlap at eval time.</span>
                 <span class="k">for</span> <span class="n">sample_number</span><span class="p">,</span> <span class="p">(</span><span class="n">sample_idx</span><span class="p">,</span> <span class="n">sample_points</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
                     <span class="n">split_cloud_into_samples</span><span class="p">(</span>
                         <span class="n">las_path</span><span class="p">,</span>
@@ -429,7 +436,9 @@
                         <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;f&quot;</span><span class="p">,</span>
                         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="n">hdf5_file</span><span class="p">[</span><span class="n">hd5f_path_x</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;x_features_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x_features_names</span><span class="p">)</span>
+                    <span class="n">hdf5_file</span><span class="p">[</span><span class="n">hd5f_path_x</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;x_features_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">x_features_names</span>
+                    <span class="p">)</span>
                     <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
                         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
                         <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>

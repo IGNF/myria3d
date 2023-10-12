@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.iterable &mdash; myria3d 3.4.9 documentation</title>
+  <title>myria3d.pctl.dataset.iterable &mdash; myria3d 3.4.11 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -218,7 +218,9 @@
         <span class="p">):</span>
             <span class="n">sample_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span><span class="p">(</span><span class="n">sample_points</span><span class="p">)</span>
             <span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span>
-            <span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span>  <span class="c1"># Need input classification for DropPointsByClass</span>
+            <span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span>
+                <span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+            <span class="p">)</span>  <span class="c1"># Need input classification for DropPointsByClass</span>
             <span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">])</span>
             <span class="c1"># for final interpolation - should be kept as a np.ndarray to be batched as a list later.</span>
             <span class="n">sample_data</span><span class="p">[</span><span class="s2">&quot;idx_in_original_cloud&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_in_original_cloud</span>

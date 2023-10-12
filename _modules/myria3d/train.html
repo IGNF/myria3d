@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.train &mdash; myria3d 3.4.9 documentation</title>
+  <title>myria3d.train &mdash; myria3d 3.4.11 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -167,7 +167,9 @@
     <span class="c1"># It is safer to import comet before all other imports.</span>
     <span class="kn">import</span> <span class="nn">comet_ml</span>  <span class="c1"># noqa</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: package comet_ml not found. This may break things if you use a comet callback.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Warning: package comet_ml not found. This may break things if you use a comet callback.&quot;</span>
+    <span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -311,7 +313,9 @@
     <span class="k">if</span> <span class="n">task_name</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_NAMES</span><span class="o">.</span><span class="n">FIT</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">TASK_NAMES</span><span class="o">.</span><span class="n">TEST</span><span class="o">.</span><span class="n">value</span><span class="p">]:</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting testing!&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test will use just-trained best model checkpointed at </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Test will use just-trained best model checkpointed at </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test will use specified model checkpointed at </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">trainer</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">)</span>
@@ -322,7 +326,9 @@
         <span class="c1"># Instantiates the Model but overwrites everything with current config,</span>
         <span class="c1"># except module related params (nnet architecture)</span>
         <span class="n">kwargs_to_override</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">hparams</span><span class="p">)</span>
-        <span class="n">kwargs_to_override</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">NEURAL_NET_ARCHITECTURE_CONFIG_GROUP</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># removes that key if it&#39;s there</span>
+        <span class="n">kwargs_to_override</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+            <span class="n">NEURAL_NET_ARCHITECTURE_CONFIG_GROUP</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>  <span class="c1"># removes that key if it&#39;s there</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_to_override</span><span class="p">)</span>
         <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best checkpoint:</span><span class="se">\n</span><span class="si">{</span><span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

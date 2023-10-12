@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.points_pre_transform.lidar_hd &mdash; myria3d 3.4.9 documentation</title>
+  <title>myria3d.pctl.points_pre_transform.lidar_hd &mdash; myria3d 3.4.11 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -184,15 +184,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Positions and base features</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
     <span class="c1"># normalization</span>
     <span class="n">occluded_points</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;ReturnNumber&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
 
-    <span class="n">points</span><span class="p">[</span><span class="s2">&quot;ReturnNumber&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;ReturnNumber&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
-        <span class="n">RETURN_NUMBER_NORMALIZATION_MAX_VALUE</span>
-    <span class="p">)</span>
+    <span class="n">points</span><span class="p">[</span><span class="s2">&quot;ReturnNumber&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;ReturnNumber&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">RETURN_NUMBER_NORMALIZATION_MAX_VALUE</span><span class="p">)</span>
     <span class="n">points</span><span class="p">[</span><span class="s2">&quot;NumberOfReturns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;NumberOfReturns&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
         <span class="n">RETURN_NUMBER_NORMALIZATION_MAX_VALUE</span>
     <span class="p">)</span>
@@ -211,9 +207,7 @@
     <span class="p">)</span>
 
     <span class="c1"># NDVI</span>
-    <span class="n">ndvi</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;Infrared&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Red&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
-        <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Infrared&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Red&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">6</span>
-    <span class="p">)</span>
+    <span class="n">ndvi</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;Infrared&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Red&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;Infrared&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Red&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">6</span><span class="p">)</span>
 
     <span class="c1"># todo</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>

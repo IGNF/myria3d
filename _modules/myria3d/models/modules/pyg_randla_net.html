@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.modules.pyg_randla_net &mdash; myria3d 3.4.9 documentation</title>
+  <title>myria3d.models.modules.pyg_randla_net &mdash; myria3d 3.4.11 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -214,9 +214,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fp3</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">256</span> <span class="o">+</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp2</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">128</span> <span class="o">+</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp1</span> <span class="o">=</span> <span class="n">FPModule</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">32</span> <span class="o">+</span> <span class="mi">32</span><span class="p">,</span> <span class="n">d_bottleneck</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_classif</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">d_bottleneck</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span> <span class="n">dropout</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_classif</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">d_bottleneck</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span> <span class="n">dropout</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fc_classif</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PyGRandLANet.forward"><a class="viewcode-back" href="../../../../apidoc/myria3d.models.modules.html#myria3d.models.modules.pyg_randla_net.PyGRandLANet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
@@ -282,9 +280,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aggr</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="n">channels</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_attention</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">channels</span><span class="p">,</span> <span class="n">channels</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_attention</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">channels</span><span class="p">,</span> <span class="n">channels</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mlp_post_attention</span> <span class="o">=</span> <span class="n">SharedMLP</span><span class="p">([</span><span class="n">channels</span><span class="p">,</span> <span class="n">channels</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
@@ -292,9 +288,7 @@
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_post_attention</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>  <span class="c1"># N, d_out</span>
         <span class="k">return</span> <span class="n">out</span>
 
-    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x_j</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">pos_i</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">pos_j</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Tensor</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_j</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">pos_i</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">pos_j</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Local Spatial Encoding (locSE) and attentive pooling of features.</span>
 
 <span class="sd">        Args:</span>
@@ -311,13 +305,9 @@
         <span class="c1"># Encode local neighboorhod structural information</span>
         <span class="n">pos_diff</span> <span class="o">=</span> <span class="n">pos_j</span> <span class="o">-</span> <span class="n">pos_i</span>
         <span class="n">distance</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">pos_diff</span> <span class="o">*</span> <span class="n">pos_diff</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-        <span class="n">relative_infos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">pos_i</span><span class="p">,</span> <span class="n">pos_j</span><span class="p">,</span> <span class="n">pos_diff</span><span class="p">,</span> <span class="n">distance</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span>  <span class="c1"># N * K, d</span>
+        <span class="n">relative_infos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">pos_i</span><span class="p">,</span> <span class="n">pos_j</span><span class="p">,</span> <span class="n">pos_diff</span><span class="p">,</span> <span class="n">distance</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># N * K, d</span>
         <span class="n">local_spatial_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder</span><span class="p">(</span><span class="n">relative_infos</span><span class="p">)</span>  <span class="c1"># N * K, d</span>
-        <span class="n">local_features</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">x_j</span><span class="p">,</span> <span class="n">local_spatial_encoding</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span>  <span class="c1"># N * K, 2d</span>
+        <span class="n">local_features</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x_j</span><span class="p">,</span> <span class="n">local_spatial_encoding</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># N * K, 2d</span>
 
         <span class="c1"># Attention will weight the different features of x</span>
         <span class="c1"># along the neighborhood dimension.</span>
@@ -364,9 +354,7 @@
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">batch</span>
 
 
-<span class="k">def</span> <span class="nf">decimation_indices</span><span class="p">(</span>
-    <span class="n">ptr</span><span class="p">:</span> <span class="n">LongTensor</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">:</span> <span class="n">Number</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">LongTensor</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">decimation_indices</span><span class="p">(</span><span class="n">ptr</span><span class="p">:</span> <span class="n">LongTensor</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">LongTensor</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get indices which downsample each point cloud by a decimation factor.</span>
 
 <span class="sd">    Decimation happens separately for each cloud to prevent emptying smaller</span>
@@ -390,21 +378,12 @@
 
     <span class="n">batch_size</span> <span class="o">=</span> <span class="n">ptr</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">bincount</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">ptr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">decimated_bincount</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span>
-        <span class="n">bincount</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span>
-    <span class="p">)</span>
+    <span class="n">decimated_bincount</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">bincount</span><span class="p">,</span> <span class="n">decimation_factor</span><span class="p">,</span> <span class="n">rounding_mode</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">)</span>
     <span class="c1"># Decimation should not empty clouds completely.</span>
-    <span class="n">decimated_bincount</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
-        <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">decimated_bincount</span><span class="p">),</span> <span class="n">decimated_bincount</span>
-    <span class="p">)</span>
+    <span class="n">decimated_bincount</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">decimated_bincount</span><span class="p">),</span> <span class="n">decimated_bincount</span><span class="p">)</span>
     <span class="n">idx_decim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="p">(</span>
-                <span class="n">ptr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">bincount</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">ptr</span><span class="o">.</span><span class="n">device</span><span class="p">)[</span>
-                    <span class="p">:</span> <span class="n">decimated_bincount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
+            <span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">bincount</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">ptr</span><span class="o">.</span><span class="n">device</span><span class="p">)[:</span> <span class="n">decimated_bincount</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
         <span class="p">],</span>
         <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -466,15 +445,9 @@
         <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
         <span class="n">pre_transform</span><span class="o">=</span><span class="n">pre_transform</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">ShapeNet</span><span class="p">(</span>
-        <span class="n">path</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">pre_transform</span><span class="o">=</span><span class="n">pre_transform</span>
-    <span class="p">)</span>
-    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
-        <span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">6</span>
-    <span class="p">)</span>
-    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
-        <span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">6</span>
-    <span class="p">)</span>
+    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">ShapeNet</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">pre_transform</span><span class="o">=</span><span class="n">pre_transform</span><span class="p">)</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 
     <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">PyGRandLANet</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">category_num_classes</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>

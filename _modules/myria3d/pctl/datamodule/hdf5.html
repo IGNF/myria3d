@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.datamodule.hdf5 &mdash; myria3d 3.4.9 documentation</title>
+  <title>myria3d.pctl.datamodule.hdf5 &mdash; myria3d 3.4.11 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -229,13 +229,19 @@
         <span class="n">t</span> <span class="o">=</span> <span class="n">transforms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_train_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preparation_eval_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_eval_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">preparation_predict_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preparations_predict_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation_predict_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;preparations_predict_list&quot;</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;augmentations_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;normalizations_list&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">train_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_transform</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transform</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">eval_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
@@ -250,9 +256,13 @@
 
         <span class="k">if</span> <span class="n">stage</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_csv_path</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">:</span>
-                <span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="n">get_las_paths_by_split_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_csv_path</span><span class="p">)</span>
+                <span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="n">get_las_paths_by_split_dict</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_csv_path</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used.&quot;</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;cfg.data_dir and cfg.split_csv_path are both null. Precomputed HDF5 dataset is used.&quot;</span>
+                <span class="p">)</span>
                 <span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># Create the dataset in prepare_data, so that it is done one a single GPU.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">las_paths_by_split_dict</span> <span class="o">=</span> <span class="n">las_paths_by_split_dict</span>
