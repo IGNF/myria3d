@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import pdal
 from scipy.spatial import cKDTree
-from shapely.geometry import Point
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
 SHAPE_TYPE = Union[Literal["disk"], Literal["square"]]
@@ -143,23 +142,6 @@ def split_cloud_into_samples(
 
 def pre_filter_below_n_points(data, min_num_nodes=1):
     return data.pos.shape[0] < min_num_nodes
-
-
-# COPC
-
-
-def get_random_center_in_tile(tile_width, subtile_width):
-    return np.random.randint(
-        subtile_width / 4,
-        tile_width - (subtile_width / 4) + 1,
-        size=(2,),
-    )
-
-
-def make_circle_wkt(center, subtile_width):
-    half = subtile_width / 2
-    wkt = Point(center).buffer(half).wkt
-    return wkt
 
 
 def get_las_paths_by_split_dict(
