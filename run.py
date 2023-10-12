@@ -113,11 +113,7 @@ if __name__ == "__main__":
 
     log.info(f"Task: {task_name}")
 
-    if task_name in [
-        TASK_NAMES.FIT.value,
-        TASK_NAMES.TEST.value,
-        TASK_NAMES.FINETUNE.value,
-    ]:
+    if task_name in [TASK_NAMES.FIT.value, TASK_NAMES.TEST.value, TASK_NAMES.FINETUNE.value]:
         # load environment variables from `.env` file if it exists
         # recursively searches for `.env` in all folders starting from work dir
         dotenv.load_dotenv(override=True)
