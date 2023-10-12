@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 3.4.11
+### 3.4.12
 - Remove COPC datasets and dataloaders since they were abandonned and never used.
 
 ### 3.4.11
