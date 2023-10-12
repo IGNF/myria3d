@@ -1,6 +1,5 @@
 import glob
 import json
-import math
 from pathlib import Path
 import subprocess as sp
 from numbers import Number
@@ -12,7 +11,6 @@ import pdal
 from scipy.spatial import cKDTree
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
-SHAPE_TYPE = Union[Literal["disk"], Literal["square"]]
 LAS_PATHS_BY_SPLIT_DICT_TYPE = Dict[SPLIT_TYPE, List[str]]
 
 # commons
@@ -104,7 +102,6 @@ def split_cloud_into_samples(
     las_path: str,
     tile_width: Number,
     subtile_width: Number,
-    shape: SHAPE_TYPE,
     subtile_overlap: Number = 0,
 ):
     """Split LAS point cloud into samples.
@@ -112,8 +109,7 @@ def split_cloud_into_samples(
     Args:
         las_path (str): path to raw LAS file
         tile_width (Number): width of input LAS file
-        subtile_width (Number): width of receptive field ; may be increased for coverage in case of disk shape.
-        shape: "disk" or "square"
+        subtile_width (Number): width of receptive field.
         subtile_overlap (Number, optional): overlap between adjacent tiles. Defaults to 0.
 
     Yields:
@@ -127,11 +123,6 @@ def split_cloud_into_samples(
     for center in XYs:
         radius = subtile_width // 2  # Square receptive field.
         minkowski_p = np.inf
-        if shape == "disk":
-            # Disk receptive field.
-            # Adapt radius to have complete coverage of the data, with a slight overlap between samples.
-            minkowski_p = 2
-            radius = radius * math.sqrt(2)
         sample_idx = np.array(kd_tree.query_ball_point(center, r=radius, p=minkowski_p))
         if not len(sample_idx):
             # no points in this receptive fields

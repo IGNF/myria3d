@@ -7,7 +7,6 @@ from torch.utils.data.dataset import IterableDataset
 from torch_geometric.data import Data
 
 from myria3d.pctl.dataset.utils import (
-    SHAPE_TYPE,
     pre_filter_below_n_points,
     split_cloud_into_samples,
 )
@@ -26,7 +25,6 @@ class InferenceDataset(IterableDataset):
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_overlap: Number = 0,
-        subtile_shape: SHAPE_TYPE = "square",
     ):
         self.las_file = las_file
 
@@ -36,7 +34,6 @@ class InferenceDataset(IterableDataset):
 
         self.tile_width = tile_width
         self.subtile_width = subtile_width
-        self.subtile_shape = subtile_shape
         self.subtile_overlap = subtile_overlap
 
     def __iter__(self):
@@ -48,7 +45,6 @@ class InferenceDataset(IterableDataset):
             self.las_file,
             self.tile_width,
             self.subtile_width,
-            self.subtile_shape,
             self.subtile_overlap,
         ):
             sample_data = self.points_pre_transform(sample_points)

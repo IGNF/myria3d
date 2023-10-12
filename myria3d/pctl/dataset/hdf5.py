@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 from myria3d.pctl.dataset.utils import (
     LAS_PATHS_BY_SPLIT_DICT_TYPE,
-    SHAPE_TYPE,
     SPLIT_TYPE,
     pre_filter_below_n_points,
     split_cloud_into_samples,
@@ -34,7 +33,6 @@ class HDF5Dataset(Dataset):
         tile_width: Number = 1000,
         subtile_width: Number = 50,
         subtile_overlap_train: Number = 0,
-        subtile_shape: SHAPE_TYPE = "square",
         pre_filter=pre_filter_below_n_points,
         train_transform: List[Callable] = None,
         eval_transform: List[Callable] = None,
@@ -48,7 +46,6 @@ class HDF5Dataset(Dataset):
             points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.
             tile_width (Number, optional): width of a LAS tile. Defaults to 1000.
             subtile_width (Number, optional): effective width of a subtile (i.e. receptive field). Defaults to 50.
-            subtile_shape (SHAPE_TYPE, optional): Shape of subtile could be either "square" or "disk". Defaults to "square".
             subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. Defaults to 0.
             pre_filter (_type_, optional): Function to filter out specific subtiles. Defaults to None.
             train_transform (List[Callable], optional): Transforms to apply to a sample for training. Defaults to None.
@@ -64,7 +61,6 @@ class HDF5Dataset(Dataset):
         self.tile_width = tile_width
         self.subtile_width = subtile_width
         self.subtile_overlap_train = subtile_overlap_train
-        self.subtile_shape = subtile_shape
 
         self.hdf5_file_path = hdf5_file_path
 
@@ -85,7 +81,6 @@ class HDF5Dataset(Dataset):
             hdf5_file_path,
             tile_width,
             subtile_width,
-            subtile_shape,
             pre_filter,
             subtile_overlap_train,
             points_pre_transform,
@@ -202,7 +197,6 @@ def create_hdf5(
     hdf5_file_path: str,
     tile_width: Number = 1000,
     subtile_width: Number = 50,
-    subtile_shape: SHAPE_TYPE = "square",
     pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
     subtile_overlap_train: Number = 0,
     points_pre_transform: Callable = lidar_hd_pre_transform,
@@ -218,7 +212,6 @@ def create_hdf5(
         hdf5_file_path (str): path to HDF5 dataset,
         tile_width (Number, optional): width of a LAS tile. 1000 by default,
         subtile_width: (Number, optional): effective width of a subtile (i.e. receptive field). 50 by default,
-        subtile_shape (SHAPE_TYPE, optional): Shape of subtile could be either "square" or "disk". "square" by default ,
         pre_filter: Function to filter out specific subtiles. "pre_filter_below_n_points" by default,
         subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. 0 by default,
         points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.
@@ -253,7 +246,6 @@ def create_hdf5(
                         las_path,
                         tile_width,
                         subtile_width,
-                        subtile_shape,
                         subtile_overlap,
                     )
                 ):
