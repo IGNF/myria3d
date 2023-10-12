@@ -53,7 +53,9 @@ class InferenceDataset(IterableDataset):
         ):
             sample_data = self.points_pre_transform(sample_points)
             sample_data["x"] = torch.from_numpy(sample_data["x"])
-            sample_data["y"] = torch.LongTensor(sample_data["y"])  # Need input classification for DropPointsByClass
+            sample_data["y"] = torch.LongTensor(
+                sample_data["y"]
+            )  # Need input classification for DropPointsByClass
             sample_data["pos"] = torch.from_numpy(sample_data["pos"])
             # for final interpolation - should be kept as a np.ndarray to be batched as a list later.
             sample_data["idx_in_original_cloud"] = idx_in_original_cloud

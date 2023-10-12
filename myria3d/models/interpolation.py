@@ -47,7 +47,10 @@ class Interpolator:
             self.probas_to_save = probas_to_save
 
         # Maps ascending index (0,1,2,...) back to conventionnal LAS classification codes (6=buildings, etc.)
-        self.reverse_mapper: Dict[int, int] = {class_index: class_code for class_index, class_code in enumerate(classification_dict.keys())}
+        self.reverse_mapper: Dict[int, int] = {
+            class_index: class_code
+            for class_index, class_code in enumerate(classification_dict.keys())
+        }
 
         self.logits: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
@@ -70,7 +73,9 @@ class Interpolator:
             # Copy from Classification to preserve data type
             # Also preserves values of artefacts.
             if self.predicted_classification_channel != "Classification":
-                pipeline |= pdal.Filter.ferry(dimensions=f"Classification=>{self.predicted_classification_channel}")
+                pipeline |= pdal.Filter.ferry(
+                    dimensions=f"Classification=>{self.predicted_classification_channel}"
+                )
 
         if self.entropy_channel:
             pipeline |= pdal.Filter.ferry(dimensions=f"=>{self.entropy_channel}")
@@ -166,7 +171,9 @@ class Interpolator:
         out_f = os.path.abspath(out_f)
         log.info(f"Updated LAS ({basename}) will be saved to: \n {output_dir}\n")
         log.info("Saving...")
-        pipeline = pdal.Writer.las(filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8).pipeline(las)
+        pipeline = pdal.Writer.las(
+            filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8
+        ).pipeline(las)
         pipeline.execute()
         log.info("Saved.")
 

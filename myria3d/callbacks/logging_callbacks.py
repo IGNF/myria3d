@@ -127,7 +127,6 @@ class SingleClassIoU(JaccardIndex):
         dist_sync_on_step: bool = False,
         process_group: Optional[Any] = None,
     ) -> None:
-
         self.class_of_interest_idx = class_of_interest_idx
 
         super().__init__(

@@ -36,20 +36,15 @@ class COPCDataset(Dataset):
         data_dir=None,
         add_original_index: bool = True,
     ):
-
         if len(tiles_basenames) == 0:
             raise KeyError("Given list of files is empty")
 
-        processed_basenames = [
-            b.replace(".las", ".copc.laz") for b in tiles_basenames
-        ]
+        processed_basenames = [b.replace(".las", ".copc.laz") for b in tiles_basenames]
         self.copc_paths = [osp.join(copc_dir, b) for b in processed_basenames]
 
         if data_dir:
             # CONVERSION TO COPC IF NEEDED
-            raw_paths = [
-                find_file_in_dir(data_dir, b) for b in tiles_basenames
-            ]
+            raw_paths = [find_file_in_dir(data_dir, b) for b in tiles_basenames]
             try:
                 # IndexError if no file is found in dir.
                 [find_file_in_dir(copc_dir, b) for b in processed_basenames]
@@ -75,7 +70,6 @@ class COPCDataset(Dataset):
         raise NotImplementedError()
 
     def __getitem__(self, idx):
-
         points = self.load_points(idx)
 
         # filter if empty
@@ -96,9 +90,7 @@ class COPCDataset(Dataset):
             data = self.transform(data)
 
         # filter if empty
-        if data is None or (
-            self.pre_filter is not None and self.pre_filter(data)
-        ):
+        if data is None or (self.pre_filter is not None and self.pre_filter(data)):
             return None
 
         return data
@@ -245,9 +237,7 @@ class COPCEvalDataset(COPCInferenceDataset):
         )
 
 
-def write_las_to_copc_laz(
-    las_path: str, copc_laz_path: str, add_original_index: bool = False
-):
+def write_las_to_copc_laz(las_path: str, copc_laz_path: str, add_original_index: bool = False):
     """Convert from LAS to COPC, for optimized later loading.
 
     Resulting data starts at 0 on x and y.

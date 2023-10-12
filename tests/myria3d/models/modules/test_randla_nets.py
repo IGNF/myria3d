@@ -5,9 +5,7 @@ from torch_geometric.data import Batch, Data
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 
 
-@pytest.mark.parametrize(
-    "num_nodes", [[12500, 12500], [50, 50], [12500, 10000]]
-)
+@pytest.mark.parametrize("num_nodes", [[12500, 12500], [50, 50], [12500, 10000]])
 def test_fake_run_pyg_randlanet(num_nodes):
     """Documents expected data format and make a forward pass with PyG RandLa-Net.
 

@@ -49,9 +49,7 @@ class PyGRandLANet(torch.nn.Module):
         self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
         self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
         self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
-        self.mlp_classif = SharedMLP(
-            [d_bottleneck, 64, 32], dropout=[0.0, 0.5]
-        )
+        self.mlp_classif = SharedMLP([d_bottleneck, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
     def forward(self, x, pos, batch, ptr):
@@ -117,9 +115,7 @@ class LocalFeatureAggregation(MessagePassing):
     def __init__(self, channels):
         super().__init__(aggr="add")
         self.mlp_encoder = SharedMLP([10, channels // 2])
-        self.mlp_attention = SharedMLP(
-            [channels, channels], bias=False, act=None, norm=None
-        )
+        self.mlp_attention = SharedMLP([channels, channels], bias=False, act=None, norm=None)
         self.mlp_post_attention = SharedMLP([channels, channels])
 
     def forward(self, edge_index, x, pos):
@@ -127,9 +123,7 @@ class LocalFeatureAggregation(MessagePassing):
         out = self.mlp_post_attention(out)  # N, d_out
         return out
 
-    def message(
-        self, x_j: Tensor, pos_i: Tensor, pos_j: Tensor, index: Tensor
-    ) -> Tensor:
+    def message(self, x_j: Tensor, pos_i: Tensor, pos_j: Tensor, index: Tensor) -> Tensor:
         """Local Spatial Encoding (locSE) and attentive pooling of features.
 
         Args:
@@ -146,13 +140,9 @@ class LocalFeatureAggregation(MessagePassing):
         # Encode local neighboorhod structural information
         pos_diff = pos_j - pos_i
         distance = torch.sqrt((pos_diff * pos_diff).sum(1, keepdim=True))
-        relative_infos = torch.cat(
-            [pos_i, pos_j, pos_diff, distance], dim=1
-        )  # N * K, d
+        relative_infos = torch.cat([pos_i, pos_j, pos_diff, distance], dim=1)  # N * K, d
         local_spatial_encoding = self.mlp_encoder(relative_infos)  # N * K, d
-        local_features = torch.cat(
-            [x_j, local_spatial_encoding], dim=1
-        )  # N * K, 2d
+        local_features = torch.cat([x_j, local_spatial_encoding], dim=1)  # N * K, 2d
 
         # Attention will weight the different features of x
         # along the neighborhood dimension.
@@ -199,9 +189,7 @@ class DilatedResidualBlock(torch.nn.Module):
         return x, pos, batch
 
 
-def decimation_indices(
-    ptr: LongTensor, decimation_factor: Number
-) -> Tuple[Tensor, LongTensor]:
+def decimation_indices(ptr: LongTensor, decimation_factor: Number) -> Tuple[Tensor, LongTensor]:
     """Get indices which downsample each point cloud by a decimation factor.
 
     Decimation happens separately for each cloud to prevent emptying smaller
@@ -225,21 +213,12 @@ def decimation_indices(
 
     batch_size = ptr.size(0) - 1
     bincount = ptr[1:] - ptr[:-1]
-    decimated_bincount = torch.div(
-        bincount, decimation_factor, rounding_mode="floor"
-    )
+    decimated_bincount = torch.div(bincount, decimation_factor, rounding_mode="floor")
     # Decimation should not empty clouds completely.
-    decimated_bincount = torch.max(
-        torch.ones_like(decimated_bincount), decimated_bincount
-    )
+    decimated_bincount = torch.max(torch.ones_like(decimated_bincount), decimated_bincount)
     idx_decim = torch.cat(
         [
-            (
-                ptr[i]
-                + torch.randperm(bincount[i], device=ptr.device)[
-                    : decimated_bincount[i]
-                ]
-            )
+            (ptr[i] + torch.randperm(bincount[i], device=ptr.device)[: decimated_bincount[i]])
             for i in range(batch_size)
         ],
         dim=0,
@@ -301,15 +280,9 @@ def main():
         transform=transform,
         pre_transform=pre_transform,
     )
-    test_dataset = ShapeNet(
-        path, category, split="test", pre_transform=pre_transform
-    )
-    train_loader = DataLoader(
-        train_dataset, batch_size=12, shuffle=True, num_workers=6
-    )
-    test_loader = DataLoader(
-        test_dataset, batch_size=12, shuffle=False, num_workers=6
-    )
+    test_dataset = ShapeNet(path, category, split="test", pre_transform=pre_transform)
+    train_loader = DataLoader(train_dataset, batch_size=12, shuffle=True, num_workers=6)
+    test_loader = DataLoader(test_dataset, batch_size=12, shuffle=False, num_workers=6)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = PyGRandLANet(3, category_num_classes).to(device)

@@ -1,0 +1,10 @@
+[flake8]
+max_line_length = 99
+show_source = True
+format = pylint
+extend-ignore = E203,E501
+exclude =
+    .git
+    __pycache__
+    logs/*
+    .vscode/*

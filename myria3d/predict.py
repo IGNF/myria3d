@@ -56,7 +56,9 @@ def predict(config: DictConfig) -> str:
         interpolation_k=config.predict.interpolator.interpolation_k,
         classification_dict=config.dataset_description.get("classification_dict"),
         probas_to_save=config.predict.interpolator.probas_to_save,
-        predicted_classification_channel=config.predict.interpolator.get("predicted_classification_channel", "PredictedClassification"),
+        predicted_classification_channel=config.predict.interpolator.get(
+            "predicted_classification_channel", "PredictedClassification"
+        ),
         entropy_channel=config.predict.interpolator.get("entropy_channel", "entropy"),
     )
 
@@ -65,7 +67,5 @@ def predict(config: DictConfig) -> str:
         logits = model.predict_step(batch)["logits"]
         itp.store_predictions(logits, batch.idx_in_original_cloud)
 
-    out_f = itp.reduce_predictions_and_save(
-        config.predict.src_las, config.predict.output_dir
-    )
+    out_f = itp.reduce_predictions_and_save(config.predict.src_las, config.predict.output_dir)
     return out_f

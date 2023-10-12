@@ -2,7 +2,9 @@ try:
     # It is safer to import comet before all other imports.
     import comet_ml  # noqa
 except ImportError:
-    print("Warning: package comet_ml not found. This may break things if you use a comet callback.")
+    print(
+        "Warning: package comet_ml not found. This may break things if you use a comet callback."
+    )
 
 import copy
 import os
@@ -146,7 +148,9 @@ def train(config: DictConfig) -> Trainer:
     if task_name in [TASK_NAMES.FIT.value, TASK_NAMES.TEST.value]:
         log.info("Starting testing!")
         if trainer.checkpoint_callback.best_model_path:
-            log.info(f"Test will use just-trained best model checkpointed at \n {trainer.checkpoint_callback.best_model_path}")
+            log.info(
+                f"Test will use just-trained best model checkpointed at \n {trainer.checkpoint_callback.best_model_path}"
+            )
             config.model.ckpt_path = trainer.checkpoint_callback.best_model_path
         log.info(f"Test will use specified model checkpointed at \n {config.model.ckpt_path}")
         trainer.test(model=model, datamodule=datamodule, ckpt_path=config.model.ckpt_path)
@@ -157,7 +161,9 @@ def train(config: DictConfig) -> Trainer:
         # Instantiates the Model but overwrites everything with current config,
         # except module related params (nnet architecture)
         kwargs_to_override = copy.deepcopy(model.hparams)
-        kwargs_to_override.pop(NEURAL_NET_ARCHITECTURE_CONFIG_GROUP, None)  # removes that key if it's there
+        kwargs_to_override.pop(
+            NEURAL_NET_ARCHITECTURE_CONFIG_GROUP, None
+        )  # removes that key if it's there
         model = Model.load_from_checkpoint(config.model.ckpt_path, **kwargs_to_override)
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=None)
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
