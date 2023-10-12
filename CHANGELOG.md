@@ -4,7 +4,6 @@
 - Abandon of option to get circular patches since it was never used.
 
 ### 3.4.12
->>>>>>> 625ad9d (chore: Abandon of option to get circular patches since it was never used.)
 - Remove COPC datasets and dataloaders since they were abandonned and never used.
 
 ### 3.4.11
