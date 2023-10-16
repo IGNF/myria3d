@@ -125,13 +125,13 @@ datamodule:
     _args_:
     - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
     min_num_nodes: 1
-  tile_width: 5000
+  tile_width: 1000
   subtile_width: 50
   subtile_overlap_train: 0
   subtile_overlap_predict: ${predict.subtile_overlap}
   batch_size: 10
   num_workers: 3
-  prefetch_factor: 3
+  prefetch_factor: 2
 dataset_description:
   _convert_: all
   classification_preprocessing_dict:
