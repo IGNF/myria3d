@@ -35,6 +35,7 @@ jobs:
         predict.src_las=/data/val/*.las
         predict.output_dir=/lidar_prod_optimization/${model_id}/preds-valset/
         predict.interpolator.probas_to_save=[building]
+        datamodule.prefetch_factor=1
 
     - name: Inference on test set of 20211001_building_val-lidar-prod-optimization
       run: >
@@ -49,6 +50,7 @@ jobs:
         predict.src_las=/data/test/*.las
         predict.output_dir=/lidar_prod_optimization/${model_id}/preds-testset/
         predict.interpolator.probas_to_save=[building]
+        datamodule.prefetch_factor=1
 
     # NB: we run the new, tagged image at least once so that is it not prunned
     # by mistake when using docker system prune.
