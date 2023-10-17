@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 3.6.0
+- Migrate to model "20230930_60k_basic_targetted_epoch37_Myria3DV3.4.0".
+
 ## 3.5.1
 - Run CICD operations for all branches prefixed with "staging-"
 
