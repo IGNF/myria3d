@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - main
+      - staging-*
 
 env:
   nexus_server: 10.128.81.69:8082
