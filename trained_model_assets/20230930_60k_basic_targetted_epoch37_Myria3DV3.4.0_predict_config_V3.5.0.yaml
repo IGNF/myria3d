@@ -244,5 +244,5 @@ predict:
     interpolation_k: 10
     classification_dict: ${dataset_description.classification_dict}
     probas_to_save: [building,ground]
-    predicted_classification_channel: reliability
+    predicted_classification_channel: confidence
     entropy_channel: entropy
