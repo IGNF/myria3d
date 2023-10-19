@@ -243,6 +243,6 @@ predict:
     _target_: myria3d.models.interpolation.Interpolator
     interpolation_k: 10
     classification_dict: ${dataset_description.classification_dict}
-    probas_to_save: all
-    predicted_classification_channel: PredictedClassification
+    probas_to_save: [building,ground]
+    predicted_classification_channel: reliability
     entropy_channel: entropy
