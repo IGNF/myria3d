@@ -232,7 +232,7 @@ logger:
     auto_log_co2: false
     disabled: false
 task:
-  task_name: fit
+  task_name: predict
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
