@@ -29,4 +29,5 @@ class GeometricNoneProofCollater(Collater):
         if not data_list:
             # empty
             return None
+        # TODO: on pourrait avoir à se débarasser également des batches contenant un unique point.
         return super().__call__(data_list)

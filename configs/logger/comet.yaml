@@ -4,7 +4,7 @@ comet:
   _target_: pytorch_lightning.loggers.comet.CometLogger
   api_key: ${oc.env:COMET_API_TOKEN} # api key is laoded from environment variable
   workspace: ${oc.env:COMET_WORKSPACE}
-  project_name: ${oc.env:COMET_PROJECT_NAME}
-  experiment_name: null # can be overrided at runtime
+  project_name: forest-classification-explo
+  experiment_name: "forest-classification-explo" # can be overrided at runtime
   auto_log_co2: false
   disabled: false

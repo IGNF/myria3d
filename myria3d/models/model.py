@@ -5,6 +5,7 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
+from torch_geometric.nn.pool import global_mean_pool
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
@@ -89,11 +90,13 @@ class Model(LightningModule):
 
         """
         logits = self.model(batch.x, batch.pos, batch.batch, batch.ptr)
+        # TODO FORET: pool preds for each cloud.
         if self.training or "copies" not in batch:
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
             # 2) data augmentation at the supervision level.
-            return batch.y, logits  # B*N, C
+            logits_classification = global_mean_pool(logits, batch.batch)
+            return batch.y, logits_classification  # B*N, C
 
         # During evaluation on test data and inference, we interpolate predictions back to original positions
         # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
@@ -112,7 +115,8 @@ class Model(LightningModule):
         if "transformed_y_copy" in batch.copies:
             # eval (test/val).
             targets = batch.copies["transformed_y_copy"].to(logits.device)
-        return targets, logits
+        logits_classification = global_mean_pool(logits, batch_y)
+        return targets, logits_classification
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""

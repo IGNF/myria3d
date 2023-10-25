@@ -145,6 +145,7 @@ class HDF5LidarDataModule(LightningDataModule):
             num_workers=self.num_workers,
             prefetch_factor=self.prefetch_factor,
             shuffle=True,
+            drop_last=True,
         )
 
     def val_dataloader(self):

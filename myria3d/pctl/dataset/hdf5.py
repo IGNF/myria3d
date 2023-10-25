@@ -5,6 +5,7 @@ from numbers import Number
 from typing import Callable, List, Optional
 
 import h5py
+import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torch_geometric.data import Data
@@ -20,6 +21,33 @@ from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
+
+
+def get_forest_classification_code(las_path):
+    species2code = {
+        "Abies_alba": 1,
+        "Abies_nordmanniana": 2,
+        "Castanea_sativa": 3,
+        "Fagus_sylvatica": 4,
+        "Larix_decidua": 5,
+        "Picea_abies": 6,
+        "Pinus_halepensis": 7,
+        "Pinus_nigra": 8,
+        "Pinus_nigra_laricio": 9,
+        "Pinus_pinaster": 10,
+        "Pinus_sylvestris": 11,
+        "Pseudotsuga_menziesii": 12,
+        "Quercus_ilex": 13,
+        "Quercus_petraea": 14,
+        "Quercus_pubescens": 15,
+        "Quercus_robur": 16,
+        "Quercus_rubra": 17,
+        "Robinia_pseudoacacia": 18,
+    }
+    for species in species2code:
+        if species in las_path:
+            return np.array([species2code[species]])
+    raise ValueError(las_path)
 
 
 class HDF5Dataset(Dataset):
@@ -252,6 +280,7 @@ def create_hdf5(
                     if not points_pre_transform:
                         continue
                     data = points_pre_transform(sample_points)
+                    data.y = get_forest_classification_code(las_path)
                     if pre_filter is not None and pre_filter(data):
                         # e.g. pre_filter spots situations where num_nodes is too small.
                         continue

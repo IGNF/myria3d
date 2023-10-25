@@ -1,0 +1,49 @@
+_convert_: all  # For omegaconf struct to be converted to python dictionnaries
+# classification_preprocessing_dict = {source_class_code_int: target_class_code_int},
+# 3: medium vegetation -> vegetation
+# 4: high vegetation -> vegetation
+# 0: no processing --> unclassified
+# 66: synthetic points --> noise (synthetic points are useful for specific modelling task on already classified data).
+# We set them to noise so that they are ignored during training.
+# Codes that should not have been in the data: 100, 101.
+
+# Cf. https://github.com/IGNF/PureForestID-benchmark/blob/main/docs/DataCard.md
+# We remap to BD Foret code ordered alphetically.
+classification_preprocessing_dict:
+  1: 12
+  2: 12
+  3: 2
+  4: 1
+  5: 9 
+  6: 12
+  7: 8
+  8: 11
+  9: 11
+  10: 10
+  11: 7
+  12: 10
+  13: 5
+  14: 4
+  15: 4
+  16: 4
+  17: 4
+  18: 3
+
+# classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
+classification_dict:
+  1: "FF1-09-09_Hêtre"
+  2: "FF1-10-10_Châtaignier"
+  3: "FF1-14-14_Robinier"
+  4: "FF1G01-01_Chêne_décidus"
+  5: "FF1G06-06_Chêne_sempervirent"
+  6: "FF2-51-51_Pin_maritime"
+  7: "FF2-52-52_Pin_sylvestre"
+  8: "FF2-57-57_Pin_alep"
+  9: "FF2-63-63-Mélèze"
+  10: "FF2-64-64_Douglas"
+  11: "FF2G53-53_Pin_laricio_Pin_noir"
+  12: "FF2G61-61_Sapin-Epicéa"
+
+# Input and output dims of neural net are dataset dependant:
+d_in: 9
+num_classes: 12

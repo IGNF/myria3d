@@ -117,6 +117,9 @@ def split_cloud_into_samples(
 
     """
     points = pdal_read_las_array_as_float32(las_path)
+    if not len(points):
+        print(f"NO POINTS: {las_path}")
+        return ()
     pos = np.asarray([points["X"], points["Y"], points["Z"]], dtype=np.float32).transpose()
     kd_tree = cKDTree(pos[:, :2] - pos[:, :2].min(axis=0))
     XYs = get_mosaic_of_centers(tile_width, subtile_width, subtile_overlap=subtile_overlap)
