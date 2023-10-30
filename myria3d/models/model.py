@@ -182,6 +182,14 @@ class Model(LightningModule):
         # for iou, seen, name in zip(*self.train_cm.iou(), self.class_names):
         #     if seen:
         #         self.log(f"train/iou_{name}", iou, prog_bar=True)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path_precision, path_recall = save_confusion_matrix(
+                self.train_cm.confmat, tmpdir, self.class_names
+            )
+            self.experiment.log_image(path_precision, name="Train Precision CM")
+            self.experiment.log_image(path_recall, name="Train Recall CM")
+
+        # Does not work, we do not know why... Maybe due to debug mode
         self.experiment.log_confusion_matrix(
             cm=self.train_cm.confmat, labels=self.class_names, title="Train Confusion Matrix"
         )
@@ -235,6 +243,14 @@ class Model(LightningModule):
         # for iou, seen, name in zip(*self.val_cm.iou(), self.class_names):
         #     if seen:
         #         self.log(f"val/iou_{name}", iou, prog_bar=True)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path_precision, path_recall = save_confusion_matrix(
+                self.val_cm.confmat, tmpdir, self.class_names
+            )
+            self.experiment.log_image(path_precision, name="Val Precision CM")
+            self.experiment.log_image(path_recall, name="Val Recall CM")
+
+        # Does not work, we do not know why... Maybe due to debug mode
         self.experiment.log_confusion_matrix(
             cm=self.val_cm.confmat, labels=self.class_names, title="Val Confusion Matrix"
         )

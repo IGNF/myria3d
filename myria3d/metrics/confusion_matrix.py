@@ -212,7 +212,7 @@ def save_confusion_matrix(cm, path2save, ordered_names):
         fmt=".2f",
         xticklabels=ordered_names,
         yticklabels=ordered_names,
-        annot_kws={"size": 20},
+        annot_kws={"size": 30},
     )
     # g.set_xticklabels(g.get_xticklabels(), rotation = 35, fontsize = 20)
     plt.ylabel("Actual")
@@ -230,7 +230,7 @@ def save_confusion_matrix(cm, path2save, ordered_names):
         fmt=".2f",
         xticklabels=ordered_names,
         yticklabels=ordered_names,
-        annot_kws={"size": 20},
+        annot_kws={"size": 30},
     )
     # g.set_xticklabels(g.get_xticklabels(), rotation = 35, fontsize = 20)
     plt.ylabel("Actual")
