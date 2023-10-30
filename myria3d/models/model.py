@@ -1,3 +1,4 @@
+import tempfile
 from typing import Optional
 
 import torch
@@ -6,8 +7,10 @@ from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 from torch_geometric.nn.pool import global_mean_pool
+from myria3d.metrics.confusion_matrix import save_confusion_matrix
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
+from myria3d.metrics import ConfusionMatrix
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -68,14 +71,19 @@ class Model(LightningModule):
 
         self.softmax = nn.Softmax(dim=1)
         self.criterion = self.hparams.criterion
+        self.class_names = self.hparams.classification_dict.values()
 
     def setup(self, stage: Optional[str]) -> None:
         """Setup stage: prepare to compute IoU and loss."""
+        num_classes = self.hparams.num_classes
         if stage == "fit":
             self.train_iou = self.hparams.iou()
             self.val_iou = self.hparams.iou()
+            self.train_cm = ConfusionMatrix(num_classes)
+            self.val_cm = ConfusionMatrix(num_classes)
         if stage == "test":
             self.test_iou = self.hparams.iou()
+            self.test_cm = ConfusionMatrix(num_classes)
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
@@ -90,7 +98,6 @@ class Model(LightningModule):
 
         """
         logits = self.model(batch.x, batch.pos, batch.batch, batch.ptr)
-        # TODO FORET: pool preds for each cloud.
         if self.training or "copies" not in batch:
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
@@ -123,6 +130,16 @@ class Model(LightningModule):
         self.experiment = self.logger.experiment[0]
         self.criterion = self.criterion.to(self.device)
 
+    def on_test_start(self) -> None:
+        """On test start: get the experiment for easier access."""
+        self.experiment = self.logger.experiment[0]
+        self.criterion = self.criterion.to(self.device)
+
+    def on_train_start(self):
+        # By default, lightning executes validation step sanity checks
+        # before training starts, so we need to make sure val cm does not store it.
+        self.val_cm.reset()
+
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
         """Training step.
 
@@ -138,12 +155,15 @@ class Model(LightningModule):
         """
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
+        self.train_cm = self.train_cm.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
 
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
             self.train_iou(preds, targets)
+            self.train_cm(preds, targets)
+
         self.log(
             "train/iou",
             self.train_iou,
@@ -152,6 +172,21 @@ class Model(LightningModule):
             prog_bar=True,
         )
         return {"loss": loss, "logits": logits, "targets": targets}
+
+    def on_train_epoch_end(self):
+        # `outputs` is a list of dicts returned from `training_step()`
+        self.log("train/miou", self.train_cm.miou(), prog_bar=True)
+        self.log("train/oa", self.train_cm.oa(), prog_bar=True)
+        self.log("train/macc", self.train_cm.macc(), prog_bar=True)
+        # TODO: find class_names.
+        # for iou, seen, name in zip(*self.train_cm.iou(), self.class_names):
+        #     if seen:
+        #         self.log(f"train/iou_{name}", iou, prog_bar=True)
+        self.experiment.log_confusion_matrix(
+            cm=self.train_cm.confmat, labels=self.class_names, title="Train Confusion Matrix"
+        )
+
+        self.train_cm.reset()
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -169,12 +204,15 @@ class Model(LightningModule):
         """
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
+        self.val_cm = self.val_cm.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
 
         preds = torch.argmax(logits.detach(), dim=1)
         self.val_iou = self.val_iou.to(preds.device)
         self.val_iou(preds, targets)
+        self.val_cm(preds, targets)
+
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": targets}
 
@@ -186,6 +224,22 @@ class Model(LightningModule):
 
         """
         self.val_iou.compute()
+
+        miou = self.val_cm.miou()
+        oa = self.val_cm.oa()
+        macc = self.val_cm.macc()
+
+        self.log("val/miou", miou, prog_bar=True)
+        self.log("val/oa", oa, prog_bar=True)
+        self.log("val/macc", macc, prog_bar=True)
+        # for iou, seen, name in zip(*self.val_cm.iou(), self.class_names):
+        #     if seen:
+        #         self.log(f"val/iou_{name}", iou, prog_bar=True)
+        self.experiment.log_confusion_matrix(
+            cm=self.val_cm.confmat, labels=self.class_names, title="Val Confusion Matrix"
+        )
+
+        self.val_cm.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -200,12 +254,16 @@ class Model(LightningModule):
         """
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
+        self.test_cm = self.test_cm.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("test/loss", loss, on_step=True, on_epoch=True)
 
         preds = torch.argmax(logits, dim=1)
         self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
+        if targets is not None:
+            self.test_cm(preds, targets)
+
         self.log(
             "test/iou",
             self.test_iou,
@@ -215,6 +273,30 @@ class Model(LightningModule):
         )
 
         return {"loss": loss, "logits": logits, "targets": targets}
+
+    def on_test_epoch_end(self):
+        # `outputs` is a list of dicts returned from `test_step()`
+        self.log("test/miou", self.test_cm.miou(), prog_bar=True)
+        self.log("test/oa", self.test_cm.oa(), prog_bar=True)
+        self.log("test/macc", self.test_cm.macc(), prog_bar=True)
+        # for iou, seen, name in zip(*self.test_cm.iou(), self.class_names):
+        #     if seen:
+        #         self.log(f"test/iou_{name}", iou, prog_bar=True)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path_precision, path_recall = save_confusion_matrix(
+                self.test_cm.confmat, tmpdir, self.class_names
+            )
+            self.experiment.log_image(path_precision, name="Test Precision CM")
+            self.experiment.log_image(path_recall, name="Test Recall CM")
+
+        # Does not work, we do not know why... Maybe due to debug mode
+        self.experiment.log_confusion_matrix(
+            matrix=self.test_cm.confmat.numpy().astype(int).tolist(),
+            labels=self.class_names,
+            title="Test Confusion Matrix",
+        )
+
+        self.test_cm.reset()
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.

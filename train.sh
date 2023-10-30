@@ -1,5 +1,6 @@
 # source activate train.sh
 screen -S forest
+
 git checkout forest-classification-explo
 source activate myria3d
 
@@ -38,3 +39,14 @@ python /home/$USER/repositories/myria3d/run.py \
     trainer.gpus=[0,2]
 # trainer.min_epochs=150 \
 # trainer.max_epochs=300
+
+# Test the first model :
+MODEL_CHECKPOINT="/mnt/store-lidarhd/projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/CGaydon/runs/2023-10-25/16-52-57/checkpoints/epoch_000.ckpt"
+python /home/$USER/repositories/myria3d/run.py \
+    task.task_name=test \
+    model.ckpt_path=$MODEL_CHECKPOINT \
+    datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID.hdf5" \
+    dataset_description=20231025_forest_classification_explo \
+    experiment=RandLaNet_base_run_FR-MultiGPU \
+    logger.comet.experiment_name="TEST-${DATASET_NAME}" \
+    trainer.gpus=[0,2]
