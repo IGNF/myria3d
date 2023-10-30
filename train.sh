@@ -5,7 +5,7 @@ git checkout forest-classification-explo
 source activate myria3d
 
 DATASET_NAME="PureForestID"
-
+export LD_LIBRARY_PATH="/var/data/mambaforge-shared/envs/myria3d/lib:$LD_LIBRARY_PATH"
 # List the data
 DATA_DIR_PATH="/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestID/lidar/" # se termine avec un slash
 cd $DATA_DIR_PATH
@@ -25,8 +25,8 @@ awk 'NR % 1000 == 0' $SPLIT_CSV_PATH >>$SPLIT_CSV_PATH_MINI
 
 head $SPLIT_CSV_PATH_MINI
 tail $SPLIT_CSV_PATH_MINI
-# Use of dataset or the other
 
+# Use of dataset or the other
 python /home/$USER/repositories/myria3d/run.py \
     task.task_name=fit \
     datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID.hdf5" \

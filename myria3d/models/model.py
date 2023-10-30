@@ -251,10 +251,13 @@ class Model(LightningModule):
             self.experiment.log_image(path_recall, name="Val Recall CM")
 
         # Does not work, we do not know why... Maybe due to debug mode
-        self.experiment.log_confusion_matrix(
-            cm=self.val_cm.confmat, labels=self.class_names, title="Val Confusion Matrix"
-        )
-
+        try:
+            self.experiment.log_confusion_matrix(
+                cm=self.val_cm.confmat, labels=self.class_names, title="Val Confusion Matrix"
+            )
+        except AttributeError:
+            # Ignore since this happens durin sanity check when experiment was not made accessible yet
+            pass
         self.val_cm.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
@@ -306,12 +309,15 @@ class Model(LightningModule):
             self.experiment.log_image(path_recall, name="Test Recall CM")
 
         # Does not work, we do not know why... Maybe due to debug mode
-        self.experiment.log_confusion_matrix(
-            matrix=self.test_cm.confmat.numpy().astype(int).tolist(),
-            labels=self.class_names,
-            title="Test Confusion Matrix",
-        )
-
+        try:
+            self.experiment.log_confusion_matrix(
+                matrix=self.test_cm.confmat.numpy().astype(int).tolist(),
+                labels=self.class_names,
+                title="Test Confusion Matrix",
+            )
+        except AttributeError:
+            # Ignore just in case
+            pass
         self.test_cm.reset()
 
     def predict_step(self, batch: Batch) -> dict:
