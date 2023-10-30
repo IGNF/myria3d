@@ -58,6 +58,7 @@ class HDF5LidarDataModule(LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.prefetch_factor = prefetch_factor
+        self.test_on_eval = kwargs.get("test_on_eval", False)
 
         t = transforms
         self.preparation_train_transform: TRANSFORMS_LIST = t.get("preparations_train_list", [])
@@ -157,6 +158,8 @@ class HDF5LidarDataModule(LightningDataModule):
         )
 
     def test_dataloader(self):
+        if self.test_on_eval:
+            return self.val_dataloader()
         return GeometricNoneProofDataloader(
             dataset=self.dataset.testdata,
             batch_size=self.batch_size,

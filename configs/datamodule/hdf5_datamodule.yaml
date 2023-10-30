@@ -26,5 +26,8 @@ batch_size: 32
 num_workers: 3
 prefetch_factor: 3
 
+# set to true to test on eval dataset
+test_on_eval: false
+
 defaults:
   - transforms: default.yaml
