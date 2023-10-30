@@ -32,7 +32,7 @@ dependencies:
   - rich # beautiful text formatting in terminal
   - sh # for running bash commands in some tests
   # - scikit-learn # used in some callbacks
-  # - seaborn # used in some callbacks
+  - seaborn # used in some callbacks
   # - jupyterlab # better jupyter notebooks
   - pudb # debugger
   - pip:
