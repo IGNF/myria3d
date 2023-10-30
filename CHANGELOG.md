@@ -1,6 +1,9 @@
 # CHANGELOG
 
-## 3.5.1
+### 3.5.2
+- Uncomment seaborn as a dependency since it is necessary when plotting optimal learning rate graph.
+
+### 3.5.1
 - Run CICD operations for all branches prefixed with "staging-"
 
 ## 3.5.0
