@@ -12,6 +12,7 @@ from torch_geometric.loader import DataLoader
 from torch_geometric.nn import MLP
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
+from torch_geometric.nn.pool import global_mean_pool, global_max_pool
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.utils import softmax
 from torch_scatter import scatter
@@ -44,12 +45,12 @@ class PyGRandLANet(torch.nn.Module):
         self.block2 = DilatedResidualBlock(num_neighbors, 32, 128)
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
-        self.mlp_summit = SharedMLP([512, 512])
-        self.fp4 = FPModule(1, SharedMLP([512 + 256, 256]))
-        self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
-        self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
-        self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
-        self.mlp_classif = SharedMLP([d_bottleneck, 64, 32], dropout=[0.0, 0.5])
+        # self.mlp_summit = SharedMLP([512, 512])
+        # self.fp4 = FPModule(1, SharedMLP([512 + 256, 256]))
+        # self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
+        # self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
+        # self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
+        self.mlp_classif = SharedMLP([512, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
     def forward(self, x, pos, batch, ptr):
@@ -67,18 +68,13 @@ class PyGRandLANet(torch.nn.Module):
         b4_out = self.block4(*b3_out_decimated)
         b4_out_decimated, _ = decimate(b4_out, ptr3, self.decimation)
 
-        mlp_out = (
-            self.mlp_summit(b4_out_decimated[0]),
-            b4_out_decimated[1],
-            b4_out_decimated[2],
-        )
+        feats = b4_out_decimated[0]
+        pos = b4_out_decimated[1]
+        batch = b4_out_decimated[2]
 
-        fp4_out = self.fp4(*mlp_out, *b3_out_decimated)
-        fp3_out = self.fp3(*fp4_out, *b2_out_decimated)
-        fp2_out = self.fp2(*fp3_out, *b1_out_decimated)
-        fp1_out = self.fp1(*fp2_out, *b1_out)
+        cloud_embeddings = global_mean_pool(feats, batch) + global_max_pool(feats, batch)
 
-        x = self.mlp_classif(fp1_out[0])
+        x = self.mlp_classif(cloud_embeddings)
         logits = self.fc_classif(x)
 
         if self.return_logits:

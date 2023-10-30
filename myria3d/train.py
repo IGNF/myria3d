@@ -97,7 +97,11 @@ def train(config: DictConfig) -> Trainer:
     # Init lightning trainer
     log.info(f"Instantiating trainer <{config.trainer._target_}>")
     trainer: Trainer = hydra.utils.instantiate(config.trainer, callbacks=callbacks, logger=logger)
-
+    # Issue with hydra here... Maybe bad import of trainer. This needs to be fixed!
+    # Maybe du to a bad logger?
+    # d = {a: b for a, b in config.trainer.items()}
+    # del d["_target_"]
+    # trainer = Trainer(**d, callbacks=callbacks, logger=logger)
     # Send some parameters from config to all lightning loggers
     log.info("Logging hyperparameters!")
     utils.log_hyperparameters(

@@ -127,28 +127,28 @@ class Model(LightningModule):
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
             # 2) data augmentation at the supervision level.
-            logits_classification = global_mean_pool(logits, batch.batch)
-            return batch.y, logits_classification  # B*N, C
+            # logits_classification = global_mean_pool(logits, batch.batch)
+            return batch.y, logits  # B*N, C
 
         # During evaluation on test data and inference, we interpolate predictions back to original positions
         # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
         logits = logits.cpu()
-        batch_y = self._get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
-        logits = knn_interpolate(
-            logits.cpu(),
-            batch.copies["pos_sampled_copy"].cpu(),
-            batch.copies["pos_copy"].cpu(),
-            batch_x=batch.batch.cpu(),
-            batch_y=batch_y.cpu(),
-            k=self.hparams.interpolation_k,
-            num_workers=self.hparams.num_workers,
-        )
+        # batch_y = self._get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
+        # logits = knn_interpolate(
+        #     logits.cpu(),
+        #     batch.copies["pos_sampled_copy"].cpu(),
+        #     batch.copies["pos_copy"].cpu(),
+        #     batch_x=batch.batch.cpu(),
+        #     batch_y=batch_y.cpu(),
+        #     k=self.hparams.interpolation_k,
+        #     num_workers=self.hparams.num_workers,
+        # )
         targets = None  # no targets in inference mode.
         if "transformed_y_copy" in batch.copies:
             # eval (test/val).
             targets = batch.copies["transformed_y_copy"].to(logits.device)
-        logits_classification = global_mean_pool(logits, batch_y)
-        return targets, logits_classification
+        # logits_classification = global_mean_pool(logits, batch_y)
+        return targets, logits
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
