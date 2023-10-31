@@ -210,6 +210,13 @@ class Model(LightningModule):
             epoch=self.current_epoch,
         )
         self.experiment.log_confusion_matrix(
+            matrix=cm_object.get_quercus_cm(self.class_names).tolist(),
+            labels=["Non-Quercus", "Quercus"],
+            file_name=f"{phase} CM Quercus",
+            title="{phase} Confusion Matrix Quercus",
+            epoch=self.current_epoch,
+        )
+        self.experiment.log_confusion_matrix(
             matrix=cm_object.get_needleleaf_cm(self.class_names).tolist(),
             labels=["Non-Needleleaf", "Needleleaf"],
             file_name=f"{phase} CM Needleleaf",
