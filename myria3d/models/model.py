@@ -71,7 +71,7 @@ class Model(LightningModule):
 
         self.softmax = nn.Softmax(dim=1)
         self.criterion = self.hparams.criterion
-        self.class_names = self.hparams.classification_dict.values()
+        self.class_names = [name for name in self.hparams.classification_dict.values()]
 
     def setup(self, stage: Optional[str]) -> None:
         """Setup stage: prepare to compute IoU and loss."""
@@ -191,7 +191,11 @@ class Model(LightningModule):
 
         # Does not work, we do not know why... Maybe due to debug mode
         self.experiment.log_confusion_matrix(
-            cm=self.train_cm.confmat, labels=self.class_names, title="Train Confusion Matrix"
+            matrix=self.train_cm.confmat.numpy().tolist(),
+            labels=self.class_names,
+            file_name=f"Train CM",
+            title="Train Confusion Matrix",
+            epoch=self.current_epoch,
         )
 
         self.train_cm.reset()
@@ -253,7 +257,11 @@ class Model(LightningModule):
         # Does not work, we do not know why... Maybe due to debug mode
         try:
             self.experiment.log_confusion_matrix(
-                cm=self.val_cm.confmat, labels=self.class_names, title="Val Confusion Matrix"
+                matrix=self.val_cm.confmat.numpy().tolist(),
+                labels=self.class_names,
+                title="Val Confusion Matrix",
+                file_name=f"Val CM",
+                epoch=self.current_epoch,
             )
         except AttributeError:
             # Ignore since this happens durin sanity check when experiment was not made accessible yet
@@ -311,9 +319,11 @@ class Model(LightningModule):
         # Does not work, we do not know why... Maybe due to debug mode
         try:
             self.experiment.log_confusion_matrix(
-                matrix=self.test_cm.confmat.numpy().astype(int).tolist(),
+                matric=self.test_cm.confmat.numpy().tolist(),
                 labels=self.class_names,
                 title="Test Confusion Matrix",
+                file_name=f"Test CM",
+                epoch=self.current_epoch,
             )
         except AttributeError:
             # Ignore just in case
