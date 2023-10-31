@@ -66,6 +66,17 @@ class ConfusionMatrix(ConfusionMatrix):
         # Basic parent-class update on 1D tensors
         super().update(preds, target)
 
+    def get_pinus_cm(self, class_names):
+        broader_categories = [1 * ("Pin_" in c) for c in class_names]
+        return get_higher_confusion_matrix(self.confmat.numpy(), broader_categories)
+
+    def get_needleleaf_cm(self, class_names):
+        broader_categories = [
+            1 * ("Pin_" in c or "Sapin" in c or "Mélèze" in c or "Douglas" in c)
+            for c in class_names
+        ]
+        return get_higher_confusion_matrix(self.confmat.numpy(), broader_categories)
+
     @classmethod
     def from_confusion_matrix(cls, confusion_matrix):
         assert confusion_matrix.shape[0] == confusion_matrix.shape[1]
@@ -238,3 +249,19 @@ def save_confusion_matrix(cm, path2save, ordered_names):
     path_recall = template_path.format("recall")
     plt.savefig(path_recall, format="svg", tight_layout=True, bbox_inches="tight")
     return path_precision, path_recall
+
+
+def get_higher_confusion_matrix(cm, broader_categories):
+    # Determine the number of classes and broader categories
+    k = len(cm)
+    num_broader_categories = len(set(broader_categories))
+
+    # Initialize the hierarchical confusion matrix with zeros
+    cm_broader_categories = np.zeros((num_broader_categories, num_broader_categories), dtype=int)
+
+    # Iterate through each class and accumulate the counts to the broader categories
+    for i in range(k):
+        for j in range(k):
+            cm_broader_categories[broader_categories[i]][broader_categories[j]] += cm[i][j]
+
+    return cm_broader_categories

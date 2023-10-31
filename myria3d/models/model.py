@@ -1,5 +1,6 @@
 import tempfile
 from typing import Optional
+import numpy as np
 
 import torch
 from pytorch_lightning import LightningModule
@@ -190,15 +191,31 @@ class Model(LightningModule):
             self.experiment.log_image(path_recall, name="Train Recall CM")
 
         # Does not work, we do not know why... Maybe due to debug mode
+        self.log_all_cms(phase="Train", cm_object=self.train_cm)
+        self.train_cm.reset()
+
+    def log_all_cms(self, phase: str, cm_object: ConfusionMatrix):
         self.experiment.log_confusion_matrix(
-            matrix=self.train_cm.confmat.numpy().tolist(),
+            matrix=cm_object.confmat.numpy().tolist(),
             labels=self.class_names,
-            file_name=f"Train CM",
-            title="Train Confusion Matrix",
+            file_name=f"{phase} CM",
+            title="{phase} Confusion Matrix",
             epoch=self.current_epoch,
         )
-
-        self.train_cm.reset()
+        self.experiment.log_confusion_matrix(
+            matrix=cm_object.get_pinus_cm(self.class_names).tolist(),
+            labels=["Non-Pinus", "Pinus"],
+            file_name=f"{phase} CM Pinus",
+            title="{phase} Confusion Matrix Pinus",
+            epoch=self.current_epoch,
+        )
+        self.experiment.log_confusion_matrix(
+            matrix=cm_object.get_needleleaf_cm(self.class_names).tolist(),
+            labels=["Non-Needleleaf", "Needleleaf"],
+            file_name=f"{phase} CM Needleleaf",
+            title="{phase} Confusion Matrix Needleleaf",
+            epoch=self.current_epoch,
+        )
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -254,18 +271,8 @@ class Model(LightningModule):
             self.experiment.log_image(path_precision, name="Val Precision CM")
             self.experiment.log_image(path_recall, name="Val Recall CM")
 
-        # Does not work, we do not know why... Maybe due to debug mode
-        try:
-            self.experiment.log_confusion_matrix(
-                matrix=self.val_cm.confmat.numpy().tolist(),
-                labels=self.class_names,
-                title="Val Confusion Matrix",
-                file_name=f"Val CM",
-                epoch=self.current_epoch,
-            )
-        except AttributeError:
-            # Ignore since this happens durin sanity check when experiment was not made accessible yet
-            pass
+        if hasattr(self, "experiment"):
+            self.log_all_cms(phase="Val", cm_object=self.val_cm)
         self.val_cm.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
@@ -316,18 +323,9 @@ class Model(LightningModule):
             self.experiment.log_image(path_precision, name="Test Precision CM")
             self.experiment.log_image(path_recall, name="Test Recall CM")
 
-        # Does not work, we do not know why... Maybe due to debug mode
-        try:
-            self.experiment.log_confusion_matrix(
-                matric=self.test_cm.confmat.numpy().tolist(),
-                labels=self.class_names,
-                title="Test Confusion Matrix",
-                file_name=f"Test CM",
-                epoch=self.current_epoch,
-            )
-        except AttributeError:
-            # Ignore just in case
-            pass
+        if hasattr(self, "experiment"):
+            self.log_all_cms(phase="Test", cm_object=self.test_cm)
+
         self.test_cm.reset()
 
     def predict_step(self, batch: Batch) -> dict:
