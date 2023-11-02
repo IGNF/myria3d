@@ -160,6 +160,7 @@ class HDF5Dataset(Dataset):
             y=torch.from_numpy(grp["y"][...]),
             idx_in_original_cloud=grp["idx_in_original_cloud"][...],
             x_features_names=grp["x"].attrs["x_features_names"].tolist(),
+            patch_id=grp.attrs["patch_id"]
             # num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.
         )
 
@@ -312,6 +313,9 @@ def create_hdf5(
                         sample_idx.shape,
                         dtype="i",
                         data=sample_idx,
+                    )
+                    hdf5_file[hdf5_path].attrs["patch_id"] = copy.deepcopy(
+                        las_path[-len("AAAAA_BBBBB_BDF_IF_laz") : -len("_BDF_IF.laz")]
                     )
 
                 # A termination flag to report that all samples for this point cloud were included in the df5 file.

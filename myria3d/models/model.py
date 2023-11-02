@@ -1,3 +1,4 @@
+import os
 import tempfile
 from typing import Optional
 import numpy as np
@@ -17,6 +18,9 @@ from myria3d.utils import utils
 log = utils.get_logger(__name__)
 
 MODEL_ZOO = [PyGRandLANet]
+import pandas as pd
+
+PREDICTION_FILE = "./predictions.csv"
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -312,6 +316,11 @@ class Model(LightningModule):
             on_epoch=True,
             prog_bar=True,
         )
+        df = pd.DataFrame(
+            data={"patch_id": batch.patch_id, "preds": preds.numpy(), "targets": targets.numpy()}
+        )
+        hdr = False if os.path.isfile(PREDICTION_FILE) else True
+        df.to_csv(PREDICTION_FILE, index=False, mode="a", header=hdr)
 
         return {"loss": loss, "logits": logits, "targets": targets}
 
