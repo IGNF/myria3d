@@ -44,7 +44,7 @@ dependencies:
       - pytorch-lightning==1.5.9
       - torchmetrics==0.7.*  # Else, pytorch-lightning will install the latest
       - comet_ml==3.31.*
-      - urllib<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
+      - urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
       # Wheels for torch-geometric optionnal dependencies
       - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_cluster-1.6.0-cp39-cp39-linux_x86_64.whl
       - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
