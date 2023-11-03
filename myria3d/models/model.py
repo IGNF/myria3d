@@ -200,7 +200,7 @@ class Model(LightningModule):
 
     def log_all_cms(self, phase: str, cm_object: ConfusionMatrix):
         self.experiment.log_confusion_matrix(
-            matrix=cm_object.confmat.numpy().tolist(),
+            matrix=cm_object.confmat.cpu().numpy().tolist(),
             labels=self.class_names,
             file_name=f"{phase} CM",
             title="{phase} Confusion Matrix",

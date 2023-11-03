@@ -68,18 +68,18 @@ class ConfusionMatrix(ConfusionMatrix):
 
     def get_pinus_cm(self, class_names):
         broader_categories = [1 * ("Pin_" in c) for c in class_names]
-        return get_higher_confusion_matrix(self.confmat.numpy(), broader_categories)
+        return get_higher_confusion_matrix(self.confmat.cpu().numpy(), broader_categories)
 
     def get_quercus_cm(self, class_names):
         broader_categories = [1 * ("Chêne_" in c) for c in class_names]
-        return get_higher_confusion_matrix(self.confmat.numpy(), broader_categories)
+        return get_higher_confusion_matrix(self.confmat.cpu().numpy(), broader_categories)
 
     def get_needleleaf_cm(self, class_names):
         broader_categories = [
             1 * ("Pin_" in c or "Sapin" in c or "Mélèze" in c or "Douglas" in c)
             for c in class_names
         ]
-        return get_higher_confusion_matrix(self.confmat.numpy(), broader_categories)
+        return get_higher_confusion_matrix(self.confmat.cpu().numpy(), broader_categories)
 
     @classmethod
     def from_confusion_matrix(cls, confusion_matrix):
