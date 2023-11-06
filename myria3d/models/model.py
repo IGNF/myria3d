@@ -317,7 +317,11 @@ class Model(LightningModule):
             prog_bar=True,
         )
         df = pd.DataFrame(
-            data={"patch_id": batch.patch_id, "preds": preds.numpy(), "targets": targets.numpy()}
+            data={
+                "patch_id": batch.patch_id,
+                "preds": preds.cpu().numpy(),
+                "targets": targets.cpu().numpy(),
+            }
         )
         hdr = False if os.path.isfile(PREDICTION_FILE) else True
         df.to_csv(PREDICTION_FILE, index=False, mode="a", header=hdr)
