@@ -10,6 +10,7 @@ from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 from torch_geometric.nn.pool import global_mean_pool
 from myria3d.metrics.confusion_matrix import save_confusion_matrix
+from myria3d.metrics.polygon_metrics import make_polygon_metrics
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.metrics import ConfusionMatrix
@@ -318,7 +319,7 @@ class Model(LightningModule):
         )
         df = pd.DataFrame(
             data={
-                "patch_id": batch.patch_id,
+                "patch_num": batch.patch_id,
                 "preds": preds.cpu().numpy(),
                 "targets": targets.cpu().numpy(),
             }
@@ -345,6 +346,8 @@ class Model(LightningModule):
 
         if hasattr(self, "experiment"):
             self.log_all_cms(phase="Test", cm_object=self.test_cm)
+            cm_polygon_path = make_polygon_metrics(PREDICTION_FILE)
+            self.experiment.log_image(cm_polygon_path, name="Polygon CM")
 
         self.test_cm.reset()
 
