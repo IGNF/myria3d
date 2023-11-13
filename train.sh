@@ -50,3 +50,15 @@ python /home/$USER/repositories/myria3d/run.py \
     experiment=RandLaNet_base_run_FR-MultiGPU \
     logger.comet.experiment_name="TEST-${DATASET_NAME}" \
     trainer.gpus=[0,2]
+
+# Fine-Tune a pretrained model
+python /home/$USER/repositories/myria3d/run.py \
+    task.task_name=finetune \
+    model.ckpt_path="/mnt/store-lidarhd/projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/CGaydon/20230930_60k_basic_targetted/20230930_60k_basic_targetted_epoch37_Myria3DV3.4.0.ckpt" \
+    datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID.hdf5" \
+    dataset_description=20231025_forest_classification_explo \
+    datamodule.tile_width=50 \
+    experiment=RandLaNet_base_run_FR-MultiGPU-Finetuning \
+    logger.comet.experiment_name="${DATASET_NAME}-Finetuning" \
+    trainer.gpus=[0,2] \
+    logger.comet.disabled=true

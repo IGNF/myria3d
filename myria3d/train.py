@@ -27,7 +27,7 @@ from run import TASK_NAMES
 
 log = utils.get_logger(__name__)
 
-NEURAL_NET_ARCHITECTURE_CONFIG_GROUP = "neural_net"
+NEURAL_NET_ARCHITECTURE_CONFIG_GROUP = "neural_net_hparams"
 
 
 def train(config: DictConfig) -> Trainer:
@@ -164,6 +164,7 @@ def train(config: DictConfig) -> Trainer:
         kwargs_to_override.pop(
             NEURAL_NET_ARCHITECTURE_CONFIG_GROUP, None
         )  # removes that key if it's there
+        print(kwargs_to_override)
         model = Model.load_from_checkpoint(config.model.ckpt_path, **kwargs_to_override)
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=None)
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")

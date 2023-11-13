@@ -1,0 +1,25 @@
+# @package _global_
+
+defaults:
+  - override /callbacks: finetuning.yaml
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+task:
+  task_name: Finetuning-2xGPUs
+
+trainer:
+  strategy: ddp_find_unused_parameters_false
+  # Replace by gpu to simulate multi-gpus training.
+  accelerator: gpu
+  num_processes: 2
+  gpus: 2
+
+callbacks:
+  finetune:
+    num_classes: 12
+    unfreeze_fc_end_epoch: 4
+    unfreeze_decoder_train_epoch: 8
+
+model:
+    lr_scheduler: null
