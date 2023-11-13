@@ -66,8 +66,9 @@ python /home/$USER/repositories/myria3d/run.py \
 python /home/$USER/repositories/myria3d/run.py \
     experiment=RandLaNet_base_run_FR-Geometric \
     task.task_name=fit \
-    dataset_description=20231025_forest_classification_explo \
+    dataset_description=20231025_forest_classification_explo_geometric \
     datamodule.tile_width=50 \
+    dataset_description.d_in=16 \
     logger.comet.experiment_name="${DATASET_NAME}-Geometric" \
     datamodule.data_dir=${DATA_DIR_PATH} \
     datamodule.split_csv_path="${SPLIT_CSV_PATH}" \

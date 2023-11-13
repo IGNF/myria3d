@@ -13,7 +13,6 @@ datamodule:
   batch_size: 10
 
 trainer:
-  num_sanity_val_steps: 2
   min_epochs: 30
   max_epochs: 100
   accumulate_grad_batches: 3  # b/c larger clouds will not fit in memory with original Batch Size
