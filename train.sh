@@ -60,5 +60,4 @@ python /home/$USER/repositories/myria3d/run.py \
     datamodule.tile_width=50 \
     experiment=RandLaNet_base_run_FR-MultiGPU-Finetuning \
     logger.comet.experiment_name="${DATASET_NAME}-Finetuning" \
-    trainer.gpus=[0,2] \
-    logger.comet.disabled=true
+    trainer.gpus=[0,2]
