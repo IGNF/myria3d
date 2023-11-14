@@ -1,6 +1,6 @@
 # @package _global_
 defaults:
-  - override /datamodule: list_datamodule_geometric.yaml
+  - override /datamodule: hdf5_datamodule_geometric.yaml
   - override /datamodule/transforms/augmentations: light.yaml
 
 logger:

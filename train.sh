@@ -1,5 +1,6 @@
 # source activate train.sh
 screen -S forest
+#################################################
 
 git checkout forest-classification-explo
 source activate myria3d
@@ -9,6 +10,8 @@ export LD_LIBRARY_PATH="/var/data/mambaforge-shared/envs/myria3d/lib:$LD_LIBRARY
 # List the data
 DATA_DIR_PATH="/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestID/lidar/" # se termine avec un slash
 SPLIT_CSV_PATH="/home/CGaydon/repositories/myria3d/${DATASET_NAME}-split.csv"
+
+#################################################
 cd $DATA_DIR_PATH
 echo "basename,split" >$SPLIT_CSV_PATH
 find ./train -type f -printf "%f,train\n" >>$SPLIT_CSV_PATH
@@ -62,13 +65,13 @@ python /home/$USER/repositories/myria3d/run.py \
     logger.comet.experiment_name="${DATASET_NAME}-Finetuning" \
     trainer.gpus=[0,2]
 
-# Prepare and train on geometric features, using list datamodule to be faster
+# Prepare and train on geometric features, using list datamodule to be faster -> not faster :(
 python /home/$USER/repositories/myria3d/run.py \
     experiment=RandLaNet_base_run_FR-Geometric \
     task.task_name=fit \
+    datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID-Geometric.hdf5" \
     dataset_description=20231025_forest_classification_explo_geometric \
     datamodule.tile_width=50 \
-    dataset_description.d_in=16 \
     logger.comet.experiment_name="${DATASET_NAME}-Geometric" \
     datamodule.data_dir=${DATA_DIR_PATH} \
     datamodule.split_csv_path="${SPLIT_CSV_PATH}" \

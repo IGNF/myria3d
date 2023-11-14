@@ -48,7 +48,7 @@ def lidar_hd_geometric_pre_transform(points):
     ndvi = (points["Infrared"] - points["Red"]) / (points["Infrared"] + points["Red"] + 10**-6)
 
     # geometry
-    k = min(100, len(points))  # in case there are too few points
+    k = min(30, len(points))  # in case there are too few points
     kneigh = NearestNeighbors(n_neighbors=k).fit(pos).kneighbors(pos)
     nn_ptr = np.arange(pos.shape[0] + 1) * k
     nn = kneigh[1].flatten()
@@ -67,7 +67,7 @@ def lidar_hd_geometric_pre_transform(points):
     #     points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15,
     #     verbose=True)
 
-    geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True).transpose()
+    geof = pgeof(points, nn, nn_ptr, k_min=1, k_step=0, k_min_search=1, verbose=False).transpose()
 
     # todo
     x = np.stack(
