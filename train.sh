@@ -61,9 +61,11 @@ python /home/$USER/repositories/myria3d/run.py \
     datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID.hdf5" \
     dataset_description=20231025_forest_classification_explo \
     datamodule.tile_width=50 \
+    callbacks.finetune.unfreeze_fc_end_epoch=2 \
+    callbacks.finetune.unfreeze_decoder_train_epoch=4 \
     experiment=RandLaNet_base_run_FR-MultiGPU-Finetuning \
     logger.comet.experiment_name="${DATASET_NAME}-Finetuning" \
-    trainer.gpus=[0,2]
+    trainer.gpus=[1,2]
 
 # Prepare and train on geometric features, using list datamodule to be faster -> not faster :(
 python /home/$USER/repositories/myria3d/run.py \
