@@ -5,9 +5,9 @@ outputs/
 checkpoints/
 runs/
 data/
+!tests/data/
 
 # large files that are not tracked
-tests/data/large
 tests/data/toy_dataset.hdf5
 
 
