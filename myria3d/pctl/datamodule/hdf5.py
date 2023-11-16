@@ -4,6 +4,7 @@ from typing import Callable, Dict, List, Optional
 from matplotlib import pyplot as plt
 from numpy.typing import ArrayLike
 from pytorch_lightning import LightningDataModule
+import torch
 from torch_geometric.data import Data
 
 from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
@@ -140,13 +141,22 @@ class HDF5LidarDataModule(LightningDataModule):
         return self._dataset
 
     def train_dataloader(self):
+        from torch.utils.data.sampler import WeightedRandomSampler
+        from torch.utils.data.distributed import DistributedSampler
+
+        weights = None
+        weights = torch.Tensor(weights).type(torch.DoubleTensor)
+        assert len(weights) == len(self.dataset.traindata)
+        train_sampler = DistributedSampler(WeightedRandomSampler(weights, len(weights)))
+
         return GeometricNoneProofDataloader(
             dataset=self.dataset.traindata,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             prefetch_factor=self.prefetch_factor,
-            shuffle=True,
+            shuffle=False,
             drop_last=True,
+            sampler=train_sampler,
         )
 
     def val_dataloader(self):
