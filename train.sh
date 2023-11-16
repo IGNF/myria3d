@@ -43,16 +43,19 @@ python /home/$USER/repositories/myria3d/run.py \
 # trainer.min_epochs=150 \
 # trainer.max_epochs=300
 
-# Test the first model :
-MODEL_CHECKPOINT="/mnt/store-lidarhd/projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/CGaydon/runs/2023-10-25/16-52-57/checkpoints/epoch_000.ckpt"
+# Test the first converging model on union of val and test
+MODEL_CHECKPOINT="/mnt/store-lidarhd/projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/CGaydon/runs/2023-10-25/16-52-57/checkpoints/epoch_041.ckpt"
 python /home/$USER/repositories/myria3d/run.py \
     task.task_name=test \
     model.ckpt_path=$MODEL_CHECKPOINT \
-    datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID.hdf5" \
     dataset_description=20231025_forest_classification_explo \
-    experiment=RandLaNet_base_run_FR-MultiGPU \
-    logger.comet.experiment_name="TEST-${DATASET_NAME}" \
-    trainer.gpus=[0,2]
+    datamodule=list_datamodule \
+    datamodule.tile_width=50 \
+    datamodule.split_csv_path=/home/CGaydon/repositories/myria3d/PureForestID-valtest-union.csv \
+    datamodule.data_dir=/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestID/lidar/ \
+    experiment=RandLaNet_base_run_FR \
+    logger.comet.experiment_name="TEST-${DATASET_NAME}-VAL_and_TEST-avec-Pin-Maritimes" \
+    trainer.gpus=[1] &
 
 # Fine-Tune a pretrained model
 python /home/$USER/repositories/myria3d/run.py \
