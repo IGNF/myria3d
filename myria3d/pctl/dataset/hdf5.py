@@ -191,14 +191,39 @@ class HDF5Dataset(Dataset):
         if self._samples_hdf5_paths:
             return self._samples_hdf5_paths
 
-        # Load as variable if already indexed in hdf5 file. Need to decode b-string.
-        with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
-            if "samples_hdf5_paths" in hdf5_file:
-                self._samples_hdf5_paths = [
-                    sample_path.decode("utf-8") for sample_path in hdf5_file["samples_hdf5_paths"]
-                ]
-                return self._samples_hdf5_paths
+        train_classes_bd_foret = []
+        self.train_weights = []
 
+        # COMMENTED TO FORCE RECALCULATION
+
+        # # Load as variable if already indexed in hdf5 file. Need to decode b-string.
+        # with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
+        #     if "samples_hdf5_paths" in hdf5_file:
+        #         self._samples_hdf5_paths = [
+        #             sample_path.decode("utf-8") for sample_path in hdf5_file["samples_hdf5_paths"]
+        #         ]
+        #         return self._samples_hdf5_paths
+
+        classification_preprocessing_dict = {
+            1: 12,
+            2: 12,
+            3: 2,
+            4: 1,
+            5: 9,
+            6: 12,
+            7: 8,
+            8: 11,
+            9: 11,
+            10: 10,
+            11: 7,
+            12: 10,
+            13: 5,
+            14: 4,
+            15: 4,
+            16: 4,
+            17: 4,
+            18: 3,
+        }
         # Otherwise, index samples, and add the index as an attribute to the HDF5 file.
         self._samples_hdf5_paths = []
         with h5py.File(self.hdf5_file_path, "r") as hdf5_file:
@@ -208,16 +233,29 @@ class HDF5Dataset(Dataset):
                 for basename in hdf5_file[split].keys():
                     for sample_number in hdf5_file[split][basename].keys():
                         self._samples_hdf5_paths.append(osp.join(split, basename, sample_number))
+                        if split == "train":
+                            my_class = float(hdf5_file[split][basename][sample_number]["y"][...])
+                            train_classes_bd_foret += [classification_preprocessing_dict[my_class]]
+        uniques_bdforet_class, class_sample_count = np.unique(
+            train_classes_bd_foret, return_counts=True
+        )
+        # CALCULATE sqrt(inverse frequency)
+        weights_for_each_class = np.sqrt(1 / class_sample_count)
+        mapper = {
+            bdforet_class: w
+            for bdforet_class, w in zip(uniques_bdforet_class, weights_for_each_class)
+        }
+        self.weights_train = [mapper[class_bdforet] for class_bdforet in train_classes_bd_foret]
 
-        with h5py.File(self.hdf5_file_path, "a") as hdf5_file:
-            # special type to avoid silent string truncation in hdf5 datasets.
-            variable_lenght_str_datatype = h5py.special_dtype(vlen=str)
-            hdf5_file.create_dataset(
-                "samples_hdf5_paths",
-                (len(self.samples_hdf5_paths),),
-                dtype=variable_lenght_str_datatype,
-                data=self._samples_hdf5_paths,
-            )
+        # with h5py.File(self.hdf5_file_path, "a") as hdf5_file:
+        #     # special type to avoid silent string truncation in hdf5 datasets.
+        #     variable_lenght_str_datatype = h5py.special_dtype(vlen=str)
+        #     hdf5_file.create_dataset(
+        #         "samples_hdf5_paths",
+        #         (len(self.samples_hdf5_paths),),
+        #         dtype=variable_lenght_str_datatype,
+        #         data=self._samples_hdf5_paths,
+        #     )
         return self._samples_hdf5_paths
 
 

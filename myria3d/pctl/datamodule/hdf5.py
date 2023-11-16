@@ -144,10 +144,13 @@ class HDF5LidarDataModule(LightningDataModule):
         from torch.utils.data.sampler import WeightedRandomSampler
         from torch.utils.data.distributed import DistributedSampler
 
-        weights = None
+        weights = self.dataset.weights_train
         weights = torch.Tensor(weights).type(torch.DoubleTensor)
         assert len(weights) == len(self.dataset.traindata)
-        train_sampler = DistributedSampler(WeightedRandomSampler(weights, len(weights)))
+        try:
+            train_sampler = DistributedSampler(WeightedRandomSampler(weights, len(weights)))
+        except:
+            train_sampler = WeightedRandomSampler(weights, len(weights))
 
         return GeometricNoneProofDataloader(
             dataset=self.dataset.traindata,
