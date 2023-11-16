@@ -278,6 +278,10 @@ def create_hdf5(
                         subtile_overlap,
                     )
                 ):
+                    if sample_number > 0:
+                        print("probleme")
+                        a = 2
+                        assert sample_number == 0
                     if not points_pre_transform:
                         continue
                     data = points_pre_transform(sample_points)
