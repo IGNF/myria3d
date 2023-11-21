@@ -240,7 +240,7 @@ class HDF5Dataset(Dataset):
             train_classes_bd_foret, return_counts=True
         )
         # CALCULATE sqrt(inverse frequency)
-        weights_for_each_class = np.sqrt(1 / class_sample_count)
+        weights_for_each_class = 1 / class_sample_count
         mapper = {
             bdforet_class: w
             for bdforet_class, w in zip(uniques_bdforet_class, weights_for_each_class)
