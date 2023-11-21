@@ -1,7 +1,10 @@
 # CHANGELOG
 
-## 3.5.1
-- Run CICD operations for all branches prefixed with "staging-"
+### 3.5.2
+- Track ./tests/data/ dir including single-point-cloud.laz.
+
+### 3.5.1
+- Run CICD operations for all branches prefixed with "staging-".
 
 ## 3.5.0
 - Abandon of option to get circular patches since it was never used.
