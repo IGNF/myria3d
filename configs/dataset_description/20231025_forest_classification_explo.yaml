@@ -47,3 +47,9 @@ classification_dict:
 # Input and output dims of neural net are dataset dependant:
 d_in: 9
 num_classes: 12
+
+# Effective Num Sapmpler, Beta=0.999, calculation on area (km²)
+class_weights: [0.20,0.67,1.48,0.13,0.21,0.38,0.21,0.42,0.80,6.68,0.17,0.65]
+
+# Inverse Sqrt Freq, calculation on patch counts
+# class_weights: [0.43,0.79,1.33,0.46,0.45,0.63,0.50,0.62,0.91,4.30,0.46,1.13]
