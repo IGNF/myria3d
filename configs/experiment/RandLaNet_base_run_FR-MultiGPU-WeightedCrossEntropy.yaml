@@ -1,0 +1,8 @@
+# @package _global_
+defaults:
+  - RandLaNet_base_run_FR-MultiGPU.yaml
+  - override /model/criterion: WeightedCrossEntropyLoss.yaml
+
+logger:
+  comet:
+    experiment_name: "Pyg RandLaNet - FR Data - 2xGPUs"
