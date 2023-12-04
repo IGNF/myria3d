@@ -160,6 +160,8 @@ class HDF5Dataset(Dataset):
             pos=torch.from_numpy(grp["pos"][...]),
             y=torch.from_numpy(grp["y"][...]),
             idx_in_original_cloud=grp["idx_in_original_cloud"][...],
+            cluster_id=torch.from_numpy(grp["cluster_id"][...].astype(int)),
+            # cluster_ptr=torch.from_numpy(grp["cluster_ptr"][...].astype(int)),
             x_features_names=grp["x"].attrs["x_features_names"].tolist(),
             patch_id=grp.attrs["patch_id"]
             # num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.
@@ -320,6 +322,12 @@ def create_hdf5(
                         data=sample_idx,
                     )
                     hdf5_file[hdf5_path].attrs["patch_id"] = copy.deepcopy(Path(las_path).stem)
+                    hdf5_file.create_dataset(
+                        os.path.join(hdf5_path, "cluster_id"),
+                        data.cluster_id.shape,
+                        dtype="i",
+                        data=data.cluster_id,
+                    )
 
                 # A termination flag to report that all samples for this point cloud were included in the df5 file.
                 # Group may not have been created if source cloud had no patch passing the pre_filter step, hence the "if" here.

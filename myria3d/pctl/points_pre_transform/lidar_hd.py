@@ -74,6 +74,26 @@ def lidar_hd_pre_transform(points):
     ]
     y = points["Classification"]
 
-    data = Data(pos=pos, x=x, y=y, x_features_names=x_features_names)
+    cluster_id = points["ClusterID"]
+    u = np.unique(cluster_id)
+    d = {src_id: target_id for src_id, target_id in zip(u, range(len(u)))}
+    mapper = np.vectorize(lambda src_id: d.get(src_id))
+    cluster_id = mapper(cluster_id)
+
+    # will be done again ; we keep it for debugging, it has no impact here
+    # reorder x and y
+    indices = np.unique(cluster_id)
+    pos = np.concatenate([pos[cluster_id == i] for i in indices])
+    x = np.concatenate([x[cluster_id == i] for i in indices])
+    y = np.concatenate([y[cluster_id == i] for i in indices])
+    cluster_id = np.concatenate([cluster_id[cluster_id == i] for i in indices])
+
+    data = Data(
+        pos=pos,
+        x=x,
+        y=y,
+        x_features_names=x_features_names,
+        cluster_id=cluster_id,
+    )
 
     return data

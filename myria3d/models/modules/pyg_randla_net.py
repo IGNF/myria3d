@@ -1,6 +1,7 @@
 import os.path as osp
 from numbers import Number
 from typing import Tuple
+import numpy as np
 
 import torch
 import torch.nn.functional as F
@@ -52,11 +53,42 @@ class PyGRandLANet(torch.nn.Module):
         self.mlp_classif = SharedMLP([d_bottleneck, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
-    def forward(self, x, pos, batch, ptr):
-        x = x if x is not None else pos
+    def forward(self, x, pos, batch, ptr, cluster_id):
+        # Use cluster_id as the new batch
+        cluster_id = cluster_id.numpy()
+        batch_np = batch.numpy()
 
-        b1_out = self.block1(self.fc0(x), pos, batch)
-        b1_out_decimated, ptr1 = decimate(b1_out, ptr, self.decimation)
+        cluster_ids_enumerated = [cluster_id[batch_np == idx] for idx in range(max(batch) + 1)]
+        num_of_trees = [max(arr) for arr in cluster_ids_enumerated]
+        cumsums = [0] + np.cumsum(num_of_trees).tolist()
+        cluster_id = [
+            arr + increment + s
+            for increment, (arr, s) in enumerate(zip(cluster_ids_enumerated, cumsums))
+        ]
+        cluster_id = np.concatenate(cluster_id)
+        # now we need to reorder everything !
+        # The reordering will respect the batch limit so we do not need to reorder anything afterward.
+
+        indices = np.unique(cluster_id)
+        reordering = np.concatenate([np.flatnonzero(cluster_id == i) for i in indices])
+        x = x[reordering]
+        pos = pos[reordering]
+        cluster_id = cluster_id[reordering]
+
+        cluster_ptr = np.concatenate(
+            [
+                np.array([0]),
+                np.flatnonzero(cluster_id[:-1] != cluster_id[1:]) + 1,
+                np.array([len(cluster_id)]),
+            ]
+        )
+
+        cluster_id = torch.from_numpy(cluster_id).to(x.device)
+        cluster_ptr = torch.from_numpy(cluster_ptr).to(x.device)
+
+        b1_out = self.block1(self.fc0(x), pos, cluster_id)
+
+        b1_out_decimated, ptr1 = decimate(b1_out, cluster_ptr, self.decimation)
 
         b2_out = self.block2(*b1_out_decimated)
         b2_out_decimated, ptr2 = decimate(b2_out, ptr1, self.decimation)
