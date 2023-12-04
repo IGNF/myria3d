@@ -1,8 +1,8 @@
 import os
+from pathlib import Path
 import tempfile
 from typing import Optional
 import numpy as np
-
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
@@ -21,7 +21,7 @@ log = utils.get_logger(__name__)
 MODEL_ZOO = [PyGRandLANet]
 import pandas as pd
 
-PREDICTION_FILE = "./predictions.csv"
+PREDICTION_FILE = Path(os.getcwd()) / "./predictions.csv"
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
