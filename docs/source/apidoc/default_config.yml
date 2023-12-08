@@ -106,6 +106,7 @@ datamodule:
     normalizations_list: '${oc.dict.values: datamodule.transforms.normalizations}'
   _target_: myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule
   data_dir: null
+  epsg: null
   split_csv_path: null
   hdf5_file_path: ${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5
   points_pre_transform:

@@ -48,7 +48,6 @@ def launch_train(
     # Imports should be nested inside @hydra.main to optimize tab completion
     # Read more here: https://github.com/facebookresearch/hydra/issues/934
     from myria3d.train import train
-
     utils.extras(config)
 
     # Pretty print config using Rich library
@@ -94,6 +93,7 @@ def launch_hdf5(config: DictConfig):
     create_hdf5(
         las_paths_by_split_dict=las_paths_by_split_dict,
         hdf5_file_path=config.datamodule.get("hdf5_file_path"),
+        epsg=config.datamodule.get("epsg"),
         tile_width=config.datamodule.get("tile_width"),
         subtile_width=config.datamodule.get("subtile_width"),
         pre_filter=hydra.utils.instantiate(config.datamodule.get("pre_filter")),

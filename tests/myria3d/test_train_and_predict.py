@@ -15,6 +15,7 @@ from tests.conftest import (
 )
 from tests.runif import RunIf
 
+
 """
 Sanity checks to make sure the model train/val/predict/test logics do not crash.
 """
@@ -209,7 +210,7 @@ def check_las_contains_dims(las_path: str, dims_to_check: List[str] = []):
         dims_to_check (List[str], optional): list of dimensions expected to be there. Defaults to [].
 
     """
-    a1 = pdal_read_las_array(las_path)
+    a1 = pdal_read_las_array(las_path, "2154")
     for dim in dims_to_check:
         assert dim in a1.dtype.fields.keys()
 
@@ -223,7 +224,7 @@ def check_las_does_not_contains_dims(las_path, dims_to_check=[]):
         dims_to_check (List[str], optional): list of dimensions expected not to be there. Defaults to [].
 
     """
-    a1 = pdal_read_las_array(las_path)
+    a1 = pdal_read_las_array(las_path, "2154")
     for dim in dims_to_check:
         assert dim not in a1.dtype.fields.keys()
 
@@ -236,8 +237,8 @@ def check_las_invariance(las_path_1: str, las_path_2: str):
         las_path_2 (str): path to second LAS file.
 
     """
-    a1 = pdal_read_las_array(las_path_1)
-    a2 = pdal_read_las_array(las_path_2)
+    a1 = pdal_read_las_array(las_path_1, "2154")
+    a2 = pdal_read_las_array(las_path_2, "2154")
     key_dims = ["X", "Y", "Z", "Infrared", "Red", "Blue", "Green", "Intensity"]
     assert a1.shape == a2.shape  # no loss of points
     assert all(d in a2.dtype.fields.keys() for d in key_dims)  # key dims are here

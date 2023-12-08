@@ -55,16 +55,17 @@ class Interpolator:
         self.logits: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
 
-    def load_full_las_for_update(self, src_las: str) -> np.ndarray:
+    def load_full_las_for_update(self, src_las: str, epsg: str) -> np.ndarray:
         """Loads a LAS and adds necessary extradim.
 
         Args:
             filepath (str): Path to LAS for which predictions are made.
+            epsg (str): epsg to force the reading with
         """
         # We do not reset the dims we create channel.
         # Slight risk of interaction with previous values, but it is expected that all non-artefacts values are updated.
 
-        pipeline = get_pdal_reader(src_las)
+        pipeline = get_pdal_reader(src_las, epsg)
         for proba_channel_to_create in self.probas_to_save:
             pipeline |= pdal.Filter.ferry(dimensions=f"=>{proba_channel_to_create}")
             pipeline |= pdal.Filter.assign(value=f"{proba_channel_to_create}=0")
@@ -115,7 +116,7 @@ class Interpolator:
         return reduced_logits[idx_in_full_cloud], idx_in_full_cloud
 
     @torch.no_grad()
-    def reduce_predictions_and_save(self, raw_path: str, output_dir: str) -> str:
+    def reduce_predictions_and_save(self, raw_path: str, output_dir: str, epsg: str) -> str:
         """Interpolate all predicted probabilites to their original points in LAS file, and save.
 
         Args:
@@ -123,6 +124,7 @@ class Interpolator:
             basename: str: file basename to save it with the same one
             output_dir (Optional[str], optional): Directory to save output LAS with new predicted classification, entropy,
             and probabilities. Defaults to None.
+            epsg (str): epsg to force the reading with
         Returns:
             str: path of the updated, saved LAS file.
 
@@ -141,7 +143,7 @@ class Interpolator:
         del logits
 
         # Read las after fetching all information to write into it
-        las = self.load_full_las_for_update(src_las=raw_path)
+        las = self.load_full_las_for_update(raw_path, epsg)
 
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
