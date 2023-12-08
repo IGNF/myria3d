@@ -67,5 +67,5 @@ def predict(config: DictConfig) -> str:
         logits = model.predict_step(batch)["logits"]
         itp.store_predictions(logits, batch.idx_in_original_cloud)
 
-    out_f = itp.reduce_predictions_and_save(config.predict.src_las, config.predict.output_dir)
+    out_f = itp.reduce_predictions_and_save(config.predict.src_las, config.predict.output_dir, config.datamodule.get("epsg"))
     return out_f

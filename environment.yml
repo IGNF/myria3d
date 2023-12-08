@@ -69,3 +69,4 @@ dependencies:
       - sphinxnotes-mock==1.0.0b0  # still a beta
       - docutils==0.17
       - rstcheck==3.3.*  # RST Linter
+      - pyproj==3.6.*

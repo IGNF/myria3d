@@ -28,6 +28,7 @@ class HDF5Dataset(Dataset):
     def __init__(
         self,
         hdf5_file_path: str,
+        epsg: str,
         las_paths_by_split_dict: LAS_PATHS_BY_SPLIT_DICT_TYPE,
         points_pre_transform: Callable = lidar_hd_pre_transform,
         tile_width: Number = 1000,
@@ -79,6 +80,7 @@ class HDF5Dataset(Dataset):
         create_hdf5(
             las_paths_by_split_dict,
             hdf5_file_path,
+            epsg,
             tile_width,
             subtile_width,
             pre_filter,
@@ -195,6 +197,7 @@ class HDF5Dataset(Dataset):
 def create_hdf5(
     las_paths_by_split_dict: dict,
     hdf5_file_path: str,
+    epsg: str,
     tile_width: Number = 1000,
     subtile_width: Number = 50,
     pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
@@ -204,12 +207,10 @@ def create_hdf5(
     """Create a HDF5 dataset file from las.
 
     Args:
-        split (str): specifies either "train", "val", or "test" split.
-        las_path (str): path to point cloud.
-
         las_paths_by_split_dict ([LAS_PATHS_BY_SPLIT_DICT_TYPE]): should look like
                 las_paths_by_split_dict = {'train': ['dir/las1.las','dir/las2.las'], 'val': [...], , 'test': [...]},
         hdf5_file_path (str): path to HDF5 dataset,
+        epsg (str): epsg to force the reading with
         tile_width (Number, optional): width of a LAS tile. 1000 by default,
         subtile_width: (Number, optional): effective width of a subtile (i.e. receptive field). 50 by default,
         pre_filter: Function to filter out specific subtiles. "pre_filter_below_n_points" by default,
@@ -246,6 +247,7 @@ def create_hdf5(
                         las_path,
                         tile_width,
                         subtile_width,
+                        epsg,
                         subtile_overlap,
                     )
                 ):
