@@ -48,6 +48,7 @@ jobs:
         myria3d
         python run.py
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
+        datamodule.epsg=2154
         predict.output_dir=/outputs/
         task.task_name=predict
 
@@ -64,6 +65,7 @@ jobs:
         --config-path /inputs/
         --config-name proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.5.0
         predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
+        datamodule.epsg=2154
         predict.src_las=/inputs/792000_6272000_subset_buildings.las
         predict.output_dir=/outputs/
         predict.subtile_overlap=25
