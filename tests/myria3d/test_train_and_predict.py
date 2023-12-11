@@ -12,6 +12,7 @@ from tests.conftest import (
     make_default_hydra_cfg,
     run_hydra_decorated_command,
     SINGLE_POINT_CLOUD,
+    DEFAULT_EPSG,
 )
 from tests.runif import RunIf
 
@@ -80,6 +81,7 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     command = [
         "run.py",
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"datamodule.epsg={DEFAULT_EPSG}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "+predict.interpolator.probas_to_save=[building,unclassified]",
@@ -95,6 +97,7 @@ def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, t
     command = [
         "run.py",
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"datamodule.epsg={DEFAULT_EPSG}",
         f"predict.src_las={abs_path_to_single_point_cloud}",
         f"predict.output_dir={tmpdir}",
         "+predict.interpolator.probas_to_save=[building,unclassified]",
@@ -120,6 +123,7 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
         overrides=[
             "experiment=predict",
             f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+            f"datamodule.epsg={DEFAULT_EPSG}",
             f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
             # "+predict.interpolator.interpolation_k=predict.interpolation_k",
