@@ -85,7 +85,7 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
 
     if epsg :
         # if an epsg in provided, force pdal to read the lidar file with it
-        try :
+        try : # epsg can be added as a number like "2154" or as a string like "EPSG:2154"
             int(epsg)
             return pdal.Reader.las(
                 filename=las_path,
