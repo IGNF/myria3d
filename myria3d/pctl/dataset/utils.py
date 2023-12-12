@@ -9,12 +9,9 @@ import numpy as np
 import pandas as pd
 import pdal
 from scipy.spatial import cKDTree
-from pyproj import CRS
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
 LAS_PATHS_BY_SPLIT_DICT_TYPE = Dict[SPLIT_TYPE, List[str]]
-
-# commons
 
 
 def find_file_in_dir(data_dir: str, basename: str) -> str:
@@ -85,18 +82,20 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
         pdal.Reader.las: reader to use in a pipeline.
 
     """
-    if not epsg:
-        try:
-            crs = CRS.from_string(get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt'])
-            epsg = str(crs.to_epsg())
-        except Exception:
-            raise Exception("No EPSG provided, neither in the lidar file or as parameter")
 
-    return pdal.Reader.las(
-        filename=las_path,
-        nosrs=True,
-        override_srs=f"EPSG:{epsg}",
-    )
+    if epsg :
+        # if an epsg in provided, force pdal to read the lidar file with it
+        return pdal.Reader.las(
+            filename=las_path,
+            nosrs=True,
+            override_srs=f"EPSG:{epsg}",
+        )
+
+    if 'srs' in get_metadata(las_path)['metadata']['readers.las'] and get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt']:
+        # read the lidar file with pdal default
+        return pdal.Reader.las(filename=las_path)
+
+    raise Exception("No EPSG provided, neither in the lidar file or as parameter")
 
 
 def get_pdal_info_metadata(las_path: str) -> Dict:
