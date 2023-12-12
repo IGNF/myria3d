@@ -11,6 +11,7 @@ from myria3d.train import train
 from tests.conftest import (
     make_default_hydra_cfg,
     run_hydra_decorated_command,
+    run_hydra_decorated_command_with_return_error,
     SINGLE_POINT_CLOUD,
     DEFAULT_EPSG,
 )
@@ -88,6 +89,28 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         "task.task_name=predict",
     ]
     run_hydra_decorated_command(command)
+
+
+def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
+    """Test running inference by CLI for toy LAS.
+
+    Args:
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
+
+    """
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
+    command = [
+        "run.py",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.src_las={abs_path_to_toy_LAS}",
+        f"predict.output_dir={tmpdir}",
+        "+predict.interpolator.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
+    ]
+    assert "No EPSG provided, neither in the lidar file or as parameter" in run_hydra_decorated_command_with_return_error(command)
 
 
 def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
