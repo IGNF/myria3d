@@ -96,12 +96,13 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
     #     get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt']:
     #     # read the lidar file with pdal default
     #     return pdal.Reader.las(filename=las_path)
-    if 'readers.las' in get_metadata(las_path)['metadata']:
-        if 'srs' in get_metadata(las_path)['metadata']['readers.las']:
-            if 'compoundwkt' in get_metadata(las_path)['metadata']['readers.las']['srs']:
-                if get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt']:
-                    # read the lidar file with pdal default
-                    return pdal.Reader.las(filename=las_path)
+    if 'metadata' in get_metadata(las_path):
+        if 'readers.las' in get_metadata(las_path)['metadata']:
+            if 'srs' in get_metadata(las_path)['metadata']['readers.las']:
+                if 'compoundwkt' in get_metadata(las_path)['metadata']['readers.las']['srs']:
+                    if get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt']:
+                        # read the lidar file with pdal default
+                        return pdal.Reader.las(filename=las_path)
 
     raise Exception("No EPSG provided, neither in the lidar file or as parameter")
 
