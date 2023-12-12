@@ -85,11 +85,20 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
 
     if epsg :
         # if an epsg in provided, force pdal to read the lidar file with it
-        return pdal.Reader.las(
-            filename=las_path,
-            nosrs=True,
-            override_srs=f"EPSG:{epsg}",
-        )
+        try :
+            int(epsg)
+            return pdal.Reader.las(
+                filename=las_path,
+                nosrs=True,
+                override_srs=f"EPSG:{epsg}",
+            )
+        except ValueError:
+            return pdal.Reader.las(
+                filename=las_path,
+                nosrs=True,
+                override_srs=epsg,
+            )
+
 
     # if 'srs' in get_metadata(las_path)['metadata']['readers.las'] and \
     #     'compoundwkt' in get_metadata(las_path)['metadata']['readers.las']['srs'] and \
