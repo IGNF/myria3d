@@ -100,8 +100,8 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
         if get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt']:
             # read the lidar file with pdal default
             return pdal.Reader.las(filename=las_path)
-    except:
-        pass # we will go to the "raise exception" anyway
+    except Exception:
+        pass  # we will go to the "raise exception" anyway
 
     raise Exception("No EPSG provided, neither in the lidar file or as parameter")
 
