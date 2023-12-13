@@ -1,5 +1,8 @@
 # CHANGELOG
 
+### 3.6.0
+- Remove the "EPSG:2154" by default and replace it with a parameter, if it's not in the lidar file.
+
 ### 3.5.2
 - Track ./tests/data/ dir including single-point-cloud.laz.
 
