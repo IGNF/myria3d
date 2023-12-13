@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.toy_dataset &mdash; myria3d 3.5.2 documentation</title>
+  <title>myria3d.pctl.dataset.toy_dataset &mdash; myria3d 3.6.0 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -173,6 +173,7 @@
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))))</span>
 <span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.hdf5</span> <span class="kn">import</span> <span class="n">HDF5Dataset</span>  <span class="c1"># noqa</span>
 
+<span class="n">TOY_EPSG</span> <span class="o">=</span> <span class="s2">&quot;2154&quot;</span>
 <span class="n">TOY_LAS_DATA</span> <span class="o">=</span> <span class="s2">&quot;tests/data/toy_dataset_src/862000_6652000.classified_toy_dataset.100mx100m.las&quot;</span>
 <span class="n">TOY_DATASET_HDF5_PATH</span> <span class="o">=</span> <span class="s2">&quot;tests/data/toy_dataset.hdf5&quot;</span>
 
@@ -201,6 +202,7 @@
     <span class="c1"># TODO: update transforms ? or use a config ?</span>
     <span class="n">HDF5Dataset</span><span class="p">(</span>
         <span class="n">TOY_DATASET_HDF5_PATH</span><span class="p">,</span>
+        <span class="n">TOY_EPSG</span><span class="p">,</span>
         <span class="n">las_paths_by_split_dict</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">TOY_LAS_DATA</span><span class="p">],</span>
             <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">TOY_LAS_DATA</span><span class="p">],</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 3.5.2 documentation</title>
+  <title>Performing inference on new data &mdash; myria3d 3.6.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -192,7 +192,8 @@ datamodule.batch_size<span class="o">={</span>N<span class="o">}</span>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span>task.task_name<span class="o">=</span>predict<span class="w"> </span>--help
 </pre></div>
 </div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">predict.src_las</span></code> may be any valid glob pattern (e.g. <code class="docutils literal notranslate"><span class="pre">/path/to/multiple_files/*.las</span></code>), in order to <strong>predict on multiple files successively</strong>.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">predict.src_las</span></code> may be any valid glob pattern (e.g. <code class="docutils literal notranslate"><span class="pre">/path/to/multiple_files/*.las</span></code>), in order to <strong>predict on multiple files successively</strong>.<br />
+If the lidar file doesn’t specify an EPSG in its meatadata, it HAS TO BE be specified with <code class="docutils literal notranslate"><span class="pre">datamodule.epsg=...</span></code></p>
 </section>
 <section id="run-inference-from-sources">
 <h2>Run inference from sources<a class="headerlink" href="#run-inference-from-sources" title="Permalink to this headline"></a></h2>

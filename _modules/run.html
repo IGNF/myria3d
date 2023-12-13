@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>run &mdash; myria3d 3.5.2 documentation</title>
+  <title>run &mdash; myria3d 3.6.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -213,7 +213,6 @@
     <span class="c1"># Imports should be nested inside @hydra.main to optimize tab completion</span>
     <span class="c1"># Read more here: https://github.com/facebookresearch/hydra/issues/934</span>
     <span class="kn">from</span> <span class="nn">myria3d.train</span> <span class="kn">import</span> <span class="n">train</span>
-
     <span class="n">utils</span><span class="o">.</span><span class="n">extras</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
     <span class="c1"># Pretty print config using Rich library</span>
@@ -259,6 +258,7 @@
     <span class="n">create_hdf5</span><span class="p">(</span>
         <span class="n">las_paths_by_split_dict</span><span class="o">=</span><span class="n">las_paths_by_split_dict</span><span class="p">,</span>
         <span class="n">hdf5_file_path</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">datamodule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hdf5_file_path&quot;</span><span class="p">),</span>
+        <span class="n">epsg</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">datamodule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epsg&quot;</span><span class="p">),</span>
         <span class="n">tile_width</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">datamodule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tile_width&quot;</span><span class="p">),</span>
         <span class="n">subtile_width</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">datamodule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subtile_width&quot;</span><span class="p">),</span>
         <span class="n">pre_filter</span><span class="o">=</span><span class="n">hydra</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">datamodule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pre_filter&quot;</span><span class="p">)),</span>

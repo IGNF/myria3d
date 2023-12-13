@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training &mdash; myria3d 3.5.2 documentation</title>
+  <title>Preparing data for training &mdash; myria3d 3.6.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -188,6 +188,7 @@
 </ul>
 <p>Under the hood, the path of each LAS file will be reconstructed like this: ‘{data_dir}/{split}/{basename}’.</p>
 <p>Large input point clouds need to be divided in smaller clouds that can be digested by segmentation models. We found that a receptive field of 50m x 50m was a good balance between context and memory intensity. The division is performed once, to avoid loading large file in memory multiple times during training.</p>
+<p>To be able to read the lidar files, an EPSG is needed. If the files don’t all specify an EPSG in their metadata, it should be given as a parameter with <code class="docutils literal notranslate"><span class="pre">datamodule.epsg=...</span></code></p>
 <p>After division, the smaller clouds are preprocessed (i.e. selection of specific LAS dimensions, on-the-fly creation of dimensions) and regrouped into a single HDF5 file whose path is specified via the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter.</p>
 <p>The HDF5 dataset is created at training time. It should only happens once. Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough (there is no need for data_dir or split_csv_path parameters anymore).</p>
 <p>It’s also possible to create the hdf5 file without training any model: just fill the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter as before to specify the file path, but use <code class="docutils literal notranslate"><span class="pre">task=create_hdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">task=fit</span></code>.</p>

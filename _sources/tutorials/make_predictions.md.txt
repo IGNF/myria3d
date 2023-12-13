@@ -28,7 +28,8 @@ To show you current inference config, simply add a `--help` flag:
 python run.py task.task_name=predict --help
 ```
 
-Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multiple_files/*.las`), in order to **predict on multiple files successively**.
+Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multiple_files/*.las`), in order to **predict on multiple files successively**.  
+If the lidar file doesn't specify an EPSG in its meatadata, it HAS TO BE be specified with `datamodule.epsg=...`
 
 ## Run inference from sources
 

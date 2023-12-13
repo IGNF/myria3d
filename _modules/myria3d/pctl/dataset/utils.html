@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.5.2 documentation</title>
+  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.6.0 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -178,8 +178,6 @@
 <span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]]</span>
 <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SPLIT_TYPE</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
-<span class="c1"># commons</span>
-
 
 <div class="viewcode-block" id="find_file_in_dir"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.find_file_in_dir">[docs]</a><span class="k">def</span> <span class="nf">find_file_in_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Query files matching a basename in input_data_dir and its subdirectories.</span>
@@ -205,41 +203,75 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xy_range</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">xy_range</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="pdal_read_las_array"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="pdal_read_las_array"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a named array.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path</span>
+<span class="sd">        epsg (str): epsg to force the reading with</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">p1</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="o">|</span> <span class="n">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="o">|</span> <span class="n">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
     <span class="n">p1</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">p1</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="pdal_read_las_array_as_float32"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="pdal_read_las_array_as_float32"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a a named array, casted to floats.&quot;&quot;&quot;</span>
-    <span class="n">arr</span> <span class="o">=</span> <span class="n">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
     <span class="n">all_floats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">({</span><span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;f4&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)})</span>
     <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">all_floats</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_pdal_reader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader">[docs]</a><span class="k">def</span> <span class="nf">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard Reader which imposes Lamber 93 SRS.</span>
+<div class="viewcode-block" id="get_metadata"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; returns metadata contained in a las file</span>
+<span class="sd">    Args:</span>
+<span class="sd">        las_path (str): input LAS path to get metadata from.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict : the metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">)</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
+    <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="get_pdal_reader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader">[docs]</a><span class="k">def</span> <span class="nf">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard Reader.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to read.</span>
+<span class="sd">        epsg (str): epsg to force the reading with</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pdal.Reader.las: reader to use in a pipeline.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
-        <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">override_srs</span><span class="o">=</span><span class="s2">&quot;EPSG:2154&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
+
+    <span class="k">if</span> <span class="n">epsg</span> <span class="p">:</span>
+        <span class="c1"># if an epsg in provided, force pdal to read the lidar file with it</span>
+        <span class="k">try</span> <span class="p">:</span>  <span class="c1"># epsg can be added as a number like &quot;2154&quot; or as a string like &quot;EPSG:2154&quot;</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
+                <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">override_srs</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
+                <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">override_srs</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">try</span> <span class="p">:</span>
+        <span class="k">if</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">)[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;readers.las&#39;</span><span class="p">][</span><span class="s1">&#39;srs&#39;</span><span class="p">][</span><span class="s1">&#39;compoundwkt&#39;</span><span class="p">]:</span>
+            <span class="c1"># read the lidar file with pdal default</span>
+            <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># we will go to the &quot;raise exception&quot; anyway</span>
+
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No EPSG provided, neither in the lidar file or as parameter&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_pdal_info_metadata"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_info_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_pdal_info_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
@@ -267,6 +299,7 @@
     <span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
     <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
+    <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Split LAS point cloud into samples.</span>
@@ -275,13 +308,14 @@
 <span class="sd">        las_path (str): path to raw LAS file</span>
 <span class="sd">        tile_width (Number): width of input LAS file</span>
 <span class="sd">        subtile_width (Number): width of receptive field.</span>
+<span class="sd">        epsg (str): epsg to force the reading with</span>
 <span class="sd">        subtile_overlap (Number, optional): overlap between adjacent tiles. Defaults to 0.</span>
 
 <span class="sd">    Yields:</span>
 <span class="sd">        _type_: idx_in_original_cloud, and points of sample in pdal input format casted as floats.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">points</span> <span class="o">=</span> <span class="n">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">)</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
     <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
     <span class="n">kd_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
     <span class="n">XYs</span> <span class="o">=</span> <span class="n">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="o">=</span><span class="n">subtile_overlap</span><span class="p">)</span>
