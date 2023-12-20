@@ -5,10 +5,10 @@ screen -S forest
 git checkout forest-classification-explo
 source activate myria3d
 
-DATASET_NAME="PureForestID"
+DATASET_NAME="PureForestV2"
 export LD_LIBRARY_PATH="/var/data/mambaforge-shared/envs/myria3d/lib:$LD_LIBRARY_PATH"
 # List the data
-DATA_DIR_PATH="/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestID/lidar/" # se termine avec un slash
+DATA_DIR_PATH="/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/${DATASET_NAME}/lidar/" # se termine avec un slash
 SPLIT_CSV_PATH="/home/CGaydon/repositories/myria3d/${DATASET_NAME}-split.csv"
 
 #################################################
@@ -32,14 +32,14 @@ tail $SPLIT_CSV_PATH_MINI
 # Use of dataset or the other
 python /home/$USER/repositories/myria3d/run.py \
     task.task_name=fit \
-    datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/PureForestID.hdf5" \
+    datamodule.hdf5_file_path="/var/data/CGaydon/myria3d_datasets/${DATASET_NAME}.hdf5" \
     dataset_description=20231025_forest_classification_explo \
     datamodule.tile_width=50 \
     experiment=RandLaNet_base_run_FR-MultiGPU \
     logger.comet.experiment_name="${DATASET_NAME}" \
     datamodule.data_dir=${DATA_DIR_PATH} \
     datamodule.split_csv_path="${SPLIT_CSV_PATH}" \
-    trainer.gpus=[0,2]
+    trainer.gpus=[0,1]
 # trainer.min_epochs=150 \
 # trainer.max_epochs=300
 
