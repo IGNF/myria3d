@@ -1,17 +1,14 @@
 # Simple install with
 # mamba env create -f environment.yml
-name: myria3d
+name: myria3d_upgrade
 channels:
   - conda-forge
   - anaconda
 dependencies:
   - python==3.9.*
   - pip
-  # cudatoolkit to specify the cuda driver in the conda env
-  - conda-forge::cudatoolkit=11.3.1 # single equal sign there, not a typo
-  - numba==0.55.1
   # --------- data formats --------- #
-  - numpy==1.20
+  # - numpy
   - h5py
   # --------- geo --------- #
   - pygeos
@@ -38,25 +35,25 @@ dependencies:
   - pip:
       # --------- Deep Learning --------- #
       # Extra index may need to be on first line 
-      - --extra-index-url https://download.pytorch.org/whl/cu113
-      - torch==1.11.*
+      - --extra-index-url https://download.pytorch.org/whl/cu118
+      - torch==2.1.*
       - torchvision
-      - pytorch-lightning==1.5.9
-      - torchmetrics==0.7.*  # Else, pytorch-lightning will install the latest
-      - comet_ml==3.31.*
+      - pytorch-lightning
+      - torchmetrics
+      - comet_ml==3.31.*  # VErsion to update !
+      - torch_geometric
       # Wheels for torch-geometric optionnal dependencies
-      - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_cluster-1.6.0-cp39-cp39-linux_x86_64.whl
-      - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
-      - https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_sparse-0.6.14-cp39-cp39-linux_x86_64.whl
-      - git+https://github.com/pyg-team/pytorch_geometric.git@2.1.0
+      - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.3%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
+      - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_scatter-2.1.2%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
+      - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_sparse-0.6.18%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
       # Nota: if libcusparse.so.11. errors occur, run
       # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH" 
       # ou
       # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH" 
       # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
       # --------- Visualization --------- #
-      - pandas==1.4.*
-      - matplotlib==3.5.*
+      - pandas
+      - matplotlib
       # --------- hydra configs --------- #
       - hydra-core==1.1.*
       - hydra-colorlog==1.1.*
