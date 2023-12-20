@@ -5,7 +5,7 @@ import torch
 from pytorch_lightning import Callback
 from pytorch_lightning.utilities.types import STEP_OUTPUT
 from torchmetrics import JaccardIndex
-from torchmetrics.functional.classification.jaccard import _jaccard_from_confmat
+from torchmetrics.functional.classification.jaccard import _jaccard_index_reduce
 
 from myria3d.utils import utils
 
@@ -141,14 +141,13 @@ class SingleClassIoU(JaccardIndex):
         )
 
     def compute(self):
-        """Computes intersection over union (JaccardIndex)"""
+        """Computes intersection over union (JaccardIndex).
 
-        iou_no_reduction = _jaccard_from_confmat(
-            self.confmat,
-            self.num_classes,
-            self.ignore_index,
-            self.absent_score,
-            self.reduction,
+        Default behavior changed in torchmetrics and an absent class will yield a score of 0 instead of 1
+        """
+
+        iou_no_reduction = _jaccard_index_reduce(
+            confmat=self.confmat, average=self.reduction, ignore_index=self.ignore_index
         )
         class_of_interest_iou = iou_no_reduction[self.class_of_interest_idx]
         return class_of_interest_iou

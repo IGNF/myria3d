@@ -19,7 +19,7 @@ from pytorch_lightning import (
     Trainer,
     seed_everything,
 )
-from pytorch_lightning.loggers import LightningLoggerBase
+from pytorch_lightning.loggers.logger import Logger
 
 from myria3d.models.model import Model
 from myria3d.utils import utils
@@ -87,7 +87,7 @@ def train(config: DictConfig) -> Trainer:
                 callbacks.append(hydra.utils.instantiate(cb_conf))
 
     # Init lightning loggers
-    logger: List[LightningLoggerBase] = []
+    logger: List[Logger] = []
     if "logger" in config:
         for lg_conf in config.logger.values():
             if "_target_" in lg_conf:
@@ -111,7 +111,7 @@ def train(config: DictConfig) -> Trainer:
 
     task_name = config.task.get("task_name")
     if task_name == TASK_NAMES.FIT.value:
-        if config.trainer.auto_lr_find:
+        if config.task.auto_lr_find:
             log.info("Finding best lr with auto_lr_find!")
             # Run learn ing rate finder
             lr_finder = trainer.tuner.lr_find(

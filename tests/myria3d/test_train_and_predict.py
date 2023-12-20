@@ -63,7 +63,12 @@ def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_facto
     # Attention to concurrency with other processes using the GPU when running tests.
     gpu_id = 0
     cfg_one_epoch = make_default_hydra_cfg(
-        overrides=["experiment=RandLaNetDebug", f"trainer.gpus=[{gpu_id}]"] + tmp_paths_overrides
+        overrides=[
+            "experiment=RandLaNetDebug",
+            "trainer.accelerator=gpu",
+            f"trainer.devices=[{gpu_id}]",
+        ]
+        + tmp_paths_overrides
     )
     train(cfg_one_epoch)
 
@@ -110,7 +115,10 @@ def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]
-    assert "No EPSG provided, neither in the lidar file or as parameter" in run_hydra_decorated_command_with_return_error(command)
+    assert (
+        "No EPSG provided, neither in the lidar file or as parameter"
+        in run_hydra_decorated_command_with_return_error(command)
+    )
 
 
 def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
@@ -177,10 +185,7 @@ def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint,
-        toy_dataset_hdf5_path,
-        tmpdir,
-        "null",
+        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, 0
     )
 
 
@@ -217,11 +222,13 @@ def _run_test_right_after_training(
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
         toy_dataset_hdf5_path, tmpdir
     )
+    accelerator = "cpu" if trainer_gpus == 0 else "gpu"
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=test",  # sets task.task_name to "test"
             f"model.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
-            f"trainer.gpus={trainer_gpus}",
+            f"trainer.devices={trainer_gpus}",
+            f"trainer.accelerator={accelerator}",
         ]
         + tmp_paths_overrides
     )

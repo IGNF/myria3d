@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Optional
 
 from pytorch_lightning import Callback, Trainer
-from pytorch_lightning.loggers import CometLogger, LoggerCollection
+from pytorch_lightning.loggers import CometLogger
 from pytorch_lightning.utilities import rank_zero_only
 
 from myria3d.utils import utils
@@ -27,7 +27,7 @@ def get_comet_logger(trainer: Trainer) -> Optional[CometLogger]:
     if isinstance(trainer.logger, CometLogger):
         return trainer.logger
 
-    if isinstance(trainer.logger, LoggerCollection):
+    if isinstance(trainer.logger, list):
         for logger in trainer.logger:
             if isinstance(logger, CometLogger):
                 return logger

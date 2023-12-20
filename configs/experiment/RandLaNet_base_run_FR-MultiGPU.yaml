@@ -8,7 +8,5 @@ logger:
 
 trainer:
   strategy: ddp_find_unused_parameters_false
-  # Replace by gpu to simulate multi-gpus training.
   accelerator: gpu
-  num_processes: 2
-  gpus: 2
+  devices: 2

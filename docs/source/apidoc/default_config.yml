@@ -5,13 +5,11 @@ print_config: true
 ignore_warnings: true
 trainer:
   _target_: pytorch_lightning.Trainer
-  gpus: 0
+  accelerator: cpu
+  devices: 1
   min_epochs: 1
   max_epochs: 1
   log_every_n_steps: 1
-  weights_summary: null
-  progress_bar_refresh_rate: 1
-  auto_lr_find: false
   limit_train_batches: 1
   limit_val_batches: 1
   limit_test_batches: 1
@@ -253,6 +251,7 @@ logger:
     disabled: true
 task:
   task_name: fit
+  auto_lr_find: false
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
