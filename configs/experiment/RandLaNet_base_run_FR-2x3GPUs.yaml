@@ -4,16 +4,15 @@ defaults:
 
 logger:
   comet:
-    experiment_name: "RandLaNet_base_run_FR-2x3GPUs-MixedPrecision"
+    experiment_name: "RandLaNet_base_run_FR-2x3GPUs"
 
 
 # 2 nodes x 3 GPUs - No gradient accumulation. 
 # This is equivalent to training with 2 GPUs with gradients accumulated 3 times.
-# Consider trying precision=bf16 once version of pytorch/pytorch-geometric/pytorch-scatter are updated.
+# Setting precision=16 did not bring any speed improvement for Lidar HD data and RandLa-Net model.
 trainer:
   strategy: ddp_find_unused_parameters_false
   accelerator: gpu
   num_nodes: 2
   gpus: 3
   accumulate_grad_batches: 1
-  precision: 16
