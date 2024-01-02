@@ -1,6 +1,7 @@
 src_las: "/path/to/input.las"  # Any glob pattern can be used to predict on multiple files.
 output_dir: "/path/to/output_dir/"  # Predictions are saved in a new file which shares src_las basename.
 ckpt_path: "/path/to/lightning_model.ckpt"  # Checkpoint of trained model.
+gpus: 0
 
 # Probas interpolation parameters
 # subtile_overlap=25 to use a sliding window of inference of which predictions will be merged.
