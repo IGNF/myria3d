@@ -185,7 +185,7 @@ def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, 0
+        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "cpu"
     )
 
 
@@ -194,18 +194,12 @@ def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint,
-        toy_dataset_hdf5_path,
-        tmpdir,
-        "[0]",
+        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "gpu"
     )
 
 
 def _run_test_right_after_training(
-    one_epoch_trained_RandLaNet_checkpoint,
-    toy_dataset_hdf5_path,
-    tmpdir,
-    trainer_gpus,
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, accelerator
 ):
     """Run test using the model that was just trained for one epoch.
 
@@ -222,12 +216,12 @@ def _run_test_right_after_training(
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
         toy_dataset_hdf5_path, tmpdir
     )
-    accelerator = "cpu" if trainer_gpus == 0 else "gpu"
+    devices = "[0]" if accelerator == "gpu" else 1
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=test",  # sets task.task_name to "test"
             f"model.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
-            f"trainer.devices={trainer_gpus}",
+            f"trainer.devices={devices}",
             f"trainer.accelerator={accelerator}",
         ]
         + tmp_paths_overrides
