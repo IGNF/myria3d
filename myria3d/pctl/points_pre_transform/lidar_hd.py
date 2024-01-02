@@ -82,11 +82,11 @@ def lidar_hd_pre_transform(points):
 
     # will be done again ; we keep it for debugging, it has no impact here
     # reorder x and y
-    indices = np.unique(cluster_id)
-    pos = np.concatenate([pos[cluster_id == i] for i in indices])
-    x = np.concatenate([x[cluster_id == i] for i in indices])
-    y = np.concatenate([y[cluster_id == i] for i in indices])
-    cluster_id = np.concatenate([cluster_id[cluster_id == i] for i in indices])
+    # indices = np.unique(cluster_id)
+    # pos = np.concatenate([pos[cluster_id == i] for i in indices])
+    # x = np.concatenate([x[cluster_id == i] for i in indices])
+    # y = np.concatenate([y[cluster_id == i] for i in indices])
+    # cluster_id = np.concatenate([cluster_id[cluster_id == i] for i in indices])
 
     data = Data(
         pos=pos,
