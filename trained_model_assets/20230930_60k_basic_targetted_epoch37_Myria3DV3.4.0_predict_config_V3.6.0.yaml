@@ -114,6 +114,7 @@ datamodule:
     normalizations_list: '${oc.dict.values: datamodule.transforms.normalizations}'
   _target_: myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule
   data_dir: /mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/CGaydon/20230930_60k_basic_targetted/data/
+  epsg: null
   split_csv_path: /mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/CGaydon/20230930_60k_basic_targetted/data/split.csv
   hdf5_file_path: /var/data/CGaydon/myria3d_datasets/20230930_60k_basic_targetted.hdf5
   points_pre_transform:
