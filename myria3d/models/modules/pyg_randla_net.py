@@ -15,7 +15,7 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.utils import softmax
-from torch_scatter import scatter
+from torch_scatter import scatter, scatter_max
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
@@ -54,37 +54,29 @@ class PyGRandLANet(torch.nn.Module):
         self.fc_classif = Linear(32, num_classes)
 
     def forward(self, x, pos, batch, ptr, cluster_id):
-        # Use cluster_id as the new batch
-        cluster_id = cluster_id.cpu().numpy()
-        batch_np = batch.cpu().numpy()
-
-        cluster_ids_enumerated = [cluster_id[batch_np == idx] for idx in range(max(batch) + 1)]  # this is a bottleneck!
-        num_of_trees = [max(arr) for arr in cluster_ids_enumerated]
-        cumsums = [0] + np.cumsum(num_of_trees).tolist()
+        num_of_trees = scatter_max(cluster_id, batch)[0]
+        cumsums = torch.concat(
+            [torch.zeros(1, device=batch.device), torch.cumsum(num_of_trees, 0)]
+        )
         cluster_id = [
-            arr + increment + s
-            for increment, (arr, s) in enumerate(zip(cluster_ids_enumerated, cumsums))
+            cluster_id[ptr[i] : ptr[i + 1]] + i + cumsums[i] for i in range(len(ptr) - 1)
         ]
-        cluster_id = np.concatenate(cluster_id)
-        # now we need to reorder everything !
-        # The reordering will respect the batch limit so we do not need to reorder anything afterward.
+        cluster_id = torch.concat(cluster_id)
+        # Now we need to reorder everything !
+        # The reordering will respect the batch limits so we do not need to reorder anything afterward.
 
-        indices = np.unique(cluster_id)
-        reordering = np.concatenate([np.flatnonzero(cluster_id == i) for i in indices])
+        reordering = cluster_id.argsort()
         x = x[reordering]
         pos = pos[reordering]
         cluster_id = cluster_id[reordering]
 
-        cluster_ptr = np.concatenate(
+        cluster_ptr = torch.concat(
             [
-                np.array([0]),
-                np.flatnonzero(cluster_id[:-1] != cluster_id[1:]) + 1,
-                np.array([len(cluster_id)]),
+                torch.zeros(1, device=batch.device),
+                torch.nonzero(cluster_id[:-1] != cluster_id[1:]).view(-1) + 1,
+                torch.IntTensor([len(cluster_id)]).to(batch.device),
             ]
-        )
-
-        cluster_id = torch.from_numpy(cluster_id).to(x.device)
-        cluster_ptr = torch.from_numpy(cluster_ptr).to(x.device)
+        ).int()
 
         b1_out = self.block1(self.fc0(x), pos, cluster_id)
 
