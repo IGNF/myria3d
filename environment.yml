@@ -29,7 +29,7 @@ dependencies:
   - rich # beautiful text formatting in terminal
   - sh # for running bash commands in some tests
   # - scikit-learn # used in some callbacks
-  # - seaborn # used in some callbacks
+  - seaborn # used in some callbacks
   # - jupyterlab # better jupyter notebooks
   - pudb # debugger
   - pip:
@@ -42,6 +42,7 @@ dependencies:
       - torchmetrics
       - comet_ml==3.31.*  # VErsion to update !
       - torch_geometric
+      - urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
       # Wheels for torch-geometric optionnal dependencies
       - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.3%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
       - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_scatter-2.1.2%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
