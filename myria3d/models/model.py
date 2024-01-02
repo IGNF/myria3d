@@ -8,6 +8,7 @@ from torch_geometric.nn import knn_interpolate
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
+from torchmetrics.classification import MulticlassJaccardIndex
 
 log = utils.get_logger(__name__)
 
@@ -71,10 +72,10 @@ class Model(LightningModule):
     def setup(self, stage: Optional[str]) -> None:
         """Setup stage: prepare to compute IoU and loss."""
         if stage == "fit":
-            self.train_iou = self.hparams.iou()
-            self.val_iou = self.hparams.iou()
+            self.train_iou = MulticlassJaccardIndex(self.hparams.num_classes)
+            self.val_iou = MulticlassJaccardIndex(self.hparams.num_classes)
         if stage == "test":
-            self.test_iou = self.hparams.iou()
+            self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes)
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
@@ -116,7 +117,7 @@ class Model(LightningModule):
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
-        self.experiment = self.logger.experiment[0]
+        # self.experiment = self.logger.experiment
         self.criterion = self.criterion.to(self.device)
 
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
@@ -140,14 +141,12 @@ class Model(LightningModule):
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
             self.train_iou(preds, targets)
-        self.log(
-            "train/iou",
-            self.train_iou,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-        )
+        self.log("train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": targets}
+
+    def on_train_epoch_end(self) -> None:
+        self.train_iou.compute()
+        self.log_all_ious(self.train_iou.confmat, "train")
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -182,6 +181,7 @@ class Model(LightningModule):
 
         """
         self.val_iou.compute()
+        self.log_all_ious(self.val_iou.confmat, "val")
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -202,15 +202,19 @@ class Model(LightningModule):
         preds = torch.argmax(logits, dim=1)
         self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
-        self.log(
-            "test/iou",
-            self.test_iou,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-        )
+        self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "logits": logits, "targets": targets}
+
+    def on_test_epoch_end(self) -> None:
+        """At the end of a validation epoch, compute the IoU.
+
+        Args:
+            outputs : output of test
+
+        """
+        self.test_iou.compute()
+        self.log_all_ious(self.test_iou.confmat, "test")
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
@@ -254,3 +258,27 @@ class Model(LightningModule):
         from shape B,N,... to shape (N,...).
         """
         return torch.cat([torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)])
+
+    def log_all_ious(self, confmat, phase: str):
+        ious = iou(confmat)
+        for class_iou, class_name in zip(ious, self.hparams.classification_dict.values()):
+            metric_name = f"{phase}/iou_CLASS_{class_name}"
+            self.log(
+                metric_name, class_iou, on_step=False, on_epoch=True, metric_attribute=metric_name
+            )
+
+
+def iou(confmat):
+    """Computes the Intersection over Union of each class in the
+    confusion matrix
+
+    Return:
+        (iou, missing_class_mask) - iou for class as well as a mask
+        highlighting existing classes
+    """
+    TP_plus_FN = confmat.sum(dim=0)
+    TP_plus_FP = confmat.sum(dim=1)
+    TP = confmat.diag()
+    union = TP_plus_FN + TP_plus_FP - TP
+    iou = 1e-8 + TP / (union + 1e-8)
+    return iou

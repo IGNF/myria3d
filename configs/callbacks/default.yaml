@@ -12,12 +12,6 @@ lr_monitor:
   logging_interval: "step"
   log_momentum: true
 
-# This logs IoU at validation and test time
-# Predictions are aggregated and saved at test time in a way coherent with prediction logic.
-log_iou_by_class:
-  _target_: myria3d.callbacks.logging_callbacks.LogIoUByClass
-  classification_dict: ${dataset_description.classification_dict}
-
 model_checkpoint:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
   monitor: "val/loss_epoch" # name of the logged metric which determines when model is improving

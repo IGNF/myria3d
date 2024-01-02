@@ -42,6 +42,8 @@ class HDF5LidarDataModule(LightningDataModule):
         transforms: Optional[Dict[str, TRANSFORMS_LIST]] = None,
         **kwargs,
     ):
+        super().__init__()
+
         self.split_csv_path = split_csv_path
         self.data_dir = data_dir
         self.hdf5_file_path = hdf5_file_path
@@ -86,7 +88,7 @@ class HDF5LidarDataModule(LightningDataModule):
     def predict_transform(self) -> CustomCompose:
         return CustomCompose(self.preparation_predict_transform + self.normalization_transform)
 
-    def prepare_data(self, stage: Optional[str] = None):
+    def prepare_data_per_node(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
 
         if stage in ["fit", "test"] or stage is None:
