@@ -23,7 +23,7 @@ from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
 DEFAULT_CONFIG_FILE = (
-    "20230930_60k_basic_targetted_epoch37_Myria3DV3.4.0_predict_config_V3.5.0.yaml"
+    "20230930_60k_basic_targetted_epoch37_Myria3DV3.4.0_predict_config_V3.6.0.yaml"
 )
 DEFAULT_CHECKPOINT = "20230930_60k_basic_targetted_epoch37_Myria3DV3.4.0.ckpt"
 DEFAULT_ENV = "placeholder.env"
