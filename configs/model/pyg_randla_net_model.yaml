@@ -10,3 +10,4 @@ neural_net_hparams:
   num_neighbors: 16
   decimation: 4  # divide by decimation for each of the 4 local encoder.
   return_logits: true  # to use with crossEntropyLoss directly
+  put_tree_base_at_zero_z: true

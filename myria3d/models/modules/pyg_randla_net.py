@@ -15,7 +15,7 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.utils import softmax
-from torch_scatter import scatter, scatter_max
+from torch_scatter import scatter, scatter_max, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
@@ -28,13 +28,14 @@ class PyGRandLANet(torch.nn.Module):
         decimation: int = 4,
         num_neighbors: int = 16,
         return_logits: bool = False,
+        put_tree_base_at_zero_z: bool = True,
     ):
         super().__init__()
+        self.put_tree_base_at_zero_z = put_tree_base_at_zero_z
 
         self.decimation = decimation
         # An option to return logits instead of probas
         self.return_logits = return_logits
-
         # Authors use 8, which is a bottleneck
         # for the final MLP, and also when num_classes>8
         # or num_features>8.
@@ -61,15 +62,13 @@ class PyGRandLANet(torch.nn.Module):
         cluster_id = [
             cluster_id[ptr[i] : ptr[i + 1]] + i + cumsums[i] for i in range(len(ptr) - 1)
         ]
-        cluster_id = torch.concat(cluster_id)
+        cluster_id = torch.concat(cluster_id).long()
         # Now we need to reorder everything !
         # The reordering will respect the batch limits so we do not need to reorder anything afterward.
-
         reordering = cluster_id.argsort()
         x = x[reordering]
         pos = pos[reordering]
         cluster_id = cluster_id[reordering]
-
         cluster_ptr = torch.concat(
             [
                 torch.zeros(1, device=batch.device),
@@ -77,6 +76,12 @@ class PyGRandLANet(torch.nn.Module):
                 torch.IntTensor([len(cluster_id)]).to(batch.device),
             ]
         ).int()
+
+        # normalize tree heights
+        if self.put_tree_base_at_zero_z:
+            tree_min_z = scatter_min(pos[:, 2], cluster_id)[0]
+            _, inverse_indices = torch.unique(cluster_id, return_inverse=True)
+            pos[:, 2] = pos[:, 2] - tree_min_z[inverse_indices]
 
         b1_out = self.block1(self.fc0(x), pos, cluster_id)
 
