@@ -5,6 +5,7 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
+from myria3d.metrics.iou import iou
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
@@ -77,6 +78,14 @@ class Model(LightningModule):
         if stage == "test":
             self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes)
 
+    def log_all_class_ious(self, confmat, phase: str):
+        ious = iou(confmat)
+        for class_iou, class_name in zip(ious, self.hparams.classification_dict.values()):
+            metric_name = f"{phase}/iou_CLASS_{class_name}"
+            self.log(
+                metric_name, class_iou, on_step=False, on_epoch=True, metric_attribute=metric_name
+            )
+
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
 
@@ -146,7 +155,7 @@ class Model(LightningModule):
 
     def on_train_epoch_end(self) -> None:
         self.train_iou.compute()
-        self.log_all_ious(self.train_iou.confmat, "train")
+        self.log_all_class_ious(self.train_iou.confmat, "train")
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -181,7 +190,7 @@ class Model(LightningModule):
 
         """
         self.val_iou.compute()
-        self.log_all_ious(self.val_iou.confmat, "val")
+        self.log_all_class_ious(self.val_iou.confmat, "val")
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -214,7 +223,7 @@ class Model(LightningModule):
 
         """
         self.test_iou.compute()
-        self.log_all_ious(self.test_iou.confmat, "test")
+        self.log_all_class_ious(self.test_iou.confmat, "test")
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
@@ -258,27 +267,3 @@ class Model(LightningModule):
         from shape B,N,... to shape (N,...).
         """
         return torch.cat([torch.full((len(sample_pos),), i) for i, sample_pos in enumerate(pos_x)])
-
-    def log_all_ious(self, confmat, phase: str):
-        ious = iou(confmat)
-        for class_iou, class_name in zip(ious, self.hparams.classification_dict.values()):
-            metric_name = f"{phase}/iou_CLASS_{class_name}"
-            self.log(
-                metric_name, class_iou, on_step=False, on_epoch=True, metric_attribute=metric_name
-            )
-
-
-def iou(confmat):
-    """Computes the Intersection over Union of each class in the
-    confusion matrix
-
-    Return:
-        (iou, missing_class_mask) - iou for class as well as a mask
-        highlighting existing classes
-    """
-    TP_plus_FN = confmat.sum(dim=0)
-    TP_plus_FP = confmat.sum(dim=1)
-    TP = confmat.diag()
-    union = TP_plus_FN + TP_plus_FP - TP
-    iou = 1e-8 + TP / (union + 1e-8)
-    return iou
