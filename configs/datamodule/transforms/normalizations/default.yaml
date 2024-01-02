@@ -9,3 +9,6 @@ NormalizePos:
 
 StandardizeRGBAndIntensity:
   _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity
+
+AblationOfAllColors:
+  _target_: myria3d.pctl.transforms.transforms.AblationOfAllColors
