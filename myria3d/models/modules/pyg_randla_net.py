@@ -55,10 +55,10 @@ class PyGRandLANet(torch.nn.Module):
 
     def forward(self, x, pos, batch, ptr, cluster_id):
         # Use cluster_id as the new batch
-        cluster_id = cluster_id.numpy()
-        batch_np = batch.numpy()
+        cluster_id = cluster_id.cpu().numpy()
+        batch_np = batch.cpu().numpy()
 
-        cluster_ids_enumerated = [cluster_id[batch_np == idx] for idx in range(max(batch) + 1)]
+        cluster_ids_enumerated = [cluster_id[batch_np == idx] for idx in range(max(batch) + 1)]  # this is a bottleneck!
         num_of_trees = [max(arr) for arr in cluster_ids_enumerated]
         cumsums = [0] + np.cumsum(num_of_trees).tolist()
         cluster_id = [
