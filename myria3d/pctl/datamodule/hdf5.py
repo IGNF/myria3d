@@ -29,6 +29,7 @@ class HDF5LidarDataModule(LightningDataModule):
         data_dir: str,
         split_csv_path: str,
         hdf5_file_path: str,
+        epsg: str,
         points_pre_transform: Optional[Callable[[ArrayLike], Data]] = None,
         pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
         tile_width: Number = 1000,
@@ -44,6 +45,7 @@ class HDF5LidarDataModule(LightningDataModule):
         self.split_csv_path = split_csv_path
         self.data_dir = data_dir
         self.hdf5_file_path = hdf5_file_path
+        self.epsg = epsg
         self._dataset = None  # will be set by self.dataset property
         self.las_paths_by_split_dict = {}  # Will be set from split_csv
 
@@ -127,6 +129,7 @@ class HDF5LidarDataModule(LightningDataModule):
 
         self._dataset = HDF5Dataset(
             self.hdf5_file_path,
+            self.epsg,
             las_paths_by_split_dict=self.las_paths_by_split_dict,
             points_pre_transform=self.points_pre_transform,
             tile_width=self.tile_width,
@@ -166,6 +169,7 @@ class HDF5LidarDataModule(LightningDataModule):
     def _set_predict_data(self, las_file_to_predict):
         self.predict_dataset = InferenceDataset(
             las_file_to_predict,
+            self.epsg,
             points_pre_transform=self.points_pre_transform,
             pre_filter=self.pre_filter,
             transform=self.predict_transform,

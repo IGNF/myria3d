@@ -11,9 +11,12 @@ from myria3d.train import train
 from tests.conftest import (
     make_default_hydra_cfg,
     run_hydra_decorated_command,
+    run_hydra_decorated_command_with_return_error,
     SINGLE_POINT_CLOUD,
+    DEFAULT_EPSG,
 )
 from tests.runif import RunIf
+
 
 """
 Sanity checks to make sure the model train/val/predict/test logics do not crash.
@@ -79,12 +82,35 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     command = [
         "run.py",
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"datamodule.epsg={DEFAULT_EPSG}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]
     run_hydra_decorated_command(command)
+
+
+def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
+    """Test running inference by CLI for toy LAS.
+
+    Args:
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
+
+    """
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
+    command = [
+        "run.py",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.src_las={abs_path_to_toy_LAS}",
+        f"predict.output_dir={tmpdir}",
+        "+predict.interpolator.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
+    ]
+    assert "No EPSG provided, neither in the lidar file or as parameter" in run_hydra_decorated_command_with_return_error(command)
 
 
 def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
@@ -94,6 +120,7 @@ def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, t
     command = [
         "run.py",
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"datamodule.epsg={DEFAULT_EPSG}",
         f"predict.src_las={abs_path_to_single_point_cloud}",
         f"predict.output_dir={tmpdir}",
         "+predict.interpolator.probas_to_save=[building,unclassified]",
@@ -119,6 +146,7 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
         overrides=[
             "experiment=predict",
             f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+            f"datamodule.epsg={DEFAULT_EPSG}",
             f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
             # "+predict.interpolator.interpolation_k=predict.interpolation_k",
@@ -209,7 +237,7 @@ def check_las_contains_dims(las_path: str, dims_to_check: List[str] = []):
         dims_to_check (List[str], optional): list of dimensions expected to be there. Defaults to [].
 
     """
-    a1 = pdal_read_las_array(las_path)
+    a1 = pdal_read_las_array(las_path, "2154")
     for dim in dims_to_check:
         assert dim in a1.dtype.fields.keys()
 
@@ -223,7 +251,7 @@ def check_las_does_not_contains_dims(las_path, dims_to_check=[]):
         dims_to_check (List[str], optional): list of dimensions expected not to be there. Defaults to [].
 
     """
-    a1 = pdal_read_las_array(las_path)
+    a1 = pdal_read_las_array(las_path, "2154")
     for dim in dims_to_check:
         assert dim not in a1.dtype.fields.keys()
 
@@ -236,8 +264,8 @@ def check_las_invariance(las_path_1: str, las_path_2: str):
         las_path_2 (str): path to second LAS file.
 
     """
-    a1 = pdal_read_las_array(las_path_1)
-    a2 = pdal_read_las_array(las_path_2)
+    a1 = pdal_read_las_array(las_path_1, "2154")
+    a2 = pdal_read_las_array(las_path_2, "2154")
     key_dims = ["X", "Y", "Z", "Infrared", "Red", "Blue", "Green", "Intensity"]
     assert a1.shape == a2.shape  # no loss of points
     assert all(d in a2.dtype.fields.keys() for d in key_dims)  # key dims are here

@@ -1,10 +1,17 @@
 # CHANGELOG
 
+
+### 3.6.1
+- Set urllib3<2 for comet logging to function and add back seaborn for plotting optimal LR graph.
+ 
+## 3.6.0
+- Remove the "EPSG:2154" by default and use the metadata of the lidar file, unless a parameter is given.
+
 ### 3.5.2
-- Uncomment seaborn as a dependency since it is necessary when plotting optimal learning rate graph.
+- Track ./tests/data/ dir including single-point-cloud.laz.
 
 ### 3.5.1
-- Run CICD operations for all branches prefixed with "staging-"
+- Run CICD operations for all branches prefixed with "staging-".
 
 ## 3.5.0
 - Abandon of option to get circular patches since it was never used.

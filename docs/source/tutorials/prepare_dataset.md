@@ -25,6 +25,8 @@ Under the hood, the path of each LAS file will be reconstructed like this: '{dat
 
 Large input point clouds need to be divided in smaller clouds that can be digested by segmentation models. We found that a receptive field of 50m x 50m was a good balance between context and memory intensity. The division is performed once, to avoid loading large file in memory multiple times during training.
 
+To be able to read the lidar files, an EPSG is needed. If the files don't all specify an EPSG in their metadata, it should be given as a parameter with `datamodule.epsg=...` 
+
 After division, the smaller clouds are preprocessed (i.e. selection of specific LAS dimensions, on-the-fly creation of dimensions) and regrouped into a single HDF5 file whose path is specified via the `datamodule.hdf5_file_path` parameter. 
 
 The HDF5 dataset is created at training time. It should only happens once. Once this is done, you do not need sources anymore, and simply specifying the path to the HDF5 dataset is enough (there is no need for data_dir or split_csv_path parameters anymore).

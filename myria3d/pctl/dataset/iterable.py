@@ -19,6 +19,7 @@ class InferenceDataset(IterableDataset):
     def __init__(
         self,
         las_file: str,
+        epsg: str,
         points_pre_transform: Callable[[ArrayLike], Data] = lidar_hd_pre_transform,
         pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
         transform: Optional[Callable[[Data], Data]] = None,
@@ -27,6 +28,7 @@ class InferenceDataset(IterableDataset):
         subtile_overlap: Number = 0,
     ):
         self.las_file = las_file
+        self.epsg = epsg
 
         self.points_pre_transform = points_pre_transform
         self.pre_filter = pre_filter
@@ -45,6 +47,7 @@ class InferenceDataset(IterableDataset):
             self.las_file,
             self.tile_width,
             self.subtile_width,
+            self.epsg,
             self.subtile_overlap,
         ):
             sample_data = self.points_pre_transform(sample_points)

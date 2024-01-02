@@ -9,6 +9,7 @@ from pytorch_lightning import seed_everything
 from myria3d.pctl.dataset.toy_dataset import make_toy_dataset_from_test_file
 
 SINGLE_POINT_CLOUD = "tests/data/single-point-cloud.laz"
+DEFAULT_EPSG = '2154'
 
 
 @pytest.fixture(scope="session")
@@ -53,6 +54,24 @@ def run_command(command: List[str]):
         msg = e.stderr.decode()
     if msg:
         pytest.fail(reason=msg)
+
+
+def run_command_with_return_error(command: List[str]):
+    """Default method for executing shell commands with pytest."""
+    msg = None
+    try:
+        sh.python(command)
+    except sh.ErrorReturnCode as e:
+        msg = e.stderr.decode()
+    return msg
+
+
+def run_hydra_decorated_command_with_return_error(command: List[str]):
+    """Default method for executing hydra decorated shell commands with pytest."""
+    hydra_specific_paths = [
+        "hydra.run.dir=" + os.getcwd(),
+    ]
+    return run_command_with_return_error(command + hydra_specific_paths)
 
 
 def run_hydra_decorated_command(command: List[str]):
