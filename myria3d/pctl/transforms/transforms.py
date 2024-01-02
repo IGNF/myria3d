@@ -133,6 +133,16 @@ class StandardizeRGBAndIntensity(BaseTransform):
         return clamped
 
 
+class AblationOfAllColors(BaseTransform):
+    """Nullify all colors information."""
+
+    def __call__(self, data: Data):
+        for f in ["Red", "Green", "Blue", "Infrared", "rgb_avg", "ndvi"]:
+            idx = data.x_features_names.index(f)
+            data.x[:, idx] = 0.0
+        return data
+
+
 class NullifyLowestZ(BaseTransform):
     """Center on x and y axis only. Set lowest z to 0."""
 
