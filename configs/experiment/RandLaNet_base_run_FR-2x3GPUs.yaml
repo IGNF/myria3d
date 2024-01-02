@@ -14,5 +14,5 @@ trainer:
   strategy: ddp_find_unused_parameters_false
   accelerator: gpu
   num_nodes: 2
-  gpus: 3
+  devices: 3
   accumulate_grad_batches: 1
