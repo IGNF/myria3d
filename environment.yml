@@ -1,6 +1,6 @@
 # Simple install with
 # mamba env create -f environment.yml
-name: myria3d
+name: myria3d_latest_pytorch
 channels:
   - conda-forge
   - anaconda
@@ -38,7 +38,7 @@ dependencies:
       - --extra-index-url https://download.pytorch.org/whl/cu118
       - torch==2.1.*
       - torchvision
-      - pytorch-lightning
+      - pytorch-lightning==2.0.8
       - torchmetrics
       - comet_ml==3.31.*  # VErsion to update !
       - torch_geometric
