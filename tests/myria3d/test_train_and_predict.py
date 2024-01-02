@@ -153,7 +153,7 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=predict",
-            f"model.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+            f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
             f"datamodule.epsg={DEFAULT_EPSG}",
             f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
