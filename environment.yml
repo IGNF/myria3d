@@ -1,6 +1,6 @@
 # Simple install with
 # mamba env create -f environment.yml
-name: myria3d_upgrade
+name: myria3d
 channels:
   - conda-forge
   - anaconda
