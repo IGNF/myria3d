@@ -10,36 +10,23 @@ _convert_: all  # For omegaconf struct to be converted to python dictionnaries
 # Cf. https://github.com/IGNF/PureForestID-benchmark/blob/main/docs/DataCard.md
 # We remap to BD Foret code ordered alphetically.
 classification_preprocessing_dict:
-  # Sapin
   1: 10
   2: 10
-  # chataigner
   3: 4
-  # hetre
   4: 3
-  # mélèze
   5: 12
-  # epicea
   6: 11
-  # pin alep
   7: 9
-  # pin noir et laricio
   8: 8
   9: 8
-  # pin pinaster maritime
   10: 6
-  # pin sylvestre
   11: 7
-  # pseudotsuga = douglas
   12: 13
-  # quercus ilex = sempervirent (c'est le seul)
   13: 2
-  # chenes décidus (les autres)
   14: 1
   15: 1
   16: 1
   17: 1
-  # robinier
   18: 5
 
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
