@@ -9,12 +9,14 @@ import torch_geometric.transforms as T
 from torch import LongTensor, Tensor
 from torch.nn import Linear
 from torch_geometric.datasets import ShapeNet
+from torch_geometric.data.collate import repeat_interleave
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import MLP
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.utils import softmax
+from torch_geometric.nn.pool import global_max_pool
 from torch_scatter import scatter, scatter_max, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
@@ -47,11 +49,7 @@ class PyGRandLANet(torch.nn.Module):
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
         self.mlp_summit = SharedMLP([512, 512])
-        self.fp4 = FPModule(1, SharedMLP([512 + 256, 256]))
-        self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
-        self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
-        self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
-        self.mlp_classif = SharedMLP([d_bottleneck, 64, 32], dropout=[0.0, 0.5])
+        self.mlp_classif = SharedMLP([512, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
     def forward(self, x, pos, batch, ptr, cluster_id):
@@ -60,9 +58,7 @@ class PyGRandLANet(torch.nn.Module):
         cumsums = torch.concat(
             [torch.zeros(1, device=batch.device), torch.cumsum(num_of_trees, 0)]
         )
-        cluster_id = [
-            cluster_id[ptr[i] : ptr[i + 1]] + cumsums[i] for i in range(len(ptr) - 1)
-        ]
+        cluster_id = [cluster_id[ptr[i] : ptr[i + 1]] + cumsums[i] for i in range(len(ptr) - 1)]
         cluster_id = torch.concat(cluster_id).long()
         # Now we need to reorder everything !
         # The reordering will respect the batch limits so we do not need to reorder anything afterward.
@@ -97,18 +93,15 @@ class PyGRandLANet(torch.nn.Module):
         b4_out = self.block4(*b3_out_decimated)
         b4_out_decimated, _ = decimate(b4_out, ptr3, self.decimation)
 
-        mlp_out = (
-            self.mlp_summit(b4_out_decimated[0]),
-            b4_out_decimated[1],
-            b4_out_decimated[2],
-        )
+        pre_embeddings = self.mlp_summit(b4_out_decimated[0])
 
-        fp4_out = self.fp4(*mlp_out, *b3_out_decimated)
-        fp3_out = self.fp3(*fp4_out, *b2_out_decimated)
-        fp2_out = self.fp2(*fp3_out, *b1_out_decimated)
-        fp1_out = self.fp1(*fp2_out, *b1_out)
+        # Max pooling each tree
+        trees_embeddings = global_max_pool(pre_embeddings, b4_out_decimated[2])
+        batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
+        # Max pooling each cloud
+        cloud_embeddings = global_max_pool(trees_embeddings, batch_trees)
 
-        x = self.mlp_classif(fp1_out[0])
+        x = self.mlp_classif(cloud_embeddings)
         logits = self.fc_classif(x)
 
         if self.return_logits:
