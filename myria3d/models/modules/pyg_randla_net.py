@@ -55,7 +55,8 @@ class PyGRandLANet(torch.nn.Module):
         self.fc_classif = Linear(32, num_classes)
 
     def forward(self, x, pos, batch, ptr, cluster_id):
-        num_of_trees = scatter_max(cluster_id, batch)[0]
+        # This works since we reordered the trees from 0 to n-1. Hence the +1
+        num_of_trees = scatter_max(cluster_id, batch)[0] + 1
         cumsums = torch.concat(
             [torch.zeros(1, device=batch.device), torch.cumsum(num_of_trees, 0)]
         )
