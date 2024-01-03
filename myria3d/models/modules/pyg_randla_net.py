@@ -61,7 +61,7 @@ class PyGRandLANet(torch.nn.Module):
             [torch.zeros(1, device=batch.device), torch.cumsum(num_of_trees, 0)]
         )
         cluster_id = [
-            cluster_id[ptr[i] : ptr[i + 1]] + i + cumsums[i] for i in range(len(ptr) - 1)
+            cluster_id[ptr[i] : ptr[i + 1]] + cumsums[i] for i in range(len(ptr) - 1)
         ]
         cluster_id = torch.concat(cluster_id).long()
         # Now we need to reorder everything !
