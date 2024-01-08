@@ -65,7 +65,7 @@ class LogLogsPath(Callback):
     """Logs run working directory to comet.ml"""
 
     @rank_zero_only
-    def on_init_end(self, trainer):
+    def setup(self, trainer, pl_module, stage):
         logger = get_comet_logger(trainer=trainer)
         if logger:
             log_path = os.getcwd()
