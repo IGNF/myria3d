@@ -70,13 +70,13 @@ class Model(LightningModule):
         self.softmax = nn.Softmax(dim=1)
         self.criterion = self.hparams.criterion
 
-    def setup(self, stage: Optional[str]) -> None:
-        """Setup stage: prepare to compute IoU and loss."""
-        if stage == "fit":
-            self.train_iou = MulticlassJaccardIndex(self.hparams.num_classes)
-            self.val_iou = MulticlassJaccardIndex(self.hparams.num_classes)
-        if stage == "test":
-            self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes)
+    def on_fit_start(self) -> None:
+        self.criterion = self.criterion.to(self.device)
+        self.train_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
+        self.val_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
+
+    def on_test_start(self) -> None:
+        self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
 
     def log_all_class_ious(self, confmat, phase: str):
         ious = iou(confmat)
@@ -124,11 +124,6 @@ class Model(LightningModule):
             targets = batch.copies["transformed_y_copy"].to(logits.device)
         return targets, logits
 
-    def on_fit_start(self) -> None:
-        """On fit start: get the experiment for easier access."""
-        # self.experiment = self.logger.experiment
-        self.criterion = self.criterion.to(self.device)
-
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
         """Training step.
 
@@ -156,6 +151,7 @@ class Model(LightningModule):
     def on_train_epoch_end(self) -> None:
         self.train_iou.compute()
         self.log_all_class_ious(self.train_iou.confmat, "train")
+        self.train_iou.reset()
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -191,6 +187,7 @@ class Model(LightningModule):
         """
         self.val_iou.compute()
         self.log_all_class_ious(self.val_iou.confmat, "val")
+        self.val_iou.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -224,6 +221,7 @@ class Model(LightningModule):
         """
         self.test_iou.compute()
         self.log_all_class_ious(self.test_iou.confmat, "test")
+        self.test_iou.reset()
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
