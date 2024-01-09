@@ -6,7 +6,7 @@ from sklearn.metrics import ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
 PATCHES = (
-    "/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestID/metadata/PureForestID-patches.gpkg"
+    "/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestV2/metadata/PureForestID-patches.gpkg"
 )
 CLASS_CODE2CLASS_NAME = {
     0: "FF1G01-01_Chêne_décidus",
