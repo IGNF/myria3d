@@ -9,18 +9,19 @@ PATCHES = (
     "/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/PureForestID/metadata/PureForestID-patches.gpkg"
 )
 CLASS_CODE2CLASS_NAME = {
-    0: "FF1-09-09_Hêtre",
-    1: "FF1-10-10_Châtaignier",
-    2: "FF1-14-14_Robinier",
-    3: "FF1G01-01_Chêne_décidus",
-    4: "FF1G06-06_Chêne_sempervirent",
+    0: "FF1G01-01_Chêne_décidus",
+    1: "FF1G06-06_Chêne_sempervirent",
+    2: "FF1-09-09_Hêtre",
+    3: "FF1-10-10_Châtaignier",
+    4: "FF1-14-14_Robinier",
     5: "FF2-51-51_Pin_maritime",
     6: "FF2-52-52_Pin_sylvestre",
-    7: "FF2-57-57_Pin_alep",
-    8: "FF2-63-63-Mélèze",
-    9: "FF2-64-64_Douglas",
-    10: "FF2G53-53_Pin_laricio_Pin_noir",
-    11: "FF2G61-61_Sapin-Epicéa",
+    7: "FF2G53-53_Pin_laricio_Pin_noir",
+    8: "FF2-57-57_Pin_alep",
+    9: "FF2G61-61_Sapin",
+    10: "FF2G61-61_Epicéa",
+    11: "FF2-63-63-Mélèze",
+    12: "FF2-64-64_Douglas",
 }
 
 
