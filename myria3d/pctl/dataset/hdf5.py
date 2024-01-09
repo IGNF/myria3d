@@ -3,6 +3,7 @@ import os
 import os.path as osp
 from numbers import Number
 from typing import Callable, List, Optional
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -318,9 +319,7 @@ def create_hdf5(
                         dtype="i",
                         data=sample_idx,
                     )
-                    hdf5_file[hdf5_path].attrs["patch_id"] = copy.deepcopy(
-                        las_path[-len("AAAAA_BBBBB_BDF_IF_laz") : -len("_BDF_IF.laz")]
-                    )
+                    hdf5_file[hdf5_path].attrs["patch_id"] = copy.deepcopy(Path(las_path).stem)
 
                 # A termination flag to report that all samples for this point cloud were included in the df5 file.
                 # Group may not have been created if source cloud had no patch passing the pre_filter step, hence the "if" here.

@@ -2,6 +2,7 @@ import copy
 import glob
 import os
 from numbers import Number
+from pathlib import Path
 from typing import Callable, List, Optional
 
 import h5py
@@ -10,6 +11,7 @@ import torch
 from torch.utils.data import Dataset
 from torch_geometric.data import Data
 from tqdm import tqdm
+from myria3d.pctl.dataset.hdf5 import get_forest_classification_code
 
 from myria3d.pctl.dataset.utils import (
     LAS_PATHS_BY_SPLIT_DICT_TYPE,
@@ -23,31 +25,31 @@ from myria3d.utils import utils
 log = utils.get_logger(__name__)
 
 
-def get_forest_classification_code(las_path):
-    species2code = {
-        "Abies_alba": 1,
-        "Abies_nordmanniana": 2,
-        "Castanea_sativa": 3,
-        "Fagus_sylvatica": 4,
-        "Larix_decidua": 5,
-        "Picea_abies": 6,
-        "Pinus_halepensis": 7,
-        "Pinus_nigra": 8,
-        "Pinus_nigra_laricio": 9,
-        "Pinus_pinaster": 10,
-        "Pinus_sylvestris": 11,
-        "Pseudotsuga_menziesii": 12,
-        "Quercus_ilex": 13,
-        "Quercus_petraea": 14,
-        "Quercus_pubescens": 15,
-        "Quercus_robur": 16,
-        "Quercus_rubra": 17,
-        "Robinia_pseudoacacia": 18,
-    }
-    for species in species2code:
-        if species in las_path:
-            return np.array([species2code[species]])
-    raise ValueError(las_path)
+# def get_forest_classification_code(las_path):
+#     species2code = {
+#         "Abies_alba": 1,
+#         "Abies_nordmanniana": 2,
+#         "Castanea_sativa": 3,
+#         "Fagus_sylvatica": 4,
+#         "Larix_decidua": 5,
+#         "Picea_abies": 6,
+#         "Pinus_halepensis": 7,
+#         "Pinus_nigra": 8,
+#         "Pinus_nigra_laricio": 9,
+#         "Pinus_pinaster": 10,
+#         "Pinus_sylvestris": 11,
+#         "Pseudotsuga_menziesii": 12,
+#         "Quercus_ilex": 13,
+#         "Quercus_petraea": 14,
+#         "Quercus_pubescens": 15,
+#         "Quercus_robur": 16,
+#         "Quercus_rubra": 17,
+#         "Robinia_pseudoacacia": 18,
+#     }
+#     for species in species2code:
+#         if species in las_path:
+#             return np.array([species2code[species]])
+#     raise ValueError(las_path)
 
 
 class ListDataset(Dataset):
@@ -112,7 +114,7 @@ class ListDataset(Dataset):
         data.x = torch.from_numpy(data.x)
         data.pos = torch.from_numpy(data.pos)
         data.y = torch.from_numpy(get_forest_classification_code(las_path))
-        data.patch_id = las_path[-len("AAAAA_BBBBB_BDF_IF_laz") : -len("_BDF_IF.laz")]
+        data.patch_id = Path(las_path).stem
         data.idx_in_original_cloud = np.arange(len(data.x))
         return data
 

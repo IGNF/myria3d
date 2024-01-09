@@ -30,10 +30,9 @@ def load_patches(patches_file):
     gdf = gdf[gdf.split.isin(["test", "val"])]
     gdf = gdf[
         [
-            "bdforet_identifier",
-            "patch_num",
-            "bdforet_cat_code",
-            "bdforet_cat_name",
+            "bdforetv2_id",
+            "patch_id",
+            "bdforetv3_label",
             "geometry",
         ]
     ]
@@ -49,12 +48,10 @@ def load_predictions(prediction_file):
 
 def make_pivot_table(df):
     groups = (
-        df.groupby(["bdforet_identifier", "bdforet_cat_code", "targets", "preds"])
-        .size()
-        .reset_index()
+        df.groupby(["bdforetv2_id", "bdforetv3_label", "targets", "preds"]).size().reset_index()
     )
     pivot = (
-        groups.pivot(index=["bdforet_identifier", "targets"], columns="preds", values=0)
+        groups.pivot(index=["bdforetv2_id", "targets"], columns="preds", values=0)
         .fillna(0)
         .astype(int)
     )
@@ -100,10 +97,10 @@ def make_polygon_cm(pivot):
 def make_accuracy_table(pivot):
     # Class accuracy
     accuracy_table = (
-        pivot.groupby("targets").agg({"accurate": "mean", "bdforet_identifier": "size"}).round(2)
+        pivot.groupby("targets").agg({"accurate": "mean", "bdforetv2_id": "size"}).round(2)
     )
     accuracy_table = accuracy_table.rename(
-        columns={"accurate": "accuracy", "bdforet_identifier": "num_bdforet_polygons"}
+        columns={"accurate": "accuracy", "bdforetv2_id": "num_bdforet_polygons"}
     )
     # Global accuracy
     OK = len(pivot[pivot.accurate])
@@ -139,7 +136,7 @@ def make_polygon_metrics(prediction_file: str = "predictions.csv", log_dir=None)
     df = load_predictions(prediction_file)
     print("Num predicted patches: ", len(df))
     gdf = load_patches(PATCHES)
-    merge = gdf.merge(df, on="patch_num", how="inner")
+    merge = gdf.merge(df, left_on="patch_id", right_on="patch_num", how="inner")
     print("Num predicted patches after merging with geometry information: ", len(df))
     merge["accurate"] = merge["targets"] == merge["preds"]
     print("Sanity check - Accuracy at patch level is ", merge["accurate"].mean())
