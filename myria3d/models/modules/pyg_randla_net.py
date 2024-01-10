@@ -88,15 +88,14 @@ class PyGRandLANet(torch.nn.Module):
         b2_out_decimated, ptr2 = decimate(b2_out, ptr1, self.decimation)
 
         b3_out = self.block3(*b2_out_decimated)
-        b3_out_decimated, ptr3 = decimate(b3_out, ptr2, self.decimation)
+        b3_out_decimated, _ = decimate(b3_out, ptr2, self.decimation)
 
         b4_out = self.block4(*b3_out_decimated)
-        b4_out_decimated, _ = decimate(b4_out, ptr3, self.decimation)
 
-        pre_embeddings = self.mlp_summit(b4_out_decimated[0])
+        pre_embeddings = self.mlp_summit(b4_out[0])
 
         # Max pooling each tree
-        trees_embeddings = global_max_pool(pre_embeddings, b4_out_decimated[2])
+        trees_embeddings = global_max_pool(pre_embeddings, b4_out[2])
         batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
         # Max pooling each cloud
         cloud_embeddings = global_max_pool(trees_embeddings, batch_trees)
