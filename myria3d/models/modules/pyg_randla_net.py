@@ -16,7 +16,7 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.pool import knn_graph
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.utils import softmax
-from torch_geometric.nn.pool import global_max_pool
+from torch_geometric.nn.pool import global_max_pool, global_mean_pool
 from torch_scatter import scatter, scatter_max, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
@@ -49,6 +49,7 @@ class PyGRandLANet(torch.nn.Module):
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
         self.mlp_summit = SharedMLP([512, 512])
+        self.aggregation_block = DilatedResidualBlock(32, 512, 512)
         self.mlp_classif = SharedMLP([512, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
@@ -96,9 +97,15 @@ class PyGRandLANet(torch.nn.Module):
 
         # Max pooling each tree
         trees_embeddings = global_max_pool(pre_embeddings, b4_out[2])
+        trees_positions = global_mean_pool(b4_out[1], b4_out[2])
         batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
-        # Max pooling each cloud
-        cloud_embeddings = global_max_pool(trees_embeddings, batch_trees)
+
+        # Aggregation layer, recycling RandLA-Net aggregation bloc, before pooling.
+        # k=16 neighboors, and a double Local Feature Aggregation, should be enough to capture all trees info.
+        contextualized_trees_embeddings, _, _ = self.aggregation_block(
+            trees_embeddings, trees_positions, batch_trees
+        )
+        cloud_embeddings = global_max_pool(contextualized_trees_embeddings, batch_trees)
 
         x = self.mlp_classif(cloud_embeddings)
         logits = self.fc_classif(x)
