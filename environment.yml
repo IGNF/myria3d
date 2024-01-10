@@ -8,7 +8,6 @@ dependencies:
   - python==3.9.*
   - pip
   # --------- data formats --------- #
-  # - numpy
   - h5py
   # --------- geo --------- #
   - pygeos
@@ -28,9 +27,7 @@ dependencies:
   - python-dotenv # loading env variables from .env file
   - rich # beautiful text formatting in terminal
   - sh # for running bash commands in some tests
-  # - scikit-learn # used in some callbacks
   - seaborn # used in some callbacks
-  # - jupyterlab # better jupyter notebooks
   - pudb # debugger
   - pip:
       # --------- Deep Learning --------- #
