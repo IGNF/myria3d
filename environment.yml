@@ -1,12 +1,23 @@
 # Simple install with
 # mamba env create -f environment.yml
-name: myria3d
+name: myria3d_torch_2_1
 channels:
+  - pytorch
+  - nvidia
+  - pyg
+  - comet_ml
   - conda-forge
   - anaconda
 dependencies:
-  - python==3.9.*
+  - python=3.9.*
   - pip
+  # --------- Deep Learning --------- #
+  - pytorch=2.1
+  - pytorch-cuda=11.8
+  - torchvision=0.16
+  - lightning=2.0
+  - torchmetrics=0.11
+  - pyg=2.4
   # --------- data formats --------- #
   - h5py
   # --------- geo --------- #
@@ -14,6 +25,10 @@ dependencies:
   - shapely
   - python-pdal
   # --------- loggers --------- #
+  - comet_ml=3.35
+    # --------- Visualization --------- #
+  - pandas
+  - matplotlib
   # --------- linters --------- #
   - pre-commit # hooks for applying linters on commit
   - black # code formatting
@@ -30,15 +45,7 @@ dependencies:
   - seaborn # used in some callbacks
   - pudb # debugger
   - pip:
-      # --------- Deep Learning --------- #
       # Extra index may need to be on first line 
-      - --extra-index-url https://download.pytorch.org/whl/cu118
-      - torch==2.1.*
-      - torchvision
-      - pytorch-lightning==2.0.8
-      - torchmetrics
-      - comet_ml==3.31.*  # VErsion to update !
-      - torch_geometric
       - urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
       # Wheels for torch-geometric optionnal dependencies
       - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.3%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
@@ -49,9 +56,6 @@ dependencies:
       # ou
       # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH" 
       # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
-      # --------- Visualization --------- #
-      - pandas
-      - matplotlib
       # --------- hydra configs --------- #
       - hydra-core==1.1.*
       - hydra-colorlog==1.1.*
