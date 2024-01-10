@@ -20,6 +20,7 @@ from pytorch_lightning import (
     seed_everything,
 )
 from pytorch_lightning.loggers.logger import Logger
+import torch_geometric
 
 from myria3d.models.model import Model
 from myria3d.utils import utils
@@ -77,6 +78,10 @@ def train(config: DictConfig) -> Trainer:
 
     log.info(f"Instantiating model <{config.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(config.model)
+
+    if config.task.get("compile", False):
+        # see https://pytorch-geometric.readthedocs.io/en/latest/tutorial/compile.html
+        model = torch_geometric.compile(model, dynamic=True)
 
     # Init lightning callbacks
     callbacks: List[Callback] = []
