@@ -137,7 +137,7 @@ def make_polygon_metrics(prediction_file: str = "predictions.csv", log_dir=None)
     print("Num predicted patches: ", len(df))
     gdf = load_patches(PATCHES)
     merge = gdf.merge(df, left_on="patch_id", right_on="patch_num", how="inner")
-    print("Num predicted patches after merging with geometry information: ", len(df))
+    print("Num predicted patches after merging with geometry information: ", len(merge))
     merge["accurate"] = merge["targets"] == merge["preds"]
     print("Sanity check - Accuracy at patch level is ", merge["accurate"].mean())
     pivot = make_pivot_table(merge)
