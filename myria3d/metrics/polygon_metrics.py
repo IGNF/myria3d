@@ -134,9 +134,13 @@ def make_polygon_metrics(prediction_file: str = "predictions.csv", log_dir=None)
         log_dir = Path(prediction_file).parent.resolve()
 
     df = load_predictions(prediction_file)
+    df["patch_id"] = df["patch_stem"].apply(
+        lambda stem: stem.replace("TEST-", "").replace("VAL-", "").replace("TRAIN-", "")
+    )
+    df = df.drop(columns="patch_stem")
     print("Num predicted patches: ", len(df))
     gdf = load_patches(PATCHES)
-    merge = gdf.merge(df, left_on="patch_id", right_on="patch_num", how="inner")
+    merge = gdf.merge(df, on="patch_id", how="inner")
     print("Num predicted patches after merging with geometry information: ", len(merge))
     merge["accurate"] = merge["targets"] == merge["preds"]
     print("Sanity check - Accuracy at patch level is ", merge["accurate"].mean())

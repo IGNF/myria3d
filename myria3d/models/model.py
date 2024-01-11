@@ -318,8 +318,9 @@ class Model(LightningModule):
             prog_bar=True,
         )
         df = pd.DataFrame(
+            # need to remove prefix
             data={
-                "patch_num": batch.patch_id,
+                "patch_stem": batch.patch_id,
                 "preds": preds.cpu().numpy(),
                 "targets": targets.cpu().numpy(),
             }
