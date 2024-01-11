@@ -18,6 +18,10 @@ from torch_scatter import scatter
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
+# Fallback to eager for unsupported operations
+knn_graph = torch.compiler.disable(knn_graph)
+knn_interpolate = torch.compiler.disable(knn_interpolate)
+
 
 class PyGRandLANet(torch.nn.Module):
     def __init__(

@@ -81,7 +81,7 @@ def train(config: DictConfig) -> Trainer:
 
     if config.task.get("compile", False):
         # see https://pytorch-geometric.readthedocs.io/en/latest/tutorial/compile.html
-        model = torch_geometric.compile(model, dynamic=True)
+        model.model = torch_geometric.compile(model.model, dynamic=True)
 
     # Init lightning callbacks
     callbacks: List[Callback] = []
