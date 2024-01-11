@@ -1,0 +1,14 @@
+.hydra
+.vscode
+htmlcov
+
+# Caches
+**/__pycache__
+.pytest_cache
+
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info
+*.egg
