@@ -9,6 +9,7 @@ from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 from torch_geometric.nn.pool import global_mean_pool
+from torchmetrics import Accuracy
 from myria3d.metrics.confusion_matrix import save_confusion_matrix
 from myria3d.metrics.polygon_metrics import make_polygon_metrics
 
@@ -22,6 +23,7 @@ MODEL_ZOO = [PyGRandLANet]
 import pandas as pd
 
 PREDICTION_FILE = Path(os.getcwd()) / "./predictions.csv"
+TOP_K_LIST = [1, 2, 3, 4, 5]
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
@@ -87,9 +89,26 @@ class Model(LightningModule):
             self.val_iou = self.hparams.iou()
             self.train_cm = ConfusionMatrix(num_classes)
             self.val_cm = ConfusionMatrix(num_classes)
+
+            self.val_top_accuracies = [
+                Accuracy(num_classes=num_classes, average="micro", top_k=top_k)
+                for top_k in TOP_K_LIST
+            ]
+            self.val_top_accuracies_by_class = [
+                Accuracy(num_classes=num_classes, average="none", top_k=top_k)
+                for top_k in TOP_K_LIST
+            ]
         if stage == "test":
             self.test_iou = self.hparams.iou()
             self.test_cm = ConfusionMatrix(num_classes)
+            self.test_top_accuracies = [
+                Accuracy(num_classes=num_classes, average="micro", top_k=top_k)
+                for top_k in TOP_K_LIST
+            ]
+            self.test_top_accuracies_by_class = [
+                Accuracy(num_classes=num_classes, average="none", top_k=top_k)
+                for top_k in TOP_K_LIST
+            ]
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
@@ -246,6 +265,7 @@ class Model(LightningModule):
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         self.val_cm = self.val_cm.to(logits.device)
+
         loss = self.criterion(logits, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
 
@@ -253,6 +273,13 @@ class Model(LightningModule):
         self.val_iou = self.val_iou.to(preds.device)
         self.val_iou(preds, targets)
         self.val_cm(preds, targets)
+        for idx in range(len(TOP_K_LIST)):
+            self.val_top_accuracies[idx] = self.val_top_accuracies[idx].to(logits.device)
+            self.val_top_accuracies_by_class[idx] = self.val_top_accuracies_by_class[idx].to(
+                logits.device
+            )
+            self.val_top_accuracies[idx](logits, targets)
+            self.val_top_accuracies_by_class[idx](logits, targets)
 
         self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": targets}
@@ -265,7 +292,6 @@ class Model(LightningModule):
 
         """
         self.val_iou.compute()
-
         miou = self.val_cm.miou()
         oa = self.val_cm.oa()
         macc = self.val_cm.macc()
@@ -273,9 +299,7 @@ class Model(LightningModule):
         self.log("val/miou", miou, prog_bar=True)
         self.log("val/oa", oa, prog_bar=True)
         self.log("val/macc", macc, prog_bar=True)
-        # for iou, seen, name in zip(*self.val_cm.iou(), self.class_names):
-        #     if seen:
-        #         self.log(f"val/iou_{name}", iou, prog_bar=True)
+
         with tempfile.TemporaryDirectory() as tmpdir:
             path_precision, path_recall = save_confusion_matrix(
                 self.val_cm.confmat, tmpdir, self.class_names
@@ -285,7 +309,19 @@ class Model(LightningModule):
 
         if hasattr(self, "experiment"):
             self.log_all_cms(phase="Val", cm_object=self.val_cm)
+
+        for top_k, top_acc, top_acc_by_class in zip(
+            TOP_K_LIST, self.val_top_accuracies, self.val_top_accuracies_by_class
+        ):
+            self.log(f"val/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
+            accuracies = top_acc_by_class.compute()
+            for idx, cn in enumerate(self.class_names):
+                self.log(f"val/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=True)
+
+        # reset
         self.val_cm.reset()
+        [m.reset() for m in self.val_top_accuracies]
+        [m.reset() for m in self.val_top_accuracies_by_class]
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -301,6 +337,14 @@ class Model(LightningModule):
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         self.test_cm = self.test_cm.to(logits.device)
+        for idx in range(len(TOP_K_LIST)):
+            self.test_top_accuracies[idx] = self.test_top_accuracies[idx].to(logits.device)
+            self.test_top_accuracies_by_class[idx] = self.test_top_accuracies_by_class[idx].to(
+                logits.device
+            )
+            self.test_top_accuracies[idx](logits, targets)
+            self.test_top_accuracies_by_class[idx](logits, targets)
+
         loss = self.criterion(logits, targets)
         self.log("test/loss", loss, on_step=True, on_epoch=True)
 
@@ -350,7 +394,19 @@ class Model(LightningModule):
             cm_polygon_path = make_polygon_metrics(PREDICTION_FILE)
             self.experiment.log_image(cm_polygon_path, name="Polygon CM")
 
+        for top_k, top_acc, top_acc_by_class in zip(
+            TOP_K_LIST, self.test_top_accuracies, self.test_top_accuracies_by_class
+        ):
+            self.log(f"test/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
+            accuracies = top_acc_by_class.compute()
+            for idx, cn in enumerate(self.class_names):
+                self.log(f"test/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=True)
+
+        # reset
         self.test_cm.reset()
+        [m.reset() for m in self.test_top_accuracies]
+        [m.reset() for m in self.test_top_accuracies_by_class]
+
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
