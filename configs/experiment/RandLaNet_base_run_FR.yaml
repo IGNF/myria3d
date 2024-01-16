@@ -1,6 +1,6 @@
 # @package _global_
 defaults:
-  - override /datamodule/transforms/augmentations: light.yaml
+  - override /datamodule/transforms/augmentations: forest_heavy.yaml
 
 logger:
   comet:

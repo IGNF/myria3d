@@ -1,0 +1,25 @@
+# XY flips
+defaults:
+  - light.yaml
+
+# no rotation contrary to 
+# https://ris.utwente.nl/ws/files/217410962/isprs_annals_V_2_2020_203_2020.pdf
+# since we operate on patch directly
+  # _target_: torch_geometric.transforms.RandomScale
+
+RandomScale:
+  _target_: myria3d.pctl.transforms.transforms.RandomScale
+  _args_:
+    - [0.8, 1.25]
+
+RandomJitter:
+  _target_: torch_geometric.transforms.RandomJitter
+  _args_:
+    - 0.002
+    # - 0.05=5cm divisé par 25 => 0.002
+
+RandomTranslate:
+  _target_: myria3d.pctl.transforms.transforms.RandomTranslate
+  _args_:
+    - 0.04
+    # 1m divisé par 25 => 0.04

@@ -1,6 +1,7 @@
 import math
 import re
-from typing import Dict, List
+from typing import Dict, List, Tuple
+import random
 
 import numpy as np
 import torch
@@ -157,6 +158,59 @@ class NormalizePos(BaseTransform):
 
     def __repr__(self):
         return "{}()".format(self.__class__.__name__)
+
+
+class RandomTranslate(BaseTransform):
+    """
+    shift randomly x and y
+    """
+
+    def __init__(self, max_random_shift):
+        self.max_random_shift = max_random_shift
+
+    def __call__(self, data):
+        scale_x = random.uniform(-self.max_random_shift, self.max_random_shift)
+        scale_y = random.uniform(-self.max_random_shift, self.max_random_shift)
+        data.pos[:, 0] = data.pos[:, 0] + scale_x
+        data.pos[:, 1] = data.pos[:, 1] + scale_y
+        return data
+
+
+# ugly hgack to deal with hydra quickly...
+class RandomScale(BaseTransform):
+    r"""Scales node positions by a randomly sampled factor :math:`s` within a
+    given interval, *e.g.*, resulting in the transformation matrix
+    (functional name: :obj:`random_scale`).
+
+    .. math::
+        \begin{bmatrix}
+            s & 0 & 0 \\
+            0 & s & 0 \\
+            0 & 0 & s \\
+        \end{bmatrix}
+
+    for three-dimensional positions.
+
+    Args:
+        scales (tuple): scaling factor interval, e.g. :obj:`(a, b)`, then scale
+            is randomly sampled from the range
+            :math:`a \leq \mathrm{scale} \leq b`.
+    """
+
+    def __init__(self, scales: Tuple[float, float]) -> None:
+        scales = [scales[0], scales[1]]
+        assert isinstance(scales, (tuple, list)) and len(scales) == 2
+        self.scales = scales
+
+    def __call__(self, data: Data) -> Data:
+        assert data.pos is not None
+
+        scale = random.uniform(*self.scales)
+        data.pos = data.pos * scale
+        return data
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.scales})"
 
 
 class TargetTransform(BaseTransform):
