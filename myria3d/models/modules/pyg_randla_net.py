@@ -21,6 +21,8 @@ from torch_scatter import scatter, scatter_max, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
+from myria3d.pctl.transforms.transforms import NUM_TREE_FEATURES, NUM_TREE_STATISTICS
+
 
 class PyGRandLANet(torch.nn.Module):
     def __init__(
@@ -41,19 +43,22 @@ class PyGRandLANet(torch.nn.Module):
         # Authors use 8, which is a bottleneck
         # for the final MLP, and also when num_classes>8
         # or num_features>8.
-        d_bottleneck = max(32, num_classes, num_features)
+        d_bottleneck = max(32, num_classes, num_features + NUM_TREE_FEATURES)
 
-        self.fc0 = Linear(num_features, d_bottleneck)
+        self.fc0 = Linear(num_features + NUM_TREE_FEATURES, d_bottleneck)
         self.block1 = DilatedResidualBlock(num_neighbors, d_bottleneck, 32)
         self.block2 = DilatedResidualBlock(num_neighbors, 32, 128)
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
         self.mlp_summit = SharedMLP([512, 512])
-        self.aggregation_block = DilatedResidualBlock(32, 512, 512)
-        self.mlp_classif = SharedMLP([512, 64, 32], dropout=[0.0, 0.5])
+        self.aggregation_block = DilatedResidualBlock(32, 512 + NUM_TREE_STATISTICS, 512)
+        self.mlp_classif = SharedMLP([512 + NUM_TREE_STATISTICS, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
-    def forward(self, x, pos, batch, ptr, cluster_id):
+    def forward(self, x, pos, batch, ptr, cluster_id, tree_features, tree_statistics_repeated):
+        # Add tree_features to x
+        x = torch.concat([x, tree_features], dim=1)
+
         # This works since we reordered the trees from 0 to n-1. Hence the +1
         num_of_trees = scatter_max(cluster_id, batch)[0] + 1
         cumsums = torch.concat(
@@ -67,6 +72,8 @@ class PyGRandLANet(torch.nn.Module):
         x = x[reordering]
         pos = pos[reordering]
         cluster_id = cluster_id[reordering]
+        tree_statistics_repeated = tree_statistics_repeated[reordering]
+
         cluster_ptr = torch.concat(
             [
                 torch.zeros(1, device=batch.device),
@@ -93,19 +100,27 @@ class PyGRandLANet(torch.nn.Module):
 
         b4_out = self.block4(*b3_out_decimated)
 
-        pre_embeddings = self.mlp_summit(b4_out[0])
+        pre_tree_embeddings = self.mlp_summit(b4_out[0])
 
         # Max pooling each tree
-        trees_embeddings = global_max_pool(pre_embeddings, b4_out[2])
+        trees_embeddings = global_max_pool(pre_tree_embeddings, b4_out[2])
+
+        # Here we add tree statistics directly to tree_embeddings.
+        # We repeated them to be sure that they follow the same order than x and cluster_id after reordering
+        # therefore we must take any values using scater (they are all equal...)
+        tree_statistics = global_max_pool(tree_statistics_repeated, cluster_id)
+        trees_embeddings = torch.concat([trees_embeddings, tree_statistics], dim=1)
         trees_positions = global_mean_pool(b4_out[1], b4_out[2])
         batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
-
         # Aggregation layer, recycling RandLA-Net aggregation bloc, before pooling.
         # k=16 neighboors, and a double Local Feature Aggregation, should be enough to capture all trees info.
         contextualized_trees_embeddings, _, _ = self.aggregation_block(
             trees_embeddings, trees_positions, batch_trees
         )
-        cloud_embeddings = global_max_pool(contextualized_trees_embeddings, batch_trees)
+        pre_cloud_embeddings = global_max_pool(contextualized_trees_embeddings, batch_trees)
+        # statistics at the cloud level for the final inference
+        cloud_average_statistics = global_mean_pool(tree_statistics, batch_trees)
+        cloud_embeddings = torch.concat([pre_cloud_embeddings, cloud_average_statistics], dim=1)
 
         x = self.mlp_classif(cloud_embeddings)
         logits = self.fc_classif(x)

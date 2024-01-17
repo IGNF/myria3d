@@ -2,6 +2,7 @@ defaults:
   - preparations: points_budget.yaml
   - augmentations: none.yaml
   - normalizations: default.yaml
+  - features: tree_statistics.yaml
 
 # turn the config dict into ListConfig that will be fed directly to a Compose object
 
@@ -14,3 +15,5 @@ preparations_eval_list: "${oc.dict.values: datamodule.transforms.preparations.ev
 preparations_predict_list: "${oc.dict.values: datamodule.transforms.preparations.predict}"
 
 normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"
+
+features_list: "${oc.dict.values: datamodule.transforms.features}"

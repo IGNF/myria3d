@@ -223,6 +223,99 @@ class RandomScale(BaseTransform):
         return f"{self.__class__.__name__}({self.scales})"
 
 
+def split_idx_by_dim(dim_array):
+    """
+    Returns a sequence of arrays of indices of elements sharing the same value in dim_array
+    Groups are ordered by ascending value.
+    """
+    idx = np.argsort(dim_array)
+    sorted_dim_array = dim_array[idx]
+    group_idx = np.array_split(idx, np.where(np.diff(sorted_dim_array) != 0)[0] + 1)
+    return group_idx
+
+
+def cart2pol(x, y):
+    rho = torch.sqrt(x**2 + y**2)
+    phi = torch.arctan2(y, x)
+    return (rho, phi)
+
+
+NUM_TREE_STATISTICS = 8
+NUM_TREE_FEATURES = 4
+
+
+class TreeStatistics(BaseTransform):
+    """
+    Computes tree-level statistics.
+    """
+
+    def __call__(self, data):
+        # We first prepare the data by removing ClusterID==0 -> the non-tree elements
+        data = subsample_data(data, len(data.x), data.cluster_id != 0)
+
+        # Then we handcraft tree features
+        tree_statistics = torch.zeros((len(data.x), NUM_TREE_STATISTICS))
+        tree_features = torch.zeros((len(data.x), NUM_TREE_FEATURES))
+
+        for tree_idx in split_idx_by_dim(data.cluster_id):
+            tree_pos = data.pos[tree_idx]
+            x = tree_pos[:, 0]
+            y = tree_pos[:, 1]
+            z = tree_pos[:, 2]
+
+            # tree stats
+            height = torch.max(z) - torch.min(z)
+
+            # position within tree
+            relative_z = (z - torch.min(z)) / height
+            relative_z_mean = torch.mean(relative_z)
+            relative_z_std = torch.std(relative_z)
+
+            # polar coordinates
+            rho, phi = cart2pol(x - torch.mean(x), y - torch.mean(y))
+            cos_phi = torch.cos(phi)
+            sin_phi = torch.sin(phi)
+
+            # more stats
+            rho_max = torch.max(rho)
+            relative_rho = rho / rho_max
+            relative_rho_mean = torch.mean(relative_rho)
+            relative_rho_std = torch.std(relative_rho)
+            approx_area = rho_max**2
+            approx_volume = height * approx_area
+
+            stats = (
+                torch.stack(
+                    [
+                        height,
+                        relative_z_mean,
+                        relative_z_std,
+                        rho_max,
+                        relative_rho_mean,
+                        relative_rho_std,
+                        approx_area,
+                        approx_volume,
+                    ]
+                )
+                .repeat(len(x))
+                .view(len(x), -1)
+            )
+            tree_statistics[tree_idx] = stats
+
+            features = torch.stack(
+                [
+                    relative_z,
+                    relative_rho,
+                    cos_phi,
+                    sin_phi,
+                ]
+            ).transpose(0, 1)
+            tree_features[tree_idx] = features
+        data.tree_statistics = tree_statistics
+        data.tree_features = tree_features
+        return data
+
+
 class TargetTransform(BaseTransform):
     """
     Make target vector based on input classification dictionnary.

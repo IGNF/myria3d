@@ -1,0 +1,6 @@
+# XY flips
+defaults:
+  - none.yaml
+
+TreeStatistics:
+  _target_: myria3d.pctl.transforms.transforms.TreeStatistics

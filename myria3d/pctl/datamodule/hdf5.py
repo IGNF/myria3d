@@ -68,6 +68,7 @@ class HDF5LidarDataModule(LightningDataModule):
         )
         self.augmentation_transform: TRANSFORMS_LIST = t.get("augmentations_list", [])
         self.normalization_transform: TRANSFORMS_LIST = t.get("normalizations_list", [])
+        self.features_transform: TRANSFORMS_LIST = t.get("features_list", [])
 
     @property
     def train_transform(self) -> CustomCompose:
@@ -75,15 +76,24 @@ class HDF5LidarDataModule(LightningDataModule):
             self.preparation_train_transform
             + self.normalization_transform
             + self.augmentation_transform
+            + self.features_transform
         )
 
     @property
     def eval_transform(self) -> CustomCompose:
-        return CustomCompose(self.preparation_eval_transform + self.normalization_transform)
+        return CustomCompose(
+            self.preparation_eval_transform
+            + self.normalization_transform
+            + self.features_transform
+        )
 
     @property
     def predict_transform(self) -> CustomCompose:
-        return CustomCompose(self.preparation_predict_transform + self.normalization_transform)
+        return CustomCompose(
+            self.preparation_predict_transform
+            + self.normalization_transform
+            + self.features_transform
+        )
 
     def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
