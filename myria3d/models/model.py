@@ -164,6 +164,8 @@ class Model(LightningModule):
         # By default, lightning executes validation step sanity checks
         # before training starts, so we need to make sure val cm does not store it.
         self.val_cm.reset()
+        [m.reset() for m in self.val_top_accuracies]
+        [m.reset() for m in self.val_top_accuracies_by_class]
 
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
         """Training step.
@@ -313,6 +315,8 @@ class Model(LightningModule):
         for top_k, top_acc, top_acc_by_class in zip(
             TOP_K_LIST, self.val_top_accuracies, self.val_top_accuracies_by_class
         ):
+            top_acc = top_acc.to(self.device)
+            top_acc_by_class = top_acc.to(self.device)
             self.log(f"val/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
             accuracies = top_acc_by_class.compute()
             for idx, cn in enumerate(self.class_names):
@@ -397,6 +401,8 @@ class Model(LightningModule):
         for top_k, top_acc, top_acc_by_class in zip(
             TOP_K_LIST, self.test_top_accuracies, self.test_top_accuracies_by_class
         ):
+            top_acc = top_acc.to(self.device)
+            top_acc_by_class = top_acc.to(self.device)
             self.log(f"test/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
             accuracies = top_acc_by_class.compute()
             for idx, cn in enumerate(self.class_names):
@@ -406,7 +412,6 @@ class Model(LightningModule):
         self.test_cm.reset()
         [m.reset() for m in self.test_top_accuracies]
         [m.reset() for m in self.test_top_accuracies_by_class]
-
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
