@@ -25,6 +25,9 @@ train:
     _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
     _args_:
       - 40000
+  
+  CopySampledPos:
+    _target_: myria3d.pctl.transforms.transforms.CopySampledPos
 
   Center:
     _target_: torch_geometric.transforms.Center

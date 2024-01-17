@@ -51,8 +51,11 @@ class PyGRandLANet(torch.nn.Module):
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
         self.mlp_summit = SharedMLP([512, 512])
-        self.aggregation_block = DilatedResidualBlock(32, 512 + NUM_TREE_STATISTICS, 512)
-        self.mlp_classif = SharedMLP([512 + NUM_TREE_STATISTICS, 64, 32], dropout=[0.0, 0.5])
+        self.mlp_tree_statistics = SharedMLP(
+            [NUM_TREE_STATISTICS, 2 * NUM_TREE_STATISTICS, 4 * NUM_TREE_STATISTICS]
+        )
+        self.aggregation_block = DilatedResidualBlock(32, 512 + 4 * NUM_TREE_STATISTICS, 512)
+        self.mlp_classif = SharedMLP([512 + 4 * NUM_TREE_STATISTICS, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
     def forward(self, x, pos, batch, ptr, cluster_id, tree_features, tree_statistics_repeated):
@@ -109,7 +112,8 @@ class PyGRandLANet(torch.nn.Module):
         # We repeated them to be sure that they follow the same order than x and cluster_id after reordering
         # therefore we must take any values using scater (they are all equal...)
         tree_statistics = global_max_pool(tree_statistics_repeated, cluster_id)
-        trees_embeddings = torch.concat([trees_embeddings, tree_statistics], dim=1)
+        tree_statistics_embeddings = self.mlp_tree_statistics(tree_statistics)
+        trees_embeddings = torch.concat([trees_embeddings, tree_statistics_embeddings], dim=1)
         trees_positions = global_mean_pool(b4_out[1], b4_out[2])
         batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
         # Aggregation layer, recycling RandLA-Net aggregation bloc, before pooling.
@@ -119,7 +123,7 @@ class PyGRandLANet(torch.nn.Module):
         )
         pre_cloud_embeddings = global_max_pool(contextualized_trees_embeddings, batch_trees)
         # statistics at the cloud level for the final inference
-        cloud_average_statistics = global_mean_pool(tree_statistics, batch_trees)
+        cloud_average_statistics = global_mean_pool(tree_statistics_embeddings, batch_trees)
         cloud_embeddings = torch.concat([pre_cloud_embeddings, cloud_average_statistics], dim=1)
 
         x = self.mlp_classif(cloud_embeddings)
