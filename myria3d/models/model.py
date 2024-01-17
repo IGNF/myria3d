@@ -320,7 +320,7 @@ class Model(LightningModule):
             self.log(f"val/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
             accuracies = top_acc_by_class.compute()
             for idx, cn in enumerate(self.class_names):
-                self.log(f"val/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=True)
+                self.log(f"val/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=False)
 
         # reset
         self.val_cm.reset()
@@ -406,7 +406,7 @@ class Model(LightningModule):
             self.log(f"test/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
             accuracies = top_acc_by_class.compute()
             for idx, cn in enumerate(self.class_names):
-                self.log(f"test/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=True)
+                self.log(f"test/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=False)
 
         # reset
         self.test_cm.reset()
