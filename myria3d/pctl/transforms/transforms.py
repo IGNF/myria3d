@@ -240,7 +240,7 @@ def cart2pol(x, y):
     return (rho, phi)
 
 
-NUM_TREE_STATISTICS = 8
+NUM_TREE_STATISTICS = 9
 NUM_TREE_FEATURES = 4
 
 
@@ -281,8 +281,11 @@ class TreeStatistics(BaseTransform):
             relative_rho = rho / rho_max
             relative_rho_mean = torch.mean(relative_rho)
             relative_rho_std = torch.std(relative_rho)
-            approx_area = rho_max**2
+            approx_area = np.pi * rho_max * 2
             approx_volume = height * approx_area
+
+            # True Altitude
+            altitude = data.copies["pos_sampled_copy"][:, 2].min() / 2500
 
             stats = (
                 torch.stack(
@@ -295,6 +298,7 @@ class TreeStatistics(BaseTransform):
                         relative_rho_std,
                         approx_area,
                         approx_volume,
+                        altitude,
                     ]
                 )
                 .repeat(len(x))
@@ -302,14 +306,7 @@ class TreeStatistics(BaseTransform):
             )
             tree_statistics[tree_idx] = stats
 
-            features = torch.stack(
-                [
-                    relative_z,
-                    relative_rho,
-                    cos_phi,
-                    sin_phi,
-                ]
-            ).transpose(0, 1)
+            features = torch.stack([relative_z, relative_rho, cos_phi, sin_phi]).transpose(0, 1)
             tree_features[tree_idx] = features
         data.tree_statistics = tree_statistics
         data.tree_features = tree_features
