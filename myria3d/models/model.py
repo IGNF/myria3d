@@ -316,7 +316,7 @@ class Model(LightningModule):
             TOP_K_LIST, self.val_top_accuracies, self.val_top_accuracies_by_class
         ):
             top_acc = top_acc.to(self.device)
-            top_acc_by_class = top_acc.to(self.device)
+            top_acc_by_class = top_acc_by_class.to(self.device)
             self.log(f"val/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
             accuracies = top_acc_by_class.compute()
             for idx, cn in enumerate(self.class_names):
@@ -402,7 +402,7 @@ class Model(LightningModule):
             TOP_K_LIST, self.test_top_accuracies, self.test_top_accuracies_by_class
         ):
             top_acc = top_acc.to(self.device)
-            top_acc_by_class = top_acc.to(self.device)
+            top_acc_by_class = top_acc_by_class.to(self.device)
             self.log(f"test/top-{top_k}-acc-micro", top_acc.compute(), prog_bar=True)
             accuracies = top_acc_by_class.compute()
             for idx, cn in enumerate(self.class_names):
