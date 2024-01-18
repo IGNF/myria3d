@@ -122,7 +122,15 @@ class Model(LightningModule):
             torch.Tensor (B*N,C): logits
 
         """
-        logits = self.model(batch.x, batch.pos, batch.batch, batch.ptr, batch.cluster_id, batch.tree_features, batch.tree_statistics)
+        logits = self.model(
+            batch.x,
+            batch.pos,
+            batch.batch,
+            batch.ptr,
+            batch.cluster_id,
+            batch.tree_features,
+            batch.tree_statistics,
+        )
         if self.training or "copies" not in batch:
             # In training mode and for validation, we directly optimize on subsampled points, for
             # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
@@ -169,6 +177,9 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
         """
         targets, logits = self.forward(batch)
+        # TODO: remove supervision for samples where cluster_id==0 for all points.
+        # do this by creating a float in a transform in tree_statistics.yaml, and filtering both targets and logits
+        # but do this only during training to have comparable metrics.
         self.criterion = self.criterion.to(logits.device)
         self.train_cm = self.train_cm.to(logits.device)
         loss = self.criterion(logits, targets)

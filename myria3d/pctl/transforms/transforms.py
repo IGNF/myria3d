@@ -240,7 +240,7 @@ def cart2pol(x, y):
     return (rho, phi)
 
 
-NUM_TREE_STATISTICS = 9
+NUM_TREE_STATISTICS = 8
 NUM_TREE_FEATURES = 4
 
 
@@ -250,14 +250,19 @@ class TreeStatistics(BaseTransform):
     """
 
     def __call__(self, data):
-        # We first prepare the data by removing ClusterID==0 -> the non-tree elements
-        data = subsample_data(data, len(data.x), data.cluster_id != 0)
+        # We cannot remove points that are not trees without changing the evaluation metrics
+        # In a latest stage we will remove it  ClusterID==0 -> the non-tree elements
+        # data = subsample_data(data, len(data.x), data.cluster_id != 0)
 
         # Then we handcraft tree features
         tree_statistics = torch.zeros((len(data.x), NUM_TREE_STATISTICS))
         tree_features = torch.zeros((len(data.x), NUM_TREE_FEATURES))
 
         for tree_idx in split_idx_by_dim(data.cluster_id):
+            if data.cluster_id[tree_idx][0] == 0:
+                # Do not set the statistics and features for cluster_id==0 i.e. non-tree elements
+                continue
+
             tree_pos = data.pos[tree_idx]
             x = tree_pos[:, 0]
             y = tree_pos[:, 1]
@@ -284,8 +289,8 @@ class TreeStatistics(BaseTransform):
             approx_area = np.pi * rho_max * 2
             approx_volume = height * approx_area
 
-            # True Altitude
-            altitude = data.copies["pos_sampled_copy"][:, 2].min() / 2500
+            # True Altitude --> this would be better with some data augmentation!!
+            # altitude = data.copies["pos_sampled_copy"][:, 2].min() / 2500
 
             stats = (
                 torch.stack(
@@ -298,7 +303,7 @@ class TreeStatistics(BaseTransform):
                         relative_rho_std,
                         approx_area,
                         approx_volume,
-                        altitude,
+                        # altitude,
                     ]
                 )
                 .repeat(len(x))
@@ -308,6 +313,7 @@ class TreeStatistics(BaseTransform):
 
             features = torch.stack([relative_z, relative_rho, cos_phi, sin_phi]).transpose(0, 1)
             tree_features[tree_idx] = features
+
         data.tree_statistics = tree_statistics
         data.tree_features = tree_features
         return data
