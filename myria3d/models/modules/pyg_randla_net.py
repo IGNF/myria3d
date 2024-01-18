@@ -19,6 +19,8 @@ from torch_scatter import scatter
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
+ALTITUDE_EMBEDDING_DIM = 16
+
 
 class PyGRandLANet(torch.nn.Module):
     def __init__(
@@ -50,10 +52,11 @@ class PyGRandLANet(torch.nn.Module):
         # self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
         # self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
         # self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
-        self.mlp_classif = SharedMLP([512, 64, 32], dropout=[0.0, 0.5])
+        self.mlp_altitude = SharedMLP([1, ALTITUDE_EMBEDDING_DIM, ALTITUDE_EMBEDDING_DIM])
+        self.mlp_classif = SharedMLP([512 + ALTITUDE_EMBEDDING_DIM, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
-    def forward(self, x, pos, batch, ptr):
+    def forward(self, x, pos, batch, ptr, altitude):
         x = x if x is not None else pos
 
         b1_out = self.block1(self.fc0(x), pos, batch)
@@ -73,8 +76,9 @@ class PyGRandLANet(torch.nn.Module):
         batch = b4_out_decimated[2]
 
         cloud_embeddings = global_mean_pool(feats, batch) + global_max_pool(feats, batch)
+        altitude_embeddings = self.mlp_altitude(altitude.view((cloud_embeddings.size(0),1)))
 
-        x = self.mlp_classif(cloud_embeddings)
+        x = self.mlp_classif(torch.concat([cloud_embeddings, altitude_embeddings], dim=1))
         logits = self.fc_classif(x)
 
         if self.return_logits:

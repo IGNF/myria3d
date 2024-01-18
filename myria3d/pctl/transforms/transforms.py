@@ -170,19 +170,34 @@ class NormalizePos(BaseTransform):
         return "{}()".format(self.__class__.__name__)
 
 
+class AddAltitude(BaseTransform):
+    """
+    Add altitude, augmenting it with a random factor (in meters) if demanded
+    """
+
+    def __call__(self, data):
+        data.altitude = torch.Tensor([data.copies["pos_copy"][:, 2].min()])
+        return data
+
+
 class RandomTranslate(BaseTransform):
     """
     shift randomly x and y
     """
 
-    def __init__(self, max_random_shift):
-        self.max_random_shift = max_random_shift
+    def __init__(self, xy_shift_normalized=0.04, altitude_shift_meters=100):
+        self.xy_shift = xy_shift_normalized
+        self.altitude_shift = altitude_shift_meters
 
     def __call__(self, data):
-        scale_x = random.uniform(-self.max_random_shift, self.max_random_shift)
-        scale_y = random.uniform(-self.max_random_shift, self.max_random_shift)
-        data.pos[:, 0] = data.pos[:, 0] + scale_x
-        data.pos[:, 1] = data.pos[:, 1] + scale_y
+        shift_x = random.uniform(-self.xy_shift, self.xy_shift)
+        shift_y = random.uniform(-self.xy_shift, self.xy_shift)
+        shift_altitude = random.uniform(-self.altitude_shift, self.altitude_shift)
+        data.pos[:, 0] = data.pos[:, 0] + shift_x
+        data.pos[:, 1] = data.pos[:, 1] + shift_y
+        # altitude can only be above zero.
+        # we normalize on the fly !
+        data.altitude = torch.maximum(torch.zeros((1)), data.altitude + shift_altitude) / 2500
         return data
 
 
