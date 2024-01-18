@@ -11,6 +11,12 @@ train:
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
 
+  CopyFullPos:
+    _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  AddAltitude:
+    _target_: myria3d.pctl.transforms.transforms.AddAltitude
+
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling
     _args_:
@@ -43,6 +49,9 @@ eval:
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 
+  AddAltitude:
+    _target_: myria3d.pctl.transforms.transforms.AddAltitude
+
   CopyFullPreparedTargets:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPreparedTargets
 
@@ -74,6 +83,9 @@ predict:
 
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
+
+  AddAltitude:
+    _target_: myria3d.pctl.transforms.transforms.AddAltitude
 
   GridSampling:
     _target_: torch_geometric.transforms.GridSampling

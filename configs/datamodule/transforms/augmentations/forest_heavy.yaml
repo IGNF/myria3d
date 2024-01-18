@@ -20,6 +20,6 @@ RandomJitter:
 
 RandomTranslate:
   _target_: myria3d.pctl.transforms.transforms.RandomTranslate
-  _args_:
-    - 0.04
-    # 1m divisé par 25 => 0.04
+  altitude_shift_meters: 100
+  xy_shift_normalized: 0.04
+  # 1m divisé par 25 => 0.04
