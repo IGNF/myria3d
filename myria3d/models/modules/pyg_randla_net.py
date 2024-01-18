@@ -21,6 +21,8 @@ from torch_scatter import scatter, scatter_max, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
+ALTITUDE_EMBEDDING_DIM = 16
+
 
 class PyGRandLANet(torch.nn.Module):
     def __init__(
@@ -48,12 +50,11 @@ class PyGRandLANet(torch.nn.Module):
         self.block2 = DilatedResidualBlock(num_neighbors, 32, 128)
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
-        self.mlp_summit = SharedMLP([512, 512])
-        self.aggregation_block = DilatedResidualBlock(32, 512, 512)
-        self.mlp_classif = SharedMLP([512, 64, 32], dropout=[0.0, 0.5])
+        self.mlp_altitude = SharedMLP([1, ALTITUDE_EMBEDDING_DIM, ALTITUDE_EMBEDDING_DIM])
+        self.mlp_classif = SharedMLP([512 + ALTITUDE_EMBEDDING_DIM, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
-    def forward(self, x, pos, batch, ptr, cluster_id):
+    def forward(self, x, pos, batch, ptr, cluster_id, altitude):
         # This works since we reordered the trees from 0 to n-1. Hence the +1
         num_of_trees = scatter_max(cluster_id, batch)[0] + 1
         cumsums = torch.concat(
@@ -97,11 +98,11 @@ class PyGRandLANet(torch.nn.Module):
 
         # Max pooling each tree
         trees_embeddings = global_max_pool(pre_embeddings, b4_out[2])
-        batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
-
-        x = self.mlp_classif(trees_embeddings)
+        altitude_embeddings = self.mlp_altitude(altitude.view((trees_embeddings.size(0), 1)))
+        x = self.mlp_classif(torch.concat([trees_embeddings, altitude_embeddings], dim=1))
         tree_logits = self.fc_classif(x)
 
+        batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
         # get the logits back to the original points, in the right order.
         # First duplicate tree logits as many times as there are pts in each tree
         points_logits = tree_logits[cluster_id]

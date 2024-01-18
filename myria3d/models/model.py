@@ -123,7 +123,7 @@ class Model(LightningModule):
 
         """
         tree_logits, _batch_trees, points_logits_original_order = self.model(
-            batch.x, batch.pos, batch.batch, batch.ptr, batch.cluster_id
+            batch.x, batch.pos, batch.batch, batch.ptr, batch.cluster_id, batch.altitude
         )
         # one target per tree
         tree_targets = torch.take(batch.y, _batch_trees)
