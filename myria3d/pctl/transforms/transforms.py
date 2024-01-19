@@ -160,13 +160,16 @@ class NormalizePos(BaseTransform):
         return "{}()".format(self.__class__.__name__)
 
 
+ALTITUDE_NORMALIZATION_FACTOR = 2500
+
+
 class AddAltitude(BaseTransform):
     """
     Add altitude, augmenting it with a random factor (in meters) if demanded
     """
 
     def __call__(self, data):
-        data.altitude = torch.Tensor([data.copies["pos_copy"][:, 2].min()])
+        data.altitude = torch.Tensor([data.copies["pos_copy"][:, 2].min()]) / 2500
         return data
 
 
@@ -182,12 +185,11 @@ class RandomTranslate(BaseTransform):
     def __call__(self, data):
         shift_x = random.uniform(-self.xy_shift, self.xy_shift)
         shift_y = random.uniform(-self.xy_shift, self.xy_shift)
-        shift_altitude = random.uniform(-self.altitude_shift, self.altitude_shift)
+        shift_altitude = random.uniform(-self.altitude_shift, self.altitude_shift) / 2500
         data.pos[:, 0] = data.pos[:, 0] + shift_x
         data.pos[:, 1] = data.pos[:, 1] + shift_y
         # altitude can only be above zero.
-        # we normalize on the fly !
-        data.altitude = torch.maximum(torch.zeros((1)), data.altitude + shift_altitude) / 2500
+        data.altitude = torch.maximum(torch.zeros((1)), data.altitude + shift_altitude)
         return data
 
 
