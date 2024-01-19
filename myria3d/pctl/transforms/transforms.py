@@ -241,7 +241,6 @@ def cart2pol(x, y):
 
 
 NUM_TREE_STATISTICS = 8
-NUM_TREE_FEATURES = 4
 
 
 class TreeStatistics(BaseTransform):
@@ -256,7 +255,6 @@ class TreeStatistics(BaseTransform):
 
         # Then we handcraft tree features
         tree_statistics = torch.zeros((len(data.x), NUM_TREE_STATISTICS))
-        tree_features = torch.zeros((len(data.x), NUM_TREE_FEATURES))
 
         for tree_idx in split_idx_by_dim(data.cluster_id):
             if data.cluster_id[tree_idx][0] == 0:
@@ -289,9 +287,6 @@ class TreeStatistics(BaseTransform):
             approx_area = np.pi * rho_max * 2
             approx_volume = height * approx_area
 
-            # True Altitude --> this would be better with some data augmentation!!
-            # altitude = data.copies["pos_sampled_copy"][:, 2].min() / 2500
-
             stats = (
                 torch.stack(
                     [
@@ -303,7 +298,6 @@ class TreeStatistics(BaseTransform):
                         relative_rho_std,
                         approx_area,
                         approx_volume,
-                        # altitude,
                     ]
                 )
                 .repeat(len(x))
@@ -311,11 +305,7 @@ class TreeStatistics(BaseTransform):
             )
             tree_statistics[tree_idx] = stats
 
-            features = torch.stack([relative_z, relative_rho, cos_phi, sin_phi]).transpose(0, 1)
-            tree_features[tree_idx] = features
-
         data.tree_statistics = tree_statistics
-        data.tree_features = tree_features
         return data
 
 

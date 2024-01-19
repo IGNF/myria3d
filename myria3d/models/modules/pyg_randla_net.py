@@ -21,7 +21,7 @@ from torch_scatter import scatter, scatter_max, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
-from myria3d.pctl.transforms.transforms import NUM_TREE_FEATURES, NUM_TREE_STATISTICS
+from myria3d.pctl.transforms.transforms import NUM_TREE_STATISTICS
 
 
 class PyGRandLANet(torch.nn.Module):
@@ -43,25 +43,28 @@ class PyGRandLANet(torch.nn.Module):
         # Authors use 8, which is a bottleneck
         # for the final MLP, and also when num_classes>8
         # or num_features>8.
-        d_bottleneck = max(32, num_classes, num_features + NUM_TREE_FEATURES)
+        d_bottleneck = max(32, num_classes, num_features)
 
-        self.fc0 = Linear(num_features + NUM_TREE_FEATURES, d_bottleneck)
+        self.fc0 = Linear(num_features, d_bottleneck)
         self.block1 = DilatedResidualBlock(num_neighbors, d_bottleneck, 32)
         self.block2 = DilatedResidualBlock(num_neighbors, 32, 128)
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
         self.mlp_summit = SharedMLP([512, 512])
         self.mlp_tree_statistics = SharedMLP(
-            [NUM_TREE_STATISTICS, 2 * NUM_TREE_STATISTICS, 4 * NUM_TREE_STATISTICS]
+            [
+                NUM_TREE_STATISTICS,
+                4 * NUM_TREE_STATISTICS,
+                8 * NUM_TREE_STATISTICS,
+                4 * NUM_TREE_STATISTICS,
+            ],
+            dropout=[0.0, 0.0, 0.5],
         )
         self.aggregation_block = DilatedResidualBlock(32, 512 + 4 * NUM_TREE_STATISTICS, 512)
         self.mlp_classif = SharedMLP([512 + 4 * NUM_TREE_STATISTICS, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 
-    def forward(self, x, pos, batch, ptr, cluster_id, tree_features, tree_statistics_repeated):
-        # Add tree_features to x
-        x = torch.concat([x, tree_features], dim=1)
-
+    def forward(self, x, pos, batch, ptr, cluster_id, tree_statistics_repeated):
         # This works since we reordered the trees from 0 to n-1. Hence the +1
         num_of_trees = scatter_max(cluster_id, batch)[0] + 1
         cumsums = torch.concat(

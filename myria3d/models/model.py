@@ -123,13 +123,7 @@ class Model(LightningModule):
 
         """
         logits = self.model(
-            batch.x,
-            batch.pos,
-            batch.batch,
-            batch.ptr,
-            batch.cluster_id,
-            batch.tree_features,
-            batch.tree_statistics,
+            batch.x, batch.pos, batch.batch, batch.ptr, batch.cluster_id, batch.tree_statistics
         )
         if self.training or "copies" not in batch:
             # In training mode and for validation, we directly optimize on subsampled points, for
