@@ -41,6 +41,8 @@ def load_patches(patches_file):
 
 def load_predictions(prediction_file):
     df = pd.read_csv(prediction_file)
+    df = df.dropna()
+    df = df[~df["targets"].isin(["targets"])]  # remove duplicate header
     df["targets"] = df["targets"].apply(lambda t: CLASS_CODE2CLASS_NAME[t])
     df["preds"] = df["preds"].apply(lambda t: CLASS_CODE2CLASS_NAME[t])
     return df
