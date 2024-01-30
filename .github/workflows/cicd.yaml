@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Build docker image
-      run: docker build -t myria3d .
+      run: docker build --build-arg http_proxy=${{ secrets.PROXY_URL }} --build-arg https_proxy=${{ secrets.PROXY_URL }} -t myria3d .
 
     - name: Run pytest
       run: >
@@ -36,7 +36,7 @@ jobs:
         pytest -rA -v
         --ignore=actions-runner
 
-    # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable 
+    # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
     # sufficient shared memory when predicting on large files.
     - name: Example inference run via Docker with default config and checkpoint
       run: >
@@ -77,12 +77,12 @@ jobs:
       run: docker run myria3d python -m flake8
 
     # Everything ran so we tag the valid docker image to keep it
-    # This happens for push events, which are in particular 
+    # This happens for push events, which are in particular
     # triggered when a pull request is merged.
     - name: Tag the docker image with branch name
       if: github.event_name == 'push'
       run: |
-        docker tag myria3d:latest myria3d:${{github.ref_name}} 
+        docker tag myria3d:latest myria3d:${{github.ref_name}}
         docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
         # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
 
@@ -101,7 +101,7 @@ jobs:
 
     - name: push main docker on nexus (tagged with a date)
       # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
-      if: ((github.ref_name == 'main') && (github.event_name == 'push')) 
+      if: ((github.ref_name == 'main') && (github.event_name == 'push'))
       run: |
         docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.version}}-${{steps.tag.outputs.date}}
         docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
