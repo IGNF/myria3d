@@ -3,10 +3,12 @@ FROM mambaorg/micromamba:focal-cuda-11.3.1
 
 WORKDIR /app
 
-# use chown to prevent permission issues
-COPY --chown=$MAMBA_USER:$MAMBA_USER . .
-
 COPY environment.yml environment.yml
+
+# Switching to root does not seem necessary in the general case, but the github ci/cd process
+# does not seem to work without (rresults in a permission error when running pip packages
+# installation similar to https://github.com/mamba-org/micromamba-docker/issues/356)
+USER root
 
 RUN micromamba env create -f /app/environment.yml
 
@@ -17,6 +19,9 @@ ENV LD_LIBRARY_PATH="/opt/conda/envs/myria3d/lib/:$LD_LIBRARY_PATH"
 
 # Check success of environment creation.
 RUN python -c "import torch_geometric;"
+
+# use chown to prevent permission issues
+COPY . .
 
 # locate proj
 ENV PROJ_LIB=/opt/conda/envs/myria3d/share/proj/
