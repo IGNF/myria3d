@@ -64,11 +64,11 @@ class Model(LightningModule):
         # it also allows to access params with 'self.hparams' attribute
         self.save_hyperparameters(ignore=["criterion"])
 
-        neural_net_class = get_neural_net_class(self.hparams.neural_net_class_name)
-        self.model = neural_net_class(**self.hparams.neural_net_hparams)
+        neural_net_class = get_neural_net_class(kwargs.get("neural_net_class_name"))
+        self.model = neural_net_class(**kwargs.get("neural_net_hparams"))
 
         self.softmax = nn.Softmax(dim=1)
-        self.criterion = self.hparams.criterion
+        self.criterion = kwargs.get("criterion")
 
     def on_fit_start(self) -> None:
         self.criterion = self.criterion.to(self.device)
