@@ -8,22 +8,40 @@ channels:
   - comet_ml
   - conda-forge
   - anaconda
+  - pytorch
+  - comet_ml
+  - pyg
 dependencies:
   - python=3.9.*
   - pip
-  # --------- Deep Learning --------- #
-  - pytorch=2.1
-  - pytorch-cuda=11.8
-  - torchvision=0.16
-  - lightning=2.0
-  - torchmetrics=0.11
-  - pyg=2.4
   # --------- data formats --------- #
   - h5py
+  - numpy
+  # --------- Deep Learning --------- #
+  # cudatoolkit to specify the cuda driver in the conda env
+  - conda-forge::cudatoolkit=11.3.1 # single equal sign there, not a typo
+  - pytorch::pytorch==1.11.0
+  - pytorch::torchvision==0.12.0
+  - conda-forge::pytorch-lightning==1.5.9
+  - conda-forge::torchmetrics==0.7.*
+  - comet_ml::comet_ml==3.31.*
+  - conda-forge::urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
+  - pyg::pytorch-cluster
+  - pyg::pytorch-scatter
+  - pyg::pytorch-sparse
+  - pyg::pyg==2.1.0
+    # Nota: if libcusparse.so.11. errors occur, run
+    # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH"
+    # ou
+    # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH"
+    # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
   # --------- geo --------- #
-  - pygeos
-  - shapely
+  - pdal
   - python-pdal
+  - pyproj
+    # --------- Visualization --------- #
+  - pandas
+  - matplotlib
   # --------- loggers --------- #
   - comet_ml=3.35
     # --------- Visualization --------- #
@@ -44,28 +62,17 @@ dependencies:
   - sh # for running bash commands in some tests
   - seaborn # used in some callbacks
   - pudb # debugger
+    # # --------- Documentation --------- #
+  - sphinx==4.5.*
+  - recommonmark==0.7.*
+  - sphinx_rtd_theme==1.0.*
+  - docutils==0.17
+  - rstcheck==3.3.*  # RST Linter
   - pip:
-      # Extra index may need to be on first line 
-      - urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
-      # Wheels for torch-geometric optionnal dependencies
-      - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.3%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
-      - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_scatter-2.1.2%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
-      - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_sparse-0.6.18%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
-      # Nota: if libcusparse.so.11. errors occur, run
-      # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH" 
-      # ou
-      # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH" 
-      # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
       # --------- hydra configs --------- #
-      - hydra-core==1.1.*
-      - hydra-colorlog==1.1.*
-      # # --------- Documentation --------- #
-      - sphinx==4.5.*
-      - sphinx_rtd_theme==1.0.*
-      - myst_parser==0.17.*
-      - sphinx_paramlinks==0.5.*
-      - recommonmark==0.7.*
-      - sphinxnotes-mock==1.0.0b0  # still a beta
-      - docutils==0.17
-      - rstcheck==3.3.*  # RST Linter
-      - pyproj==3.6.*
+    - hydra-core==1.1.*
+    - hydra-colorlog==1.1.*
+    # --------- Documentation --------- #
+    - myst_parser==0.17.*
+    - sphinxnotes-mock==1.0.0b0  # still a beta
+    - sphinx_paramlinks==0.5.*

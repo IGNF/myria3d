@@ -1,49 +1,33 @@
-FROM nvidia/cuda:11.3.1-base-ubuntu20.04
+FROM mambaorg/micromamba:focal-cuda-11.3.1
+# focal is Ubuntu 20.04
 
-# set the IGN proxy, otherwise apt-get and other applications don't work
-# Should be commented out outside of IGN
-ENV http_proxy 'http://192.168.4.9:3128/'
-ENV https_proxy 'http://192.168.4.9:3128/'
+WORKDIR /app
 
-# Remove any third-party apt sources to avoid issues with expiring keys.
-RUN rm -f /etc/apt/sources.list.d/*.list
+COPY environment.yml environment.yml
 
-# Install some basic utilities
-RUN apt-get update && apt-get install -y \
-        nano \
-        curl \
-        ca-certificates \
-        sudo \
-        git \
-        bzip2 \
-        libx11-6 \
-        && rm -rf /var/lib/apt/lists/*
+# Switching to root does not seem necessary in the general case, but the github ci/cd process
+# does not seem to work without (rresults in a permission error when running pip packages
+# installation similar to https://github.com/mamba-org/micromamba-docker/issues/356)
+USER root
 
-# Create a working directory
-RUN mkdir /app
+RUN micromamba env create -f /app/environment.yml
 
-# Set up the Conda environment and make python accessible via PATH.
-ENV CONDA_AUTO_UPDATE_CONDA=false
-ENV PATH=/miniconda:/miniconda/bin:$PATH 
-COPY environment.yml /app/environment.yml
-RUN curl -sLo /miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39_4.10.3-Linux-x86_64.sh \
-        && chmod +x /miniconda.sh \
-        && /miniconda.sh -b -p /miniconda \
-        && rm /miniconda.sh \
-        && /miniconda/bin/conda env update -n base -f /app/environment.yml \
-        && rm /app/environment.yml \
-        && /miniconda/bin/conda clean -ya
-
+ENV PATH=$PATH:/opt/conda/envs/myria3d/bin/
 # Need to export this for torch_geometric to find where cuda is.
 # See https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
-ENV LD_LIBRARY_PATH="/miniconda/lib/:$LD_LIBRARY_PATH"
+ENV LD_LIBRARY_PATH="/opt/conda/envs/myria3d/lib/:$LD_LIBRARY_PATH"
 
-# Check succes of environment creation.
+# Check success of environment creation.
 RUN python -c "import torch_geometric;"
 
-# Copy the repository content in /app 
-WORKDIR /app
+# use chown to prevent permission issues
 COPY . .
 
-# Set the default command to bash for image inspection.
-CMD ["bash"]
+# locate proj
+ENV PROJ_LIB=/opt/conda/envs/myria3d/share/proj/
+
+# Check that myria3d can run
+RUN python run.py task.task_name=predict --help
+
+# # Set the default command to bash for image inspection.
+# CMD ["bash"]
