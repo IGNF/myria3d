@@ -61,7 +61,7 @@ def filter_bad_trees_from_points(points):
     ground_index = points["Classification"] == 2
     cid = torch.from_numpy(points["ClusterID"].astype(int))
     prop_of_ground_per_tree = scatter_mean(torch.from_numpy(ground_index * 1.0), cid)
-    is_good_cluster_id = torch.nonzero(prop_of_ground_per_tree < 0.5)
+    is_good_cluster_id = torch.nonzero(prop_of_ground_per_tree < 0.25)
     selection = torch.isin(cid, is_good_cluster_id)
     return points[selection]
 

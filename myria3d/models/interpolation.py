@@ -132,7 +132,6 @@ class Interpolator:
         del self.idx_in_full_cloud_list
 
         # We scatter_sum logits based on idx, in case there are multiple predictions for a point.
-        # scatter_sum reorders logits based on index,they therefore match las order.
         reduced_logits = torch.zeros((nb_points, logits.size(1)))
         scatter_sum(logits, torch.from_numpy(idx_in_full_cloud), out=reduced_logits, dim=0)
         # reduced_logits contains logits ordered by their idx in original cloud !
@@ -155,8 +154,9 @@ class Interpolator:
 
         """
         basename = os.path.basename(raw_path)
-        # Read number of points only from las metadata in order to minimize memory usage
-        nb_points = get_pdal_info_metadata(raw_path)["count"]
+        # Read las after fetching all information to write into it
+        las = self.load_full_las_for_update(src_las=raw_path)
+        nb_points = len(las)
         logits, idx_in_full_cloud = self.reduce_predicted_logits(nb_points)
 
         probas = torch.nn.Softmax(dim=1)(logits)
@@ -166,9 +166,6 @@ class Interpolator:
             preds = np.vectorize(self.reverse_mapper.get)(preds)
 
         del logits
-
-        # Read las after fetching all information to write into it
-        las = self.load_full_las_for_update(src_las=raw_path)
 
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
