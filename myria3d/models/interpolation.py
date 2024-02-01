@@ -6,9 +6,11 @@ import numpy as np
 import pdal
 import torch
 from torch.distributions import Categorical
-from torch_scatter import scatter_sum
-
+from torch_scatter import scatter_mean, scatter_min, scatter_sum
+import geopandas as gpd
+from myria3d.metrics.polygon_metrics import CLASS_CODE2CLASS_NAME
 from myria3d.pctl.dataset.utils import get_pdal_info_metadata, get_pdal_reader
+from shapely.geometry import Point
 
 log = logging.getLogger(__name__)
 
@@ -185,9 +187,42 @@ class Interpolator:
             )
         del idx_in_full_cloud
 
+        # now we get xy coordinates of each cluster_id except for cluster_id=0 i.e. non tree elements
+        las = las[las["ClusterID"] != 0]
+        las = las[las["Classification"] >= 3]  # also remove ground points
+        las = las[las["Classification"] <= 5]  # also remove ground points
+        pos = np.asarray([las["X"], las["Y"]], dtype=np.float64).transpose()
+
+        cluster_id = torch.from_numpy(las["ClusterID"].copy())
+
+        tree_pos = scatter_mean(torch.from_numpy(pos), cluster_id, dim=0).numpy()
+        preds_float = las[self.predicted_classification_channel].astype(float)
+        tree_preds = (
+            scatter_mean(torch.from_numpy(preds_float), cluster_id, dim=0).numpy().astype(int)
+        )
+        tree_size = scatter_sum(torch.ones_like(cluster_id), cluster_id, dim=0).numpy()
+
+        filter_small = tree_size > 100
+        tree_preds = tree_preds[filter_small]
+        tree_pos = tree_pos[filter_small]
+        tree_size = tree_size[filter_small]
+        # we use the mapper but increment with one since
+        mapper = {k + 1: v for k, v in CLASS_CODE2CLASS_NAME.items()}
+
+        geometry = gpd.GeoSeries(map(Point, tree_pos))
+        data = {
+            "label_code": tree_preds,
+            "label_name": np.vectorize(mapper.get)(tree_preds),
+            "tree_size": tree_size,
+        }
+
+        gdf = gpd.GeoDataFrame(data=data, geometry=geometry)
+
         os.makedirs(output_dir, exist_ok=True)
         out_f = os.path.join(output_dir, basename)
         out_f = os.path.abspath(out_f)
+        gdf= gdf.set_crs(2154)
+        gdf.to_file(out_f.replace(".laz", ".geojson"))
         log.info(f"Updated LAS ({basename}) will be saved to: \n {output_dir}\n")
         log.info("Saving...")
         pipeline = pdal.Writer.las(

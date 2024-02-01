@@ -397,7 +397,7 @@ class Model(LightningModule):
             batch.copies["pos_copy"],
             batch_x=batch.batch,
             batch_y=batch_y,
-            k=self.hparams.interpolation_k,
+            k=1, # To the closest one
             num_workers=self.hparams.num_workers,
         )
         return {"logits": points_logits_full_cloud.detach().cpu()}
