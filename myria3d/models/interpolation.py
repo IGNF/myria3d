@@ -9,7 +9,12 @@ from torch.distributions import Categorical
 from torch_scatter import scatter_mean, scatter_min, scatter_sum
 import geopandas as gpd
 from myria3d.metrics.polygon_metrics import CLASS_CODE2CLASS_NAME
-from myria3d.pctl.dataset.utils import get_pdal_info_metadata, get_pdal_reader
+from myria3d.pctl.dataset.utils import (
+    filter_bad_trees_from_points,
+    get_pdal_info_metadata,
+    get_pdal_reader,
+    pdal_read_las_array_as_float32,
+)
 from shapely.geometry import Point
 
 log = logging.getLogger(__name__)
@@ -83,7 +88,9 @@ class Interpolator:
         # We do not reset the dims we create channel.
         # Slight risk of interaction with previous values, but it is expected that all non-artefacts values are updated.
 
-        pipeline = get_pdal_reader(src_las)
+        points = pdal_read_las_array_as_float32(src_las)
+        points = filter_bad_trees_from_points(points)
+        pipeline = pdal.Pipeline(arrays=[points])
         for proba_channel_to_create in self.probas_to_save:
             proba_channel_to_create = pretty_dim_names_mapper[proba_channel_to_create]
             pipeline |= pdal.Filter.ferry(dimensions=f"=>{proba_channel_to_create}")
@@ -193,7 +200,7 @@ class Interpolator:
         las = las[las["Classification"] <= 5]  # also remove ground points
         pos = np.asarray([las["X"], las["Y"]], dtype=np.float64).transpose()
 
-        cluster_id = torch.from_numpy(las["ClusterID"].copy())
+        cluster_id = torch.from_numpy(las["ClusterID"].astype(int).copy())
 
         tree_pos = scatter_mean(torch.from_numpy(pos), cluster_id, dim=0).numpy()
         preds_float = las[self.predicted_classification_channel].astype(float)
@@ -208,7 +215,6 @@ class Interpolator:
         tree_size = tree_size[filter_small]
         # we use the mapper but increment with one since
         mapper = {k + 1: v for k, v in CLASS_CODE2CLASS_NAME.items()}
-
         geometry = gpd.GeoSeries(map(Point, tree_pos))
         data = {
             "label_code": tree_preds,
@@ -221,7 +227,7 @@ class Interpolator:
         os.makedirs(output_dir, exist_ok=True)
         out_f = os.path.join(output_dir, basename)
         out_f = os.path.abspath(out_f)
-        gdf= gdf.set_crs(2154)
+        gdf = gdf.set_crs(2154)
         gdf.to_file(out_f.replace(".laz", ".geojson"))
         log.info(f"Updated LAS ({basename}) will be saved to: \n {output_dir}\n")
         log.info("Saving...")

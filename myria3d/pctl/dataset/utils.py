@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import pdal
 from scipy.spatial import cKDTree
+import torch
+from torch_scatter import scatter_mean
 
 SPLIT_TYPE = Union[Literal["train"], Literal["val"], Literal["test"]]
 LAS_PATHS_BY_SPLIT_DICT_TYPE = Dict[SPLIT_TYPE, List[str]]
@@ -53,6 +55,15 @@ def pdal_read_las_array(las_path: str):
     p1 = pdal.Pipeline() | get_pdal_reader(las_path)
     p1.execute()
     return p1.arrays[0]
+
+
+def filter_bad_trees_from_points(points):
+    ground_index = points["Classification"] == 2
+    cid = torch.from_numpy(points["ClusterID"].astype(int))
+    prop_of_ground_per_tree = scatter_mean(torch.from_numpy(ground_index * 1.0), cid)
+    is_good_cluster_id = torch.nonzero(prop_of_ground_per_tree < 0.5)
+    selection = torch.isin(cid, is_good_cluster_id)
+    return points[selection]
 
 
 def pdal_read_las_array_as_float32(las_path: str):
@@ -116,7 +127,11 @@ def split_cloud_into_samples(
         _type_: idx_in_original_cloud, and points of sample in pdal input format casted as floats.
 
     """
+    # The
     points = pdal_read_las_array_as_float32(las_path)
+    # remove bad trees a la source !
+    points = filter_bad_trees_from_points(points)
+
     if not len(points):
         print(f"NO POINTS: {las_path}")
         return ()
