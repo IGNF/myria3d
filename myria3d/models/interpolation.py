@@ -13,6 +13,23 @@ from myria3d.pctl.dataset.utils import get_pdal_info_metadata, get_pdal_reader
 log = logging.getLogger(__name__)
 
 
+pretty_dim_names_mapper = {
+    "FF1G01-01_Chêne_décidus": "chene_decidu",
+    "FF1G06-06_Chêne_sempervirent": "chene_sempervirent",
+    "FF1-09-09_Hêtre": "hetre",
+    "FF1-10-10_Châtaignier": "chataignier",
+    "FF1-14-14_Robinier": "robinier",
+    "FF2-51-51_Pin_maritime": "pin_maritime",
+    "FF2-52-52_Pin_sylvestre": "pin_sylvestre",
+    "FF2G53-53_Pin_laricio_Pin_noir": "pin_noir_pin_laricio",
+    "FF2-57-57_Pin_alep": "pin_alep",
+    "FF2G61-61_Sapin": "sapin",
+    "FF2G61-61_Epicéa": "epicea",
+    "FF2-63-63-Mélèze": "meleze",
+    "FF2-64-64_Douglas": "douglas",
+}
+
+
 class Interpolator:
     """A class to load, update with classification, update with probas (optionnal), and save a LAS."""
 
@@ -66,6 +83,7 @@ class Interpolator:
 
         pipeline = get_pdal_reader(src_las)
         for proba_channel_to_create in self.probas_to_save:
+            proba_channel_to_create = pretty_dim_names_mapper[proba_channel_to_create]
             pipeline |= pdal.Filter.ferry(dimensions=f"=>{proba_channel_to_create}")
             pipeline |= pdal.Filter.assign(value=f"{proba_channel_to_create}=0")
 
@@ -145,6 +163,7 @@ class Interpolator:
 
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
+                class_name = pretty_dim_names_mapper[class_name]
                 # NB: Values for which we do not have a prediction (i.e. artefacts) get null probabilities.
                 las[class_name][idx_in_full_cloud] = probas[:, idx]
 

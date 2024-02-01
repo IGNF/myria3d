@@ -97,24 +97,17 @@ class PyGRandLANet(torch.nn.Module):
 
         # Max pooling each tree
         trees_embeddings = global_max_pool(pre_embeddings, b4_out[2])
-        trees_positions = global_mean_pool(b4_out[1], b4_out[2])
         batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
 
-        # Aggregation layer, recycling RandLA-Net aggregation bloc, before pooling.
-        # k=16 neighboors, and a double Local Feature Aggregation, should be enough to capture all trees info.
-        contextualized_trees_embeddings, _, _ = self.aggregation_block(
-            trees_embeddings, trees_positions, batch_trees
-        )
-        cloud_embeddings = global_max_pool(contextualized_trees_embeddings, batch_trees)
+        x = self.mlp_classif(trees_embeddings)
+        tree_logits = self.fc_classif(x)
 
-        x = self.mlp_classif(cloud_embeddings)
-        logits = self.fc_classif(x)
-
-        if self.return_logits:
-            return logits
-
-        probas = logits.log_softmax(dim=-1)
-        return probas
+        # get the logits back to the original points, in the right order.
+        # First duplicate tree logits as many times as there are pts in each tree
+        points_logits = tree_logits[cluster_id]
+        # Then reverse the ordering of points to get back to the original order
+        points_logits_original_order = points_logits[torch.argsort(reordering)]
+        return tree_logits, batch_trees, points_logits_original_order
 
 
 # Default activation, BatchNorm, and resulting MLP used by RandLA-Net authors

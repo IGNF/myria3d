@@ -53,6 +53,7 @@ class InferenceDataset(IterableDataset):
                 sample_data["y"]
             )  # Need input classification for DropPointsByClass
             sample_data["pos"] = torch.from_numpy(sample_data["pos"])
+            sample_data["cluster_id"] = torch.from_numpy(sample_data["cluster_id"])
             # for final interpolation - should be kept as a np.ndarray to be batched as a list later.
             sample_data["idx_in_original_cloud"] = idx_in_original_cloud
 

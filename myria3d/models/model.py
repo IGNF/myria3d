@@ -122,21 +122,12 @@ class Model(LightningModule):
             torch.Tensor (B*N,C): logits
 
         """
-        logits = self.model(batch.x, batch.pos, batch.batch, batch.ptr, batch.cluster_id)
-        if self.training or "copies" not in batch:
-            # In training mode and for validation, we directly optimize on subsampled points, for
-            # 1) Speed of training - because interpolation multiplies a step duration by a 5-10 factor!
-            # 2) data augmentation at the supervision level.
-            return batch.y, logits  # B*N, C
-
-        # During evaluation on test data and inference, we interpolate predictions back to original positions
-        # KNN is way faster on CPU than on GPU by a 3 to 4 factor.
-        logits = logits.cpu()
-        targets = None  # no targets in inference mode.
-        if "transformed_y_copy" in batch.copies:
-            # eval (test/val).
-            targets = batch.copies["transformed_y_copy"].to(logits.device)
-        return targets, logits
+        tree_logits, _batch_trees, points_logits_original_order = self.model(
+            batch.x, batch.pos, batch.batch, batch.ptr, batch.cluster_id
+        )
+        # one target per tree
+        tree_targets = torch.take(batch.y, _batch_trees)
+        return tree_targets, tree_logits, points_logits_original_order
 
     def on_fit_start(self) -> None:
         """On fit start: get the experiment for easier access."""
@@ -168,7 +159,7 @@ class Model(LightningModule):
         Returns:
             dict: a dict containing the loss, logits, and targets.
         """
-        targets, logits = self.forward(batch)
+        targets, logits, _ = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         self.train_cm = self.train_cm.to(logits.device)
         loss = self.criterion(logits, targets)
@@ -189,22 +180,15 @@ class Model(LightningModule):
         return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_train_epoch_end(self):
-        # `outputs` is a list of dicts returned from `training_step()`
         self.log("train/miou", self.train_cm.miou(), prog_bar=True)
         self.log("train/oa", self.train_cm.oa(), prog_bar=True)
         self.log("train/macc", self.train_cm.macc(), prog_bar=True)
-        # TODO: find class_names.
-        # for iou, seen, name in zip(*self.train_cm.iou(), self.class_names):
-        #     if seen:
-        #         self.log(f"train/iou_{name}", iou, prog_bar=True)
         with tempfile.TemporaryDirectory() as tmpdir:
             path_precision, path_recall = save_confusion_matrix(
                 self.train_cm.confmat, tmpdir, self.class_names
             )
             self.experiment.log_image(path_precision, name="Train Precision CM")
             self.experiment.log_image(path_recall, name="Train Recall CM")
-
-        # Does not work, we do not know why... Maybe due to debug mode
         self.log_all_cms(phase="Train", cm_object=self.train_cm)
         self.train_cm.reset()
 
@@ -252,7 +236,7 @@ class Model(LightningModule):
             dict: a dict containing the loss, logits, and targets.
 
         """
-        targets, logits = self.forward(batch)
+        targets, logits, _ = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         self.val_cm = self.val_cm.to(logits.device)
 
@@ -326,7 +310,7 @@ class Model(LightningModule):
             dict: Dictionnary with full-cloud predicted logits as well as the full-cloud (transformed) targets.
 
         """
-        targets, logits = self.forward(batch)
+        targets, logits, _ = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         self.test_cm = self.test_cm.to(logits.device)
         for idx in range(len(TOP_K_LIST)):
@@ -346,13 +330,7 @@ class Model(LightningModule):
         if targets is not None:
             self.test_cm(preds, targets)
 
-        self.log(
-            "test/iou",
-            self.test_iou,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-        )
+        self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
         df = pd.DataFrame(
             # need to remove prefix
             data={
@@ -367,13 +345,9 @@ class Model(LightningModule):
         return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_test_epoch_end(self):
-        # `outputs` is a list of dicts returned from `test_step()`
         self.log("test/miou", self.test_cm.miou(), prog_bar=True)
         self.log("test/oa", self.test_cm.oa(), prog_bar=True)
         self.log("test/macc", self.test_cm.macc(), prog_bar=True)
-        # for iou, seen, name in zip(*self.test_cm.iou(), self.class_names):
-        #     if seen:
-        #         self.log(f"test/iou_{name}", iou, prog_bar=True)
         with tempfile.TemporaryDirectory() as tmpdir:
             path_precision, path_recall = save_confusion_matrix(
                 self.test_cm.confmat, tmpdir, self.class_names
@@ -414,8 +388,19 @@ class Model(LightningModule):
             dict: Dictionnary with predicted logits as well as input batch.
 
         """
-        _, logits = self.forward(batch)
-        return {"logits": logits.detach().cpu()}
+        _, _, points_logits_original_order = self.forward(batch)
+        # Useful for inference only !
+        batch_y = self._get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
+        points_logits_full_cloud = knn_interpolate(
+            points_logits_original_order,
+            batch.copies["pos_sampled_copy"],
+            batch.copies["pos_copy"],
+            batch_x=batch.batch,
+            batch_y=batch_y,
+            k=self.hparams.interpolation_k,
+            num_workers=self.hparams.num_workers,
+        )
+        return {"logits": points_logits_full_cloud.detach().cpu()}
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
