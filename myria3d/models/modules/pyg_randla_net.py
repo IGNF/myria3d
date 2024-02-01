@@ -50,6 +50,7 @@ class PyGRandLANet(torch.nn.Module):
         self.block2 = DilatedResidualBlock(num_neighbors, 32, 128)
         self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
         self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
+        self.mlp_summit = SharedMLP([512, 512])
         self.mlp_altitude = SharedMLP([1, ALTITUDE_EMBEDDING_DIM, ALTITUDE_EMBEDDING_DIM])
         self.mlp_classif = SharedMLP([512 + ALTITUDE_EMBEDDING_DIM, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
@@ -97,12 +98,12 @@ class PyGRandLANet(torch.nn.Module):
         pre_embeddings = self.mlp_summit(b4_out[0])
 
         # Max pooling each tree
+        batch_trees = repeat_interleave(num_of_trees, device=pre_embeddings.device)
         trees_embeddings = global_max_pool(pre_embeddings, b4_out[2])
-        altitude_embeddings = self.mlp_altitude(altitude.view((trees_embeddings.size(0), 1)))
+        altitude_embeddings = self.mlp_altitude(altitude[batch_trees].view(-1, 1))
         x = self.mlp_classif(torch.concat([trees_embeddings, altitude_embeddings], dim=1))
         tree_logits = self.fc_classif(x)
 
-        batch_trees = repeat_interleave(num_of_trees, device=trees_embeddings.device)
         # get the logits back to the original points, in the right order.
         # First duplicate tree logits as many times as there are pts in each tree
         points_logits = tree_logits[cluster_id]
