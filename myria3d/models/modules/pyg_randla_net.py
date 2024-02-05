@@ -17,7 +17,7 @@ from torch_geometric.nn.pool import knn_graph
 from torch_geometric.nn.unpool import knn_interpolate
 from torch_geometric.utils import softmax
 from torch_geometric.nn.pool import global_max_pool, global_mean_pool
-from torch_scatter import scatter, scatter_max, scatter_min
+from torch_scatter import scatter, scatter_max, scatter_mean, scatter_min
 from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 
@@ -82,6 +82,11 @@ class PyGRandLANet(torch.nn.Module):
             tree_min_z = scatter_min(pos[:, 2], cluster_id)[0]
             _, inverse_indices = torch.unique(cluster_id, return_inverse=True)
             pos[:, 2] = pos[:, 2] - tree_min_z[inverse_indices]
+
+            tree_mean_x = scatter_mean(pos[:, 0], cluster_id)
+            tree_mean_y = scatter_mean(pos[:, 1], cluster_id)
+            pos[:, 0] = pos[:, 0] - tree_mean_x[inverse_indices]
+            pos[:, 1] = pos[:, 1] - tree_mean_y[inverse_indices]
 
         b1_out = self.block1(self.fc0(x), pos, cluster_id)
 
