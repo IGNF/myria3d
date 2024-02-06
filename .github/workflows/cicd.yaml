@@ -12,9 +12,6 @@ on:
       - main
       - staging-*
 
-env:
-  nexus_server: 10.128.81.69:8082
-
 jobs:
   CICD:
     runs-on: self-hosted
@@ -22,7 +19,7 @@ jobs:
     steps:
 
     - name: Checkout branch
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Build docker image
       run: docker build --build-arg http_proxy=${{ secrets.PROXY_URL }} --build-arg https_proxy=${{ secrets.PROXY_URL }} -t myria3d .
@@ -86,34 +83,34 @@ jobs:
         docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
         # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
 
-    # get version number and date, to tag the image pushed to nexus
+    # get version number and date, to tag the image pushed to a private docker registry
     - name: get version number
       id: tag
       run: |
-        echo "::set-output name=version::$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)"
-        echo "::set-output name=date::$(date '+%Y.%m.%d')"
+        echo "VERSION=$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)" >> $GITHUB_ENV
+        echo "DATE=$(date '+%Y.%m.%d')" >> $GITHUB_ENV
 
     # show possible tags, for debugging purpose
     - name: Print tags
       run: |
-        echo "${{steps.tag.outputs.version}}"
-        echo "${{steps.tag.outputs.date}}"
+        echo "${{ env.VERSION }}"
+        echo "${{ env.DATE }}"
 
     - name: push main docker on nexus (tagged with a date)
       # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
       if: ((github.ref_name == 'main') && (github.event_name == 'push'))
       run: |
-        docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.version}}-${{steps.tag.outputs.date}}
-        docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.version}}-${{steps.tag.outputs.date}}
+        docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
+        docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+        docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
 
     - name: push branch docker on nexus (tagged with the branch name)
       # we push on nexus an image from a branch when it's pushed
       if: ((github.event_name == 'push') && (github.ref_name != 'main'))
       run: |
-        docker tag myria3d $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.version}}-${{github.ref_name}}
-        docker login $nexus_server --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push $nexus_server/lidar_hd/myria3d:${{steps.tag.outputs.version}}-${{github.ref_name}}
+        docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
+        docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+        docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
 
     - name: Clean dangling docker images
       if: always()  # always do it, even if something failed
