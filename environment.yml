@@ -63,11 +63,6 @@ dependencies:
   - docutils==0.17
   - rstcheck==3.3.*  # RST Linter
   - pip:
-    # --------- torch-geometric optionnal dependencies ---------
-    - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.3%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
-    - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_scatter-2.1.2%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
-    - https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_sparse-0.6.18%2Bpt21cu118-cp39-cp39-linux_x86_64.whl
-    # --------- hydra configs --------- #
     - hydra-core==1.1.*
     - hydra-colorlog==1.1.*
     # --------- Documentation --------- #
