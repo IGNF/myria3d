@@ -65,7 +65,7 @@ class Interpolator:
         # We do not reset the dims we create channel.
         # Slight risk of interaction with previous values, but it is expected that all non-artefacts values are updated.
 
-        pipeline = get_pdal_reader(src_las, epsg)
+        pipeline = pdal.Pipeline() | get_pdal_reader(src_las, epsg)
         for proba_channel_to_create in self.probas_to_save:
             pipeline |= pdal.Filter.ferry(dimensions=f"=>{proba_channel_to_create}")
             pipeline |= pdal.Filter.assign(value=f"{proba_channel_to_create}=0")

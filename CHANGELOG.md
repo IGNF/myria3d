@@ -1,5 +1,8 @@
 # CHANGELOG
 
+### 3.7.1
+- fix: edge case when saving predictions under Classification channel, without saving entropy.
+
 ## 3.7.0
 - Update all versions of Pytorch, Pytorch Lightning, and Pytorch Geometric.
   Changes are retrocompatible for models trained with older versions (with adjustment to the configuration file). 
