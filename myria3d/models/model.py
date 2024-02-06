@@ -1,11 +1,11 @@
-from typing import Optional
-
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
+from torchmetrics.classification import MulticlassJaccardIndex
 
+from myria3d.metrics.iou import iou
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
 
@@ -60,21 +60,29 @@ class Model(LightningModule):
 
         # this line ensures params passed to LightningModule will be saved to ckpt
         # it also allows to access params with 'self.hparams' attribute
-        self.save_hyperparameters()
+        self.save_hyperparameters(ignore=["criterion"])
 
-        neural_net_class = get_neural_net_class(self.hparams.neural_net_class_name)
-        self.model = neural_net_class(**self.hparams.neural_net_hparams)
+        neural_net_class = get_neural_net_class(kwargs.get("neural_net_class_name"))
+        self.model = neural_net_class(**kwargs.get("neural_net_hparams"))
 
         self.softmax = nn.Softmax(dim=1)
-        self.criterion = self.hparams.criterion
+        self.criterion = kwargs.get("criterion")
 
-    def setup(self, stage: Optional[str]) -> None:
-        """Setup stage: prepare to compute IoU and loss."""
-        if stage == "fit":
-            self.train_iou = self.hparams.iou()
-            self.val_iou = self.hparams.iou()
-        if stage == "test":
-            self.test_iou = self.hparams.iou()
+    def on_fit_start(self) -> None:
+        self.criterion = self.criterion.to(self.device)
+        self.train_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
+        self.val_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
+
+    def on_test_start(self) -> None:
+        self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
+
+    def log_all_class_ious(self, confmat, phase: str):
+        ious = iou(confmat)
+        for class_iou, class_name in zip(ious, self.hparams.classification_dict.values()):
+            metric_name = f"{phase}/iou_CLASS_{class_name}"
+            self.log(
+                metric_name, class_iou, on_step=False, on_epoch=True, metric_attribute=metric_name
+            )
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
@@ -114,11 +122,6 @@ class Model(LightningModule):
             targets = batch.copies["transformed_y_copy"].to(logits.device)
         return targets, logits
 
-    def on_fit_start(self) -> None:
-        """On fit start: get the experiment for easier access."""
-        self.experiment = self.logger.experiment[0]
-        self.criterion = self.criterion.to(self.device)
-
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
         """Training step.
 
@@ -140,14 +143,13 @@ class Model(LightningModule):
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
             self.train_iou(preds, targets)
-        self.log(
-            "train/iou",
-            self.train_iou,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-        )
+        self.log("train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss, "logits": logits, "targets": targets}
+
+    def on_train_epoch_end(self) -> None:
+        self.train_iou.compute()
+        self.log_all_class_ious(self.train_iou.confmat, "train")
+        self.train_iou.reset()
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
@@ -182,6 +184,8 @@ class Model(LightningModule):
 
         """
         self.val_iou.compute()
+        self.log_all_class_ious(self.val_iou.confmat, "val")
+        self.val_iou.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -202,15 +206,20 @@ class Model(LightningModule):
         preds = torch.argmax(logits, dim=1)
         self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
-        self.log(
-            "test/iou",
-            self.test_iou,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-        )
+        self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "logits": logits, "targets": targets}
+
+    def on_test_epoch_end(self) -> None:
+        """At the end of a validation epoch, compute the IoU.
+
+        Args:
+            outputs : output of test
+
+        """
+        self.test_iou.compute()
+        self.log_all_class_ious(self.test_iou.confmat, "test")
+        self.test_iou.reset()
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.

@@ -10,5 +10,4 @@ trainer:
   strategy: ddp_find_unused_parameters_false
   # Replace by cpu to simulate multi-cpus training.
   accelerator: gpu
-  num_processes: 2
-  gpus: 2
+  devices: 2

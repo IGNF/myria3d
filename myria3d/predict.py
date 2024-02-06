@@ -5,8 +5,10 @@ import sys
 import hydra
 import torch
 from omegaconf import DictConfig
-from pytorch_lightning import LightningDataModule, LightningModule
+from pytorch_lightning import LightningDataModule
 from tqdm import tqdm
+
+from myria3d.models.model import Model
 
 sys.path.append(osp.dirname(osp.dirname(__file__)))
 from myria3d.models.interpolation import Interpolator  # noqa
@@ -44,9 +46,7 @@ def predict(config: DictConfig) -> str:
 
     # Do not require gradient for faster predictions
     torch.set_grad_enabled(False)
-
-    model: LightningModule = hydra.utils.instantiate(config.model)
-    model = model.load_from_checkpoint(config.predict.ckpt_path)
+    model = Model.load_from_checkpoint(config.predict.ckpt_path)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()
@@ -67,5 +67,7 @@ def predict(config: DictConfig) -> str:
         logits = model.predict_step(batch)["logits"]
         itp.store_predictions(logits, batch.idx_in_original_cloud)
 
-    out_f = itp.reduce_predictions_and_save(config.predict.src_las, config.predict.output_dir, config.datamodule.get("epsg"))
+    out_f = itp.reduce_predictions_and_save(
+        config.predict.src_las, config.predict.output_dir, config.datamodule.get("epsg")
+    )
     return out_f

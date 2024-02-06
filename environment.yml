@@ -2,35 +2,32 @@
 # mamba env create -f environment.yml
 name: myria3d
 channels:
-  - conda-forge
-  - anaconda
   - pytorch
-  - comet_ml
+  - nvidia
   - pyg
+  - comet_ml
+  - conda-forge
 dependencies:
-  - python==3.9.*
+  - python=3.9.*
   - pip
-  # --------- data formats --------- #
-  - numpy
-  - h5py
   # --------- Deep Learning --------- #
-  # cudatoolkit to specify the cuda driver in the conda env
-  - conda-forge::cudatoolkit=11.3.1 # single equal sign there, not a typo
-  - pytorch::pytorch==1.11.0
-  - pytorch::torchvision==0.12.0
-  - conda-forge::pytorch-lightning==1.5.9
-  - conda-forge::torchmetrics==0.7.*
-  - comet_ml::comet_ml==3.31.*
-  - conda-forge::urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
+  - pytorch::pytorch=2.1
+  - pytorch::pytorch-cuda=11.8
+  - pytorch::torchvision=0.16
+  - conda-forge::lightning=2.0
+  - conda-forge::torchmetrics=0.11
+  - pyg::pyg=2.4
   - pyg::pytorch-cluster
   - pyg::pytorch-scatter
   - pyg::pytorch-sparse
-  - pyg::pyg==2.1.0
-    # Nota: if libcusparse.so.11. errors occur, run
-    # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH"
-    # ou
-    # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH"
-    # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
+  # Troubleshooting: if libcusparse.so.11. errors occur, run
+  # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH"
+  # ou
+  # export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/lib:$LD_LIBRARY_PATH"
+  # see https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625
+  # --------- data formats --------- #
+  - numpy
+  - h5py
   # --------- geo --------- #
   - pdal
   - python-pdal
@@ -39,6 +36,12 @@ dependencies:
   - pandas
   - matplotlib
   # --------- loggers --------- #
+  - comet_ml::comet_ml=3.35
+  - conda-forge::urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
+    # --------- Visualization --------- #
+  - pandas
+  - matplotlib
+  - seaborn # used in some callbacks
   # --------- linters --------- #
   - pre-commit # hooks for applying linters on commit
   - black # code formatting
@@ -52,9 +55,6 @@ dependencies:
   - python-dotenv # loading env variables from .env file
   - rich # beautiful text formatting in terminal
   - sh # for running bash commands in some tests
-  # - scikit-learn # used in some callbacks
-  - seaborn # used in some callbacks
-  # - jupyterlab # better jupyter notebooks
   - pudb # debugger
     # # --------- Documentation --------- #
   - sphinx==4.5.*
@@ -63,7 +63,6 @@ dependencies:
   - docutils==0.17
   - rstcheck==3.3.*  # RST Linter
   - pip:
-      # --------- hydra configs --------- #
     - hydra-core==1.1.*
     - hydra-colorlog==1.1.*
     # --------- Documentation --------- #

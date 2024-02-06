@@ -1,14 +1,10 @@
 _target_: pytorch_lightning.Trainer
 
-# set `1` to train on GPU, `0` to train on CPU only
-gpus: 0
-
 min_epochs: 1
 max_epochs: 1300
 log_every_n_steps: 1
 
-weights_summary: null
-progress_bar_refresh_rate: 1
-
-auto_lr_find: false  # override with true to run the LR-range test in train.py.
-
+# set to gpu for gpu training (if devices > 1, set ddp_find_unused_parameters_false: true)
+accelerator: cpu
+devices: 1
+num_nodes: 1

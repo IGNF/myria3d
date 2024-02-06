@@ -5,20 +5,14 @@ print_config: true
 ignore_warnings: true
 trainer:
   _target_: pytorch_lightning.Trainer
-  gpus:
-  - 0
-  - 1
   min_epochs: 100
   max_epochs: 150
   log_every_n_steps: 1
-  weights_summary: null
-  progress_bar_refresh_rate: 1
-  auto_lr_find: false
   num_sanity_val_steps: 2
   accumulate_grad_batches: 3
   strategy: ddp
   accelerator: gpu
-  num_processes: 2
+  devices: 2
 datamodule:
   transforms:
     preparations:
@@ -264,6 +258,7 @@ logger:
     disabled: false
 task:
   task_name: predict
+  auto_lr_find: false
 predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/

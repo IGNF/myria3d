@@ -18,7 +18,6 @@ trainer:
   limit_test_batches: 1
   max_epochs: 1
   num_sanity_val_steps: 0
-  # gpus: [1]
 
 callbacks:
   finetune:

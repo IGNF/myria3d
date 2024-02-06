@@ -3,6 +3,7 @@ _target_: myria3d.models.model.Model
 ## Inputs and outputs
 d_in: ${dataset_description.d_in}  # XYZ (3) + Other features (N)
 num_classes: ${dataset_description.num_classes}
+classification_dict: ${dataset_description.classification_dict}
 
 # Architecture defined in sub-configs
 ckpt_path: null  # str, for resuming training and finetuning.
@@ -12,14 +13,6 @@ neural_net_hparams: ???
 # Interpolation params
 interpolation_k: ${predict.interpolator.interpolation_k}  # interpolation at eval time
 num_workers: 4  # for knn_interpolate
-
-## Evaluation metric - partial for triple (train/val/test) init
-iou:
-  _target_: functools.partial
-  _args_:
-    - "${get_method:torchmetrics.JaccardIndex}"
-    - ${model.num_classes}
-  absent_score: 1.0  # do not penalize if a class is absent from labels.
 
 ## Optimization
 momentum: 0.9  # arbitrary

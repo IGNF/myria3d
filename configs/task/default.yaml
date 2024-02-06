@@ -1,2 +1,3 @@
 # Task at hand. Can be train or predict
 task_name: fit  # "fit" or "test" or "fit+test", or "predict", or "finetune"
+auto_lr_find: false  # override with true to run the LR-range test in train.py.

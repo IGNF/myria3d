@@ -1,9 +1,13 @@
 # CHANGELOG
 
+## 3.7.0
+- Update all versions of Pytorch, Pytorch Lightning, and Pytorch Geometric.
+  Changes are retrocompatible for models trained with older versions (with adjustment to the configuration file). 
+- Refactor logging of single-class IoUs to go from num_classes+1 torchmetrics instances to only 1.
 
 ### 3.6.1
 - Set urllib3<2 for comet logging to function and add back seaborn for plotting optimal LR graph.
- 
+
 ## 3.6.0
 - Remove the "EPSG:2154" by default and use the metadata of the lidar file, unless a parameter is given.
 
