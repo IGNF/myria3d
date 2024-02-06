@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.interpolation &mdash; myria3d 3.7.0 documentation</title>
+  <title>myria3d.models.interpolation &mdash; myria3d 3.7.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -230,7 +230,7 @@
         <span class="c1"># We do not reset the dims we create channel.</span>
         <span class="c1"># Slight risk of interaction with previous values, but it is expected that all non-artefacts values are updated.</span>
 
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">get_pdal_reader</span><span class="p">(</span><span class="n">src_las</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="o">|</span> <span class="n">get_pdal_reader</span><span class="p">(</span><span class="n">src_las</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">proba_channel_to_create</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span><span class="p">:</span>
             <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">ferry</span><span class="p">(</span><span class="n">dimensions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;=&gt;</span><span class="si">{</span><span class="n">proba_channel_to_create</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proba_channel_to_create</span><span class="si">}</span><span class="s2">=0&quot;</span><span class="p">)</span>
