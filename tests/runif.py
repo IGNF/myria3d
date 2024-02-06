@@ -1,5 +1,6 @@
 import pytest
 import torch
+from lightning.pytorch.accelerators import find_usable_cuda_devices
 
 """
 Simplified from:
@@ -35,8 +36,12 @@ class RunIf:
         reasons = []
 
         if min_gpus:
-            conditions.append(torch.cuda.device_count() < min_gpus)
-            reasons.append(f"GPUs>={min_gpus}")
+            try:
+                find_usable_cuda_devices(min_gpus)
+                conditions.append(False)
+            except (ValueError, RuntimeError) as _:
+                conditions.append(True)
+                reasons.append(f"GPUs>={min_gpus}")
 
         reasons = [rs for cond, rs in zip(conditions, reasons) if cond]
         return pytest.mark.skipif(
