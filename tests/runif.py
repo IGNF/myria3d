@@ -1,5 +1,4 @@
 import pytest
-import torch
 from lightning.pytorch.accelerators import find_usable_cuda_devices
 
 """
@@ -39,7 +38,7 @@ class RunIf:
             try:
                 find_usable_cuda_devices(min_gpus)
                 conditions.append(False)
-            except (ValueError, RuntimeError) as _:
+            except (ValueError, RuntimeError):
                 conditions.append(True)
                 reasons.append(f"GPUs>={min_gpus}")
 

@@ -1,15 +1,13 @@
-from typing import Optional
-
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
-from myria3d.metrics.iou import iou
+from torchmetrics.classification import MulticlassJaccardIndex
 
+from myria3d.metrics.iou import iou
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
-from torchmetrics.classification import MulticlassJaccardIndex
 
 log = utils.get_logger(__name__)
 

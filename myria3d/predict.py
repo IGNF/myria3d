@@ -5,7 +5,7 @@ import sys
 import hydra
 import torch
 from omegaconf import DictConfig
-from pytorch_lightning import LightningDataModule, LightningModule
+from pytorch_lightning import LightningDataModule
 from tqdm import tqdm
 
 from myria3d.models.model import Model
