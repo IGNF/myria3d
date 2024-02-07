@@ -4,6 +4,7 @@ from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 from torchmetrics.classification import MulticlassJaccardIndex
+from myria3d.callbacks.comet_callbacks import log_comet_cm
 
 from myria3d.metrics.iou import iou
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
@@ -139,7 +140,7 @@ class Model(LightningModule):
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        
+
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
             self.train_iou(preds, targets)
@@ -150,6 +151,7 @@ class Model(LightningModule):
         iou_epoch = self.train_iou.compute()
         self.log("train/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.train_iou.confmat, "train")
+        log_comet_cm(self, self.train_iou.confmat, "train")
         self.train_iou.reset()
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
@@ -187,6 +189,7 @@ class Model(LightningModule):
         iou_epoch = self.val_iou.compute()
         self.log("val/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.val_iou.confmat, "val")
+        log_comet_cm(self, self.val_iou.confmat, "val")
         self.val_iou.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
@@ -221,6 +224,7 @@ class Model(LightningModule):
         iou_epoch = self.test_iou.compute()
         self.log("test/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.test_iou.confmat, "test")
+        log_comet_cm(self, self.test_iou.confmat, "test")
         self.test_iou.reset()
 
     def predict_step(self, batch: Batch) -> dict:

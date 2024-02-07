@@ -33,7 +33,7 @@ def get_comet_logger(trainer: Trainer) -> Optional[CometLogger]:
                 return logger
 
     warnings.warn(
-        "You are using comet related callback, but CometLogger was not found for some reason...",
+        "You are using comet related functions, but trainer has no CometLogger among its loggers.",
         UserWarning,
     )
     return None
@@ -71,3 +71,16 @@ class LogLogsPath(Callback):
             log_path = os.getcwd()
             log.info(f"----------------\n LOGS DIR is {log_path}\n ----------------")
             logger.experiment.log_parameter("experiment_logs_dirpath", log_path)
+
+
+def log_comet_cm(lightning_module, confmat, phase):
+    logger = get_comet_logger(trainer=lightning_module)
+    if logger:
+        labels = list(lightning_module.hparams.classification_dict.values())
+        logger.experiment.log_confusion_matrix(
+            matrix=confmat.cpu().numpy().tolist(),
+            labels=labels,
+            file_name=f"{phase}-confusion-matrix",
+            title="{phase} confusion matrix",
+            epoch=lightning_module.current_epoch,
+        )
