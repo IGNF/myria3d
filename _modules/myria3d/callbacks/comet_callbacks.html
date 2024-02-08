@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.callbacks.comet_callbacks &mdash; myria3d 3.7.1 documentation</title>
+  <title>myria3d.callbacks.comet_callbacks &mdash; myria3d 3.8.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -198,7 +198,7 @@
                 <span class="k">return</span> <span class="n">logger</span>
 
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;You are using comet related callback, but CometLogger was not found for some reason...&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;You are using comet related functions, but trainer has no CometLogger among its loggers.&quot;</span><span class="p">,</span>
         <span class="ne">UserWarning</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
@@ -236,6 +236,19 @@
             <span class="n">log_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;----------------</span><span class="se">\n</span><span class="s2"> LOGS DIR is </span><span class="si">{</span><span class="n">log_path</span><span class="si">}</span><span class="se">\n</span><span class="s2"> ----------------&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">log_parameter</span><span class="p">(</span><span class="s2">&quot;experiment_logs_dirpath&quot;</span><span class="p">,</span> <span class="n">log_path</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="log_comet_cm"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.log_comet_cm">[docs]</a><span class="k">def</span> <span class="nf">log_comet_cm</span><span class="p">(</span><span class="n">lightning_module</span><span class="p">,</span> <span class="n">confmat</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="o">=</span><span class="n">lightning_module</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lightning_module</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">log_confusion_matrix</span><span class="p">(</span>
+            <span class="n">matrix</span><span class="o">=</span><span class="n">confmat</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">file_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">-confusion-matrix&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{phase}</span><span class="s2"> confusion matrix&quot;</span><span class="p">,</span>
+            <span class="n">epoch</span><span class="o">=</span><span class="n">lightning_module</span><span class="o">.</span><span class="n">current_epoch</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </pre></div>
 
            </div>
