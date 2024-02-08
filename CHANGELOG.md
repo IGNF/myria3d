@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 3.8.0
+- dev: log confusion matrices to Comet after each epoch.
+- fix: do not mix the two way to log IoUs to avoid known lightning [Common Pitfalls](https://lightning.ai/docs/torchmetrics/stable/pages/lightning.html#common-pitfalls).
+
 ### 3.7.1
 - fix: edge case when saving predictions under Classification channel, without saving entropy.
 

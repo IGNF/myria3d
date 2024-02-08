@@ -4,6 +4,7 @@ from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 from torchmetrics.classification import MulticlassJaccardIndex
+from myria3d.callbacks.comet_callbacks import log_comet_cm
 
 from myria3d.metrics.iou import iou
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
@@ -143,12 +144,14 @@ class Model(LightningModule):
         with torch.no_grad():
             preds = torch.argmax(logits.detach(), dim=1)
             self.train_iou(preds, targets)
-        self.log("train/iou", self.train_iou, on_step=True, on_epoch=True, prog_bar=True)
+
         return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_train_epoch_end(self) -> None:
-        self.train_iou.compute()
+        iou_epoch = self.train_iou.compute()
+        self.log("train/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.train_iou.confmat, "train")
+        log_comet_cm(self, self.train_iou.confmat, "train")
         self.train_iou.reset()
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
@@ -173,7 +176,7 @@ class Model(LightningModule):
         preds = torch.argmax(logits.detach(), dim=1)
         self.val_iou = self.val_iou.to(preds.device)
         self.val_iou(preds, targets)
-        self.log("val/iou", self.val_iou, on_step=True, on_epoch=True, prog_bar=True)
+
         return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_validation_epoch_end(self) -> None:
@@ -183,8 +186,10 @@ class Model(LightningModule):
             outputs : output of validation_step
 
         """
-        self.val_iou.compute()
+        iou_epoch = self.val_iou.compute()
+        self.log("val/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.val_iou.confmat, "val")
+        log_comet_cm(self, self.val_iou.confmat, "val")
         self.val_iou.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
@@ -201,12 +206,11 @@ class Model(LightningModule):
         targets, logits = self.forward(batch)
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
-        self.log("test/loss", loss, on_step=True, on_epoch=True)
+        self.log("test/loss", loss, on_step=False, on_epoch=True)
 
         preds = torch.argmax(logits, dim=1)
         self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
-        self.log("test/iou", self.test_iou, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "logits": logits, "targets": targets}
 
@@ -217,8 +221,10 @@ class Model(LightningModule):
             outputs : output of test
 
         """
-        self.test_iou.compute()
+        iou_epoch = self.test_iou.compute()
+        self.log("test/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.test_iou.confmat, "test")
+        log_comet_cm(self, self.test_iou.confmat, "test")
         self.test_iou.reset()
 
     def predict_step(self, batch: Batch) -> dict:
