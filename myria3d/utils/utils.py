@@ -2,6 +2,8 @@ import logging
 import time
 import warnings
 from typing import List, Sequence
+import sys
+import os
 
 import pytorch_lightning as pl
 import rich.syntax
@@ -14,7 +16,13 @@ from pytorch_lightning.utilities import rank_zero_only
 def get_logger(name=__name__) -> logging.Logger:
     """Initializes multi-GPU-friendly python logger."""
 
-    logger = logging.getLogger(name)
+    # logging.basicConfig(filename="second_test_geometric_eval.log",
+    #                     filemode='a',
+    #                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+    #                     datefmt='%d %b %Y %H:%M:%S',
+    #                     level=logging.DEBUG)
+
+    logger = logging.getLogger("name")
 
     # this ensures all logging levels get marked with the rank zero decorator
     # otherwise logs would get multiplied for each GPU process in multi-GPU setup
@@ -28,6 +36,29 @@ def get_logger(name=__name__) -> logging.Logger:
         "critical",
     ):
         setattr(logger, level, rank_zero_only(getattr(logger, level)))
+
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+
+
+    # handler = logging.handlers.WatchedFileHandler(
+    #     os.environ.get("LOGFILE", "second_test_geometric_eval.log"))
+    # formatter = logging.Formatter(logging.BASIC_FORMAT)
+    # handler.setFormatter(formatter)
+
+    # stdout_handler = logging.StreamHandler(sys.stdout)
+    # # stdout_handler.setLevel(logging.DEBUG)
+    # stdout_handler.setFormatter(formatter)
+
+    file_handler = logging.FileHandler('chrono_docker_comparaison.log')
+    # file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    # logger.addHandler(stdout_handler)
+
+
+    logger.propagate = False
 
     return logger
 

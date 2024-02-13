@@ -91,8 +91,8 @@ def lidar_hd_pre_transform(points):
     nn_ptr = np.ascontiguousarray(nn_ptr)
     nn = np.ascontiguousarray(nn)  
 
-    geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True).transpose()
-
+    # geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True).transpose()
+    geof = pgeof(points, nn, nn_ptr, verbose=True).transpose()
 
     # Pre-allocate memory
     x = np.empty((points.shape[0], len(x_features_names)))
@@ -145,6 +145,6 @@ def lidar_hd_pre_transform(points):
 
     y = points["Classification"]
 
-    data = Data(pos=pos, x=x, y=y, x_features_names=x_features_names)
+    data = Data(pos=pos, x=x.astype('float32'), y=y, x_features_names=x_features_names)
 
     return data
