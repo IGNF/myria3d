@@ -83,18 +83,17 @@ jobs:
         docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
         # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
 
-    # get version number and date, to tag the image pushed to a private docker registry
-    - name: get version number
-      id: tag
-      run: |
-        echo "VERSION=$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)" >> $GITHUB_ENV
-        echo "DATE=$(date '+%Y.%m.%d')" >> $GITHUB_ENV
-
-    # show possible tags, for debugging purpose
-    - name: Print tags
-      run: |
-        echo "${{ env.VERSION }}"
-        echo "${{ env.DATE }}"
+      # get version number and date, to tag the image pushed to a private docker registry
+      - name: get version number
+        id: tag
+        run: |
+          echo "VERSION=$(docker run lidar_prod python -m myria3d._version)" >> $GITHUB_ENV
+          echo "DATE=$(date '+%Y.%m.%d')" >> $GITHUB_ENV
+      # show possible tags, for debugging purpose
+      - name: Print tags
+        run: |
+          echo "${{ env.VERSION }}"
+          echo "${{ env.DATE }}"
 
     - name: push main docker on nexus (tagged with a date)
       # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)

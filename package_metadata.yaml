@@ -1,6 +1,0 @@
-__version__: "3.8.3"
-__name__: "myria3d"
-__url__: "https://github.com/IGNF/myria3d"
-__description__: "Deep Learning for the Semantic Segmentation of Aerial Lidar Point Clouds"
-__author__: "Charles GAYDON"
-__copyright__: "2022, Institut National de l'Information Géographique et Forestière"
