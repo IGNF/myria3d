@@ -1,6 +1,8 @@
 # CHANGELOG
+### 3.8.1
+- fix: propagate input las format to output las (in particular epsg which comes either from input or config)
 
-### 3.8.0
+## 3.8.0
 - dev: log confusion matrices to Comet after each epoch.
 - fix: do not mix the two way to log IoUs to avoid known lightning [Common Pitfalls](https://lightning.ai/docs/torchmetrics/stable/pages/lightning.html#common-pitfalls).
 
@@ -9,7 +11,7 @@
 
 ## 3.7.0
 - Update all versions of Pytorch, Pytorch Lightning, and Pytorch Geometric.
-  Changes are retrocompatible for models trained with older versions (with adjustment to the configuration file). 
+  Changes are retrocompatible for models trained with older versions (with adjustment to the configuration file).
 - Refactor logging of single-class IoUs to go from num_classes+1 torchmetrics instances to only 1.
 
 ### 3.6.1
@@ -64,4 +66,4 @@
 - Fix dataset description for pacasam: there was an unwanted int-to-int mapping in classification_dict
 
 ## 3.4.0
-- Allow inference for the smallest possible patches (num_nodes=1) to have consistent inference behavior 
+- Allow inference for the smallest possible patches (num_nodes=1) to have consistent inference behavior
