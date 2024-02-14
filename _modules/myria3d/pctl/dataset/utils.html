@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.8.0 documentation</title>
+  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.8.1 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -250,19 +250,12 @@
 
     <span class="k">if</span> <span class="n">epsg</span> <span class="p">:</span>
         <span class="c1"># if an epsg in provided, force pdal to read the lidar file with it</span>
-        <span class="k">try</span> <span class="p">:</span>  <span class="c1"># epsg can be added as a number like &quot;2154&quot; or as a string like &quot;EPSG:2154&quot;</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
-                <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">override_srs</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
-                <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">override_srs</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="c1"># epsg can be added as a number like &quot;2154&quot; or as a string like &quot;EPSG:2154&quot;</span>
+        <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
+            <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">override_srs</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">epsg</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">try</span> <span class="p">:</span>
         <span class="k">if</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">)[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;readers.las&#39;</span><span class="p">][</span><span class="s1">&#39;srs&#39;</span><span class="p">][</span><span class="s1">&#39;compoundwkt&#39;</span><span class="p">]:</span>

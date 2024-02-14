@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.models.interpolation &mdash; myria3d 3.8.0 documentation</title>
+  <title>myria3d.models.interpolation &mdash; myria3d 3.8.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -173,6 +173,8 @@
 <span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Categorical</span>
 <span class="kn">from</span> <span class="nn">torch_scatter</span> <span class="kn">import</span> <span class="n">scatter_sum</span>
 
+<span class="kn">from</span> <span class="nn">pdaltools</span> <span class="kn">import</span> <span class="n">las_info</span>
+
 <span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.utils</span> <span class="kn">import</span> <span class="n">get_pdal_info_metadata</span><span class="p">,</span> <span class="n">get_pdal_reader</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -220,7 +222,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_in_full_cloud_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Interpolator.load_full_las_for_update"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.load_full_las_for_update">[docs]</a>    <span class="k">def</span> <span class="nf">load_full_las_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_las</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="Interpolator.load_full_las_for_update"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.load_full_las_for_update">[docs]</a>    <span class="k">def</span> <span class="nf">load_full_las_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_las</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads a LAS and adds necessary extradim.</span>
 
 <span class="sd">        Args:</span>
@@ -248,7 +250,10 @@
             <span class="n">pipeline</span> <span class="o">|=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Filter</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_channel</span><span class="si">}</span><span class="s2">=0&quot;</span><span class="p">)</span>
 
         <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+        <span class="n">writer_params</span> <span class="o">=</span> <span class="n">las_info</span><span class="o">.</span><span class="n">get_writer_parameters_from_reader_metadata</span><span class="p">(</span>
+            <span class="n">pipeline</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">a_srs</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">epsg</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">writer_params</span></div>
 
 <div class="viewcode-block" id="Interpolator.store_predictions"><a class="viewcode-back" href="../../../apidoc/myria3d.model.html#myria3d.models.interpolation.Interpolator.store_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">store_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">idx_in_original_cloud</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep a list of predictions made so far.&quot;&quot;&quot;</span>
@@ -308,7 +313,7 @@
         <span class="k">del</span> <span class="n">logits</span>
 
         <span class="c1"># Read las after fetching all information to write into it</span>
-        <span class="n">las</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_full_las_for_update</span><span class="p">(</span><span class="n">raw_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
+        <span class="n">las</span><span class="p">,</span> <span class="n">writer_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_full_las_for_update</span><span class="p">(</span><span class="n">raw_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">probas_to_save</span><span class="p">:</span>
@@ -338,9 +343,8 @@
         <span class="n">out_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated LAS (</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">) will be saved to: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving...&quot;</span><span class="p">)</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Writer</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="n">out_f</span><span class="p">,</span> <span class="n">extra_dims</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">minor_version</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dataformat_id</span><span class="o">=</span><span class="mi">8</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">las</span><span class="p">)</span>
+        <span class="n">writer_params</span><span class="p">[</span><span class="s2">&quot;extra_dims&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Writer</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">out_f</span><span class="p">,</span> <span class="o">**</span><span class="n">writer_params</span><span class="p">)</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">las</span><span class="p">)</span>
         <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved.&quot;</span><span class="p">)</span>
 
