@@ -54,7 +54,7 @@ def lidar_hd_pre_transform(points):
     )
 
     # geometry
-    k = min(100, len(points))   # in case there are too few points
+    k = min(25, len(points))   # in case there are too few points
     kneigh = NearestNeighbors(n_neighbors=k).fit(pos).kneighbors(pos)
     nn_ptr = np.arange(pos.shape[0] + 1) * k
     nn = kneigh[1].flatten()
@@ -68,10 +68,6 @@ def lidar_hd_pre_transform(points):
     pos = np.ascontiguousarray(pos)
     nn_ptr = np.ascontiguousarray(nn_ptr)
     nn = np.ascontiguousarray(nn)  
-
-    # geof = pgeof(
-    #     points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15,
-    #     verbose=True)
 
     geof = pgeof(points, nn, nn_ptr, k_min=10, k_step=1, k_min_search=15, verbose=True).transpose()
 
