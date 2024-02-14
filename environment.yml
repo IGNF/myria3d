@@ -29,10 +29,11 @@ dependencies:
   - numpy
   - h5py
   # --------- geo --------- #
-  - pdal
+  - pdal==2.6.*
   - python-pdal
-  - pyproj
-    # --------- Visualization --------- #
+  - conda-forge:gdal
+  - conda_forge:pyproj
+  # --------- Visualization --------- #
   - pandas
   - matplotlib
   # --------- loggers --------- #
@@ -69,3 +70,4 @@ dependencies:
     - myst_parser==0.17.*
     - sphinxnotes-mock==1.0.0b0  # still a beta
     - sphinx_paramlinks==0.5.*
+    - ign-pdal-tools>=1.5.2

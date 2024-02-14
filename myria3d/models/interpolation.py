@@ -8,6 +8,8 @@ import torch
 from torch.distributions import Categorical
 from torch_scatter import scatter_sum
 
+from pdaltools import las_info
+
 from myria3d.pctl.dataset.utils import get_pdal_info_metadata, get_pdal_reader
 
 log = logging.getLogger(__name__)
@@ -55,7 +57,7 @@ class Interpolator:
         self.logits: List[torch.Tensor] = []
         self.idx_in_full_cloud_list: List[np.ndarray] = []
 
-    def load_full_las_for_update(self, src_las: str, epsg: str) -> np.ndarray:
+    def load_full_las_for_update(self, src_las: str, epsg: str) -> Tuple[np.ndarray, Dict]:
         """Loads a LAS and adds necessary extradim.
 
         Args:
@@ -83,7 +85,10 @@ class Interpolator:
             pipeline |= pdal.Filter.assign(value=f"{self.entropy_channel}=0")
 
         pipeline.execute()
-        return pipeline.arrays[0]
+        writer_params = las_info.get_writer_parameters_from_reader_metadata(
+            pipeline.metadata, a_srs=f"EPSG:{epsg}" if str(epsg).isdigit() else epsg
+        )
+        return pipeline.arrays[0], writer_params
 
     def store_predictions(self, logits, idx_in_original_cloud) -> None:
         """Keep a list of predictions made so far."""
@@ -143,7 +148,7 @@ class Interpolator:
         del logits
 
         # Read las after fetching all information to write into it
-        las = self.load_full_las_for_update(raw_path, epsg)
+        las, writer_params = self.load_full_las_for_update(raw_path, epsg)
 
         for idx, class_name in enumerate(self.classification_dict.values()):
             if class_name in self.probas_to_save:
@@ -173,9 +178,8 @@ class Interpolator:
         out_f = os.path.abspath(out_f)
         log.info(f"Updated LAS ({basename}) will be saved to: \n {output_dir}\n")
         log.info("Saving...")
-        pipeline = pdal.Writer.las(
-            filename=out_f, extra_dims="all", minor_version=4, dataformat_id=8
-        ).pipeline(las)
+        writer_params["extra_dims"] = "all"
+        pipeline = pdal.Writer.las(filename=out_f, **writer_params).pipeline(las)
         pipeline.execute()
         log.info("Saved.")
 

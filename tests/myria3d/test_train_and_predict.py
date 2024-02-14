@@ -4,6 +4,8 @@ from typing import List
 import numpy as np
 import pytest
 from lightning.pytorch.accelerators import find_usable_cuda_devices
+from pathlib import Path
+from pdaltools import las_info
 
 
 from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
@@ -94,6 +96,10 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         "task.task_name=predict",
     ]
     run_hydra_decorated_command(command)
+    output_path = Path(tmpdir) / Path(abs_path_to_toy_LAS).name
+    metadata = las_info.las_info_metadata(output_path)
+    out_pesg = las_info.get_epsg_from_header_info(metadata)
+    assert out_pesg == DEFAULT_EPSG
 
 
 def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
