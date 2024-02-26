@@ -11,6 +11,7 @@ from enum import Enum
 import os
 import sys
 from glob import glob
+import time
 import dotenv
 import hydra
 from omegaconf import DictConfig
@@ -77,6 +78,7 @@ def launch_predict(config: DictConfig):
     # Iterate over the files and predict.
     src_las_iterable = glob(config.predict.src_las)
     for config.predict.src_las in tqdm(src_las_iterable):
+        print(f"Predicting on {config.predict.src_las}")
         predict(config)
 
 
@@ -118,17 +120,24 @@ if __name__ == "__main__":
         # load environment variables from `.env` file if it exists
         # recursively searches for `.env` in all folders starting from work dir
         dotenv.load_dotenv(override=True)
+        start_time = time.time()        
         launch_train()
+        log.info(f"launch_train duration: {time.time() - start_time}")
 
     elif task_name == TASK_NAMES.PREDICT.value:
         dotenv.load_dotenv(os.path.join(DEFAULT_DIRECTORY, DEFAULT_ENV))
+        start_time = time.time()   
         launch_predict()
+        log.info(f"launch_predict duration: {time.time() - start_time}")
 
     elif task_name == TASK_NAMES.HDF5.value:
+        start_time = time.time() 
         launch_hdf5()
+        log.info(f"launch_hdf5 duration: {time.time() - start_time}")
 
     else:
         choices = ", ".join(task.value for task in TASK_NAMES)
         raise ValueError(
             f"Task '{task_name}' is not known. Specify a valid task name via task.task_name. Valid choices are: {choices})"
         )
+
