@@ -1,4 +1,7 @@
 # CHANGELOG
+### 3.8.2
+- fix: type error in edge case when dropping points in transforms
+
 ### 3.8.1
 - fix: propagate input las format to output las (in particular epsg which comes either from input or config)
 

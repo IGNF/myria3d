@@ -36,6 +36,9 @@ def subsample_data(data, num_nodes, choice):
             continue
         elif torch.is_tensor(item) and item.size(0) == num_nodes and item.size(0) != 1:
             data[key] = item[choice]
+        elif isinstance(item, np.ndarray) and item.shape[0] == num_nodes and item.shape[0] != 1:
+            data[key] = item[choice]
+
     return data
 
 
@@ -234,7 +237,5 @@ class DropPointsByClass(BaseTransform):
         if points_to_drop.sum() > 0:
             points_to_keep = torch.logical_not(points_to_drop)
             data = subsample_data(data, num_nodes=data.num_nodes, choice=points_to_keep)
-            # Here we also subsample these idx since we do not need to interpolate these points back
-            if "idx_in_original_cloud" in data:
-                data.idx_in_original_cloud = data.idx_in_original_cloud[points_to_keep]
+
         return data
