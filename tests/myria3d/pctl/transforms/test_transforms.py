@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
-import torch_geometric
 import torch
+import torch_geometric
 
-from myria3d.pctl.transforms.transforms import TargetTransform, DropPointsByClass
+from myria3d.pctl.transforms.transforms import DropPointsByClass, TargetTransform
 
 
 def test_TargetTransform_with_valid_config():
@@ -12,10 +12,12 @@ def test_TargetTransform_with_valid_config():
     # 1 becomes 0, and 6 becomes 1.
     classification_dict = {1: "unclassified", 6: "building"}
     tt = TargetTransform(classification_preprocessing_dict, classification_dict)
-
     y = np.array([1, 1, 2, 2, 6, 6])
-    data = torch_geometric.data.Data(x=None, y=y)
-    assert np.array_equal(tt(data).y, np.array([0, 0, 0, 0, 1, 1]))
+    idx = np.arange(6)
+    data = torch_geometric.data.Data(x=None, y=y, idx_in_original_cloud=idx)
+    out_data = tt(data)
+    assert np.array_equal(out_data.y, np.array([0, 0, 0, 0, 1, 1]))
+    assert np.array_equal(out_data.idx_in_original_cloud, idx)
 
 
 def test_TargetTransform_throws_type_error_if_invalid_classification_dict():
@@ -34,11 +36,16 @@ def test_DropPointsByClass():
     # points with class 65 are droped.
     y = torch.Tensor([1, 65, 65, 2, 65])
     x = torch.rand((5, 3))
-    data = torch_geometric.data.Data(x=x, y=y)
+    idx = np.arange(5)  # Not a tensor
+    data = torch_geometric.data.Data(x=x, y=y, idx_in_original_cloud=idx)
     drop_transforms = DropPointsByClass()
     transformed_data = drop_transforms(data)
     assert torch.equal(transformed_data.y, torch.Tensor([1, 2]))
     assert transformed_data.x.size(0) == 2
+    print(type(transformed_data.idx_in_original_cloud))
+    assert isinstance(transformed_data.idx_in_original_cloud, np.ndarray)
+    assert transformed_data.idx_in_original_cloud.size == 2
+    assert np.all(transformed_data.idx_in_original_cloud == np.array([0, 3]))
 
     # No modification
     x = torch.rand((3, 3))
@@ -47,3 +54,15 @@ def test_DropPointsByClass():
     transformed_data = drop_transforms(data)
     assert torch.equal(data.x, transformed_data.x)
     assert torch.equal(data.y, transformed_data.y)
+
+    # Keep one point only
+    y = torch.Tensor([1, 65, 65, 65, 65])
+    x = torch.rand((5, 3))
+    idx = np.arange(5)  # Not a tensor
+    data = torch_geometric.data.Data(x=x, y=y, idx_in_original_cloud=idx)
+    transformed_data = drop_transforms(data)
+    assert torch.equal(transformed_data.y, torch.Tensor([1]))
+    assert transformed_data.x.size(0) == 1
+    assert isinstance(transformed_data.idx_in_original_cloud, np.ndarray)
+    assert transformed_data.idx_in_original_cloud.shape[0] == 1
+    assert np.all(transformed_data.idx_in_original_cloud == np.array([0]))
