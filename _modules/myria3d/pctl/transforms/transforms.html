@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.transforms.transforms &mdash; myria3d 3.8.1 documentation</title>
+  <title>myria3d.pctl.transforms.transforms &mdash; myria3d 3.8.2 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -201,6 +201,9 @@
             <span class="k">continue</span>
         <span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_nodes</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">num_nodes</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">data</span>
 
 
@@ -399,9 +402,7 @@
         <span class="k">if</span> <span class="n">points_to_drop</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">points_to_keep</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">points_to_drop</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">subsample_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_nodes</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="n">points_to_keep</span><span class="p">)</span>
-            <span class="c1"># Here we also subsample these idx since we do not need to interpolate these points back</span>
-            <span class="k">if</span> <span class="s2">&quot;idx_in_original_cloud&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">idx_in_original_cloud</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">idx_in_original_cloud</span><span class="p">[</span><span class="n">points_to_keep</span><span class="p">]</span>
+
         <span class="k">return</span> <span class="n">data</span></div>
 </pre></div>
 
