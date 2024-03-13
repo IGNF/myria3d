@@ -21,28 +21,28 @@ from myria3d.pctl.transforms.transforms import (
             torch.IntTensor([0, 1, 4]),
             3,
         ),
-        # Edge case with choice contiaining indices: select no point
+        # Edge case with choice containing indices: select no point
         (
             torch.Tensor([10, 11, 12, 13, 14]),
             np.array([20, 21, 22, 23, 24]),
             torch.IntTensor([]),
             0,
         ),
-        # Edge case with choice contiaining indices: select one point
+        # Edge case with choice containing indices: select one point
         (
             torch.Tensor([10, 11, 12, 13, 14]),
             np.array([20, 21, 22, 23, 24]),
             torch.IntTensor([1]),
             1,
         ),
-        # Edge case with choice contiaining indices: input array with one point
+        # Edge case with choice containing indices: input array with one point
         (
             torch.Tensor([10]),
             np.array([20]),
             torch.IntTensor([0]),
             1,
         ),
-        # Edge case with choice contiaining indices: input array with one point
+        # Edge case with choice containing indices: input array with one point
         (
             torch.Tensor([10]),
             np.array([20]),
