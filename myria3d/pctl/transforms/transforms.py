@@ -27,16 +27,19 @@ class ToTensor(BaseTransform):
         return data
 
 
-def subsample_data(data, num_nodes, choice):
+def subsample_data(data, num_nodes, choice: torch.Tensor):
     # TODO: get num_nodes from data.num_nodes instead to simplify signature
+    out_nodes = torch.sum(choice) if choice.dtype == torch.bool else choice.size(0)
     for key, item in data:
         if key == "num_nodes":
-            data.num_nodes = choice.size(0)
+            data.num_nodes = out_nodes
+        elif key in ["copies", "idx_in_original_cloud"]:
+            # Do not subsample copies of the original point cloud or indices of the original points
+            # contained in the patch
+            continue
         elif bool(re.search("edge", key)):
             continue
-        elif torch.is_tensor(item) and item.size(0) == num_nodes and item.size(0) != 1:
-            data[key] = item[choice]
-        elif isinstance(item, np.ndarray) and item.shape[0] == num_nodes and item.shape[0] != 1:
+        elif torch.is_tensor(item) and item.size(0) == num_nodes:
             data[key] = item[choice]
 
     return data
@@ -237,5 +240,9 @@ class DropPointsByClass(BaseTransform):
         if points_to_drop.sum() > 0:
             points_to_keep = torch.logical_not(points_to_drop)
             data = subsample_data(data, num_nodes=data.num_nodes, choice=points_to_keep)
+            # Here we also subsample these idx since we do not need to interpolate these points back
+            # It supposes that DropPointsByClass is run before copying the original point cloud
+            if "idx_in_original_cloud" in data:
+                data.idx_in_original_cloud = data.idx_in_original_cloud[points_to_keep.numpy()]
 
         return data
