@@ -9,13 +9,14 @@ from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 from torch_geometric.nn.pool import global_mean_pool
-from torchmetrics import Accuracy
+from torchmetrics import Accuracy, F1Score, Recall
 from myria3d.metrics.confusion_matrix import save_confusion_matrix
 from myria3d.metrics.polygon_metrics import make_polygon_metrics
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.metrics import ConfusionMatrix
 from myria3d.utils import utils
+from torchmetrics import Precision
 
 log = utils.get_logger(__name__)
 
@@ -109,6 +110,12 @@ class Model(LightningModule):
                 Accuracy(num_classes=num_classes, average="none", top_k=top_k)
                 for top_k in TOP_K_LIST
             ]
+            self.test_precision = Precision(num_classes=num_classes, average="micro")
+            self.test_precision_by_class = Precision(num_classes=num_classes, average="none")
+            self.test_recall = Recall(num_classes=num_classes, average="micro")
+            self.test_recall_by_class = Recall(num_classes=num_classes, average="none")
+            self.test_f1 = F1Score(num_classes=num_classes, average="micro")
+            self.test_f1_by_class = F1Score(num_classes=num_classes, average="none")
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
@@ -355,6 +362,19 @@ class Model(LightningModule):
         preds = torch.argmax(logits, dim=1)
         self.test_iou = self.test_iou.to(preds.device)
         self.test_iou(preds, targets)
+
+        # update other metrics !
+        for metric in [
+            self.test_precision,
+            self.test_precision_by_class,
+            self.test_recall,
+            self.test_recall_by_class,
+            self.test_f1,
+            self.test_f1_by_class,
+        ]:
+            metric = metric.to(logits.device)
+            metric(logits, targets)
+
         if targets is not None:
             self.test_cm(preds, targets)
 
@@ -408,10 +428,31 @@ class Model(LightningModule):
             for idx, cn in enumerate(self.class_names):
                 self.log(f"test/top-{top_k}-acc-{cn}", accuracies[idx], prog_bar=False)
 
+        self.log(f"test/precision", self.test_precision.compute(), prog_bar=False)
+        self.log(f"test/recall", self.test_recall.compute(), prog_bar=False)
+        self.log(f"test/f1", self.test_f1.compute(), prog_bar=False)
+
+        precisions = self.test_precision_by_class.compute()
+        recalls = self.test_recall_by_class.compute()
+        f1s = self.test_f1_by_class.compute()
+        for idx, cn in enumerate(self.class_names):
+            self.log(f"test/precision-{cn}", precisions[idx], prog_bar=False)
+            self.log(f"test/recall-{cn}", recalls[idx], prog_bar=False)
+            self.log(f"test/f1-{cn}", f1s[idx], prog_bar=False)
+
         # reset
         self.test_cm.reset()
         [m.reset() for m in self.test_top_accuracies]
         [m.reset() for m in self.test_top_accuracies_by_class]
+        for metric in [
+            self.test_precision,
+            self.test_precision_by_class,
+            self.test_recall,
+            self.test_recall_by_class,
+            self.test_f1,
+            self.test_f1_by_class,
+        ]:
+            metric.reset()
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
