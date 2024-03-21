@@ -110,11 +110,11 @@ class Model(LightningModule):
                 Accuracy(num_classes=num_classes, average="none", top_k=top_k)
                 for top_k in TOP_K_LIST
             ]
-            self.test_precision = Precision(num_classes=num_classes, average="micro")
+            self.test_precision = Precision(num_classes=num_classes, average="weighted")
             self.test_precision_by_class = Precision(num_classes=num_classes, average="none")
-            self.test_recall = Recall(num_classes=num_classes, average="micro")
+            self.test_recall = Recall(num_classes=num_classes, average="weighted")
             self.test_recall_by_class = Recall(num_classes=num_classes, average="none")
-            self.test_f1 = F1Score(num_classes=num_classes, average="micro")
+            self.test_f1 = F1Score(num_classes=num_classes, average="weighted")
             self.test_f1_by_class = F1Score(num_classes=num_classes, average="none")
 
     def forward(self, batch: Batch) -> torch.Tensor:
