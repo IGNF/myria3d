@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl &mdash; myria3d 3.8.2 documentation</title>
+  <title>myria3d.pctl &mdash; myria3d 3.8.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -201,10 +201,10 @@ Defaults to None.</p>
 <span class="sig-name descname"><span class="pre">predict_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.predict_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.predict_dataloader" title="Permalink to this definition"></a></dt>
 <dd><p>An iterable or collection of iterables specifying prediction samples.</p>
 <p>For more information about multiple dataloaders, see this <span class="xref std std-ref">section</span>.</p>
-<p>It’s recommended that all data downloads and preparation happen in <code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code>.</p>
+<p>It’s recommended that all data downloads and preparation happen in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a>.</p>
 <ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">predict()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
 </ul>
 <div class="admonition note">
@@ -220,8 +220,8 @@ There is no need to set it yourself.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data_per_node">
-<span class="sig-name descname"><span class="pre">prepare_data_per_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.prepare_data_per_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data_per_node" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/pctl/datamodule/hdf5.html#HDF5LidarDataModule.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="Permalink to this definition"></a></dt>
 <dd><p>Prepare dataset containing train, val, test data.</p>
 </dd></dl>
 
@@ -239,7 +239,7 @@ There is no need to set it yourself.</p>
 <p>For data processing use the following pattern:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>download in <code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></p></li>
+<li><p>download in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
 <li><p>process and split in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
 </ul>
 </div></blockquote>
@@ -250,7 +250,7 @@ There is no need to set it yourself.</p>
 </div>
 <ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">test()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
 </ul>
 <div class="admonition note">
@@ -276,7 +276,7 @@ a positive integer.</p>
 <p>For data processing use the following pattern:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>download in <code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></p></li>
+<li><p>download in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
 <li><p>process and split in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
 </ul>
 </div></blockquote>
@@ -287,7 +287,7 @@ a positive integer.</p>
 </div>
 <ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
 </ul>
 <div class="admonition note">
@@ -305,11 +305,11 @@ There is no need to set it yourself.</p>
 <p>The dataloader you return will not be reloaded unless you set
 <code class="xref py py-paramref docutils literal notranslate"><span class="pre">reload_dataloaders_every_n_epochs</span></code> to
 a positive integer.</p>
-<p>It’s recommended that all data downloads and preparation happen in <code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code>.</p>
+<p>It’s recommended that all data downloads and preparation happen in <a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a>.</p>
 <ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate()</span></code></p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></p></li>
+<li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_data()</span></code></a></p></li>
 <li><p><a class="reference internal" href="#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup" title="myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a></p></li>
 </ul>
 <div class="admonition note">
