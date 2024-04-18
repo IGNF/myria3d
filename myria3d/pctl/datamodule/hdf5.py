@@ -88,7 +88,7 @@ class HDF5LidarDataModule(LightningDataModule):
     def predict_transform(self) -> CustomCompose:
         return CustomCompose(self.preparation_predict_transform + self.normalization_transform)
 
-    def prepare_data_per_node(self, stage: Optional[str] = None):
+    def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
 
         if stage in ["fit", "test"] or stage is None:

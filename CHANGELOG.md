@@ -1,4 +1,7 @@
 # CHANGELOG
+### 3.8.3
+- fix: prepare_data_per_node is a flag and was incorrectly used as a replacement for prepare_data.
+
 ### 3.8.2
 - fix: points not dropped case in subsampling when the subtile contains only one point
 - fix: type error in edge case when dropping points in DropPointsByClass (when there is only one remaining point)
