@@ -5,7 +5,7 @@ Here are a few challenges relative to training 3D segmentation models for Aerial
 ## Model should be fast, performant, and practical
 
 **Situation**:
-- Since the seminal PointCloud architecture [[Qi 2016](https://arxiv.org/abs/1612.00593)] and the later [[PointNet++](https://arxiv.org/abs/1706.02413)], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion. 
+- Since the seminal PointNet architecture [[Qi 2016](https://arxiv.org/abs/1612.00593)] and the later [[PointNet++](https://arxiv.org/abs/1706.02413)], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion. 
 - Our main requirements are:
   1) Speed of inference, in order to operate at a national scale.
   2) performances in large-scale outdoor Lidar settings, on e.g. [SemanticKITTI](http://semantic-kitti.org/) and [Semantic 3D](http://semantic3d.net/) benchmarks, by opposition to e.g. the [S3DIS](https://ieeexplore.ieee.org/document/7780539/) benchmark.
@@ -49,4 +49,4 @@ Here are a few challenges relative to training 3D segmentation models for Aerial
 - Evaluation of models must be reliable in order to compare solutions. For semantic segmentation models on point cloud, this means that performance metrics (i.e. mean and by-class Intersection-over-Union) should be computed based on a confusion matrix that is computed from all points in all point clouds in the test dataset.
 
 **Strategy**:
-- During test and validation phases, we **do** interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in `eval` mode only, and is of course also leveraged during inference.
+- During test, we **do** interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in `test` mode only, and is of course also leveraged during inference.
