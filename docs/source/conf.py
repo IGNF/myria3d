@@ -13,7 +13,7 @@
 import os
 import sys
 
-import yaml
+import tomli
 from hydra import compose, initialize
 from omegaconf import OmegaConf
 
@@ -21,15 +21,16 @@ rel_root_path = "./../../"
 abs_root_path = os.path.abspath(rel_root_path)
 sys.path.insert(0, abs_root_path)
 
+from myria3d._version import __version__  # noqa: E402
 
 # -- Project information -----------------------------------------------------
-with open(os.path.join(abs_root_path, "package_metadata.yaml"), "r") as f:
-    pm = yaml.safe_load(f)
+with open(os.path.join(abs_root_path, "pyproject.toml"), "rb") as f:
+    data = tomli.load(f)
 
-release = pm["__version__"]
-project = pm["__name__"]
-author = pm["__author__"]
-copyright = pm["__copyright__"]
+release = __version__
+project = data["project"]["name"]
+author = ", ".join([a["name"] for a in data["project"]["authors"]])
+copyright = data["metadata"]["copyright"]
 
 # -- YAML main to print the config into  ---------------------------------------------------
 # We need to concatenate configs into a single file using hydra

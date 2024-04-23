@@ -38,7 +38,7 @@ dependencies:
   - matplotlib
   # --------- loggers --------- #
   - comet_ml::comet_ml=3.35
-  - conda-forge::urllib3<2  # To solve for https://github.com/GeneralMills/pytrends/issues/591
+  - conda-forge::urllib3<2 # To solve for https://github.com/GeneralMills/pytrends/issues/591
     # --------- Visualization --------- #
   - pandas
   - matplotlib
@@ -57,17 +57,18 @@ dependencies:
   - rich # beautiful text formatting in terminal
   - sh # for running bash commands in some tests
   - pudb # debugger
+  - twine # to publish pip package
     # # --------- Documentation --------- #
   - sphinx==4.5.*
   - recommonmark==0.7.*
   - sphinx_rtd_theme==1.0.*
   - docutils==0.17
-  - rstcheck==3.3.*  # RST Linter
+  - rstcheck==3.3.* # RST Linter
   - pip:
-    - hydra-core==1.1.*
-    - hydra-colorlog==1.1.*
-    # --------- Documentation --------- #
-    - myst_parser==0.17.*
-    - sphinxnotes-mock==1.0.0b0  # still a beta
-    - sphinx_paramlinks==0.5.*
-    - ign-pdal-tools>=1.5.2
+      - hydra-core==1.1.*
+      - hydra-colorlog==1.1.*
+      # --------- Documentation --------- #
+      - myst_parser==0.17.*
+      - sphinxnotes-mock==1.0.0b0 # still a beta
+      - sphinx_paramlinks==0.5.*
+      - ign-pdal-tools>=1.5.2

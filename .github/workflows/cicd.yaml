@@ -15,103 +15,146 @@ on:
 jobs:
   CICD:
     runs-on: self-hosted
+    env:
+      http_proxy: ${{ secrets.PROXY_URL }}
+      https_proxy: ${{ secrets.PROXY_URL }}
 
     steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
 
-    - name: Checkout branch
-      uses: actions/checkout@v4
+      - name: Build docker image
+        run: docker build --build-arg http_proxy=${{ secrets.PROXY_URL }} --build-arg https_proxy=${{ secrets.PROXY_URL }} -t myria3d .
 
-    - name: Build docker image
-      run: docker build --build-arg http_proxy=${{ secrets.PROXY_URL }} --build-arg https_proxy=${{ secrets.PROXY_URL }} -t myria3d .
+      - name: Run pytest
+        run: >
+          docker run
+          --ipc=host
+          myria3d
+          python -m
+          pytest -rA -v
+          --ignore=actions-runner
 
-    - name: Run pytest
-      run: >
-        docker run
-        --ipc=host
-        myria3d
-        python -m
-        pytest -rA -v
-        --ignore=actions-runner
+      # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
+      # sufficient shared memory when predicting on large files.
+      - name: Example inference run via Docker with default config and checkpoint
+        run: >
+          docker run
+          -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/inputs/:/inputs/
+          -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/outputs/:/outputs/
+          --ipc=host
+          --shm-size=2gb
+          myria3d
+          python run.py
+          predict.src_las=/inputs/792000_6272000_subset_buildings.las
+          datamodule.epsg=2154
+          predict.output_dir=/outputs/
+          task.task_name=predict
 
-    # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
-    # sufficient shared memory when predicting on large files.
-    - name: Example inference run via Docker with default config and checkpoint
-      run: >
-        docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/inputs/:/inputs/
-        -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/outputs/:/outputs/
-        --ipc=host
-        --shm-size=2gb
-        myria3d
-        python run.py
-        predict.src_las=/inputs/792000_6272000_subset_buildings.las
-        datamodule.epsg=2154
-        predict.output_dir=/outputs/
-        task.task_name=predict
+      # predict.subtile_overlap specifies overlap between adjacent samples (in meters).
+      - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
+        run: >
+          docker run
+          -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/inputs/:/inputs/
+          -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/outputs/:/outputs/
+          --ipc=host
+          --shm-size=2gb
+          myria3d
+          python run.py
+          --config-path /inputs/
+          --config-name proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.7.0
+          predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
+          datamodule.epsg=2154
+          predict.src_las=/inputs/792000_6272000_subset_buildings.las
+          predict.output_dir=/outputs/
+          predict.subtile_overlap=25
+          datamodule.batch_size=10
+          predict.interpolator.probas_to_save=[building,ground]
+          task.task_name=predict
 
-    # predict.subtile_overlap specifies overlap between adjacent samples (in meters).
-    - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
-      run: >
-        docker run
-        -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/inputs/:/inputs/
-        -v /var/data/cicd/CICD_github_assets/myria3d_V3.7.0/outputs/:/outputs/
-        --ipc=host
-        --shm-size=2gb
-        myria3d
-        python run.py
-        --config-path /inputs/
-        --config-name proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.7.0
-        predict.ckpt_path=/inputs/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
-        datamodule.epsg=2154
-        predict.src_las=/inputs/792000_6272000_subset_buildings.las
-        predict.output_dir=/outputs/
-        predict.subtile_overlap=25
-        datamodule.batch_size=10
-        predict.interpolator.probas_to_save=[building,ground]
-        task.task_name=predict
+      - name: Check code neatness (linter)
+        run: docker run myria3d python -m flake8
 
-    - name: Check code neatness (linter)
-      run: docker run myria3d python -m flake8
+      # Everything ran so we tag the valid docker image to keep it
+      # This happens for push events, which are in particular
+      # triggered when a pull request is merged.
+      - name: Tag the docker image with branch name
+        if: github.event_name == 'push'
+        run: |
+          docker tag myria3d:latest myria3d:${{github.ref_name}}
+          docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
+          # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
 
-    # Everything ran so we tag the valid docker image to keep it
-    # This happens for push events, which are in particular
-    # triggered when a pull request is merged.
-    - name: Tag the docker image with branch name
-      if: github.event_name == 'push'
-      run: |
-        docker tag myria3d:latest myria3d:${{github.ref_name}}
-        docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
-        # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
+      # get version number and date, to tag the image pushed to a private docker registry
+      - name: get version number
+        id: tag
+        run: |
+          echo "VERSION=$(docker run myria3d python -m myria3d._version)" >> $GITHUB_ENV
+          echo "DATE=$(date '+%Y.%m.%d')" >> $GITHUB_ENV
 
-    # get version number and date, to tag the image pushed to a private docker registry
-    - name: get version number
-      id: tag
-      run: |
-        echo "VERSION=$(docker run myria3d grep '__version__' package_metadata.yaml| cut -d\" -f2)" >> $GITHUB_ENV
-        echo "DATE=$(date '+%Y.%m.%d')" >> $GITHUB_ENV
+      # show possible tags, for debugging purpose
+      - name: Print tags
+        run: |
+          echo "${{ env.VERSION }}"
+          echo "${{ env.DATE }}"
 
-    # show possible tags, for debugging purpose
-    - name: Print tags
-      run: |
-        echo "${{ env.VERSION }}"
-        echo "${{ env.DATE }}"
+      - name: push main docker on nexus (tagged with a date)
+        # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
+        if: ((github.ref_name == 'main') && (github.event_name == 'push'))
+        run: |
+          docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
+          docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+          docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
 
-    - name: push main docker on nexus (tagged with a date)
-      # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
-      if: ((github.ref_name == 'main') && (github.event_name == 'push'))
-      run: |
-        docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
-        docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
+      - name: push branch docker on nexus (tagged with the branch name)
+        # we push on nexus an image from a branch when it's pushed
+        if: ((github.event_name == 'push') && (github.ref_name != 'main'))
+        run: |
+          docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
+          docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+          docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
 
-    - name: push branch docker on nexus (tagged with the branch name)
-      # we push on nexus an image from a branch when it's pushed
-      if: ((github.event_name == 'push') && (github.ref_name != 'main'))
-      run: |
-        docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
-        docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-        docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
+      - name: Clean dangling docker images
+        if: always() # always do it, even if something failed
+        run: docker system prune --force # remove dangling docker images, without asking user for confirmation
 
-    - name: Clean dangling docker images
-      if: always()  # always do it, even if something failed
-      run: docker system prune --force # remove dangling docker images, without asking user for confirmation
+  publish-pypi:
+    runs-on: ubuntu-latest
+    if: ((github.ref_name == 'main') && (github.event_name == 'push'))
+    environment:
+      name: pypi
+      url: https://pypi.org/p/myria3d/
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      # See https://github.com/marketplace/actions/setup-micromamba
+      - name: setup-micromamba
+        uses: mamba-org/setup-micromamba@v1.4.3
+        with:
+          environment-file: environment.yml
+          environment-name: myria3d # activate the environment
+          cache-environment: true
+          cache-downloads: true
+          generate-run-shell: true
+
+      - name: Run tests with pytest
+        shell: micromamba-shell {0}
+        run: python -m pytest ./tests -rA -v
+
+      - name: Clean up before building package
+        run: rm -rf tmp myria3d.egg-info dist
+
+      - name: Build pip package
+        shell: micromamba-shell {0}
+        run: python -m build
+
+      - name: pypi-publish
+        uses: pypa/gh-action-pypi-publish@v1.8.14
+        with:
+          skip-existing: true
