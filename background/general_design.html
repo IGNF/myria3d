@@ -172,7 +172,7 @@
 <h2>Model should be fast, performant, and practical<a class="headerlink" href="#model-should-be-fast-performant-and-practical" title="Permalink to this headline"></a></h2>
 <p><strong>Situation</strong>:</p>
 <ul class="simple">
-<li><p>Since the seminal PointCloud architecture [<a class="reference external" href="https://arxiv.org/abs/1612.00593">Qi 2016</a>] and the later [<a class="reference external" href="https://arxiv.org/abs/1706.02413">PointNet++</a>], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion.</p></li>
+<li><p>Since the seminal PointNet architecture [<a class="reference external" href="https://arxiv.org/abs/1612.00593">Qi 2016</a>] and the later [<a class="reference external" href="https://arxiv.org/abs/1706.02413">PointNet++</a>], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion.</p></li>
 <li><p>Our main requirements are:</p>
 <ol class="arabic simple">
 <li><p>Speed of inference, in order to operate at a national scale.</p></li>
@@ -229,7 +229,7 @@
 </ul>
 <p><strong>Strategy</strong>:</p>
 <ul class="simple">
-<li><p>During test and validation phases, we <strong>do</strong> interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in <code class="docutils literal notranslate"><span class="pre">eval</span></code> mode only, and is of course also leveraged during inference.</p></li>
+<li><p>During test, we <strong>do</strong> interpolate logits back to the each sample (point cloud) before computing performance metrics. Interestingly, this enable to compare different subsampling approaches and interpolation methods in a robust way. The interpolation step is triggered in <code class="docutils literal notranslate"><span class="pre">test</span></code> mode only, and is of course also leveraged during inference.</p></li>
 </ul>
 </section>
 </section>
