@@ -148,7 +148,7 @@ class Model(LightningModule):
         return {"loss": loss, "logits": logits, "targets": targets}
 
     def on_train_epoch_end(self) -> None:
-        iou_epoch = self.train_iou.compute()
+        iou_epoch = self.train_iou.to(self.device).compute()
         self.log("train/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.train_iou.confmat, "train")
         log_comet_cm(self, self.train_iou.confmat, "train")
@@ -186,7 +186,7 @@ class Model(LightningModule):
             outputs : output of validation_step
 
         """
-        iou_epoch = self.val_iou.compute()
+        iou_epoch = self.val_iou.to(self.device).compute()
         self.log("val/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.val_iou.confmat, "val")
         log_comet_cm(self, self.val_iou.confmat, "val")
@@ -221,7 +221,7 @@ class Model(LightningModule):
             outputs : output of test
 
         """
-        iou_epoch = self.test_iou.compute()
+        iou_epoch = self.test_iou.to(self.device).compute()
         self.log("test/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
         self.log_all_class_ious(self.test_iou.confmat, "test")
         log_comet_cm(self, self.test_iou.confmat, "test")

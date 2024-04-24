@@ -1,4 +1,8 @@
 # CHANGELOG
+
+### 3.8.4
+- fix: move IoU appropriately to fix wrong device error created by a breaking change in torch when using DDP.
+
 ### 3.8.3
 - fix: prepare_data_per_node is a flag and was incorrectly used as a replacement for prepare_data.
 
