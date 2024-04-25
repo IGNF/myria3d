@@ -6,7 +6,7 @@ from torchmetrics import Accuracy, F1Score, JaccardIndex, Precision, Recall
 class ModelMetrics(Callback):
     """Compute metrics for multiclass classification.
 
-    Accuracy, Precision, Recall are micro-averaged.
+    Accuracy, Precision, Recall, F1Score are micro-averaged.
     IoU (Jaccard Index) is macro-average to get the mIoU.
     All metrics are also computed per class.
 
