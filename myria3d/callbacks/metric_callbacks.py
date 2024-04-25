@@ -65,7 +65,7 @@ class ModelMetrics(Callback):
             )
         class_names = pl_module.hparams.classification_dict.values()
         for metric_name, metric in self.metrics_by_class[phase].items():
-            values = metric.compute()
+            values = metric.to(pl_module.device).compute()
             for value, class_name in zip(values, class_names):
                 metric_name_for_log = f"{phase}/{metric_name}/{class_name}"
                 self.log(
