@@ -1,6 +1,8 @@
 from pytorch_lightning import Callback
 import torch
-from torchmetrics import Accuracy, F1Score, JaccardIndex, Precision, Recall
+from torchmetrics import Accuracy, F1Score, JaccardIndex, Precision, Recall, ConfusionMatrix
+
+from myria3d.callbacks.comet_callbacks import log_comet_cm
 
 
 class ModelMetrics(Callback):
@@ -27,6 +29,7 @@ class ModelMetrics(Callback):
             "val": self._metrics_factory(by_class=True),
             "test": self._metrics_factory(by_class=True),
         }
+        self.cm = ConfusionMatrix(task="multiclass", num_classes=self.num_classes)
 
     def _metrics_factory(self, by_class=False):
         average = None if by_class else "micro"
@@ -52,6 +55,7 @@ class ModelMetrics(Callback):
             m.to(preds.device)(preds, targets)
         for m in self.metrics_by_class[phase].values():
             m.to(preds.device)(preds, targets)
+        self.cm.to(preds.device)(preds, targets)
 
     def _end_of_epoch(self, phase: str, pl_module):
         for metric_name, metric in self.metrics[phase].items():
@@ -79,6 +83,8 @@ class ModelMetrics(Callback):
                     metric_attribute=metric_name_for_log,
                 )
             metric.reset()  # always reset state when using compute().
+
+        log_comet_cm(pl_module, self.cm.confmat, phase, class_names)
 
     def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
         self._end_of_batch("train", outputs)

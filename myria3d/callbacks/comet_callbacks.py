@@ -73,14 +73,15 @@ class LogLogsPath(Callback):
             logger.experiment.log_parameter("experiment_logs_dirpath", log_path)
 
 
-def log_comet_cm(lightning_module, confmat, phase):
-    logger = get_comet_logger(trainer=lightning_module)
+def log_comet_cm(pl_module, confmat, phase, class_names):
+    """Method used in the metric logging callback."""
+    logger = get_comet_logger(trainer=pl_module.trainer)
     if logger:
-        labels = list(lightning_module.hparams.classification_dict.values())
+        class_names = list(pl_module.hparams.classification_dict.values())
         logger.experiment.log_confusion_matrix(
             matrix=confmat.cpu().numpy().tolist(),
-            labels=labels,
+            labels=class_names,
             file_name=f"{phase}-confusion-matrix",
             title="{phase} confusion matrix",
-            epoch=lightning_module.current_epoch,
+            epoch=pl_module.current_epoch,
         )

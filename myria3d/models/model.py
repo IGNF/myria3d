@@ -3,8 +3,6 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
-from torchmetrics.classification import MulticlassJaccardIndex
-from myria3d.callbacks.comet_callbacks import log_comet_cm
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
