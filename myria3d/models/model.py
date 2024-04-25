@@ -6,7 +6,6 @@ from torch_geometric.nn import knn_interpolate
 from torchmetrics.classification import MulticlassJaccardIndex
 from myria3d.callbacks.comet_callbacks import log_comet_cm
 
-from myria3d.metrics.iou import iou
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 from myria3d.utils import utils
 
@@ -33,14 +32,12 @@ def get_neural_net_class(class_name: str) -> nn.Module:
 
 
 class Model(LightningModule):
-    """This LightningModule implements the logic for model trainin, validation, tests, and prediction.
+    """Model training, validation, test and prediction of point cloud semantic segmentation.
 
-    It is fully initialized by named parameters for maximal flexibility with hydra configs.
+    During training and validation, metrics are calculed based on sumbsampled points only.
+    At test time, metrics are calculated considering all the points.
 
-    During training and validation, IoU is calculed based on sumbsampled points only, and is therefore
-    an approximation.
-    At test time, IoU is calculated considering all the points. To keep this module light, a callback
-    takes care of the interpolation of predictions between all points.
+    To keep this module light, a callback takes care of metric computations.
 
 
     Read the Pytorch Lightning docs:
@@ -51,7 +48,7 @@ class Model(LightningModule):
     def __init__(self, **kwargs):
         """Initialization method of the Model lightning module.
 
-        Everything needed to train/test/predict with a neural architecture, including
+        Everything needed to train/evaluate/test/predict with a neural architecture, including
         the architecture class name and its hyperparameter.
 
         See config files for a list of kwargs.
@@ -68,22 +65,6 @@ class Model(LightningModule):
 
         self.softmax = nn.Softmax(dim=1)
         self.criterion = kwargs.get("criterion")
-
-    def on_fit_start(self) -> None:
-        self.criterion = self.criterion.to(self.device)
-        self.train_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
-        self.val_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
-
-    def on_test_start(self) -> None:
-        self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
-
-    def log_all_class_ious(self, confmat, phase: str):
-        ious = iou(confmat).to(self.device)
-        for class_iou, class_name in zip(ious, self.hparams.classification_dict.values()):
-            metric_name = f"{phase}/iou_CLASS_{class_name}"
-            self.log(
-                metric_name, class_iou, on_step=False, on_epoch=True, metric_attribute=metric_name
-            )
 
     def forward(self, batch: Batch) -> torch.Tensor:
         """Forward pass of neural network.
@@ -126,8 +107,6 @@ class Model(LightningModule):
     def training_step(self, batch: Batch, batch_idx: int) -> dict:
         """Training step.
 
-        Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.
-
         Args:
             batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
             and y (targets, optionnal) in (B*N,C) format.
@@ -140,24 +119,10 @@ class Model(LightningModule):
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-
-        with torch.no_grad():
-            preds = torch.argmax(logits.detach(), dim=1)
-            self.train_iou(preds, targets)
-
         return {"loss": loss, "logits": logits, "targets": targets}
-
-    def on_train_epoch_end(self) -> None:
-        iou_epoch = self.train_iou.to(self.device).compute()
-        self.log("train/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
-        self.log_all_class_ious(self.train_iou.confmat, "train")
-        log_comet_cm(self, self.train_iou.confmat, "train")
-        self.train_iou.reset()
 
     def validation_step(self, batch: Batch, batch_idx: int) -> dict:
         """Validation step.
-
-        Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.
 
         Args:
             batch (torch_geometric.data.Batch): Batch of data including x (features), pos (xyz positions),
@@ -172,25 +137,7 @@ class Model(LightningModule):
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("val/loss", loss, on_step=True, on_epoch=True)
-
-        preds = torch.argmax(logits.detach(), dim=1)
-        self.val_iou = self.val_iou.to(preds.device)
-        self.val_iou(preds, targets)
-
         return {"loss": loss, "logits": logits, "targets": targets}
-
-    def on_validation_epoch_end(self) -> None:
-        """At the end of a validation epoch, compute the IoU.
-
-        Args:
-            outputs : output of validation_step
-
-        """
-        iou_epoch = self.val_iou.to(self.device).compute()
-        self.log("val/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
-        self.log_all_class_ious(self.val_iou.confmat, "val")
-        log_comet_cm(self, self.val_iou.confmat, "val")
-        self.val_iou.reset()
 
     def test_step(self, batch: Batch, batch_idx: int):
         """Test step.
@@ -207,25 +154,7 @@ class Model(LightningModule):
         self.criterion = self.criterion.to(logits.device)
         loss = self.criterion(logits, targets)
         self.log("test/loss", loss, on_step=False, on_epoch=True)
-
-        preds = torch.argmax(logits, dim=1)
-        self.test_iou = self.test_iou.to(preds.device)
-        self.test_iou(preds, targets)
-
         return {"loss": loss, "logits": logits, "targets": targets}
-
-    def on_test_epoch_end(self) -> None:
-        """At the end of a validation epoch, compute the IoU.
-
-        Args:
-            outputs : output of test
-
-        """
-        iou_epoch = self.test_iou.to(self.device).compute()
-        self.log("test/iou", iou_epoch, on_step=False, on_epoch=True, prog_bar=True)
-        self.log_all_class_ious(self.test_iou.confmat, "test")
-        log_comet_cm(self, self.test_iou.confmat, "test")
-        self.test_iou.reset()
 
     def predict_step(self, batch: Batch) -> dict:
         """Prediction step.
