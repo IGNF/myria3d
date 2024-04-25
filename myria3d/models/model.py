@@ -78,7 +78,7 @@ class Model(LightningModule):
         self.test_iou = MulticlassJaccardIndex(self.hparams.num_classes).to(self.device)
 
     def log_all_class_ious(self, confmat, phase: str):
-        ious = iou(confmat)
+        ious = iou(confmat).to(self.device)
         for class_iou, class_name in zip(ious, self.hparams.classification_dict.values()):
             metric_name = f"{phase}/iou_CLASS_{class_name}"
             self.log(

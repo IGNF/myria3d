@@ -56,13 +56,16 @@ class ModelMetrics(Callback):
     def _end_of_epoch(self, phase: str, pl_module):
         for metric_name, metric in self.metrics[phase].items():
             metric_name_for_log = f"{phase}/{metric_name}"
+            value = metric.to(pl_module.device).compute()
             self.log(
                 metric_name_for_log,
-                metric,
+                value,
                 on_epoch=True,
                 on_step=False,
                 metric_attribute=metric_name_for_log,
             )
+            metric.reset()  # always reset state when using compute().
+
         class_names = pl_module.hparams.classification_dict.values()
         for metric_name, metric in self.metrics_by_class[phase].items():
             values = metric.to(pl_module.device).compute()
@@ -75,7 +78,7 @@ class ModelMetrics(Callback):
                     on_epoch=True,
                     metric_attribute=metric_name_for_log,
                 )
-            metric.reset()  # always reset when using compute().
+            metric.reset()  # always reset state when using compute().
 
     def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
         self._end_of_batch("train", outputs)
