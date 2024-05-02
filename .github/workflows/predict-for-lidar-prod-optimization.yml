@@ -1,0 +1,110 @@
+# Workflow name
+name: "Prediction on lidar-prod optimization dataset"
+
+on:
+  # Run workflow on user request
+  workflow_dispatch:
+    inputs:
+      user:
+        description: |
+          Username :
+          Utilisé pour générer un chemin standard pour les sorties dans le
+          dossier IA du store (projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/$USER/$SAMPLING_NAME/)
+        required: true
+      sampling_name:
+        description: |
+          Sampling name :
+          Nom du dataset sur lequel le modèle a été entraîné.
+          Utilisé pour générer un chemin standard pour les sorties dans le
+          dossier IA du store (projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/$USER/$SAMPLING_NAME/)
+          Eg. YYYYMMDD_MonBeauDataset
+        required: true
+      model_id:
+        description: |
+          Identifiant du modèle :
+          Il correspond au nom du fichier checkpoint à utiliser pour les prédictions (sans l'extension .ckpt !)
+          ($MODEL_ID.ckpt doit exister dans projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/$USER/$SAMPLING_NAME/)
+          Il est aussi utilisé pour générer le dossier de sortie
+          (projet-LHD/IA/LIDAR-PROD-OPTIMIZATION/$SAMPLING_NAME/$MODEL_ID)
+          Exemple : YYYMMDD_MonBeauSampling_epochXXX_Myria3Dx.y.z
+        required: true
+      predict_config_name:
+        description: |
+          Nom du fichier de config de myria3d (fichier .yaml) à utiliser pour la prédiction
+          (doit exister dans projet-LHD/IA/MYRIA3D-SHARED-WORKSPACE/$USER/$SAMPLING_NAME/)
+          Exemple: YYYMMDD_MonBeauSampling_epochXXX_Myria3Dx.y.z_predict_config_Vx.y.z.yaml
+        required: true
+
+jobs:
+  predict-validation-dataset:
+    runs-on: self-hosted
+    env:
+      OUTPUT_DIR: /var/data/LIDAR-PROD-OPTIMIZATION/${{ github.event.inputs.sampling_name }}/${{ github.event.inputs.model_id }}/
+      DATA: /var/data/LIDAR-PROD-OPTIMIZATION/20221018_lidar-prod-optimization-on-151-proto/Comparison/
+      CONFIG_DIR: /var/data/MYRIA3D-SHARED-WORKSPACE/${{ github.event.inputs.user }}/${{ github.event.inputs.sampling_name }}/
+      BATCH_SIZE: 25
+
+    steps:
+      - name: Log configuration
+        run: |
+          echo "Run prediction on lidar-prod optimization datasets (val and test)"
+          echo "Sampling name: ${{ github.event.inputs.sampling_name }}"
+          echo "User name: ${{ github.event.inputs.user }}"
+          echo "Checkpoint name: ${{ github.event.inputs.model_id }}"
+          echo "Prediction config name: ${{ github.event.inputs.predict_config_name }}"
+          echo "Output_dir: ${{env.OUTPUT_DIR}}"
+          echo "Data: ${{env.DATA}}"
+          echo "Config files dir: ${{env.CONFIG_DIR}}"
+
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      # get version number, to retrieve the docker image corresponding to the current version
+      - name: Get version number
+        run: |
+          echo "VERSION=$(docker run myria3d python -m myria3d._version)" >> $GITHUB_ENV
+
+      - name: pull docker image tagged with current version
+        run: |
+          docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+          docker pull ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
+
+      - name: Run prediction on validation dataset
+        run: >
+          docker run --network host
+          --shm-size='28g'
+          -v ${{env.OUTPUT_DIR}}:/output_dir
+          -v ${{env.DATA}}:/data
+          -v ${{env.CONFIG_DIR}}:/config_dir
+          ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
+          python run.py
+          --config-path /config_dir
+          --config-name ${{ github.event.inputs.predict_config_name }}
+          task.task_name=predict
+          predict.src_las=/data/val/*.laz
+          predict.ckpt_path=/config_dir/${{ github.event.inputs.model_id }}.ckpt
+          predict.output_dir=/output_dir/preds-valset/
+          predict.interpolator.probas_to_save=[building]
+          predict.gpus=0
+          datamodule.batch_size=${{env.BATCH_SIZE}}
+          datamodule.tile_width=1000
+
+      - name: Run prediction on test dataset
+        run: >
+          docker run --network host
+          --shm-size='28g'
+          -v ${{env.OUTPUT_DIR}}:/output_dir
+          -v ${{env.DATA}}:/data
+          -v ${{env.CONFIG_DIR}}:/config_dir
+          ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
+          python run.py
+          --config-path /config_dir
+          --config-name ${{ github.event.inputs.predict_config_name }}
+          task.task_name=predict
+          predict.src_las=/data/test/*.laz
+          predict.ckpt_path=/config_dir/${{ github.event.inputs.model_id }}.ckpt
+          predict.output_dir=/output_dir/preds-testset/
+          predict.interpolator.probas_to_save=[building]
+          predict.gpus=0
+          datamodule.batch_size=${{env.BATCH_SIZE}}
+          datamodule.tile_width=1000
