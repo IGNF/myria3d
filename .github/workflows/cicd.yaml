@@ -100,10 +100,14 @@ jobs:
 
       - name: push main docker on nexus (tagged with a date)
         # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
+        # The version is tagged once with version only to make sure to be able to retrieve the last version without
+        # knowing when it has been published, once with version + date to ensure a unique tag when needed
         if: ((github.ref_name == 'main') && (github.event_name == 'push'))
         run: |
+          docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
           docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
           docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+          docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
           docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
 
       - name: push branch docker on nexus (tagged with the branch name)
