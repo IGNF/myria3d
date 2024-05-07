@@ -111,6 +111,9 @@ datamodule:
     _target_: functools.partial
     _args_:
     - ${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}
+    pos_keys: ${dataset_description.pos_keys}
+    features_keys: ${dataset_description.features_keys}
+    color_keys: ${dataset_description.color_keys}
   pre_filter:
     _target_: functools.partial
     _args_:
