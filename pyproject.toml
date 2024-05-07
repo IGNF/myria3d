@@ -4,10 +4,10 @@ dynamic = ["version"]
 description = "Deep Learning for the Semantic Segmentation of Aerial Lidar Point Clouds"
 readme = "README.md"
 authors = [
-    { name = "Charles GAYDON", email = "charles.gaydon@gmail.com" }
+    { name = "Charles GAYDON", email = "charles.gaydon.pro@gmail.com" }
 ]
 maintainers = [
-  {name = "Charles GAYDON", email = "charles.gaydon@gmail.com"},
+  {name = "Charles GAYDON", email = "charles.gaydon.pro@gmail.com"},
   {name = "Michel DAAB"},
   {name = "Léa VAUCHIER", email = "lea.vauchier@ign.fr"}
 ]
@@ -16,7 +16,7 @@ dependencies = []  # assume an environment as described in environment.yml
 
 [metadata]
 project_template = "https://github.com/ashleve/lightning-hydra-template"
-copyright = "2022, Institut National de l'Information Géographique et Forestière"
+copyright = "2024, Institut National de l'Information Géographique et Forestière"
 
 [project.urls]
 Documentation = "https://ignf.github.io/myria3d/"
