@@ -238,16 +238,17 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">log_parameter</span><span class="p">(</span><span class="s2">&quot;experiment_logs_dirpath&quot;</span><span class="p">,</span> <span class="n">log_path</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="log_comet_cm"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.log_comet_cm">[docs]</a><span class="k">def</span> <span class="nf">log_comet_cm</span><span class="p">(</span><span class="n">lightning_module</span><span class="p">,</span> <span class="n">confmat</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
-    <span class="n">logger</span> <span class="o">=</span> <span class="n">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="o">=</span><span class="n">lightning_module</span><span class="p">)</span>
+<div class="viewcode-block" id="log_comet_cm"><a class="viewcode-back" href="../../../apidoc/myria3d.callbacks.html#myria3d.callbacks.comet_callbacks.log_comet_cm">[docs]</a><span class="k">def</span> <span class="nf">log_comet_cm</span><span class="p">(</span><span class="n">pl_module</span><span class="p">,</span> <span class="n">confmat</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">class_names</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Method used in the metric logging callback.&quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">get_comet_logger</span><span class="p">(</span><span class="n">trainer</span><span class="o">=</span><span class="n">pl_module</span><span class="o">.</span><span class="n">trainer</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lightning_module</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">class_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pl_module</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">classification_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">log_confusion_matrix</span><span class="p">(</span>
             <span class="n">matrix</span><span class="o">=</span><span class="n">confmat</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">class_names</span><span class="p">,</span>
             <span class="n">file_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">-confusion-matrix&quot;</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{phase}</span><span class="s2"> confusion matrix&quot;</span><span class="p">,</span>
-            <span class="n">epoch</span><span class="o">=</span><span class="n">lightning_module</span><span class="o">.</span><span class="n">current_epoch</span><span class="p">,</span>
+            <span class="n">epoch</span><span class="o">=</span><span class="n">pl_module</span><span class="o">.</span><span class="n">current_epoch</span><span class="p">,</span>
         <span class="p">)</span></div>
 </pre></div>
 

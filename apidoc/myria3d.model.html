@@ -172,12 +172,10 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="myria3d.models.model.Model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myria3d.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model" title="Permalink to this definition"></a></dt>
-<dd><p>This LightningModule implements the logic for model trainin, validation, tests, and prediction.</p>
-<p>It is fully initialized by named parameters for maximal flexibility with hydra configs.</p>
-<p>During training and validation, IoU is calculed based on sumbsampled points only, and is therefore
-an approximation.
-At test time, IoU is calculated considering all the points. To keep this module light, a callback
-takes care of the interpolation of predictions between all points.</p>
+<dd><p>Model training, validation, test and prediction of point cloud semantic segmentation.</p>
+<p>During training and validation, metrics are calculed based on sumbsampled points only.
+At test time, metrics are calculated considering all the points.</p>
+<p>To keep this module light, a callback takes care of metric computations.</p>
 <dl class="simple">
 <dt>Read the Pytorch Lightning docs:</dt><dd><p><a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html">https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_module.html</a></p>
 </dd>
@@ -210,67 +208,6 @@ torch.Tensor (B*N,C): logits</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (2.1.0a0+gitbe0b12e ))">torch.Tensor</a> (B*N,1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.model.Model.on_fit_start">
-<span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_fit_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_fit_start" title="Permalink to this definition"></a></dt>
-<dd><p>Called at the very beginning of fit.</p>
-<p>If on DDP it is called on every process</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.model.Model.on_test_epoch_end">
-<span class="sig-name descname"><span class="pre">on_test_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_test_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_test_epoch_end" title="Permalink to this definition"></a></dt>
-<dd><p>At the end of a validation epoch, compute the IoU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.models.model.Model.on_test_epoch_end.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.on_test_epoch_end.params.outputs">¶</a> – output of test</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.model.Model.on_test_start">
-<span class="sig-name descname"><span class="pre">on_test_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_test_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_test_start" title="Permalink to this definition"></a></dt>
-<dd><p>Called at the beginning of testing.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.model.Model.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_train_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_train_epoch_end" title="Permalink to this definition"></a></dt>
-<dd><p>Called in the training loop at the very end of the epoch.</p>
-<p>To access all batch outputs at the end of the epoch, you can cache step outputs as an attribute of the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">LightningModule</span></code> and access them in this hook:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyLightningModule</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">loss</span> <span class="o">=</span> <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">loss</span>
-
-    <span class="k">def</span> <span class="nf">on_train_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># do something with all training_step outputs, for example:</span>
-        <span class="n">epoch_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;training_epoch_mean&quot;</span><span class="p">,</span> <span class="n">epoch_mean</span><span class="p">)</span>
-        <span class="c1"># free up the memory</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="myria3d.models.model.Model.on_validation_epoch_end">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.on_validation_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.on_validation_epoch_end" title="Permalink to this definition"></a></dt>
-<dd><p>At the end of a validation epoch, compute the IoU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><span class="target" id="myria3d.models.model.Model.on_validation_epoch_end.params.outputs"></span><strong>outputs</strong><a class="paramlink headerlink reference internal" href="#myria3d.models.model.Model.on_validation_epoch_end.params.outputs">¶</a> – output of validation_step</p>
 </dd>
 </dl>
 </dd></dl>
@@ -320,7 +257,6 @@ torch.Tensor (B*N,C): logits</p>
 <dt class="sig sig-object py" id="myria3d.models.model.Model.training_step">
 <span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.training_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.training_step" title="Permalink to this definition"></a></dt>
 <dd><p>Training step.</p>
-<p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -342,7 +278,6 @@ torch.Tensor (B*N,C): logits</p>
 <dt class="sig sig-object py" id="myria3d.models.model.Model.validation_step">
 <span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.batch.Batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/myria3d/models/model.html#Model.validation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.models.model.Model.validation_step" title="Permalink to this definition"></a></dt>
 <dd><p>Validation step.</p>
-<p>Makes a model pass. Then, computes loss and predicted class of subsampled points to log loss and IoU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
