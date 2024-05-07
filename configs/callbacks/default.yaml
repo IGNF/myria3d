@@ -30,3 +30,6 @@ early_stopping:
   patience: 6 # how many validation epochs of not improving until training stops
   min_delta: 0 # minimum change in the monitored metric needed to qualify as an improvement
   
+model_detailed_metrics:
+  _target_: myria3d.callbacks.metric_callbacks.ModelMetrics
+  num_classes: ${model.num_classes}
