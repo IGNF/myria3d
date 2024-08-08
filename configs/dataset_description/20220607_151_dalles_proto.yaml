@@ -13,6 +13,10 @@ classification_preprocessing_dict: {3: 5, 4: 5, 160: 64, 161: 64, 162: 64, 0: 1,
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge, 64: lasting_above}
 
+pos_keys: ["X", "Y", "Z"]
+features_keys: ["Intensity", "ReturnNumber", "NumberOfReturns"]
+color_keys: ["Red", "Green", "Blue", "Infrared"]
+
 # class_weights for the CrossEntropyLoss with format "[[w1,w2,w3...,wk]]" with w_i a float e.g. 1.0
 # Balanced CE: arbitrary weights based on heuristic.
 # class_weights: [2.5,1.0,1.0,5.0,20.0,20.0,20.0] normalized so they sum to 7 to preserve scale of CELoss
