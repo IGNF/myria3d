@@ -1,5 +1,6 @@
 # CHANGELOG
 
+- Fix lidar_hd pre-transform to allow full 16-bits integer range for color/infra-red values
 - Add a github action workflow to run a trained model on the lidar-prod thresholds optimisation dataset
 (in order to automate thresholds optimization)
 

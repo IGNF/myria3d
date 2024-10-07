@@ -2,6 +2,10 @@
 import numpy as np
 from torch_geometric.data import Data
 
+# COLORS_NORMALIZATION_MAX_VALUE should be 2**16 - 1 to match 16-bits integers full range
+# It is currently kept to its initial value of 255 * 256 to prevent having to retrain (as it
+# is used to normalize the color channels), while being able to run with saturated IR pixels.
+# Todo: update COLORS_NORMALIZATION_MAX_VALUE in next training campaigns.
 COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0
 RETURN_NUMBER_NORMALIZATION_MAX_VALUE = 7.0
 
@@ -29,7 +33,6 @@ def lidar_hd_pre_transform(points):
     )
 
     for color in ["Red", "Green", "Blue", "Infrared"]:
-        assert points[color].max() <= COLORS_NORMALIZATION_MAX_VALUE
         points[color][:] = points[color] / COLORS_NORMALIZATION_MAX_VALUE
         points[color][occluded_points] = 0.0
 
