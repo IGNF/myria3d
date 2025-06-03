@@ -1,10 +1,10 @@
 import numpy as np
-from torch_geometric.data import Data
 from numpy.lib.recfunctions import append_fields
-
+from torch_geometric.data import Data
 
 COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0
 RETURN_NUMBER_NORMALIZATION_MAX_VALUE = 7.0
+
 
 def lidar_hd_pre_transform(points):
     """Turn pdal points into torch-geometric Data object.
@@ -25,7 +25,7 @@ def lidar_hd_pre_transform(points):
 
     points["ReturnNumber"] = (points["ReturnNumber"]) / RETURN_NUMBER_NORMALIZATION_MAX_VALUE
     points["NumberOfReturns"] = (points["NumberOfReturns"]) / RETURN_NUMBER_NORMALIZATION_MAX_VALUE
-    
+
     # Ensure all color fields exist, even if missing (filled with 0)
     for color in ["Red", "Green", "Blue", "Infrared"]:
         if color not in points.dtype.names:
