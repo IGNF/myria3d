@@ -1,0 +1,16 @@
+{
+  "name": "Myria3D",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "settings": {},
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker"
+  ],
+  "runArgs": ["--gpus", "all", "--shm-size=8g"],
+  "remoteUser": "root"
+}
+
+  

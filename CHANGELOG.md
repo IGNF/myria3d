@@ -1,4 +1,5 @@
 # CHANGELOG
+- Fix lidar_hd_pre_transform to support missing RGB channels #138 (contrib from @CEZERT)
 
 - Add a github action workflow to run a trained model on the lidar-prod thresholds optimisation dataset
 (in order to automate thresholds optimization)
