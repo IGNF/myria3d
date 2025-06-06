@@ -1,0 +1,21 @@
+_convert_: all  # For omegaconf struct to be converted to python dictionnaries
+# classification_preprocessing_dict = {source_class_code_int: target_class_code_int},
+# 3: medium vegetation -> vegetation
+# 4: high vegetation -> vegetation
+# 0: no processing --> unclassified
+# 66: synthetic points --> noise (synthetic points are useful for specific modelling task on already classified data).
+# We set them to noise so that they are ignored during training.
+# Codes that should not have been in the data: 100, 101. (note: 200 and 201 may have been reported too, leaving that for now)
+classification_preprocessing_dict: {3: 5, 4: 5, 0: 1, 64: 1, 66: 65, 67: 65, 100: 1, 101: 1}
+
+# classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
+classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "building", 9: water, 17: bridge}
+
+# class_weights for the CrossEntropyLoss with format "[[w1,w2,w3...,wk]]" with w_i a float e.g. 1.0
+# Balanced CE: arbitrary weights based on heuristic.
+# class_weights: normalized so they sum to num of classes to preserve scale of CELoss
+class_weights: [0.2,0.002,0.001,0.03,0.75,5.0]
+
+# Input and output dims of neural net are dataset dependant:
+d_in: 3
+num_classes: 6
