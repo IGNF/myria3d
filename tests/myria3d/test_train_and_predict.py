@@ -1,26 +1,24 @@
 import os.path as osp
+from pathlib import Path
 from typing import List
 
 import numpy as np
 import pytest
 from lightning.pytorch.accelerators import find_usable_cuda_devices
-from pathlib import Path
 from pdaltools import las_info
-
+from tests.conftest import (
+    DEFAULT_EPSG,
+    SINGLE_POINT_CLOUD,
+    make_default_hydra_cfg,
+    run_hydra_decorated_command,
+    run_hydra_decorated_command_with_return_error,
+)
+from tests.runif import RunIf
 
 from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 from myria3d.pctl.dataset.utils import pdal_read_las_array
 from myria3d.predict import predict
 from myria3d.train import train
-from tests.conftest import (
-    make_default_hydra_cfg,
-    run_hydra_decorated_command,
-    run_hydra_decorated_command_with_return_error,
-    SINGLE_POINT_CLOUD,
-    DEFAULT_EPSG,
-)
-from tests.runif import RunIf
-
 
 """
 Sanity checks to make sure the model train/val/predict/test logics do not crash.
@@ -68,7 +66,7 @@ def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_facto
         overrides=[
             "experiment=RandLaNetDebug",
             "trainer.accelerator=gpu",
-            f"trainer.devices=[{gpu_id}]",
+            f"trainer.devices={gpu_id}",
         ]
         + tmp_paths_overrides
     )

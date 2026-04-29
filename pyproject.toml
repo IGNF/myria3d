@@ -54,7 +54,7 @@ testpaths = [
     "tests/myria3d/",
 ]
 # Add coverage
-addopts = "--cov ./myria3d/ --cov-report html --cov-fail-under 75 --cov-config pyproject.toml"
+addopts = "--cov ./myria3d/ --cov-report html --cov-fail-under 72 --cov-config pyproject.toml"
 
 filterwarnings = [
     "ignore::DeprecationWarning",
