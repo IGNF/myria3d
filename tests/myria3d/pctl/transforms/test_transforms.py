@@ -5,6 +5,7 @@ import torch_geometric
 
 from myria3d.pctl.transforms.transforms import (
     DropPointsByClass,
+    MaximumNumNodes,
     MinimumNumNodes,
     TargetTransform,
     subsample_data,
@@ -168,6 +169,22 @@ def test_MinimumNumNodes(input_nodes, min_nodes):
 
     transformed_data = transform(data)
     expected_nodes = max(input_nodes, min_nodes)
+    assert transformed_data.num_nodes == expected_nodes
+    assert isinstance(transformed_data.x, torch.Tensor)
+    assert transformed_data.x.size(0) == expected_nodes
+    # Check that "idx_in_original_cloud" key is not modified
+    assert isinstance(transformed_data.idx_in_original_cloud, np.ndarray)
+    assert transformed_data.idx_in_original_cloud.shape[0] == input_nodes
+
+
+@pytest.mark.parametrize("input_nodes,max_nodes", [(5, 10), (1, 10), (15, 10)])
+def test_MaximumNumNodes(input_nodes, max_nodes):
+    x = torch.rand((input_nodes, 3))
+    idx = np.arange(input_nodes)  # Not a tensor
+    data = torch_geometric.data.Data(x=x, idx_in_original_cloud=idx)
+    transform = MaximumNumNodes(max_nodes)
+    transformed_data = transform(data)
+    expected_nodes = min(input_nodes, max_nodes)
     assert transformed_data.num_nodes == expected_nodes
     assert isinstance(transformed_data.x, torch.Tensor)
     assert transformed_data.x.size(0) == expected_nodes
