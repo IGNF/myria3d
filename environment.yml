@@ -7,19 +7,21 @@ channels:
   - pyg
   - comet_ml
   - conda-forge
+  - anaconda
 dependencies:
-  - python=3.9.*
+  - python=3.12
   - pip
   # --------- Deep Learning --------- #
-  - pytorch::pytorch=2.1
-  - pytorch::pytorch-cuda=11.8
-  - pytorch::torchvision=0.16
-  - conda-forge::lightning=2.0
-  - conda-forge::torchmetrics=0.11
-  - pyg::pyg=2.4
+  - pytorch::pytorch==2.4.1
+  - pytorch::pytorch-cuda
+  - pytorch::torchvision
+  - conda-forge::lightning
+  - conda-forge::torchmetrics
+  - pyg::pyg
   - pyg::pytorch-cluster
   - pyg::pytorch-scatter
   - pyg::pytorch-sparse
+  - anaconda:mkl==2022.*
   # Troubleshooting: if libcusparse.so.11. errors occur, run
   # export LD_LIBRARY_PATH="/home/${USER}/miniconda/envs/lib:$LD_LIBRARY_PATH"
   # ou
@@ -29,29 +31,30 @@ dependencies:
   - numpy
   - h5py
   # --------- geo --------- #
-  - pdal==2.6.*
+  - pdal==2.10.*
   - python-pdal
   - conda-forge:gdal
   - conda_forge:pyproj
-  # --------- Visualization --------- #
-  - pandas
-  - matplotlib
+  - laspy
   # --------- loggers --------- #
-  - comet_ml::comet_ml=3.35
+  - comet_ml::comet_ml
   - conda-forge::urllib3<2 # To solve for https://github.com/GeneralMills/pytrends/issues/591
     # --------- Visualization --------- #
   - pandas
   - matplotlib
   - seaborn # used in some callbacks
+  # --------- parameters handling --------- #
+  - hydra-core
+  - hydra-colorlog
   # --------- linters --------- #
   - pre-commit # hooks for applying linters on commit
   - black # code formatting
   - isort # import sorting
   - flake8 # code analysis
   # --------- tests --------- #
-  - pytest==7.1.*
-  - coverage==6.3.*
-  - pytest-cov==3.0.*
+  - pytest
+  - coverage
+  - pytest-cov
   # --------- others --------- #
   - python-dotenv # loading env variables from .env file
   - rich # beautiful text formatting in terminal
@@ -59,16 +62,14 @@ dependencies:
   - pudb # debugger
   - twine # to publish pip package
     # # --------- Documentation --------- #
-  - sphinx==4.5.*
-  - recommonmark==0.7.*
-  - sphinx_rtd_theme==1.0.*
-  - docutils==0.17
-  - rstcheck==3.3.* # RST Linter
+  - sphinx
+  - recommonmark
+  - sphinx_rtd_theme
+  - docutils
+  - rstcheck
   - pip:
-      - hydra-core==1.1.*
-      - hydra-colorlog==1.1.*
       # --------- Documentation --------- #
-      - myst_parser==0.17.*
-      - sphinxnotes-mock==1.0.0b0 # still a beta
-      - sphinx_paramlinks==0.5.*
-      - ign-pdal-tools>=1.5.2
+      - myst_parser
+      - sphinxnotes-mock
+      - sphinx_paramlinks
+      - ign-pdal-tools==1.16.0
