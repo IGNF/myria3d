@@ -1,4 +1,6 @@
 # CHANGELOG
+
+## 3.9.0
 - Update environment:
   - match pdal==2.10
   - ign-pdal-tools :  match v1.16.0 + add missing dependency
