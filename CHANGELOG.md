@@ -9,6 +9,8 @@
 - Add a github action workflow to run a trained model on the lidar-prod thresholds optimisation dataset
 (in order to automate thresholds optimization)
 
+- new model weights: Deploy model trained on Fractal dataset (cf. https://huggingface.co/IGNF/FRACTAL-LidarHD_7cl_randlanet)
+
 ### 3.8.4
 - fix: move IoU appropriately to fix wrong device error created by a breaking change in torch when using DDP.
 
