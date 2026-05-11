@@ -96,8 +96,8 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     run_hydra_decorated_command(command)
     output_path = Path(tmpdir) / Path(abs_path_to_toy_LAS).name
     metadata = las_info.las_info_metadata(output_path)
-    out_pesg = las_info.get_epsg_from_header_info(metadata)
-    assert out_pesg == DEFAULT_EPSG
+    out_epsg = las_info.get_epsg_from_header_info(metadata)
+    assert out_epsg == DEFAULT_EPSG
 
 
 def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
@@ -116,6 +116,7 @@ def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
+        "datamodule.epsg=null",
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]

@@ -22,8 +22,8 @@ from myria3d.utils import utils
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
-DEFAULT_CONFIG_FILE = "proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.7.0.yaml"
-DEFAULT_CHECKPOINT = "proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt"
+DEFAULT_CONFIG_FILE = "FRACTAL-LidarHD_7cl_randlanet-inference-Myria3DV3.8.yaml"
+DEFAULT_CHECKPOINT = "FRACTAL-LidarHD_7cl_randlanet.ckpt"
 DEFAULT_ENV = "placeholder.env"
 
 
