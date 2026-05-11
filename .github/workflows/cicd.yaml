@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build docker image
         run: docker build --build-arg http_proxy=${{ secrets.PROXY_URL }} --build-arg https_proxy=${{ secrets.PROXY_URL }} -t myria3d .
@@ -139,7 +139,7 @@ jobs:
 
       # See https://github.com/marketplace/actions/setup-micromamba
       - name: setup-micromamba
-        uses: mamba-org/setup-micromamba@v1.4.3
+        uses: mamba-org/setup-micromamba@v3.0.0
         with:
           environment-file: environment.yml
           environment-name: myria3d # activate the environment

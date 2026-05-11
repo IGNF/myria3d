@@ -7,12 +7,11 @@ on:
       - main
 
   # UNCOMMENT TO DEBUG DOCUMENTATION
-  # pull_request:
-  #   branches:
-  #     - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-
   build-and-deploy:
     runs-on: ubuntu-latest
 
@@ -23,35 +22,20 @@ jobs:
 
     # Task to do when launching the workflow
     steps:
-
       # 1. First get the repository source
 
       - name: "Checkout"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
-      # 2. Setup virtual environment with mamba
-      # See https://github.com/conda-incubator/setup-miniconda#caching-environments
-
-      - name: Setup a conda-incubator with an empty conda env
-        uses: conda-incubator/setup-miniconda@v2
+      # See https://github.com/marketplace/actions/setup-micromamba
+      - name: setup-micromamba
+        uses: mamba-org/setup-micromamba@v3.0.0
         with:
-            python-version: 3.9.12
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            use-mamba: true
-            # Environment to create and activate for next steps
-            activate-environment: myria3d
-
-      - name: Cache conda environment based on dependencies.
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.CONDA }}/envs
-          key: conda-${{ hashFiles('environment.yml') }}
-        id: cache
-
-      - name: Update the (currently empty) myria3d environment, if a cache cannot be found.
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: mamba env update -n myria3d -f environment.yml
+          environment-file: environment.yml
+          environment-name: myria3d # activate the environment
+          cache-environment: true
+          cache-downloads: true
+          generate-run-shell: true
 
       - name: "Build documentation"
         working-directory: ./docs/
@@ -64,6 +48,6 @@ jobs:
       - name: "Deploy documentation on Github pages"
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          BRANCH: gh-pages     # <- Branch where generated doc files will be commited
+          BRANCH: gh-pages # <- Branch where generated doc files will be commited
           # BRANCH: gh-pages-DEBUG    # <-- UNCOMMENT TO DEBUG DOCUMENTATION
-          FOLDER: docs/build/html/  # <- Dir where .nojekyll is created and from which to deploy github pages.
+          FOLDER: docs/build/html/ # <- Dir where .nojekyll is created and from which to deploy github pages.
