@@ -1,21 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scripts &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Scripts &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -154,8 +159,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Scripts</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Scripts</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/apidoc/scripts.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -166,65 +171,64 @@
            <div itemprop="articleBody">
              
   <section id="scripts">
-<h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline"></a></h1>
+<h1>Scripts<a class="headerlink" href="#scripts" title="Link to this heading"></a></h1>
 <section id="module-run">
-<span id="run"></span><h2>run<a class="headerlink" href="#module-run" title="Permalink to this headline"></a></h2>
+<span id="run"></span><h2>run<a class="headerlink" href="#module-run" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="run.TASK_NAMES">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">TASK_NAMES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#TASK_NAMES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.TASK_NAMES" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
-<p>An enumeration.</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">TASK_NAMES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#TASK_NAMES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.TASK_NAMES" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="run.TASK_NAMES.FINETUNE">
-<span class="sig-name descname"><span class="pre">FINETUNE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'finetune'</span></em><a class="headerlink" href="#run.TASK_NAMES.FINETUNE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FINETUNE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'finetune'</span></span><a class="headerlink" href="#run.TASK_NAMES.FINETUNE" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="run.TASK_NAMES.FIT">
-<span class="sig-name descname"><span class="pre">FIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fit'</span></em><a class="headerlink" href="#run.TASK_NAMES.FIT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FIT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fit'</span></span><a class="headerlink" href="#run.TASK_NAMES.FIT" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="run.TASK_NAMES.HDF5">
-<span class="sig-name descname"><span class="pre">HDF5</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'create_hdf5'</span></em><a class="headerlink" href="#run.TASK_NAMES.HDF5" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">HDF5</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'create_hdf5'</span></span><a class="headerlink" href="#run.TASK_NAMES.HDF5" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="run.TASK_NAMES.PREDICT">
-<span class="sig-name descname"><span class="pre">PREDICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'predict'</span></em><a class="headerlink" href="#run.TASK_NAMES.PREDICT" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">PREDICT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'predict'</span></span><a class="headerlink" href="#run.TASK_NAMES.PREDICT" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="run.TASK_NAMES.TEST">
-<span class="sig-name descname"><span class="pre">TEST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'test'</span></em><a class="headerlink" href="#run.TASK_NAMES.TEST" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TEST</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'test'</span></span><a class="headerlink" href="#run.TASK_NAMES.TEST" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="run.launch_hdf5">
-<span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">launch_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#launch_hdf5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.launch_hdf5" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">launch_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#launch_hdf5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.launch_hdf5" title="Link to this definition"></a></dt>
 <dd><p>Build an HDF5 file from a directory with las files.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="run.launch_predict">
-<span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">launch_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#launch_predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.launch_predict" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">launch_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#launch_predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.launch_predict" title="Link to this definition"></a></dt>
 <dd><p>Infer probabilities and automate semantic segmentation decisions on unseen data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="run.launch_train">
-<span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">launch_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#launch_train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.launch_train" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">run.</span></span><span class="sig-name descname"><span class="pre">launch_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run.html#launch_train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run.launch_train" title="Link to this definition"></a></dt>
 <dd><p>Training, evaluation, testing, or finetuning of a neural network.</p>
 </dd></dl>
 
 </section>
 <section id="module-myria3d.train">
-<span id="myria3d-train"></span><h2>myria3d.train<a class="headerlink" href="#module-myria3d.train" title="Permalink to this headline"></a></h2>
+<span id="myria3d-train"></span><h2>myria3d.train<a class="headerlink" href="#module-myria3d.train" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="myria3d.train.train">
-<span class="sig-prename descclassname"><span class="pre">myria3d.train.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">omegaconf.dictconfig.DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pytorch_lightning.trainer.trainer.Trainer</span></span></span><a class="reference internal" href="../_modules/myria3d/train.html#train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.train.train" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">myria3d.train.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Trainer</span></span></span><a class="reference internal" href="../_modules/myria3d/train.html#train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myria3d.train.train" title="Link to this definition"></a></dt>
 <dd><p>Training pipeline (+ Test, + Finetuning)</p>
 <p>Instantiates all PyTorch Lightning objects from config, then perform one of the following
 task based on parameter <cite>task.task_name</cite>:</p>
@@ -249,13 +253,13 @@ distinct training, and training state is reset (e.g. epoch starts from 0).</p>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="target" id="myria3d.train.train.params.config"></span><strong>config</strong><a class="paramlink headerlink reference internal" href="#myria3d.train.train.params.config">¶</a> (<em>DictConfig</em>) – Configuration composed by Hydra.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>lightning trainer.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Trainer</p>
 </dd>
 </dl>
@@ -263,7 +267,7 @@ distinct training, and training state is reset (e.g. epoch starts from 0).</p>
 
 </section>
 <section id="module-myria3d.predict">
-<span id="myria3d-predict"></span><h2>myria3d.predict<a class="headerlink" href="#module-myria3d.predict" title="Permalink to this headline"></a></h2>
+<span id="myria3d-predict"></span><h2>myria3d.predict<a class="headerlink" href="#module-myria3d.predict" title="Link to this heading"></a></h2>
 </section>
 </section>
 

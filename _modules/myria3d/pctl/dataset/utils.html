@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -151,9 +156,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>myria3d.pctl.dataset.utils</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">myria3d.pctl.dataset.utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -163,23 +168,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for myria3d.pctl.dataset.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
-<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pdal</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pdal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
 
 <span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]]</span>
 <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SPLIT_TYPE</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
 
-<div class="viewcode-block" id="find_file_in_dir"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.find_file_in_dir">[docs]</a><span class="k">def</span> <span class="nf">find_file_in_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="find_file_in_dir">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.find_file_in_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_file_in_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Query files matching a basename in input_data_dir and its subdirectories.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        input_data_dir (str): data directory</span>
@@ -191,7 +198,8 @@
     <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<span class="k">def</span> <span class="nf">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">subtile_overlap</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;datamodule.subtile_overlap must be positive.&quot;</span><span class="p">)</span>
 
@@ -203,7 +211,9 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xy_range</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">xy_range</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="pdal_read_las_array"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="pdal_read_las_array">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a named array.</span>
 
 <span class="sd">    Args:</span>
@@ -219,14 +229,20 @@
     <span class="k">return</span> <span class="n">p1</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="pdal_read_las_array_as_float32"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">[docs]</a><span class="k">def</span> <span class="nf">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+<div class="viewcode-block" id="pdal_read_las_array_as_float32">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a a named array, casted to floats.&quot;&quot;&quot;</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
     <span class="n">all_floats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">({</span><span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;f4&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)})</span>
     <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">all_floats</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_metadata"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_metadata">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; returns metadata contained in a las file</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to get metadata from.</span>
@@ -238,7 +254,10 @@
     <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">metadata</span></div>
 
 
-<div class="viewcode-block" id="get_pdal_reader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader">[docs]</a><span class="k">def</span> <span class="nf">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_pdal_reader">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard Reader.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to read.</span>
@@ -267,7 +286,10 @@
     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No EPSG provided, neither in the lidar file or as parameter&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_pdal_info_metadata"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_info_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_pdal_info_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_pdal_info_metadata">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_info_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pdal_info_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read las metadata using pdal info</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to read.</span>
@@ -285,10 +307,13 @@
     <span class="k">return</span> <span class="n">json_info</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span></div>
 
 
+
 <span class="c1"># hdf5, iterable</span>
 
 
-<div class="viewcode-block" id="split_cloud_into_samples"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples">[docs]</a><span class="k">def</span> <span class="nf">split_cloud_into_samples</span><span class="p">(</span>
+<div class="viewcode-block" id="split_cloud_into_samples">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.split_cloud_into_samples">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_cloud_into_samples</span><span class="p">(</span>
     <span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
     <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
@@ -323,11 +348,12 @@
         <span class="k">yield</span> <span class="n">sample_idx</span><span class="p">,</span> <span class="n">sample_points</span></div>
 
 
-<span class="k">def</span> <span class="nf">pre_filter_below_n_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_num_nodes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pre_filter_below_n_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_num_nodes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_num_nodes</span>
 
 
-<span class="k">def</span> <span class="nf">get_las_paths_by_split_dict</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_las_paths_by_split_dict</span><span class="p">(</span>
     <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_csv_path</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">:</span>
     <span class="n">las_paths_by_split_dict</span><span class="p">:</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="p">{}</span>

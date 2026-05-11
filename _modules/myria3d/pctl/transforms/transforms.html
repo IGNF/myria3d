@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.transforms.transforms &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>myria3d.pctl.transforms.transforms &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -151,9 +156,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>myria3d.pctl.transforms.transforms</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">myria3d.pctl.transforms.transforms</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -163,36 +168,39 @@
            <div itemprop="articleBody">
              
   <h1>Source code for myria3d.pctl.transforms.transforms</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
-<span class="kn">from</span> <span class="nn">torch_geometric.transforms</span> <span class="kn">import</span> <span class="n">BaseTransform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch_geometric.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch_geometric.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTransform</span>
 
-<span class="kn">from</span> <span class="nn">myria3d.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">COMMON_CODE_FOR_ALL_ARTEFACTS</span> <span class="o">=</span> <span class="mi">65</span>
 
 
-<div class="viewcode-block" id="ToTensor"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.ToTensor">[docs]</a><span class="k">class</span> <span class="nc">ToTensor</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+<div class="viewcode-block" id="ToTensor">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.ToTensor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ToTensor</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn np.arrays specified by their keys into Tensor.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<span class="k">def</span> <span class="nf">subsample_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">subsample_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
     <span class="c1"># TODO: get num_nodes from data.num_nodes instead to simplify signature</span>
     <span class="n">out_nodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span> <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">bool</span> <span class="k">else</span> <span class="n">choice</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
@@ -210,11 +218,13 @@
     <span class="k">return</span> <span class="n">data</span>
 
 
-<div class="viewcode-block" id="MaximumNumNodes"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.MaximumNumNodes">[docs]</a><span class="k">class</span> <span class="nc">MaximumNumNodes</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumNumNodes">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.MaximumNumNodes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaximumNumNodes</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span>
 
         <span class="k">if</span> <span class="n">num_nodes</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">:</span>
@@ -226,11 +236,14 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="MinimumNumNodes"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.MinimumNumNodes">[docs]</a><span class="k">class</span> <span class="nc">MinimumNumNodes</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MinimumNumNodes">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.MinimumNumNodes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MinimumNumNodes</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span>
 
         <span class="k">if</span> <span class="n">num_nodes</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">:</span>
@@ -245,44 +258,56 @@
 
         <span class="k">return</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="CopyFullPos"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopyFullPos">[docs]</a><span class="k">class</span> <span class="nc">CopyFullPos</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CopyFullPos">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopyFullPos">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CopyFullPos</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a copy of the original positions - to be used for test and inference.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;copies&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">data</span><span class="o">.</span><span class="n">copies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">data</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="CopyFullPreparedTargets"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopyFullPreparedTargets">[docs]</a><span class="k">class</span> <span class="nc">CopyFullPreparedTargets</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CopyFullPreparedTargets">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopyFullPreparedTargets">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CopyFullPreparedTargets</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a copy of all, prepared targets - to be used for test.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;copies&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">data</span><span class="o">.</span><span class="n">copies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">data</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;transformed_y_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="CopySampledPos"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopySampledPos">[docs]</a><span class="k">class</span> <span class="nc">CopySampledPos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CopySampledPos">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.CopySampledPos">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CopySampledPos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a copy of the unormalized positions of subsampled points - to be used for test and inference.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;copies&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">data</span><span class="o">.</span><span class="n">copies</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">data</span><span class="o">.</span><span class="n">copies</span><span class="p">[</span><span class="s2">&quot;pos_sampled_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="StandardizeRGBAndIntensity"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity">[docs]</a><span class="k">class</span> <span class="nc">StandardizeRGBAndIntensity</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StandardizeRGBAndIntensity">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StandardizeRGBAndIntensity</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standardize RGB and log(Intensity) features.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">x_features_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;Intensity&quot;</span><span class="p">)</span>
         <span class="c1"># Log transform to be less sensitive to large outliers - info is in lower values</span>
         <span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -291,7 +316,9 @@
         <span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_channel</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">data</span>
 
-<div class="viewcode-block" id="StandardizeRGBAndIntensity.standardize_channel"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity.standardize_channel">[docs]</a>    <span class="k">def</span> <span class="nf">standardize_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">clamp_sigma</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="StandardizeRGBAndIntensity.standardize_channel">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity.standardize_channel">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">standardize_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">clamp_sigma</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample-wise standardization y* = (y-y_mean)/y_std. clamping to ignore large values.&quot;&quot;&quot;</span>
         <span class="n">mean</span> <span class="o">=</span> <span class="n">channel_data</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
         <span class="n">std</span> <span class="o">=</span> <span class="n">channel_data</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">6</span>
@@ -300,37 +327,47 @@
         <span class="n">standard</span> <span class="o">=</span> <span class="p">(</span><span class="n">channel_data</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
         <span class="n">clamp</span> <span class="o">=</span> <span class="n">clamp_sigma</span> <span class="o">*</span> <span class="n">std</span>
         <span class="n">clamped</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">standard</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="n">clamp</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">clamp</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">clamped</span></div></div>
+        <span class="k">return</span> <span class="n">clamped</span></div>
+</div>
 
 
-<div class="viewcode-block" id="NullifyLowestZ"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.NullifyLowestZ">[docs]</a><span class="k">class</span> <span class="nc">NullifyLowestZ</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NullifyLowestZ">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.NullifyLowestZ">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NullifyLowestZ</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Center on x and y axis only. Set lowest z to 0.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="NormalizePos"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.NormalizePos">[docs]</a><span class="k">class</span> <span class="nc">NormalizePos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NormalizePos">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.NormalizePos">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NormalizePos</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalizes xy in [-1;1] range by scaling the whole point cloud (including z dim).</span>
 <span class="sd">    XY are expected to be centered on zéro.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtile_width</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtile_width</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
         <span class="n">half_subtile_width</span> <span class="o">=</span> <span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scaling_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">half_subtile_width</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">data</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling_factor</span>
         <span class="k">return</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TargetTransform"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.TargetTransform">[docs]</a><span class="k">class</span> <span class="nc">TargetTransform</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TargetTransform">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.TargetTransform">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TargetTransform</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make target vector based on input classification dictionnary.</span>
 
@@ -345,7 +382,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">classification_preprocessing_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
         <span class="n">classification_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
@@ -357,11 +394,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">classification_dict</span> <span class="o">=</span> <span class="n">classification_dict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classification_preprocessing_dict</span> <span class="o">=</span> <span class="n">classification_preprocessing_dict</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="n">data</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_mapper</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
@@ -380,12 +417,12 @@
             <span class="k">raise</span> <span class="n">e</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_set_preprocessing_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classification_preprocessing_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_preprocessing_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classification_preprocessing_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set mapper from source classification code to another code.&quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">classification_preprocessing_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_mapper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">class_code</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">class_code</span><span class="p">,</span> <span class="n">class_code</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_set_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classification_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classification_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set mapper from source classification code to consecutive integers.&quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">class_code</span><span class="p">:</span> <span class="n">class_index</span>
@@ -397,10 +434,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">class_code</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">class_code</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="DropPointsByClass"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.DropPointsByClass">[docs]</a><span class="k">class</span> <span class="nc">DropPointsByClass</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DropPointsByClass">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.transforms.transforms.DropPointsByClass">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DropPointsByClass</span><span class="p">(</span><span class="n">BaseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop points with class -1 (i.e. artefacts that would have been mapped to code -1)&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">points_to_drop</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">COMMON_CODE_FOR_ALL_ARTEFACTS</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">points_to_drop</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">points_to_keep</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">points_to_drop</span><span class="p">)</span>
@@ -411,6 +451,7 @@
                 <span class="n">data</span><span class="o">.</span><span class="n">idx_in_original_cloud</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">idx_in_original_cloud</span><span class="p">[</span><span class="n">points_to_keep</span><span class="o">.</span><span class="n">numpy</span><span class="p">()]</span>
 
         <span class="k">return</span> <span class="n">data</span></div>
+
 </pre></div>
 
            </div>

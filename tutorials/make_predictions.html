@@ -1,21 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performing inference on new data &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Performing inference on new data &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -154,8 +159,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Performing inference on new data</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Performing inference on new data</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/make_predictions.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -166,8 +171,8 @@
            <div itemprop="articleBody">
              
   <section id="performing-inference-on-new-data">
-<h1>Performing inference on new data<a class="headerlink" href="#performing-inference-on-new-data" title="Permalink to this headline"></a></h1>
-<p>Refer to the tutorials (<a class="reference internal" href="install_on_linux.html"><span class="doc std std-doc">Linux</span></a>, <a class="reference internal" href="install_on_wsl2.html"><span class="doc std std-doc">Windows</span></a>) for installation instructions.</p>
+<h1>Performing inference on new data<a class="headerlink" href="#performing-inference-on-new-data" title="Link to this heading"></a></h1>
+<p>Refer to the tutorials (<a class="reference internal" href="install_on_linux.html"><span class="std std-doc">Linux</span></a>, <a class="reference internal" href="install_on_wsl2.html"><span class="std std-doc">Windows</span></a>) for installation instructions.</p>
 <p>To run inference, you will need:</p>
 <ul class="simple">
 <li><p>A source cloud point in LAS format on which to infer classes and probabilites. Sample data from the French “Lidar HD” project can be downloaded at <a class="reference external" href="https://geoservices.ign.fr/lidarhd">this address</a>.</p></li>
@@ -178,7 +183,7 @@
 <div><p><strong>A default model and its configuration are embedded directly in code under folder <code class="docutils literal notranslate"><span class="pre">trained_model_assets</span></code>.</strong> They are expected to always be compatible with the code base, and updated as needed in case of e.g. change of configuration format or model implementation.</p>
 </div></blockquote>
 <section id="run-inference-from-source">
-<h2>Run inference from source<a class="headerlink" href="#run-inference-from-source" title="Permalink to this headline"></a></h2>
+<h2>Run inference from source<a class="headerlink" href="#run-inference-from-source" title="Link to this heading"></a></h2>
 <p>Then, fill out the {missing parameters} below and run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="se">\</span>
 task.task_name<span class="o">=</span>predict<span class="w"> </span><span class="se">\</span>
@@ -196,12 +201,12 @@ datamodule.batch_size<span class="o">={</span>N<span class="o">}</span>
 If the lidar file doesn’t specify an EPSG in its meatadata, it HAS TO BE be specified with <code class="docutils literal notranslate"><span class="pre">datamodule.epsg=...</span></code></p>
 </section>
 <section id="run-inference-from-sources">
-<h2>Run inference from sources<a class="headerlink" href="#run-inference-from-sources" title="Permalink to this headline"></a></h2>
+<h2>Run inference from sources<a class="headerlink" href="#run-inference-from-sources" title="Link to this heading"></a></h2>
 <p>In case you want to swicth to package-based inference, you will need to comment out the parameters that depends on local environment variables such as logger credentials and training data directory. You can do so by making a copy of your configuration file and commenting out the lines containing <code class="docutils literal notranslate"><span class="pre">oc.env</span></code> logic.</p>
 </section>
 <section id="run-inference-from-within-a-docker-image">
-<h2>Run inference from within a docker image<a class="headerlink" href="#run-inference-from-within-a-docker-image" title="Permalink to this headline"></a></h2>
-<p>Up to date docker images (named <code class="docutils literal notranslate"><span class="pre">myria3d</span></code>) are created via Github integration actions (see <a class="reference internal" href="../guides/development.html"><span class="doc std std-doc">Developer’s guide</span></a>.</p>
+<h2>Run inference from within a docker image<a class="headerlink" href="#run-inference-from-within-a-docker-image" title="Link to this heading"></a></h2>
+<p>Up to date docker images (named <code class="docutils literal notranslate"><span class="pre">myria3d</span></code>) are created via Github integration actions (see <a class="reference internal" href="../guides/development.html"><span class="std std-doc">Developer’s guide</span></a>.</p>
 <p>A docker image encapsulating the virtual environment and application sources can also be built using the provided Dockerfile. At built time, the Dockerfile is not standalone and should be part of the repository - whose content is copied into the image - at the github reference you want to build from.</p>
 <p>To run inference:</p>
 <ul class="simple">
@@ -223,21 +228,21 @@ python<span class="w"> </span>run.py<span class="w"> </span><span class="o">{</s
 </div>
 </section>
 <section id="additional-options-for-prediction">
-<h2>Additional options for prediction<a class="headerlink" href="#additional-options-for-prediction" title="Permalink to this headline"></a></h2>
+<h2>Additional options for prediction<a class="headerlink" href="#additional-options-for-prediction" title="Link to this heading"></a></h2>
 <section id="output-dimensions">
-<h3>Output dimensions<a class="headerlink" href="#output-dimensions" title="Permalink to this headline"></a></h3>
+<h3>Output dimensions<a class="headerlink" href="#output-dimensions" title="Link to this heading"></a></h3>
 <p>By default, the predicted classification is stored in a new <code class="docutils literal notranslate"><span class="pre">PredictedClassification</span></code> LAS dimension. The <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a> of probabilities is also stored in a new <code class="docutils literal notranslate"><span class="pre">entropy</span></code> LAS dimension. It can be used as a very limited proxy of uncertainty.</p>
 <p>Change params <code class="docutils literal notranslate"><span class="pre">predict.interpolator.predicted_classification_channel</span></code> and <code class="docutils literal notranslate"><span class="pre">predict.interpolator.entropy_channel</span></code> to change name of output dimensions. Set to <code class="docutils literal notranslate"><span class="pre">null</span></code> to disable saving these dimensions.</p>
 <p>One can control for which classes to save the probabilities. This is achieved with a <code class="docutils literal notranslate"><span class="pre">predict.interpolator.probas_to_save</span></code> config parameter, which can be either the <code class="docutils literal notranslate"><span class="pre">all</span></code> keyword (to save probabilities for all classes) or a list of specific classes (e.g. <code class="docutils literal notranslate"><span class="pre">predict.interpolator.probas_to_save=[building,vegetation]</span></code> - note the absence of space between class names).</p>
 </section>
 <section id="receptive-field-overlap-at-inference-time">
-<h3>Receptive field overlap at inference time<a class="headerlink" href="#receptive-field-overlap-at-inference-time" title="Permalink to this headline"></a></h3>
+<h3>Receptive field overlap at inference time<a class="headerlink" href="#receptive-field-overlap-at-inference-time" title="Link to this heading"></a></h3>
 <p>To improve spatial regularity of the predicted probabilities, one can make inference on square receptive fields that have a non-null overlap with each other. This has the effect of smoothing out irregular predictions. The resulting classification is better looking, with more homogeneous predictions at the object level.</p>
 <p>To define an overlap between successive 50m*50m receptive fields, set <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap={value}</span></code>.
 This, however, comes with a large computation price. For instance, <code class="docutils literal notranslate"><span class="pre">predict.subtile_overlap=25</span></code> means a 25m overlap on both x and y axes, which multiplies inference time by a factor of 4.</p>
 </section>
 <section id="ignoring-artefacts-points-during-inference">
-<h3>Ignoring artefacts points during inference<a class="headerlink" href="#ignoring-artefacts-points-during-inference" title="Permalink to this headline"></a></h3>
+<h3>Ignoring artefacts points during inference<a class="headerlink" href="#ignoring-artefacts-points-during-inference" title="Link to this heading"></a></h3>
 <p>Lidar acquisition may have produced artefacts points. If these points were identified with one (or several) classification code(s), they can be ignored during inference. These points will still be present in the output cloud, but will not negatively disturb model inference. They will keep their original class in the predicted classification dim. They will have null probas and entropy.</p>
 <p>In the configuration, data transforms are used to drop points with a class 65. By convention, 65 will flag Lidar artefacts points. Additional classes may be mapped to 65 to be ignored during inference as well, via the <code class="docutils literal notranslate"><span class="pre">dataset_description.classification_preprocessing_dict</span></code> parameter. Note: you may need to use quotes when overriding this parameter via CLI.</p>
 </section>

@@ -1,21 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preparing data for training &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Preparing data for training &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -154,8 +159,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Preparing data for training</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Preparing data for training</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/prepare_dataset.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -166,9 +171,9 @@
            <div itemprop="articleBody">
              
   <section id="preparing-data-for-training">
-<h1>Preparing data for training<a class="headerlink" href="#preparing-data-for-training" title="Permalink to this headline"></a></h1>
+<h1>Preparing data for training<a class="headerlink" href="#preparing-data-for-training" title="Link to this heading"></a></h1>
 <section id="peprocessing-functions">
-<h2>Peprocessing functions<a class="headerlink" href="#peprocessing-functions" title="Permalink to this headline"></a></h2>
+<h2>Peprocessing functions<a class="headerlink" href="#peprocessing-functions" title="Link to this heading"></a></h2>
 <p>The loading function is dataset dependant, and is <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code> by default. The function takes points loaded from a LAS file via pdal as input, and returns a <code class="docutils literal notranslate"><span class="pre">pytorch_geometric.Data</span></code> object following the standard naming convention of <code class="docutils literal notranslate"><span class="pre">pytorch_geometric</span></code>, plus a list of features names for later use in transforms. In the loading function, the return number and color information (RGBI) are scaled to 0-1 interval, a NDVI and an average color ((R+G+B)/3) dimension are created, and points that may be occluded (as indicated by higher return number) have their color set to 0.</p>
 <p>Customization: You may want to implement your own logic (e.g. with custom, additional features) in directory <code class="docutils literal notranslate"><span class="pre">points_pre_transform</span></code>. It then needs to be referenced similarly to <code class="docutils literal notranslate"><span class="pre">lidar_hd_pre_transform</span></code>.</p>
 <p>The loading function is designed for the French Lidar HD data provided by IGN (see <a class="reference external" href="https://geoservices.ign.fr/lidarhd">the official page</a> - link in French). Note that the clouds are shared without color information, and should be colorized (RGB+Infrared) to use myria3d. The <a class="reference external" href="https://pypi.org/project/ign-pdal-tools/">open-source ign-pdal-tools library</a> is a convenient toolkit that can be used to colorize the raw clouds with IGN aerial imagery (see function ‘pdaltools.color.color(…)’).</p>
@@ -180,7 +185,7 @@
 </ul>
 </section>
 <section id="preparing-the-dataset">
-<h2>Preparing the dataset<a class="headerlink" href="#preparing-the-dataset" title="Permalink to this headline"></a></h2>
+<h2>Preparing the dataset<a class="headerlink" href="#preparing-the-dataset" title="Link to this heading"></a></h2>
 <p>To perform a training, you will need to specify these parameters in the datamodule config group:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">data_dir</span></code>: path to a directory in which a set of LAS files are stored. Clouds must be nested in subdirectories named according to their spli: train, val, or test.</p></li>
@@ -194,7 +199,7 @@
 <p>It’s also possible to create the hdf5 file without training any model: just fill the <code class="docutils literal notranslate"><span class="pre">datamodule.hdf5_file_path</span></code> parameter as before to specify the file path, but use <code class="docutils literal notranslate"><span class="pre">task=create_hdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">task=fit</span></code>.</p>
 </section>
 <section id="getting-started-quickly-with-a-toy-dataset">
-<h2>Getting started quickly with a toy dataset<a class="headerlink" href="#getting-started-quickly-with-a-toy-dataset" title="Permalink to this headline"></a></h2>
+<h2>Getting started quickly with a toy dataset<a class="headerlink" href="#getting-started-quickly-with-a-toy-dataset" title="Link to this heading"></a></h2>
 <p>A LAS file is provided as part of the test suite. It can be turned into a small, training-ready dataset to get started with the package.</p>
 <p>To create a toy dataset run :</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">myria3d</span><span class="o">/</span><span class="n">pctl</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">toy_dataset</span><span class="o">.</span><span class="n">py</span>

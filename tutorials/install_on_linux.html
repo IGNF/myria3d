@@ -1,21 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Install Myria3D on Linux &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Install Myria3D on Linux &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -154,8 +159,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Install Myria3D on Linux</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Install Myria3D on Linux</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/install_on_linux.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -166,17 +171,17 @@
            <div itemprop="articleBody">
              
   <section id="install-myria3d-on-linux">
-<h1>Install Myria3D on Linux<a class="headerlink" href="#install-myria3d-on-linux" title="Permalink to this headline"></a></h1>
+<h1>Install Myria3D on Linux<a class="headerlink" href="#install-myria3d-on-linux" title="Link to this heading"></a></h1>
 <section id="setting-up-a-virtual-environment">
-<h2>Setting up a virtual environment<a class="headerlink" href="#setting-up-a-virtual-environment" title="Permalink to this headline"></a></h2>
+<h2>Setting up a virtual environment<a class="headerlink" href="#setting-up-a-virtual-environment" title="Link to this heading"></a></h2>
 <section id="prerequisites">
-<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline"></a></h3>
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
 <p>We use <a class="reference external" href="https://www.anaconda.com/products/individual">anaconda</a> to manage virtual environments.
 This makes installing pytorch-related libraries way easier than using pure pip installs.</p>
 <p>We enable CUDA-acceleration in pytorch as part of the defaut virtual environment recipe (see below).</p>
 </section>
 <section id="environment-installation">
-<h3>Environment Installation<a class="headerlink" href="#environment-installation" title="Permalink to this headline"></a></h3>
+<h3>Environment Installation<a class="headerlink" href="#environment-installation" title="Link to this heading"></a></h3>
 <p>To install the environment, follow these instructions:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install mamba to create the environment faster</span>
 conda<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>mamba<span class="w"> </span>-n<span class="w"> </span>base<span class="w"> </span>-c<span class="w"> </span>conda-forge
@@ -188,7 +193,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>myria3d
 </div>
 <blockquote>
 <div><p>CUDA: if you have CUDA, <a class="reference external" href="https://varhowto.com/check-cuda-version/">check you CUDA version</a>, and check that the <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> version in <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> matches yours.
-You should in particular check the sources for torch-geometric’s dependencies, that are given via their wheels. Using an older cuda-toolkit will probably work on a newer system thanks to NVIDIA backward compatibility (check the <span class="xref myst">compatibility matrix</span>). For instance: installing pytorch-geometric wheels for Cuda 11.3 (<code class="docutils literal notranslate"><span class="pre">cu113</span></code>) will still work on a system with NVIDIA 12.1 installed if the NVIDIA drivers are recent enough (which is expected).</p>
+You should in particular check the sources for torch-geometric’s dependencies, that are given via their wheels. Using an older cuda-toolkit will probably work on a newer system thanks to NVIDIA backward compatibility (check the <a class="reference internal" href="#%5Burl%5D(https://docs.nvidia.com/deploy/cuda-compatibility/index.html#use-the-right-compat-package)"><span class="xref myst">compatibility matrix</span></a>). For instance: installing pytorch-geometric wheels for Cuda 11.3 (<code class="docutils literal notranslate"><span class="pre">cu113</span></code>) will still work on a system with NVIDIA 12.1 installed if the NVIDIA drivers are recent enough (which is expected).</p>
 </div></blockquote>
 <blockquote>
 <div><p>If you want a CPU only version, you might edit <code class="docutils literal notranslate"><span class="pre">setup_env/requirements.yml</span></code> by removing the cuda-toolkit line and changing wheels for cpu versions.</p>
@@ -200,7 +205,7 @@ You should in particular check the sources for torch-geometric’s dependencies,
 </section>
 </section>
 <section id="install-source-as-a-package">
-<h2>Install source as a package<a class="headerlink" href="#install-source-as-a-package" title="Permalink to this headline"></a></h2>
+<h2>Install source as a package<a class="headerlink" href="#install-source-as-a-package" title="Link to this heading"></a></h2>
 <p>If you are interested in running inference from anywhere, the easiest way is to install code as a package in a your virtual environment.</p>
 <p>Start by activating the virtual environment with</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>myria3d
@@ -222,7 +227,7 @@ handle its dependencies!</p>
 </div>
 </section>
 <section id="troubleshooting">
-<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline"></a></h2>
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
 <ul>
 <li><p><em>OSError(libcusparse.so.11 cannot open shared object file no such file or directory)</em> (<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625">**</a>)</p>
 <ul>

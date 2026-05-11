@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataloader.dataloader &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>myria3d.pctl.dataloader.dataloader &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -151,9 +156,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>myria3d.pctl.dataloader.dataloader</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">myria3d.pctl.dataloader.dataloader</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -163,31 +168,36 @@
            <div itemprop="articleBody">
              
   <h1>Source code for myria3d.pctl.dataloader.dataloader</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
-<span class="kn">from</span> <span class="nn">torch_geometric.loader.dataloader</span> <span class="kn">import</span> <span class="n">Collater</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch_geometric.loader.dataloader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collater</span>
 
 
-<div class="viewcode-block" id="GeometricNoneProofDataloader"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataloader.dataloader.GeometricNoneProofDataloader">[docs]</a><span class="k">class</span> <span class="nc">GeometricNoneProofDataloader</span><span class="p">(</span><span class="n">DataLoader</span><span class="p">):</span>
+<div class="viewcode-block" id="GeometricNoneProofDataloader">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataloader.dataloader.GeometricNoneProofDataloader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GeometricNoneProofDataloader</span><span class="p">(</span><span class="n">DataLoader</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Torch geometric&#39;s dataloader is a simple torch Dataloader with a different Collater.</span>
 
 <span class="sd">    This overrides the collater with a NoneProof one that will not fail if some Data is None.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Allow overriding - this is needed for pytorch lightning &quot;overfit_batches&quot; function, which</span>
         <span class="c1"># update the dataloader with a different collater.</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;collate_fn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;collate_fn&quot;</span><span class="p">,</span> <span class="n">GeometricNoneProofCollater</span><span class="p">())</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GeometricNoneProofCollater"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataloader.dataloader.GeometricNoneProofCollater">[docs]</a><span class="k">class</span> <span class="nc">GeometricNoneProofCollater</span><span class="p">(</span><span class="n">Collater</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GeometricNoneProofCollater">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataloader.dataloader.GeometricNoneProofCollater">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GeometricNoneProofCollater</span><span class="p">(</span><span class="n">Collater</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A Collater that returns None when given empty batch.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">follow_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">follow_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">follow_batch</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_list</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_list</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">data_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">data_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data_list</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
@@ -195,6 +205,7 @@
             <span class="c1"># empty</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

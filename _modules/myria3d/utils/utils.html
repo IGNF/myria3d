@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.utils.utils &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>myria3d.utils.utils &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -151,9 +156,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>myria3d.utils.utils</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">myria3d.utils.utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -163,20 +168,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for myria3d.utils.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
-<span class="kn">import</span> <span class="nn">rich.syntax</span>
-<span class="kn">import</span> <span class="nn">rich.tree</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">OmegaConf</span>
-<span class="kn">from</span> <span class="nn">pytorch_lightning.utilities</span> <span class="kn">import</span> <span class="n">rank_zero_only</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytorch_lightning</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rich.syntax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rich.tree</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">omegaconf</span><span class="w"> </span><span class="kn">import</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">OmegaConf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pytorch_lightning.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">rank_zero_only</span>
 
 
-<div class="viewcode-block" id="get_logger"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.get_logger">[docs]</a><span class="k">def</span> <span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+<div class="viewcode-block" id="get_logger">
+<a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.get_logger">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initializes multi-GPU-friendly python logger.&quot;&quot;&quot;</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -197,7 +204,10 @@
     <span class="k">return</span> <span class="n">logger</span></div>
 
 
-<div class="viewcode-block" id="extras"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.extras">[docs]</a><span class="k">def</span> <span class="nf">extras</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="extras">
+<a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.extras">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extras</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A couple of optional utilities, controlled by main config file:</span>
 <span class="sd">    - disabling warnings</span>
 <span class="sd">    - easier access to debug mode</span>
@@ -223,8 +233,11 @@
     <span class="n">OmegaConf</span><span class="o">.</span><span class="n">set_struct</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="print_config"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">[docs]</a><span class="nd">@rank_zero_only</span>
-<span class="k">def</span> <span class="nf">print_config</span><span class="p">(</span>
+
+<div class="viewcode-block" id="print_config">
+<a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.print_config">[docs]</a>
+<span class="nd">@rank_zero_only</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_config</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span>
     <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;task&quot;</span><span class="p">,</span>
@@ -267,12 +280,15 @@
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">empty</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="log_hyperparameters"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.log_hyperparameters">[docs]</a><span class="nd">@rank_zero_only</span>
-<span class="k">def</span> <span class="nf">log_hyperparameters</span><span class="p">(</span>
+<div class="viewcode-block" id="log_hyperparameters">
+<a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.log_hyperparameters">[docs]</a>
+<span class="nd">@rank_zero_only</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_hyperparameters</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">,</span>
     <span class="n">datamodule</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">,</span>
@@ -315,10 +331,13 @@
     <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_hyperparams</span> <span class="o">=</span> <span class="n">empty</span></div>
 
 
-<div class="viewcode-block" id="eval_time"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.eval_time">[docs]</a><span class="k">def</span> <span class="nf">eval_time</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+
+<div class="viewcode-block" id="eval_time">
+<a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.eval_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_time</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to log the duration of the decorated method&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">timed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">timed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
         <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -330,7 +349,10 @@
     <span class="k">return</span> <span class="n">timed</span></div>
 
 
-<div class="viewcode-block" id="define_device_from_config_param"><a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.define_device_from_config_param">[docs]</a><span class="k">def</span> <span class="nf">define_device_from_config_param</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">):</span>
+
+<div class="viewcode-block" id="define_device_from_config_param">
+<a class="viewcode-back" href="../../../apidoc/myria3d.utils.html#myria3d.utils.utils.define_device_from_config_param">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">define_device_from_config_param</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Param can be an in specifying a number of GPU to use (0 or 1) or an int in</span>
 <span class="sd">    a list specifying which GPU to use (cuda:0, cuda:1, etc.)</span>
@@ -341,6 +363,7 @@
         <span class="k">else</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">gpus_param</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;cuda:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">gpus_param</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">device</span></div>
+
 </pre></div>
 
            </div>

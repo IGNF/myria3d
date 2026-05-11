@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>myria3d.pctl.dataset.hdf5 &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -151,9 +156,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>myria3d.pctl.dataset.hdf5</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">myria3d.pctl.dataset.hdf5</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -163,34 +168,36 @@
            <div itemprop="articleBody">
              
   <h1>Source code for myria3d.pctl.dataset.hdf5</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">h5py</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch_geometric.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">myria3d.pctl.dataset.utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.dataset.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">,</span>
     <span class="n">SPLIT_TYPE</span><span class="p">,</span>
     <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
     <span class="n">split_cloud_into_samples</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">myria3d.pctl.points_pre_transform.lidar_hd</span> <span class="kn">import</span> <span class="n">lidar_hd_pre_transform</span>
-<span class="kn">from</span> <span class="nn">myria3d.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.points_pre_transform.lidar_hd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lidar_hd_pre_transform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="HDF5Dataset"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.HDF5Dataset">[docs]</a><span class="k">class</span> <span class="nc">HDF5Dataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="HDF5Dataset">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.HDF5Dataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HDF5Dataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Single-file HDF5 dataset for collections of large LAS tiles.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hdf5_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -256,7 +263,7 @@
         <span class="c1"># Use property once to be sure that samples are all indexed into the hdf5 file.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Data</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Data</span><span class="p">]:</span>
         <span class="n">sample_hdf5_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data</span><span class="p">(</span><span class="n">sample_hdf5_path</span><span class="p">)</span>
 
@@ -277,7 +284,7 @@
 
         <span class="k">return</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="nf">_get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_hdf5_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_hdf5_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads a Data object from the HDF5 dataset.</span>
 
 <span class="sd">        Opening the file has a high cost so we do it only once and store the opened files as a singleton</span>
@@ -302,28 +309,28 @@
             <span class="c1"># num_nodes=grp[&quot;pos&quot;][...].shape[0],  # Not needed - performed under the hood.</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">traindata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">traindata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_subset</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">valdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">valdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_subset</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">testdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">testdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_subset</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_split_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split</span><span class="p">:</span> <span class="n">SPLIT_TYPE</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_split_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split</span><span class="p">:</span> <span class="n">SPLIT_TYPE</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a sub-dataset of a specific (train/val/test) split.&quot;&quot;&quot;</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_hdf5_paths</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">split</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">samples_hdf5_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples_hdf5_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Index all samples in the dataset, if not already done before.&quot;&quot;&quot;</span>
         <span class="c1"># Use existing if already loaded as variable.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span><span class="p">:</span>
@@ -359,7 +366,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples_hdf5_paths</span></div>
 
 
-<div class="viewcode-block" id="create_hdf5"><a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5">[docs]</a><span class="k">def</span> <span class="nf">create_hdf5</span><span class="p">(</span>
+
+<div class="viewcode-block" id="create_hdf5">
+<a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.hdf5.create_hdf5">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_hdf5</span><span class="p">(</span>
     <span class="n">las_paths_by_split_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">hdf5_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -456,6 +466,7 @@
                 <span class="c1"># Group may not have been created if source cloud had no patch passing the pre_filter step, hence the &quot;if&quot; here.</span>
                 <span class="k">if</span> <span class="n">basename</span> <span class="ow">in</span> <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">]:</span>
                     <span class="n">hdf5_file</span><span class="p">[</span><span class="n">split</span><span class="p">][</span><span class="n">basename</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_complete&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
+
 </pre></div>
 
            </div>

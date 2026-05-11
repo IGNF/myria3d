@@ -1,21 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Install Myria3D on WSL2 with CUDA support &mdash; myria3d 3.8.4 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Install Myria3D on WSL2 with CUDA support &mdash; myria3d 3.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> myria3d
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            myria3d
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -154,8 +159,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Install Myria3D on WSL2 with CUDA support</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Install Myria3D on WSL2 with CUDA support</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/install_on_wsl2.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -166,11 +171,11 @@
            <div itemprop="articleBody">
              
   <section id="install-myria3d-on-wsl2-with-cuda-support">
-<h1>Install Myria3D on WSL2 with CUDA support<a class="headerlink" href="#install-myria3d-on-wsl2-with-cuda-support" title="Permalink to this headline"></a></h1>
+<h1>Install Myria3D on WSL2 with CUDA support<a class="headerlink" href="#install-myria3d-on-wsl2-with-cuda-support" title="Link to this heading"></a></h1>
 <p>Myria3D is a deep learning library designed with a focused scope: the multiclass semantic segmentation of large scale, high density aerial Lidar points cloud.</p>
 <p>For Windows users it is quite tricky to get everything working in Myria3D. Some of the dependencies do not yet support Windows or leads to various version mismatch problems during installation. It’s best to use Windows Subsystem for Linux (WSL2) to get the most out of this library if you want to work on Windows. While setting up WSL and installing Myria3D is not that difficult, if you want to utilize GPU, it becomes much more challenging. This guide tries to address the necessary steps that needs to be taken to get a properly working environment with GPU support.</p>
 <section id="setting-up-wsl2">
-<h2><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Setting up WSL2</a><a class="headerlink" href="#setting-up-wsl2" title="Permalink to this headline"></a></h2>
+<h2><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Setting up WSL2</a><a class="headerlink" href="#setting-up-wsl2" title="Link to this heading"></a></h2>
 <p>Myria3D requires the latest Linux distros to work properly. That’s why it’s important to make sure that everything in the WSL is up to date.</p>
 <ol class="arabic">
 <li><p>You must be running Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11 to use the commands below. If you are on earlier versions please see the <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install-manual">manual install page</a>.</p></li>
@@ -194,7 +199,7 @@
 </ol>
 </section>
 <section id="installing-anaconda">
-<h2><a class="reference external" href="https://docs.anaconda.com/anaconda/install/linux/">Installing Anaconda</a><a class="headerlink" href="#installing-anaconda" title="Permalink to this headline"></a></h2>
+<h2><a class="reference external" href="https://docs.anaconda.com/anaconda/install/linux/">Installing Anaconda</a><a class="headerlink" href="#installing-anaconda" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>In your browser, download the Anaconda installer for <a class="reference external" href="https://www.anaconda.com/products/distribution#linux">Linux</a>.</p></li>
 <li><p>It’s recommended to copy the downloaded file to your WSL home directory- <code class="docutils literal notranslate"><span class="pre">\\wsl.localhost\Ubuntu\home\&lt;username&gt;</span></code></p></li>
@@ -211,7 +216,7 @@
 </ol>
 </section>
 <section id="installing-myria3d">
-<h2>Installing Myria3D<a class="headerlink" href="#installing-myria3d" title="Permalink to this headline"></a></h2>
+<h2>Installing Myria3D<a class="headerlink" href="#installing-myria3d" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>Clone the Myria3D main branch in your working directory using the following command</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git clone https://github.com/IGNF/myria3d.git
@@ -276,7 +281,7 @@
 </p>        
 </section>
 <section id="install-cuda-in-wsl">
-<h2><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2">Install cuda in WSL</a><a class="headerlink" href="#install-cuda-in-wsl" title="Permalink to this headline"></a></h2>
+<h2><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2">Install cuda in WSL</a><a class="headerlink" href="#install-cuda-in-wsl" title="Link to this heading"></a></h2>
 <p><strong>Do not install any driver within the WSL environment. For building a CUDA application, you will need CUDA Toolkit.</strong> The latest NVIDIA Windows GPU Driver will fully support WSL 2. With CUDA support in the driver, existing applications (compiled elsewhere on a Linux system for the same target GPU) can run unmodified within the WSL environment. The CUDA WSL-Ubuntu local installer does not contain the NVIDIA Linux GPU driver, so by following the steps below, you will be able to get just the CUDA toolkit installed on WSL.</p>
 <ol class="arabic">
 <li><p>First, remove the old GPG key:</p>
@@ -284,7 +289,7 @@
 </pre></div>
 </div>
 </li>
-<li><p>Go to this <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">link</a> and choose the cuda toolkit version according to your Windows NVIDIA driver’s cuda version. For demonstration purposes, <a class="reference external" href="https://developer.nvidia.com/cuda-11-3-1-download-archive?target_os=Linux&amp;target_arch=x86_64&amp;Distribution=WSL-Ubuntu&amp;target_version=2.0&amp;target_type=deb_local">cudatoolkit 11.3.1</a> is shown here.</p></li>
+<li><p>Go to this <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">link</a> and choose the cuda toolkit version according to your Windows NVIDIA driver’s cuda version. For demonstration purposes, <a class="reference external" href="https://developer.nvidia.com/cuda-11-3-1-download-archive?target_os=Linux&amp;amp;target_arch=x86_64&amp;amp;Distribution=WSL-Ubuntu&amp;amp;target_version=2.0&amp;amp;target_type=deb_local">cudatoolkit 11.3.1</a> is shown here.</p></li>
 <li><p>Run the following commands <strong>one by one</strong>.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
  sudo mv cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
@@ -301,7 +306,7 @@
 </ol>
 </section>
 <section id="troubleshooting">
-<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline"></a></h2>
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
 <ul>
 <li><p><em>OSError(libcusparse.so.11 cannot open shared object file no such file or directory)</em> (<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625">**</a>)</p>
 <ul>
