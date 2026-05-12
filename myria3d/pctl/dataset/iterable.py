@@ -11,6 +11,7 @@ from myria3d.pctl.dataset.utils import (
     split_cloud_into_samples,
 )
 from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from myria3d.pctl.points_pre_transform.lidar_hd_norgb import lidar_hd_norgb_pre_transform
 
 
 class InferenceDataset(IterableDataset):

@@ -122,8 +122,9 @@ class StandardizeRGBAndIntensity(BaseTransform):
         # Log transform to be less sensitive to large outliers - info is in lower values
         data.x[:, idx] = torch.log(data.x[:, idx] + 1)
         data.x[:, idx] = self.standardize_channel(data.x[:, idx])
-        idx = data.x_features_names.index("rgb_avg")
-        data.x[:, idx] = self.standardize_channel(data.x[:, idx])
+        if "rgb_avg" in data.x_features_names:
+            idx = data.x_features_names.index("rgb_avg")
+            data.x[:, idx] = self.standardize_channel(data.x[:, idx])
         return data
 
     def standardize_channel(self, channel_data: torch.Tensor, clamp_sigma: int = 3):

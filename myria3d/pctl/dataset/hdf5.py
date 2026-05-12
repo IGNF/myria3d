@@ -17,6 +17,7 @@ from myria3d.pctl.dataset.utils import (
     split_cloud_into_samples,
 )
 from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from myria3d.pctl.points_pre_transform.lidar_hd_norgb import lidar_hd_norgb_pre_transform
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)

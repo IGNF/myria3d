@@ -5,11 +5,12 @@ from torch_geometric.data import Batch
 from torch_geometric.nn import knn_interpolate
 
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
+from myria3d.models.modules.pointnet import PointNet
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
 
-MODEL_ZOO = [PyGRandLANet]
+MODEL_ZOO = [PyGRandLANet, PointNet]
 
 
 def get_neural_net_class(class_name: str) -> nn.Module:
