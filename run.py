@@ -125,6 +125,7 @@ if __name__ == "__main__":
         launch_predict()
 
     elif task_name == TASK_NAMES.HDF5.value:
+        dotenv.load_dotenv(override=True)
         launch_hdf5()
 
     else:
