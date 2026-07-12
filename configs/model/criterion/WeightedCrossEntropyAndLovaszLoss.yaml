@@ -1,0 +1,17 @@
+_target_: myria3d.models.losses.combined.CombinedLoss
+# Relative weights of each loss in the final sum.
+weights:
+  - 1.0  # weighted cross-entropy
+  - 1.0  # lovasz
+losses:
+  - _target_: torch.nn.CrossEntropyLoss
+    label_smoothing: 0.0
+    ignore_index: 65  # artefacts are mapped to 65 by convention
+    weight:
+      _target_: torch.FloatTensor
+      _args_:
+        - ${dataset_description.class_weights}
+  - _target_: myria3d.models.losses.lovasz.LovaszLoss
+    mode: multiclass
+    ignore_index: 65  # artefacts are mapped to 65 by convention
+    per_image: false
