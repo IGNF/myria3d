@@ -185,11 +185,22 @@ class Model(LightningModule):
         if self.hparams.lr_scheduler is None:
             return optimizer
 
-        return {
-            "optimizer": optimizer,
-            "lr_scheduler": self.hparams.lr_scheduler(optimizer),
-            "monitor": self.hparams.monitor,
-        }
+        lr_scheduler_partial = self.hparams.lr_scheduler
+        if lr_scheduler_partial.func is torch.optim.lr_scheduler.OneCycleLR:
+            # OneCycleLR needs the total number of optimizer steps and must be
+            # stepped every batch. Let Lightning compute total_steps so that
+            # steps_per_epoch/epochs do not have to be set by hand.
+            scheduler = lr_scheduler_partial(
+                optimizer, total_steps=self.trainer.estimated_stepping_batches
+            )
+            lr_scheduler_config = {"scheduler": scheduler, "interval": "step"}
+        else:
+            lr_scheduler_config = {
+                "scheduler": lr_scheduler_partial(optimizer),
+                "monitor": self.hparams.monitor,
+            }
+
+        return {"optimizer": optimizer, "lr_scheduler": lr_scheduler_config}
 
     def _get_batch_tensor_by_enumeration(self, pos_x: torch.Tensor) -> torch.Tensor:
         """Get batch tensor (e.g. [0,0,1,1,2,2,...,B-1,B-1] )
