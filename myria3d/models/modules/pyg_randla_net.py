@@ -26,6 +26,7 @@ class PyGRandLANet(torch.nn.Module):
         num_classes: int,
         decimation: int = 4,
         num_neighbors: int = 16,
+        dims: Tuple[int, int, int, int] = (32, 128, 256, 512),
         return_logits: bool = False,
     ):
         super().__init__()
@@ -34,21 +35,27 @@ class PyGRandLANet(torch.nn.Module):
         # An option to return logits instead of probas
         self.return_logits = return_logits
 
+        # Per-stage encoder output channels. Increase these to raise the model
+        # capacity (e.g. (64, 256, 512, 1024)) when training on larger datasets.
+        if len(dims) != 4:
+            raise ValueError(f"`dims` must have exactly 4 values, got {len(dims)}: {dims}")
+        d1, d2, d3, d4 = dims
+
         # Authors use 8, which is a bottleneck
         # for the final MLP, and also when num_classes>8
         # or num_features>8.
         d_bottleneck = max(32, num_classes, num_features)
 
         self.fc0 = Linear(num_features, d_bottleneck)
-        self.block1 = DilatedResidualBlock(num_neighbors, d_bottleneck, 32)
-        self.block2 = DilatedResidualBlock(num_neighbors, 32, 128)
-        self.block3 = DilatedResidualBlock(num_neighbors, 128, 256)
-        self.block4 = DilatedResidualBlock(num_neighbors, 256, 512)
-        self.mlp_summit = SharedMLP([512, 512])
-        self.fp4 = FPModule(1, SharedMLP([512 + 256, 256]))
-        self.fp3 = FPModule(1, SharedMLP([256 + 128, 128]))
-        self.fp2 = FPModule(1, SharedMLP([128 + 32, 32]))
-        self.fp1 = FPModule(1, SharedMLP([32 + 32, d_bottleneck]))
+        self.block1 = DilatedResidualBlock(num_neighbors, d_bottleneck, d1)
+        self.block2 = DilatedResidualBlock(num_neighbors, d1, d2)
+        self.block3 = DilatedResidualBlock(num_neighbors, d2, d3)
+        self.block4 = DilatedResidualBlock(num_neighbors, d3, d4)
+        self.mlp_summit = SharedMLP([d4, d4])
+        self.fp4 = FPModule(1, SharedMLP([d4 + d3, d3]))
+        self.fp3 = FPModule(1, SharedMLP([d3 + d2, d2]))
+        self.fp2 = FPModule(1, SharedMLP([d2 + d1, d1]))
+        self.fp1 = FPModule(1, SharedMLP([d1 + d1, d_bottleneck]))
         self.mlp_classif = SharedMLP([d_bottleneck, 64, 32], dropout=[0.0, 0.5])
         self.fc_classif = Linear(32, num_classes)
 

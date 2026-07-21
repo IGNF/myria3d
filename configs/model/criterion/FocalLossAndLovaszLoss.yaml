@@ -1,0 +1,15 @@
+_target_: myria3d.models.losses.combined.CombinedLoss
+# Relative weights of each loss in the final sum.
+weights:
+  - 1.0  # Focal
+  - 1.0  # lovasz
+losses:
+  - _target_: myria3d.models.losses.focal.FocalLoss
+    gamma: 2.0
+    ignore_index: 65  # artefacts are mapped to 65 by convention
+    reduction: mean
+
+  - _target_: myria3d.models.losses.lovasz.LovaszLoss
+    mode: multiclass
+    ignore_index: 65  # artefacts are mapped to 65 by convention
+    per_image: false
