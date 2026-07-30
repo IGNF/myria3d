@@ -14,63 +14,36 @@ on:
 
 jobs:
   CICD:
-    runs-on: self-hosted
-    env:
-      http_proxy: ${{ secrets.PROXY_URL }}
-      https_proxy: ${{ secrets.PROXY_URL }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build docker image
-        run: docker build --build-arg http_proxy=${{ secrets.PROXY_URL }} --build-arg https_proxy=${{ secrets.PROXY_URL }} -t myria3d .
+        run: docker build -t myria3d .
 
-      - name: Run pytest
+      - name: Run pytest unit tests
         run: >
           docker run
           --ipc=host
           myria3d
           python -m
-          pytest -rA -v
-          --ignore=actions-runner
+          pytest -rA -v -m "not functional"
 
       # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
       # sufficient shared memory when predicting on large files.
-      - name: Example inference run via Docker with default config and checkpoint
+      - name: Example inferences run via Docker (pytest functional tests)
+        if: github.event_name == 'push'
         run: >
           docker run
-          -v /var/data/cicd/CICD_github_assets/myria3d_V3.9.0/inputs/:/inputs/
-          -v /var/data/cicd/CICD_github_assets/myria3d_V3.9.0/outputs/default/:/outputs/
           --ipc=host
           --shm-size=2gb
           myria3d
-          python run.py
-          predict.src_las=/inputs/792000_6272000_subset_buildings.las
-          datamodule.epsg=2154
-          predict.output_dir=/outputs/
-          task.task_name=predict
-
-      # predict.subtile_overlap specifies overlap between adjacent samples (in meters).
-      - name: Example inference run via Docker with inference-time subtiles overlap to smooth-out results.
-        run: >
-          docker run
-          -v /var/data/cicd/CICD_github_assets/myria3d_V3.9.0/inputs/:/inputs/
-          -v /var/data/cicd/CICD_github_assets/myria3d_V3.9.0/outputs/overlap/:/outputs/
-          --ipc=host
-          --shm-size=2gb
-          myria3d
-          python run.py
-          --config-path /inputs/
-          --config-name FRACTAL-LidarHD_7cl_randlanet-inference-Myria3DV3.8
-          predict.ckpt_path=/inputs/FRACTAL-LidarHD_7cl_randlanet.ckpt
-          datamodule.epsg=2154
-          predict.src_las=/inputs/792000_6272000_subset_buildings.las
-          predict.output_dir=/outputs/
-          predict.subtile_overlap=25
-          datamodule.batch_size=10
-          predict.interpolator.probas_to_save=[building,ground]
-          task.task_name=predict
+          python -m
+          pytest -rA -v -m "functional" --no-cov
 
       - name: Check code neatness (linter)
         run: docker run myria3d python -m flake8
@@ -135,11 +108,11 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # See https://github.com/marketplace/actions/setup-micromamba
       - name: setup-micromamba
-        uses: mamba-org/setup-micromamba@v1.4.3
+        uses: mamba-org/setup-micromamba@v3.1
         with:
           environment-file: environment.yml
           environment-name: myria3d # activate the environment
@@ -159,6 +132,6 @@ jobs:
         run: python -m build
 
       - name: pypi-publish
-        uses: pypa/gh-action-pypi-publish@v1.8.14
+        uses: pypa/gh-action-pypi-publish@v1.14
         with:
           skip-existing: true
