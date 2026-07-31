@@ -13,4 +13,7 @@ preparations_train_list: "${oc.dict.values: datamodule.transforms.preparations.t
 preparations_eval_list: "${oc.dict.values: datamodule.transforms.preparations.eval}"
 preparations_predict_list: "${oc.dict.values: datamodule.transforms.preparations.predict}"
 
+# Deterministic transforms applied once, at HDF5-creation time, for the TRAIN split only.
+preparations_train_bake_list: "${oc.dict.values: datamodule.transforms.preparations.train_bake}"
+
 normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"

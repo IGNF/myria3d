@@ -39,6 +39,8 @@ class HDF5LidarDataModule(LightningDataModule):
         batch_size: int = 12,
         num_workers: int = 1,
         prefetch_factor: int = 2,
+        pin_memory: bool = False,
+        persistent_workers: bool = False,
         transforms: Optional[Dict[str, TRANSFORMS_LIST]] = None,
         **kwargs,
     ):
@@ -62,6 +64,8 @@ class HDF5LidarDataModule(LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.prefetch_factor = prefetch_factor
+        self.pin_memory = pin_memory
+        self.persistent_workers = persistent_workers
 
         t = transforms
         self.preparation_train_transform: TRANSFORMS_LIST = t.get("preparations_train_list", [])
@@ -71,6 +75,11 @@ class HDF5LidarDataModule(LightningDataModule):
         )
         self.augmentation_transform: TRANSFORMS_LIST = t.get("augmentations_list", [])
         self.normalization_transform: TRANSFORMS_LIST = t.get("normalizations_list", [])
+
+        # Deterministic transforms baked into the HDF5 file at creation time (train split only).
+        self.preparation_train_bake_transform: TRANSFORMS_LIST = t.get(
+            "preparations_train_bake_list", []
+        )
 
     @property
     def train_transform(self) -> CustomCompose:
@@ -87,6 +96,11 @@ class HDF5LidarDataModule(LightningDataModule):
     @property
     def predict_transform(self) -> CustomCompose:
         return CustomCompose(self.preparation_predict_transform + self.normalization_transform)
+
+    @property
+    def train_pre_transform(self) -> CustomCompose:
+        """Deterministic transforms baked into the HDF5 file (train split only)."""
+        return CustomCompose(self.preparation_train_bake_transform)
 
     def prepare_data(self, stage: Optional[str] = None):
         """Prepare dataset containing train, val, test data."""
@@ -138,6 +152,7 @@ class HDF5LidarDataModule(LightningDataModule):
             subtile_width=self.subtile_width,
             subtile_overlap_train=self.subtile_overlap_train,
             pre_filter=self.pre_filter,
+            train_pre_transform=self.train_pre_transform,
             train_transform=self.train_transform,
             eval_transform=self.eval_transform,
         )
@@ -149,6 +164,8 @@ class HDF5LidarDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             prefetch_factor=self.prefetch_factor,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers and self.num_workers > 0,
             shuffle=True,
         )
 
@@ -158,6 +175,8 @@ class HDF5LidarDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             prefetch_factor=self.prefetch_factor,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers and self.num_workers > 0,
         )
 
     def test_dataloader(self):

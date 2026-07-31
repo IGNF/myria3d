@@ -21,7 +21,7 @@ class ToTensor(BaseTransform):
         self.keys = keys
 
     def __call__(self, data: Data):
-        for key in data.keys:
+        for key in data.keys():
             if key in self.keys:
                 data[key] = torch.from_numpy(data[key])
         return data

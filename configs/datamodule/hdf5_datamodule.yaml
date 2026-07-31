@@ -26,6 +26,8 @@ subtile_overlap_predict: "${predict.subtile_overlap}"
 batch_size: 32
 num_workers: 3
 prefetch_factor: 3
+pin_memory: true
+persistent_workers: true
 
 defaults:
   - transforms: default.yaml

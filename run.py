@@ -19,6 +19,7 @@ from tqdm import tqdm
 from myria3d.utils import utils
 from myria3d.pctl.dataset.hdf5 import create_hdf5
 from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
+from myria3d.pctl.transforms.compose import CustomCompose
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
@@ -101,6 +102,11 @@ def launch_hdf5(config: DictConfig):
         subtile_overlap_train=config.datamodule.get("subtile_overlap_train"),
         points_pre_transform=hydra.utils.instantiate(
             config.datamodule.get("points_pre_transform")
+        ),
+        train_pre_transform=CustomCompose(
+            hydra.utils.instantiate(
+                config.datamodule.transforms.get("preparations_train_bake_list")
+            )
         ),
     )
 
