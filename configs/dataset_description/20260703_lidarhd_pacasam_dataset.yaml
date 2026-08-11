@@ -11,7 +11,10 @@ classification_preprocessing_dict: {3: 5, 4: 5, 0: 1, 66: 65, 67: 1, 100: 1, 101
 # classification_dict = {code_int: name_str, ...} and MUST be sorted (increasing order).
 classification_dict: {1: "unclassified", 2: "ground", 5: "vegetation", 6: "building", 9: "water", 17: "bridge", 64: "lasting_above"}
 
-class_weights: [1.2788,0.0955,0.0913,0.7460,1.3692,1.3692,1.3692]
+#class_weights: [1.2788,0.0955,0.0913,0.7460,1.3692,1.3692,1.3692]
+
+# unclassified is ambiguous anyway, so we set its weight to 1.0. The other weights are normalized so that they sum to 7.0 to preserve the scale of the loss.
+class_weights: [1.0, 0.1476, 0.0947, 1.0734, 1.4211, 1.4211, 1.4211]
 
 # Input and output dims of neural net are dataset dependant:
 d_in: 9
