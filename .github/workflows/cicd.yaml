@@ -11,9 +11,15 @@ on:
     branches:
       - main
       - staging-*
+      - fix/no-self-hosted
+
+env:
+  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io
+  TEST_TAG: ${{ github.repository }}:test
 
 jobs:
-  CICD:
+  test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -22,80 +28,148 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v7
 
-      - name: Build docker image
-        run: docker build -t myria3d .
+      # See https://github.com/marketplace/actions/setup-micromamba
+      - name: Setup micromamba environment
+        uses: mamba-org/setup-micromamba@v3.2.1
+        with:
+          environment-file: environment.yml
+          environment-name: myria3d
+          cache-environment: true
+          cache-downloads: true
+          generate-run-shell: true
 
-      - name: Run pytest unit tests
+      - name: Run tests with pytest
+        shell: micromamba-shell {0}
+        run: python -m pytest -rA -v -m "not functional"
+
+      - name: Example inferences run via Docker (pytest functional tests)
+        shell: micromamba-shell {0}
+        run: python -m pytest -rA -v -m "functional" --no-cov
+
+  test-deploy-docker:
+    needs: test
+    # if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+      - name: Build the Docker image
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          file: ./Dockerfile
+          load: true
+          tags: ${{ env.TEST_TAG }}
+
+      - name: Run pytest unit tests in docker image
         run: >
           docker run
           --ipc=host
-          myria3d
+          ${{ env.TEST_TAG }}
           python -m
           pytest -rA -v -m "not functional"
 
       # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
       # sufficient shared memory when predicting on large files.
-      - name: Example inferences run via Docker (pytest functional tests)
-        if: github.event_name == 'push'
+      - name: Example inferences run via Docker (pytest functional tests) in docker image
         run: >
           docker run
           --ipc=host
           --shm-size=2gb
-          myria3d
+          -v ${{ github.workspace }}/test_outputs:/outputs
+          ${{ env.TEST_TAG }}
           python -m
           pytest -rA -v -m "functional" --no-cov
 
-      - name: Check code neatness (linter)
-        run: docker run myria3d python -m flake8
-
-      # Everything ran so we tag the valid docker image to keep it
-      # This happens for push events, which are in particular
-      # triggered when a pull request is merged.
-      - name: Tag the docker image with branch name
-        if: github.event_name == 'push'
-        run: |
-          docker tag myria3d:latest myria3d:${{github.ref_name}}
-          docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
-          # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
-
       # get version number and date, to tag the image pushed to a private docker registry
-      - name: get version number
+      - name: Get version number
         id: tag
         run: |
           echo "VERSION=$(docker run myria3d python -m myria3d._version)" >> $GITHUB_ENV
           echo "DATE=$(date '+%Y.%m.%d')" >> $GITHUB_ENV
 
-      # show possible tags, for debugging purpose
-      - name: Print tags
-        run: |
-          echo "${{ env.VERSION }}"
-          echo "${{ env.DATE }}"
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: push main docker on nexus (tagged with a date)
-        # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
-        # The version is tagged once with version only to make sure to be able to retrieve the last version without
-        # knowing when it has been published, once with version + date to ensure a unique tag when needed
-        if: ((github.ref_name == 'main') && (github.event_name == 'push'))
-        run: |
-          docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
-          docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
-          docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-          docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
-          docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: push branch docker on nexus (tagged with the branch name)
-        # we push on nexus an image from a branch when it's pushed
-        if: ((github.event_name == 'push') && (github.ref_name != 'main'))
-        run: |
-          docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
-          docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
-          docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
+      # Build an Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Clean dangling docker images
-        if: always() # always do it, even if something failed
-        run: docker system prune --force # remove dangling docker images, without asking user for confirmation
+  #     - name: Upload functional test outputs as release assets
+  #       # if: ((github.ref_name == 'main') && (github.event_name == 'push'))
+  #       uses: softprops/action-gh-release@v3
+  #       with:
+  #         tag_name: ${{ env.VERSION }}
+  #         files: test_outputs/**/*
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Check code neatness (linter)
+  #       run: docker run myria3d python -m flake8
+
+  #     # Everything ran so we tag the valid docker image to keep it
+  #     # This happens for push events, which are in particular
+  #     # triggered when a pull request is merged.
+  #     - name: Tag the docker image with branch name
+  #       if: github.event_name == 'push'
+  #       run: |
+  #         docker tag myria3d:latest myria3d:${{github.ref_name}}
+  #         docker run myria3d:${{github.ref_name}} bash # Run the new, tagged image at least once so that is it not prunned by mistake when using docker system prune
+  #         # docker save myria3d:${{github.ref_name}} -o /var/data/cicd/CICD_github_assets/CICD_docker_images/myria3d_${github.ref_name}.tar # Save the docker image as myria3d_${github.ref_name}.tar
+
+  #     # show possible tags, for debugging purpose
+  #     - name: Print tags
+  #       run: |
+  #         echo "${{ env.VERSION }}"
+  #         echo "${{ env.DATE }}"
+
+  #     - name: push main docker on nexus (tagged with a date)
+  #       # we push on nexus an image from the main branch when it has been updated (push or accepted pull request)
+  #       # The version is tagged once with version only to make sure to be able to retrieve the last version without
+  #       # knowing when it has been published, once with version + date to ensure a unique tag when needed
+  #       if: ((github.ref_name == 'main') && (github.event_name == 'push'))
+  #       run: |
+  #         docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
+  #         docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
+  #         docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+  #         docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}
+  #         docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{ env.DATE }}
+
+  #     - name: push branch docker on nexus (tagged with the branch name)
+  #       # we push on nexus an image from a branch when it's pushed
+  #       if: ((github.event_name == 'push') && (github.ref_name != 'main'))
+  #       run: |
+  #         docker tag myria3d ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
+  #         docker login ${{ secrets.DOCKER_REGISTRY }} --username svc_lidarhd --password ${{ secrets.PASSWORD_SVC_LIDARHD }}
+  #         docker push ${{ secrets.DOCKER_REGISTRY }}/lidar_hd/myria3d:${{ env.VERSION }}-${{github.ref_name}}
 
   publish-pypi:
+    needs: test
     runs-on: ubuntu-latest
     if: ((github.ref_name == 'main') && (github.event_name == 'push'))
     environment:
@@ -112,7 +186,7 @@ jobs:
 
       # See https://github.com/marketplace/actions/setup-micromamba
       - name: setup-micromamba
-        uses: mamba-org/setup-micromamba@v3.1
+        uses: mamba-org/setup-micromamba@v3.2.1
         with:
           environment-file: environment.yml
           environment-name: myria3d # activate the environment
