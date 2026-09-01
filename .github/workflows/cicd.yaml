@@ -5,12 +5,14 @@ on:
   pull_request:
     branches:
       - main
+      - fix/no-self-hosted
   # Also run when the pull request merges  (which generates a push)
   # So that we can tag the docker image appropriately.
   push:
     branches:
       - main
       - staging-*
+      - fix/no-self-hosted
 
 jobs:
   CICD:
@@ -36,14 +38,24 @@ jobs:
       # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
       # sufficient shared memory when predicting on large files.
       - name: Example inferences run via Docker (pytest functional tests)
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         run: >
           docker run
           --ipc=host
           --shm-size=2gb
+          -v ${{ github.workspace }}/test_outputs:/outputs
           myria3d
           python -m
           pytest -rA -v -m "functional" --no-cov
+
+      - name: Upload functional test outputs as release assets
+        # if: ((github.ref_name == 'main') && (github.event_name == 'push'))
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: test_outputs/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check code neatness (linter)
         run: docker run myria3d python -m flake8
@@ -94,6 +106,14 @@ jobs:
       - name: Clean dangling docker images
         if: always() # always do it, even if something failed
         run: docker system prune --force # remove dangling docker images, without asking user for confirmation
+
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-pypi:
     runs-on: ubuntu-latest
