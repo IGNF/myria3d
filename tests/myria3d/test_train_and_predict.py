@@ -1,26 +1,24 @@
 import os.path as osp
+from pathlib import Path
 from typing import List
 
 import numpy as np
 import pytest
 from lightning.pytorch.accelerators import find_usable_cuda_devices
-from pathlib import Path
 from pdaltools import las_info
-
+from tests.conftest import (
+    DEFAULT_EPSG,
+    SINGLE_POINT_CLOUD,
+    make_default_hydra_cfg,
+    run_hydra_decorated_command,
+    run_hydra_decorated_command_with_return_error,
+)
+from tests.runif import RunIf
 
 from myria3d.pctl.dataset.toy_dataset import TOY_LAS_DATA
 from myria3d.pctl.dataset.utils import pdal_read_las_array
 from myria3d.predict import predict
 from myria3d.train import train
-from tests.conftest import (
-    make_default_hydra_cfg,
-    run_hydra_decorated_command,
-    run_hydra_decorated_command_with_return_error,
-    SINGLE_POINT_CLOUD,
-    DEFAULT_EPSG,
-)
-from tests.runif import RunIf
-
 
 """
 Sanity checks to make sure the model train/val/predict/test logics do not crash.
@@ -68,7 +66,7 @@ def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_facto
         overrides=[
             "experiment=RandLaNetDebug",
             "trainer.accelerator=gpu",
-            f"trainer.devices=[{gpu_id}]",
+            f"trainer.devices={gpu_id}",
         ]
         + tmp_paths_overrides
     )
@@ -98,8 +96,8 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     run_hydra_decorated_command(command)
     output_path = Path(tmpdir) / Path(abs_path_to_toy_LAS).name
     metadata = las_info.las_info_metadata(output_path)
-    out_pesg = las_info.get_epsg_from_header_info(metadata)
-    assert out_pesg == DEFAULT_EPSG
+    out_epsg = las_info.get_epsg_from_header_info(metadata)
+    assert out_epsg == DEFAULT_EPSG
 
 
 def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
@@ -118,6 +116,7 @@ def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
         f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
+        "datamodule.epsg=null",
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]

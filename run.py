@@ -6,25 +6,26 @@ except ImportError:
         "Warning: package comet_ml not found. This may break things if you use a comet callback."
     )
 
-from enum import Enum
-
 import os
 import sys
+from enum import Enum
 from glob import glob
+
 import dotenv
 import hydra
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-from myria3d.utils import utils
 from myria3d.pctl.dataset.hdf5 import create_hdf5
 from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 from myria3d.pctl.transforms.compose import CustomCompose
+from myria3d.utils import utils
+
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
-DEFAULT_CONFIG_FILE = "proto151_V2.0_epoch_100_Myria3DV3.1.0_predict_config_V3.7.0.yaml"
-DEFAULT_CHECKPOINT = "proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt"
+DEFAULT_CONFIG_FILE = "FRACTAL-LidarHD_7cl_randlanet-inference-Myria3DV3.8.yaml"
+DEFAULT_CHECKPOINT = "FRACTAL-LidarHD_7cl_randlanet.ckpt"
 DEFAULT_ENV = "placeholder.env"
 
 
@@ -41,7 +42,7 @@ DEFAULT_TASK = TASK_NAMES.FIT.value
 log = utils.get_logger(__name__)
 
 
-@hydra.main(config_path="configs/", config_name="config.yaml")
+@hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.3")
 def launch_train(
     config: DictConfig,
 ):  # pragma: no cover  (it's just an initialyzer of a class/method tested elsewhere)
@@ -58,7 +59,7 @@ def launch_train(
     return train(config)
 
 
-@hydra.main(config_path=DEFAULT_DIRECTORY, config_name=DEFAULT_CONFIG_FILE)
+@hydra.main(config_path=DEFAULT_DIRECTORY, config_name=DEFAULT_CONFIG_FILE, version_base="1.3")
 def launch_predict(config: DictConfig):
     """Infer probabilities and automate semantic segmentation decisions on unseen data."""
     # Imports should be nested inside @hydra.main to optimize tab completion
@@ -81,7 +82,7 @@ def launch_predict(config: DictConfig):
         predict(config)
 
 
-@hydra.main(config_path="configs/", config_name="config.yaml")
+@hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.3")
 def launch_hdf5(config: DictConfig):
     """Build an HDF5 file from a directory with las files."""
 

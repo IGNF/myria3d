@@ -1,8 +1,25 @@
 # CHANGELOG
+## 3.9.1 
+- Add config to handle 100 m x 100 m patches
+
+- Add Focal and Lovasz Losses and config 
+
+- Add preprocessing steps during hdf5 creation as they do not change at batch selection level (for example,GridSampling will always select the same points as it is deterministic)
+
+- Add config parameters to set model size, i.e a larger model for a larger dataset
+
+## 3.9.0
+- Update environment:
+  - match pdal==2.10
+  - ign-pdal-tools :  match v1.16.0 + add missing dependency
+- Add missing tests
+
 - Fix lidar_hd_pre_transform to support missing RGB channels #138 (contrib from @CEZERT)
 
 - Add a github action workflow to run a trained model on the lidar-prod thresholds optimisation dataset
 (in order to automate thresholds optimization)
+
+- new model weights: Deploy model trained on Fractal dataset (cf. https://huggingface.co/IGNF/FRACTAL-LidarHD_7cl_randlanet)
 
 ### 3.8.4
 - fix: move IoU appropriately to fix wrong device error created by a breaking change in torch when using DDP.
