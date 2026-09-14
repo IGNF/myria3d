@@ -82,7 +82,7 @@ jobs:
           docker run
           --ipc=host
           --shm-size=2gb
-          -v ${{ github.workspace }}/test_outputs:/outputs
+          -v ${{ github.workspace }}/test_outputs:/app/tmp
           ${{ env.TEST_TAG }}
           python -m
           pytest -rA -v -m "functional" --no-cov
