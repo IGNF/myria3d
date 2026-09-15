@@ -17,6 +17,13 @@ model:
   lr: 1e-3
   monitor: "val/iou"
   grad_norm_lite: true
+  # Pool the 4 nathab_* distribution axes into one grad-norm-lite group (they're all
+  # tile-level heads on the same target family) instead of 4 separate norms/scales.
+  grad_norm_lite_task_groups:
+    nathab_habitat_type: nathab
+    nathab_moisture_regime: nathab
+    nathab_soil_chemistry: nathab
+    nathab_bioclimatic_zone: nathab
 
 logger:
   wandb:
@@ -30,9 +37,12 @@ eval_every: 5
 trainer:
   num_sanity_val_steps: 2
   accelerator: gpu
+  # Long iter-limited runs (e.g. 200k iters) would otherwise push a wandb point every
+  # single step; log every 100 steps instead.
+  log_every_n_steps: 100
 
 datamodule:
-  batch_size: 12
+  batch_size: 32
   num_workers: 4
   # Hecate defaults; override by exporting FLAIR3D_DATA_ROOT / FLAIR3D_CSV_MANIFEST
   # (e.g. on Jean Zay, see scripts/jz/launch_h100.sh) or via CLI.

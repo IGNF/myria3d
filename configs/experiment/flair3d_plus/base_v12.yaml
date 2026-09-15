@@ -38,7 +38,7 @@ trainer:
 
 datamodule:
   _target_: myria3d.pctl.datamodule.hdf5.Flair3DDatamodule
-  batch_size: 12
+  batch_size: 32
   num_workers: 2
   data_dir: "."
   split_csv_path: "${hydra:runtime.cwd}/tests/data/flair3d_plus_split.csv"

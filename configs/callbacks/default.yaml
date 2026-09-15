@@ -33,3 +33,4 @@ early_stopping:
 model_detailed_metrics:
   _target_: myria3d.callbacks.metric_callbacks.ModelMetrics
   num_classes: ${model.num_classes}
+  ignore_index: ${dataset_description.ignore_index}

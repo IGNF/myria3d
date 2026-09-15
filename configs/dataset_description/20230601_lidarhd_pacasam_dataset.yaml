@@ -14,3 +14,7 @@ classification_dict: {1: "unclassified", 2: "ground", 5: vegetation, 6: "buildin
 # Input and output dims of neural net are dataset dependant:
 d_in: 9
 num_classes: 7
+
+# No void/ignore class in this taxonomy: "lasting_above" (last class) is a real class,
+# not a void placeholder, and must be scored, not excluded from IoU.
+ignore_index: null

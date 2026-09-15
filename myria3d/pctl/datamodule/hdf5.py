@@ -175,7 +175,7 @@ class HDF5LidarDataModule(LightningDataModule):
         return GeometricNoneProofDataloader(
             dataset=self.dataset.testdata,
             batch_size=self.batch_size,
-            num_workers=1,  # b/c iterable dataset
+            num_workers=self.num_workers,
             prefetch_factor=self.prefetch_factor,
         )
 

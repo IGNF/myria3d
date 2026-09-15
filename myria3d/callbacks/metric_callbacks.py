@@ -12,13 +12,19 @@ class ModelMetrics(Callback):
     IoU (Jaccard Index) is macro-average to get the mIoU.
     All metrics are also computed per class.
 
+    `ignore_index` (dataset_description.ignore_index) only excludes a class from the IoU/mIoU
+    computation, not from Accuracy/Precision/Recall/F1. It should only be set for a genuine
+    void/unlabeled class (e.g. Flair3D's "Void"), never for a real semantic class such as
+    "lasting_above" in the classic Lidar HD taxonomy.
+
     Be careful when manually computing/reseting metrics. See:
     https://lightning.ai/docs/torchmetrics/stable/pages/lightning.html
 
     """
 
-    def __init__(self, num_classes=7):
+    def __init__(self, num_classes=7, ignore_index=None):
         self.num_classes = num_classes
+        self.ignore_index = ignore_index
         self.best_val_iou = 0.0
         self.metrics = {
             "train": self._metrics_factory(),
@@ -43,9 +49,11 @@ class ModelMetrics(Callback):
             ),
             "recall": Recall(task="multiclass", num_classes=self.num_classes, average=average),
             "f1": F1Score(task="multiclass", num_classes=self.num_classes, average=average),
-            # DEBUG: checking that this iou matches the one from model.py before removing it
             "iou": JaccardIndex(
-                task="multiclass", num_classes=self.num_classes, average=average_iou, ignore_index=self.num_classes - 1
+                task="multiclass",
+                num_classes=self.num_classes,
+                average=average_iou,
+                ignore_index=self.ignore_index,
             ),
         }
 

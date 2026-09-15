@@ -115,6 +115,7 @@ class MultiTaskModel(LightningModule):
                 alpha=float(kwargs.get("grad_norm_lite_ema_alpha", 0.1)),
                 eps=float(kwargs.get("grad_norm_lite_eps", 1e-3)),
             )
+            self._grad_norm_lite_scales: Dict[str, float] = {}
         self.log_task_gradient_norms_enabled = bool(kwargs.get("log_task_gradient_norms", False))
 
         self._init_learned_masked_feat(
@@ -384,10 +385,12 @@ class MultiTaskModel(LightningModule):
 
     def _apply_grad_norm_lite(self, losses: Dict[str, torch.Tensor], batch_idx: int) -> torch.Tensor:
         """Rescale each task's loss by 1/EMA(last-layer grad norm), à la Pointcept's
-        GradNorm-lite. The EMA is refreshed every `grad_norm_lite_interval` steps within
-        the current training epoch (Pointcept's `engines/train.py` resets its iteration
-        counter every epoch; `batch_idx` mirrors that, unlike the run-wide `global_step`);
-        the resulting scale is applied to the loss combination every step."""
+        GradNorm-lite. The EMA (and the scales derived from it) are refreshed every
+        `grad_norm_lite_interval` steps within the current training epoch (Pointcept's
+        `engines/train.py` resets its iteration counter every epoch; `batch_idx` mirrors
+        that, unlike the run-wide `global_step`); the cached scales are reused for the
+        loss combination on every step in between, since recomputing from an unchanged
+        EMA would just yield the same values."""
         if batch_idx > 0 and batch_idx % self.grad_norm_lite_interval == 0:
             norms = compute_task_last_layer_grad_norms(
                 self.model.last_backbone_layer_parameters(),
@@ -400,14 +403,21 @@ class MultiTaskModel(LightningModule):
             for name, norm in norms.items():
                 self.log(f"train/grad_norm_lite_norm_{name}", norm, on_step=True, on_epoch=False)
 
-        scales = resolve_grad_norm_lite_scales(
-            self._grad_norm_lite_ema, losses.keys(), self.grad_norm_lite_task_groups
-        )
-        for task_name, scale in scales.items():
-            self.log(
-                f"train/grad_norm_lite_scale_{task_name}", scale, on_step=True, on_epoch=False
+            self._grad_norm_lite_scales = resolve_grad_norm_lite_scales(
+                self._grad_norm_lite_ema, losses.keys(), self.grad_norm_lite_task_groups
             )
-        total_loss, _ = combine_weighted_task_losses(losses, self.task_weights, scales)
+            # One point per group (not per task), matching `norms` above.
+            for group in norms.keys():
+                self.log(
+                    f"train/grad_norm_lite_scale_{group}",
+                    self._grad_norm_lite_ema.scale(group),
+                    on_step=True,
+                    on_epoch=False,
+                )
+
+        total_loss, _ = combine_weighted_task_losses(
+            losses, self.task_weights, self._grad_norm_lite_scales
+        )
         return total_loss
 
     def _log_task_gradient_norms(self, losses: Dict[str, torch.Tensor]) -> None:

@@ -25,3 +25,6 @@ classification_dict:
 class_weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 d_in: 5
 num_classes: 16
+
+# "Void" (last class, index num_classes-1) is not a real semantic class: exclude it from IoU.
+ignore_index: 15

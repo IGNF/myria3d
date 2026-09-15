@@ -7,3 +7,6 @@ classification_dict: {1: "unclassified", 2: "ground", 6: "building"}
 # Input and output dims of neural net are dataset dependant:
 d_in: 12
 num_classes: 3
+
+# No void/ignore class in this taxonomy: all classes are scored (IoU included).
+ignore_index: null

@@ -20,3 +20,7 @@ class_weights: [0.25,0.1,0.1,0.5,2.0,2.0,2.0]
 # Input and output dims of neural net are dataset dependant:
 d_in: 9
 num_classes: 7
+
+# No void/ignore class in this taxonomy: "lasting_above" (last class) is a real class
+# (antenna/wind_turbine/pylon) and must be scored, not excluded from IoU.
+ignore_index: null

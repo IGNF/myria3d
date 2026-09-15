@@ -19,3 +19,6 @@ classification_dict: {0: "Building", 1: "Soil", 2: "Vegetation", 3: "Void",}
 class_weights: [1.0,1.0,1.0,1.0,]
 d_in: 5
 num_classes: 4 # 3 semantic classes + 1 void class
+
+# "Void" (last class, index num_classes-1) is not a real semantic class: exclude it from IoU.
+ignore_index: 3

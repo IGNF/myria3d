@@ -91,8 +91,10 @@ class MultiTaskMetrics(Callback):
         self.semantic_iou: Dict[str, Dict[str, JaccardIndex]] = {
             phase: {} for phase in _PHASES
         }
+        # Per-class IoU is only logged at test time (val stays macro-only to keep the
+        # wandb dashboard readable over a long multitask run).
         self.semantic_iou_by_class: Dict[str, Dict[str, JaccardIndex]] = {
-            phase: {} for phase in ("val", "test")
+            phase: {} for phase in ("test",)
         }
         self.class_names_by_task: Dict[str, List[str]] = {}
         for task_name, task_config in task_configs.items():
