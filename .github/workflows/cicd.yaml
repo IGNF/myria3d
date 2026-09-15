@@ -30,26 +30,26 @@ jobs:
         uses: actions/checkout@v7
 
       # See https://github.com/marketplace/actions/setup-micromamba
-      # - name: Setup micromamba environment
-      #   uses: mamba-org/setup-micromamba@v3.2.1
-      #   with:
-      #     environment-file: environment.yml
-      #     environment-name: myria3d
-      #     cache-environment: true
-      #     cache-downloads: true
-      #     generate-run-shell: true
+      - name: Setup micromamba environment
+        uses: mamba-org/setup-micromamba@v3.2.1
+        with:
+          environment-file: environment.yml
+          environment-name: myria3d
+          cache-environment: true
+          cache-downloads: true
+          generate-run-shell: true
 
-      # - name: Run tests with pytest
-      #   shell: micromamba-shell {0}
-      #   run: python -m pytest -rA -v -m "not functional"
+      - name: Run tests with pytest
+        shell: micromamba-shell {0}
+        run: python -m pytest -rA -v -m "not functional"
 
-      # - name: Example inferences run via Docker (pytest functional tests)
-      #   shell: micromamba-shell {0}
-      #   run: python -m pytest -rA -v -m "functional" --no-cov
+      - name: Example inferences run (pytest functional tests)
+        shell: micromamba-shell {0}
+        run: python -m pytest -rA -v -m "functional" --no-cov
 
   test-deploy-docker:
     needs: test
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -67,13 +67,13 @@ jobs:
           load: true
           tags: ${{ env.TEST_TAG }}
 
-      # - name: Run pytest unit tests in docker image
-      #   run: >
-      #     docker run
-      #     --ipc=host
-      #     ${{ env.TEST_TAG }}
-      #     python -m
-      #     pytest -rA -v -m "not functional"
+      - name: Run pytest unit tests in docker image
+        run: >
+          docker run
+          --ipc=host
+          ${{ env.TEST_TAG }}
+          python -m
+          pytest -rA -v -m "not functional"
 
       # IMPORTANT: Always run images with --ipc=host and --shm-size=2gb (at least) to enable
       # sufficient shared memory when predicting on large files.
@@ -86,9 +86,6 @@ jobs:
           ${{ env.TEST_TAG }}
           python -m
           pytest -rA -v -m "functional" --no-cov
-
-      - name: Archive test outputs
-        run: tar -czf test_outputs.tar.gz test_outputs/
 
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
@@ -118,53 +115,58 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # Create release only if pushing a tag
+      - name: Archive test outputs
+        if: startsWith(github.ref, 'refs/tags/')
+        run: tar -czf test_outputs.tar.gz test_outputs/
+
       - name: Create Release with functional test outputs as assets
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v3
         with:
           files: test_outputs.tar.gz
           generate_release_notes: true
-          draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # publish-pypi:
-  #   needs: test
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-  #   environment:
-  #     name: pypi
-  #     url: https://pypi.org/p/myria3d/
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #     id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+  publish-pypi:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/myria3d/
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
 
-  #   steps:
-  #     - name: Checkout branch
-  #       uses: actions/checkout@v7
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
 
-  #     # See https://github.com/marketplace/actions/setup-micromamba
-  #     - name: setup-micromamba
-  #       uses: mamba-org/setup-micromamba@v3.2.1
-  #       with:
-  #         environment-file: environment.yml
-  #         environment-name: myria3d # activate the environment
-  #         cache-environment: true
-  #         cache-downloads: true
-  #         generate-run-shell: true
+      # See https://github.com/marketplace/actions/setup-micromamba
+      - name: setup-micromamba
+        uses: mamba-org/setup-micromamba@v3.2.1
+        with:
+          environment-file: environment.yml
+          environment-name: myria3d # activate the environment
+          cache-environment: true
+          cache-downloads: true
+          generate-run-shell: true
 
-  #     - name: Run tests with pytest
-  #       shell: micromamba-shell {0}
-  #       run: python -m pytest ./tests -rA -v
+      - name: Run tests with pytest
+        shell: micromamba-shell {0}
+        run: python -m pytest ./tests -rA -v
 
-  #     - name: Clean up before building package
-  #       run: rm -rf tmp myria3d.egg-info dist
+      - name: Clean up before building package
+        run: rm -rf tmp myria3d.egg-info dist
 
-  #     - name: Build pip package
-  #       shell: micromamba-shell {0}
-  #       run: python -m build
+      - name: Build pip package
+        shell: micromamba-shell {0}
+        run: python -m build
 
-  #     - name: pypi-publish
-  #       uses: pypa/gh-action-pypi-publish@v1.14.2
-  #       with:
-  #         skip-existing: true
+      - name: pypi-publish
+        uses: pypa/gh-action-pypi-publish@v1.14.2
+        with:
+          skip-existing: true

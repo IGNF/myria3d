@@ -69,6 +69,7 @@ dependencies:
   - rstcheck
   - pip:
       # --------- Documentation --------- #
+      - build
       - myst_parser
       - sphinxnotes-mock
       - sphinx_paramlinks
