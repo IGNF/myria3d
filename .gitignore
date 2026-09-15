@@ -5,6 +5,7 @@ outputs/
 checkpoints/
 runs/
 data/
+tmp/
 !tests/data/
 
 # large files that are not tracked

@@ -1,4 +1,5 @@
 # CHANGELOG
+- Remove usage of self-hosted runner and adapt tests accordingly
 
 ## 3.9.0
 - Update environment:
