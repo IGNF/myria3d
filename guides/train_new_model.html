@@ -1,181 +1,44 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to train new models &mdash; myria3d 3.9.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
-      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../_static/js/theme.js"></script>
+    <title>How to train new models &#8212; myria3d 3.9.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=4122dfff"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Developer’s guide" href="development.html" />
-    <link rel="prev" title="Performing inference on new data" href="../tutorials/make_predictions.html" /> 
-</head>
+    <link rel="prev" title="Performing inference on new data" href="../tutorials/make_predictions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
 
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
           
-          
-          <a href="../index.html" class="icon icon-home">
-            myria3d
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">How to train new models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#quick-run">Quick run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-the-model">Testing the model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inference">Inference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="development.html">Developer’s guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="development.html#code-versionning">Code versionning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#tests">Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#myria3d-callbacks-logging-callbacks">myria3d.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
-</ul>
-</li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">myria3d</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">How to train new models</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/guides/train_new_model.md.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+          <div class="body" role="main">
+            
   <section id="how-to-train-new-models">
-<h1>How to train new models<a class="headerlink" href="#how-to-train-new-models" title="Link to this heading"></a></h1>
+<h1>How to train new models<a class="headerlink" href="#how-to-train-new-models" title="Link to this heading">¶</a></h1>
 <p>Refer to <a class="reference internal" href="../tutorials/install_on_linux.html"><span class="std std-doc">this tutorial</span></a> for how to setup a virtual environment and install the library.
 Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="std std-doc">this other tutorial</span></a> for how to prepare a training-ready dataset.</p>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
 <p>Once your python environment is set up and your dataset ready for training, proceed to the next section.</p>
 <p>Some environment variable need to be injected at runtime can be specified in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Rename <code class="docutils literal notranslate"><span class="pre">.env_example</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code> and fill out:</p>
 <ul class="simple">
@@ -184,7 +47,7 @@ Refer to <a class="reference internal" href="../tutorials/prepare_dataset.html">
 </ul>
 </section>
 <section id="quick-run">
-<h2>Quick run<a class="headerlink" href="#quick-run" title="Link to this heading"></a></h2>
+<h2>Quick run<a class="headerlink" href="#quick-run" title="Link to this heading">¶</a></h2>
 <p>To test your setup and logging capabilities, you can try overfitting on a single batch of data from the toy dataset, created following instructions in <a class="reference internal" href="../tutorials/prepare_dataset.html"><span class="std std-doc">this page</span></a>).
 To overfit on a single batch for 30 epochs, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="nv">experiment</span><span class="o">=</span>RandLaNet-Overfit
@@ -192,7 +55,7 @@ To overfit on a single batch for 30 epochs, run:</p>
 </div>
 </section>
 <section id="training">
-<h2>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h2>
+<h2>Training<a class="headerlink" href="#training" title="Link to this heading">¶</a></h2>
 <p>Define your experiment hyperparameters in an experiment file in the <code class="docutils literal notranslate"><span class="pre">configs/experiment</span></code> folder. You may stem from one of the provided experiment file (e.g. <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR.yaml</span></code>). In particular, you will need to define <code class="docutils literal notranslate"><span class="pre">dataset_description</span></code> to specify your classification task - see config <code class="docutils literal notranslate"><span class="pre">20220607_151_dalles_proto.yaml</span></code> for an example.</p>
 <p>To run the full training and validation for French Lidar HD, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="nv">experiment</span><span class="o">=</span>RandLaNet_base_run_FR
@@ -200,24 +63,24 @@ To overfit on a single batch for 30 epochs, run:</p>
 </div>
 <p>After training, you model best checkpoints and hydra config will be saved in a <code class="docutils literal notranslate"><span class="pre">DATE/TIME/</span></code> subfolder of the <code class="docutils literal notranslate"><span class="pre">LOGS_DIR</span></code> you specified, with an associated hydra <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>.</p>
 <section id="optimized-learning-rate">
-<h3>Optimized learning rate<a class="headerlink" href="#optimized-learning-rate" title="Link to this heading"></a></h3>
+<h3>Optimized learning rate<a class="headerlink" href="#optimized-learning-rate" title="Link to this heading">¶</a></h3>
 <p>Pytorch Lightning support au <a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find">automated learning rate finder</a>, by means of an Learning Rate-range test (see section 3.3 in <a class="reference external" href="https://arxiv.org/pdf/1506.01186.pdf">this paper</a> for reference).
 You can perfom this automatically before training by setting <code class="docutils literal notranslate"><span class="pre">task.auto_lr_find=true</span></code> when calling training on your dataset. The best learning rate will be logged and results saved as an image, so that you do not need to perform this test more than once.</p>
 </section>
 <section id="multi-gpus">
-<h3>Multi-GPUs<a class="headerlink" href="#multi-gpus" title="Link to this heading"></a></h3>
+<h3>Multi-GPUs<a class="headerlink" href="#multi-gpus" title="Link to this heading">¶</a></h3>
 <p>Multi-GPUs training is supported. Refer to e.g. experiment file <code class="docutils literal notranslate"><span class="pre">RandLaNet_base_run_FR-MultiGPU.yaml</span></code> for pytorch lightning flags to activate it.
 Multi-GPUs training effectively reduces training time by the number of GPUs used. Batch size might need to be reduced to keep a constant number of steps per epoch in DDP.</p>
 </section>
 </section>
 <section id="testing-the-model">
-<h2>Testing the model<a class="headerlink" href="#testing-the-model" title="Link to this heading"></a></h2>
+<h2>Testing the model<a class="headerlink" href="#testing-the-model" title="Link to this heading">¶</a></h2>
 <p>Test will be automatically performed after each training, using best checkpointeded model.</p>
 <p>To manually evaluate per-class IoU on the test set, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py<span class="w"> </span><span class="se">\</span>
 --config-path<span class="w"> </span><span class="o">{</span>/path/to/.hydra<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 --config-name<span class="w"> </span><span class="o">{</span>config.yaml<span class="o">}</span><span class="w"> </span><span class="se">\</span>
-task.task_name<span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="w"> </span><span class="se">\</span>
+task.task_name<span class="o">=</span><span class="s2">"test"</span><span class="w"> </span><span class="se">\</span>
 model.ckpt_path<span class="o">={</span>/path/to/checkpoint.ckpt<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 trainer.gpus<span class="o">={</span><span class="m">0</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>none,<span class="w"> </span><span class="o">[</span>i<span class="o">]</span><span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>GPU<span class="w"> </span>number<span class="w"> </span>i<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 </pre></div>
@@ -229,40 +92,100 @@ trainer.gpus<span class="o">={</span><span class="m">0</span><span class="w"> </
 </div>
 </section>
 <section id="inference">
-<h2>Inference<a class="headerlink" href="#inference" title="Link to this heading"></a></h2>
+<h2>Inference<a class="headerlink" href="#inference" title="Link to this heading">¶</a></h2>
 <p>To use the checkpointed model to make predictions on new data, refer to section <a class="reference internal" href="../tutorials/make_predictions.html"><span class="std std-doc">Performing inference on new data</span></a>.</p>
 </section>
 </section>
 
 
-           </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../tutorials/make_predictions.html" class="btn btn-neutral float-left" title="Performing inference on new data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="development.html" class="btn btn-neutral float-right" title="Developer’s guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Institut National de l&#39;Information Géographique et Forestière.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+          
         </div>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">myria3d</a></h1>
 
-</body>
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Developer’s guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../tutorials/make_predictions.html" title="previous chapter">Performing inference on new data</a></li>
+      <li>Next: <a href="development.html" title="next chapter">Developer’s guide</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Institut National de l'Information Géographique et Forestière.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/guides/train_new_model.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
 </html>

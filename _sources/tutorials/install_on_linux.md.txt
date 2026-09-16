@@ -23,7 +23,7 @@ conda activate myria3d
 ```
 
 > CUDA: if you have CUDA, [check you CUDA version](https://varhowto.com/check-cuda-version/), and check that the `cudatoolkit` version in `setup_env/requirements.yml` matches yours.
-You should in particular check the sources for torch-geometric's dependencies, that are given via their wheels. Using an older cuda-toolkit will probably work on a newer system thanks to NVIDIA backward compatibility (check the [compatibility matrix]([url](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#use-the-right-compat-package))). For instance: installing pytorch-geometric wheels for Cuda 11.3 (`cu113`) will still work on a system with NVIDIA 12.1 installed if the NVIDIA drivers are recent enough (which is expected).
+You should in particular check the sources for torch-geometric's dependencies, that are given via their wheels. Using an older cuda-toolkit will probably work on a newer system thanks to NVIDIA backward compatibility (check the [compatibility matrix](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#use-the-right-compat-package)). For instance: installing pytorch-geometric wheels for Cuda 11.3 (`cu113`) will still work on a system with NVIDIA 12.1 installed if the NVIDIA drivers are recent enough (which is expected).
 
 > If you want a CPU only version, you might edit `setup_env/requirements.yml` by removing the cuda-toolkit line and changing wheels for cpu versions.
 

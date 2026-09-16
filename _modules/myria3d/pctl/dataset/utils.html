@@ -1,172 +1,35 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../../">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>myria3d.pctl.dataset.utils &mdash; myria3d 3.9.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_paramlinks.css" />
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>myria3d.pctl.dataset.utils &#8212; myria3d 3.9.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../_static/documentation_options.js?v=4122dfff"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
 
   
-      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=e55a5be6"></script>
-      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../../search.html" /> 
-</head>
+  
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  </head><body>
+  
 
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
           
-          
-          <a href="../../../../index.html" class="icon icon-home">
-            myria3d
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/make_predictions.html">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../guides/train_new_model.html">How to train new models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#quick-run">Quick run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#training">Training</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/train_new_model.html#inference">Inference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../guides/development.html">Developer’s guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#code-versionning">Code versionning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#tests">Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../background/general_design.html">General design of the package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#myria3d-callbacks-logging-callbacks">myria3d.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
-</ul>
-</li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../../index.html">myria3d</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">myria3d.pctl.dataset.utils</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+          <div class="body" role="main">
+            
   <h1>Source code for myria3d.pctl.dataset.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -180,20 +43,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pdal</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
 
-<span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]]</span>
+<span class="n">SPLIT_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"train"</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"val"</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"test"</span><span class="p">]]</span>
 <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SPLIT_TYPE</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
 
 <div class="viewcode-block" id="find_file_in_dir">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.find_file_in_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_file_in_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Query files matching a basename in input_data_dir and its subdirectories.</span>
+<span class="w">    </span><span class="sd">"""Query files matching a basename in input_data_dir and its subdirectories.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        input_data_dir (str): data directory</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        [str]: first file path matching the query.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">/**/</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">/**/</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -201,7 +64,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">subtile_overlap</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;datamodule.subtile_overlap must be positive.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"datamodule.subtile_overlap must be positive."</span><span class="p">)</span>
 
     <span class="n">xy_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
         <span class="n">subtile_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
@@ -214,7 +77,7 @@
 <div class="viewcode-block" id="pdal_read_las_array">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a named array.</span>
+<span class="w">    </span><span class="sd">"""Read LAS as a named array.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path</span>
@@ -223,7 +86,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        np.ndarray: named array with all LAS dimensions, including extra ones, with dict-like access.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">p1</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="o">|</span> <span class="n">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
     <span class="n">p1</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">p1</span><span class="o">.</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
@@ -233,9 +96,9 @@
 <div class="viewcode-block" id="pdal_read_las_array_as_float32">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.pdal_read_las_array_as_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read LAS as a a named array, casted to floats.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Read LAS as a a named array, casted to floats."""</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">pdal_read_las_array</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
-    <span class="n">all_floats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">({</span><span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;f4&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)})</span>
+    <span class="n">all_floats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">({</span><span class="s2">"names"</span><span class="p">:</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="s2">"formats"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"f4"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)})</span>
     <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">all_floats</span><span class="p">)</span></div>
 
 
@@ -243,12 +106,12 @@
 <div class="viewcode-block" id="get_metadata">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_metadata">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; returns metadata contained in a las file</span>
+<span class="w">    </span><span class="sd">""" returns metadata contained in a las file</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to get metadata from.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        dict : the metadata.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">)</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
     <span class="n">pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">metadata</span></div>
@@ -258,45 +121,45 @@
 <div class="viewcode-block" id="get_pdal_reader">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_reader">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_pdal_reader</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard Reader.</span>
+<span class="w">    </span><span class="sd">"""Standard Reader.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to read.</span>
 <span class="sd">        epsg (str): epsg to force the reading with</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pdal.Reader.las: reader to use in a pipeline.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">epsg</span> <span class="p">:</span>
         <span class="c1"># if an epsg in provided, force pdal to read the lidar file with it</span>
-        <span class="c1"># epsg can be added as a number like &quot;2154&quot; or as a string like &quot;EPSG:2154&quot;</span>
+        <span class="c1"># epsg can be added as a number like "2154" or as a string like "EPSG:2154"</span>
         <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">,</span>
             <span class="n">nosrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">override_srs</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">epsg</span><span class="p">,</span>
+            <span class="n">override_srs</span><span class="o">=</span><span class="sa">f</span><span class="s2">"EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">epsg</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">try</span> <span class="p">:</span>
-        <span class="k">if</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">)[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;readers.las&#39;</span><span class="p">][</span><span class="s1">&#39;srs&#39;</span><span class="p">][</span><span class="s1">&#39;compoundwkt&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">)[</span><span class="s1">'metadata'</span><span class="p">][</span><span class="s1">'readers.las'</span><span class="p">][</span><span class="s1">'srs'</span><span class="p">][</span><span class="s1">'compoundwkt'</span><span class="p">]:</span>
             <span class="c1"># read the lidar file with pdal default</span>
             <span class="k">return</span> <span class="n">pdal</span><span class="o">.</span><span class="n">Reader</span><span class="o">.</span><span class="n">las</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">las_path</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">pass</span>  <span class="c1"># we will go to the &quot;raise exception&quot; anyway</span>
+        <span class="k">pass</span>  <span class="c1"># we will go to the "raise exception" anyway</span>
 
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No EPSG provided, neither in the lidar file or as parameter&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"No EPSG provided, neither in the lidar file or as parameter"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="get_pdal_info_metadata">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.dataset.utils.get_pdal_info_metadata">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_pdal_info_metadata</span><span class="p">(</span><span class="n">las_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read las metadata using pdal info</span>
+<span class="w">    </span><span class="sd">"""Read las metadata using pdal info</span>
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): input LAS path to read.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        (dict): dictionary containing metadata from the las file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;pdal&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;--metadata&quot;</span><span class="p">,</span> <span class="n">las_path</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">"pdal"</span><span class="p">,</span> <span class="s2">"info"</span><span class="p">,</span> <span class="s2">"--metadata"</span><span class="p">,</span> <span class="n">las_path</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -304,7 +167,7 @@
     <span class="n">output</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
     <span class="n">json_info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">json_info</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">json_info</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span></div>
 
 
 
@@ -320,7 +183,7 @@
     <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">subtile_overlap</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split LAS point cloud into samples.</span>
+<span class="w">    </span><span class="sd">"""Split LAS point cloud into samples.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        las_path (str): path to raw LAS file</span>
@@ -332,9 +195,9 @@
 <span class="sd">    Yields:</span>
 <span class="sd">        _type_: idx_in_original_cloud, and points of sample in pdal input format casted as floats.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">points</span> <span class="o">=</span> <span class="n">pdal_read_las_array_as_float32</span><span class="p">(</span><span class="n">las_path</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="s2">"X"</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">"Y"</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">"Z"</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
     <span class="n">kd_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
     <span class="n">XYs</span> <span class="o">=</span> <span class="n">get_mosaic_of_centers</span><span class="p">(</span><span class="n">tile_width</span><span class="p">,</span> <span class="n">subtile_width</span><span class="p">,</span> <span class="n">subtile_overlap</span><span class="o">=</span><span class="n">subtile_overlap</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span> <span class="n">XYs</span><span class="p">:</span>
@@ -358,7 +221,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span><span class="p">:</span>
     <span class="n">las_paths_by_split_dict</span><span class="p">:</span> <span class="n">LAS_PATHS_BY_SPLIT_DICT_TYPE</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">split_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">split_csv_path</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"train"</span><span class="p">,</span> <span class="s2">"val"</span><span class="p">,</span> <span class="s2">"test"</span><span class="p">]:</span>
         <span class="n">basenames</span> <span class="o">=</span> <span class="n">split_df</span><span class="p">[</span><span class="n">split_df</span><span class="o">.</span><span class="n">split</span> <span class="o">==</span> <span class="n">phase</span><span class="p">]</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="c1"># Reminder: an explicit data structure with ./val, ./train, ./test subfolder is required.</span>
         <span class="n">las_paths_by_split_dict</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">phase</span> <span class="o">/</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">basenames</span><span class="p">]</span>
@@ -366,39 +229,99 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">las_paths_by_split_dict</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
             <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No basename found while parsing directory </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;using </span><span class="si">{</span><span class="n">split_csv_path</span><span class="si">}</span><span class="s2"> as split CSV.&quot;</span>
+                <span class="sa">f</span><span class="s2">"No basename found while parsing directory </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"using </span><span class="si">{</span><span class="n">split_csv_path</span><span class="si">}</span><span class="s2"> as split CSV."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">las_paths_by_split_dict</span>
 </pre></div>
 
-           </div>
           </div>
-          <footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Institut National de l&#39;Information Géographique et Forestière.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+          
         </div>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">myria3d</a></h1>
 
-</body>
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_linux.html">Install Myria3D on Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/prepare_dataset.html">Preparing data for training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/make_predictions.html">Performing inference on new data</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guides/development.html">Developer’s guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/general_design.html">General design of the package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.pctl.html">myria3d.pctl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.model.html">myria3d.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.models.modules.html">myria3d.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.callbacks.html">myria3d.callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidoc/myria3d.utils.html">myria3d.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Institut National de l'Information Géographique et Forestière.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
 </html>

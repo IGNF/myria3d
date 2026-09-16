@@ -20,10 +20,10 @@ myria3d.callbacks.finetuning\_callbacks
    :undoc-members:
    :show-inheritance:
 
-myria3d.callbacks.logging\_callbacks
------------------------------------------------------
+myria3d.callbacks.metric\_callbacks
+----------------------------------------------------
 
-.. automodule:: myria3d.callbacks.logging_callbacks
+.. automodule:: myria3d.callbacks.metric_callbacks
    :members:
    :undoc-members:
    :show-inheritance:

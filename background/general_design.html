@@ -1,180 +1,43 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General design of the package &mdash; myria3d 3.9.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
-      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../_static/js/theme.js"></script>
+    <title>General design of the package &#8212; myria3d 3.9.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=4122dfff"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Scripts" href="../apidoc/scripts.html" />
-    <link rel="prev" title="KNN-Interpolation to merge multiple predictions [TODO]" href="interpolation.html" /> 
-</head>
+    <link rel="prev" title="KNN-Interpolation to merge multiple predictions [TODO]" href="interpolation.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
 
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
           
-          
-          <a href="../index.html" class="icon icon-home">
-            myria3d
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_linux.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#setting-up-wsl2">Setting up WSL2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#installing-anaconda">Installing Anaconda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#installing-myria3d">Installing Myria3D</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#install-cuda-in-wsl">Install cuda in WSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/install_on_wsl2.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-source">Run inference from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#quick-run">Quick run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#training">Training</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#inference">Inference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#code-versionning">Code versionning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#tests">Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">General design of the package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#speed-is-of-the-essence">Speed is of the essence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#myria3d-callbacks-logging-callbacks">myria3d.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
-</ul>
-</li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">myria3d</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">General design of the package</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/background/general_design.md.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+          <div class="body" role="main">
+            
   <section id="general-design-of-the-package">
-<h1>General design of the package<a class="headerlink" href="#general-design-of-the-package" title="Link to this heading"></a></h1>
+<h1>General design of the package<a class="headerlink" href="#general-design-of-the-package" title="Link to this heading">¶</a></h1>
 <p>Here are a few challenges relative to training 3D segmentation models for Aerial High Density Lidar, and the strategies we adopt in Myria3D in order to face them.</p>
 <section id="model-should-be-fast-performant-and-practical">
-<h2>Model should be fast, performant, and practical<a class="headerlink" href="#model-should-be-fast-performant-and-practical" title="Link to this heading"></a></h2>
+<h2>Model should be fast, performant, and practical<a class="headerlink" href="#model-should-be-fast-performant-and-practical" title="Link to this heading">¶</a></h2>
 <p><strong>Situation</strong>:</p>
 <ul class="simple">
 <li><p>Since the seminal PointNet architecture [<a class="reference external" href="https://arxiv.org/abs/1612.00593">Qi 2016</a>] and the later [<a class="reference external" href="https://arxiv.org/abs/1706.02413">PointNet++</a>], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion.</p></li>
@@ -200,7 +63,7 @@
 </ul>
 </section>
 <section id="subsampling-is-important-to-improve-point-cloud-structure">
-<h2>Subsampling is important to improve point cloud structure<a class="headerlink" href="#subsampling-is-important-to-improve-point-cloud-structure" title="Link to this heading"></a></h2>
+<h2>Subsampling is important to improve point cloud structure<a class="headerlink" href="#subsampling-is-important-to-improve-point-cloud-structure" title="Link to this heading">¶</a></h2>
 <p><strong>Situation</strong>:</p>
 <ul class="simple">
 <li><p>Point Cloud data, and aerial Lidar data, represent rich data with a level of detail that might hinder the detection of objects with generally simple structures such as buildings and ground. On the other hand, smaller, more intricate objects might benefit from denser point clouds.</p></li>
@@ -216,7 +79,7 @@
 </ul>
 </section>
 <section id="speed-is-of-the-essence">
-<h2>Speed is of the essence<a class="headerlink" href="#speed-is-of-the-essence" title="Link to this heading"></a></h2>
+<h2>Speed is of the essence<a class="headerlink" href="#speed-is-of-the-essence" title="Link to this heading">¶</a></h2>
 <p><strong>Situation</strong>:</p>
 <ul class="simple">
 <li><p>Short training time allow for faster iterations, more frequent feedback on architecture design, less time spent on doomed solutions. As a result, we want to be parcimonious in terms of the operation performed during a train forward pass of a model.</p></li>
@@ -227,7 +90,7 @@
 </ul>
 </section>
 <section id="evaluation-is-key-to-select-the-right-approach">
-<h2>Evaluation is key to select the right approach<a class="headerlink" href="#evaluation-is-key-to-select-the-right-approach" title="Link to this heading"></a></h2>
+<h2>Evaluation is key to select the right approach<a class="headerlink" href="#evaluation-is-key-to-select-the-right-approach" title="Link to this heading">¶</a></h2>
 <p><strong>Situation</strong>:</p>
 <ul class="simple">
 <li><p>Evaluation of models must be reliable in order to compare solutions. For semantic segmentation models on point cloud, this means that performance metrics (i.e. mean and by-class Intersection-over-Union) should be computed based on a confusion matrix that is computed from all points in all point clouds in the test dataset.</p></li>
@@ -240,34 +103,94 @@
 </section>
 
 
-           </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="interpolation.html" class="btn btn-neutral float-left" title="KNN-Interpolation to merge multiple predictions [TODO]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../apidoc/scripts.html" class="btn btn-neutral float-right" title="Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Institut National de l&#39;Information Géographique et Forestière.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+          
         </div>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">myria3d</a></h1>
 
-</body>
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_linux.html">Install Myria3D on Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/install_on_wsl2.html">Install Myria3D on WSL2 with CUDA support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/prepare_dataset.html">Preparing data for training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/make_predictions.html">Performing inference on new data</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">General design of the package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="interpolation.html" title="previous chapter">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+      <li>Next: <a href="../apidoc/scripts.html" title="next chapter">Scripts</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Institut National de l'Information Géographique et Forestière.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/background/general_design.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
 </html>

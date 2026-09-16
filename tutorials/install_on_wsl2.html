@@ -1,181 +1,44 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Install Myria3D on WSL2 with CUDA support &mdash; myria3d 3.9.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e55a5be6"></script>
-      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../_static/js/theme.js"></script>
+    <title>Install Myria3D on WSL2 with CUDA support &#8212; myria3d 3.9.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=4122dfff"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Preparing data for training" href="prepare_dataset.html" />
-    <link rel="prev" title="Install Myria3D on Linux" href="install_on_linux.html" /> 
-</head>
+    <link rel="prev" title="Install Myria3D on Linux" href="install_on_linux.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
 
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
           
-          
-          <a href="../index.html" class="icon icon-home">
-            myria3d
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="install_on_linux.html">Install Myria3D on Linux</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#setting-up-a-virtual-environment">Setting up a virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#install-source-as-a-package">Install source as a package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install_on_linux.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Install Myria3D on WSL2 with CUDA support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-wsl2">Setting up WSL2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installing-anaconda">Installing Anaconda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installing-myria3d">Installing Myria3D</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-cuda-in-wsl">Install cuda in WSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#peprocessing-functions">Peprocessing functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#preparing-the-dataset">Preparing the dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#getting-started-quickly-with-a-toy-dataset">Getting started quickly with a toy dataset</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-source">Run inference from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-sources">Run inference from sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#run-inference-from-within-a-docker-image">Run inference from within a docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="make_predictions.html#additional-options-for-prediction">Additional options for prediction</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#quick-run">Quick run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#training">Training</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#testing-the-model">Testing the model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/train_new_model.html#inference">Inference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#code-versionning">Code versionning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#tests">Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-integration-ci">Continuous Integration (CI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/development.html#continuous-delivery-cd">Continuous Delivery (CD)</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#model-should-be-fast-performant-and-practical">Model should be fast, performant, and practical</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#subsampling-is-important-to-improve-point-cloud-structure">Subsampling is important to improve point cloud structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#speed-is-of-the-essence">Speed is of the essence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../background/general_design.html#evaluation-is-key-to-select-the-right-approach">Evaluation is key to select the right approach</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-run">run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.train">myria3d.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/scripts.html#module-myria3d.predict">myria3d.predict</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.datamodule.hdf5">myria3d.pctl.datamodule.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.hdf5">myria3d.pctl.dataset.hdf5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.iterable">myria3d.pctl.dataset.iterable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.toy_dataset">myria3d.pctl.dataset.toy_dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataset.utils">myria3d.pctl.dataset.utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.dataloader.dataloader">myria3d.pctl.dataloader.dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.points_pre_transform.lidar_hd">myria3d.pctl.points_pre_transform.lidar_hd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.compose">myria3d.pctl.transforms.compose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.pctl.html#module-myria3d.pctl.transforms.transforms">myria3d.pctl.transforms.transforms</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.model.html#module-myria3d.models.interpolation">Interpolation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.models.modules.html#pytorch-geometric-randla-net">(Pytorch-Geometric) RandLA-Net</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.comet_callbacks">myria3d.callbacks.comet_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks.finetuning_callbacks">myria3d.callbacks.finetuning_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#myria3d-callbacks-logging-callbacks">myria3d.callbacks.logging_callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.callbacks.html#module-myria3d.callbacks">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../apidoc/myria3d.utils.html#module-myria3d.utils.utils">myria3d.utils.utils</a></li>
-</ul>
-</li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">myria3d</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Install Myria3D on WSL2 with CUDA support</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/install_on_wsl2.md.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+          <div class="body" role="main">
+            
   <section id="install-myria3d-on-wsl2-with-cuda-support">
-<h1>Install Myria3D on WSL2 with CUDA support<a class="headerlink" href="#install-myria3d-on-wsl2-with-cuda-support" title="Link to this heading"></a></h1>
+<h1>Install Myria3D on WSL2 with CUDA support<a class="headerlink" href="#install-myria3d-on-wsl2-with-cuda-support" title="Link to this heading">¶</a></h1>
 <p>Myria3D is a deep learning library designed with a focused scope: the multiclass semantic segmentation of large scale, high density aerial Lidar points cloud.</p>
 <p>For Windows users it is quite tricky to get everything working in Myria3D. Some of the dependencies do not yet support Windows or leads to various version mismatch problems during installation. It’s best to use Windows Subsystem for Linux (WSL2) to get the most out of this library if you want to work on Windows. While setting up WSL and installing Myria3D is not that difficult, if you want to utilize GPU, it becomes much more challenging. This guide tries to address the necessary steps that needs to be taken to get a properly working environment with GPU support.</p>
 <section id="setting-up-wsl2">
-<h2><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Setting up WSL2</a><a class="headerlink" href="#setting-up-wsl2" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Setting up WSL2</a><a class="headerlink" href="#setting-up-wsl2" title="Link to this heading">¶</a></h2>
 <p>Myria3D requires the latest Linux distros to work properly. That’s why it’s important to make sure that everything in the WSL is up to date.</p>
 <ol class="arabic">
 <li><p>You must be running Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11 to use the commands below. If you are on earlier versions please see the <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install-manual">manual install page</a>.</p></li>
@@ -199,7 +62,7 @@
 </ol>
 </section>
 <section id="installing-anaconda">
-<h2><a class="reference external" href="https://docs.anaconda.com/anaconda/install/linux/">Installing Anaconda</a><a class="headerlink" href="#installing-anaconda" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://docs.anaconda.com/anaconda/install/linux/">Installing Anaconda</a><a class="headerlink" href="#installing-anaconda" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>In your browser, download the Anaconda installer for <a class="reference external" href="https://www.anaconda.com/products/distribution#linux">Linux</a>.</p></li>
 <li><p>It’s recommended to copy the downloaded file to your WSL home directory- <code class="docutils literal notranslate"><span class="pre">\\wsl.localhost\Ubuntu\home\&lt;username&gt;</span></code></p></li>
@@ -216,7 +79,7 @@
 </ol>
 </section>
 <section id="installing-myria3d">
-<h2>Installing Myria3D<a class="headerlink" href="#installing-myria3d" title="Link to this heading"></a></h2>
+<h2>Installing Myria3D<a class="headerlink" href="#installing-myria3d" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>Clone the Myria3D main branch in your working directory using the following command</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git clone https://github.com/IGNF/myria3d.git
@@ -257,7 +120,7 @@
 </li>
 <li><p>We use anaconda to manage virtual environments. This makes installing pytorch-related libraries way easier than using pure pip installs.</p></li>
 <li><p>To install the virtual environment, run the following commands within Ubuntu/ WSL terminal-</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> conda env create -f &quot;/PATH/TO/environment.yml&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> conda env create -f "/PATH/TO/environment.yml"
 </pre></div>
 </div>
 <p>It will take couple of minutes to download and install all the packages. After that activate the environment by running-</p>
@@ -281,7 +144,7 @@
 </p>        
 </section>
 <section id="install-cuda-in-wsl">
-<h2><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2">Install cuda in WSL</a><a class="headerlink" href="#install-cuda-in-wsl" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2">Install cuda in WSL</a><a class="headerlink" href="#install-cuda-in-wsl" title="Link to this heading">¶</a></h2>
 <p><strong>Do not install any driver within the WSL environment. For building a CUDA application, you will need CUDA Toolkit.</strong> The latest NVIDIA Windows GPU Driver will fully support WSL 2. With CUDA support in the driver, existing applications (compiled elsewhere on a Linux system for the same target GPU) can run unmodified within the WSL environment. The CUDA WSL-Ubuntu local installer does not contain the NVIDIA Linux GPU driver, so by following the steps below, you will be able to get just the CUDA toolkit installed on WSL.</p>
 <ol class="arabic">
 <li><p>First, remove the old GPG key:</p>
@@ -289,7 +152,7 @@
 </pre></div>
 </div>
 </li>
-<li><p>Go to this <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">link</a> and choose the cuda toolkit version according to your Windows NVIDIA driver’s cuda version. For demonstration purposes, <a class="reference external" href="https://developer.nvidia.com/cuda-11-3-1-download-archive?target_os=Linux&amp;amp;target_arch=x86_64&amp;amp;Distribution=WSL-Ubuntu&amp;amp;target_version=2.0&amp;amp;target_type=deb_local">cudatoolkit 11.3.1</a> is shown here.</p></li>
+<li><p>Go to this <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">link</a> and choose the cuda toolkit version according to your Windows NVIDIA driver’s cuda version. For demonstration purposes, <a class="reference external" href="https://developer.nvidia.com/cuda-11-3-1-download-archive?target_os=Linux&amp;target_arch=x86_64&amp;Distribution=WSL-Ubuntu&amp;target_version=2.0&amp;target_type=deb_local">cudatoolkit 11.3.1</a> is shown here.</p></li>
 <li><p>Run the following commands <strong>one by one</strong>.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
  sudo mv cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
@@ -306,12 +169,12 @@
 </ol>
 </section>
 <section id="troubleshooting">
-<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
 <ul>
 <li><p><em>OSError(libcusparse.so.11 cannot open shared object file no such file or directory)</em> (<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/issues/2040#issuecomment-766610625">**</a>)</p>
 <ul>
 <li><p>open the .bashrc file from your Ubuntu home directory and at the end of the file, add the following line (replace anaconda3 with miniconda3 if needed)</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  export LD_LIBRARY_PATH=&quot;/home/${USER}/anaconda3/envs/myria3d/lib:$LD_LIBRARY_PATH&quot; 
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  export LD_LIBRARY_PATH="/home/${USER}/anaconda3/envs/myria3d/lib:$LD_LIBRARY_PATH" 
 </pre></div>
 </div>
 </li>
@@ -353,34 +216,94 @@
 </section>
 
 
-           </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="install_on_linux.html" class="btn btn-neutral float-left" title="Install Myria3D on Linux" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="prepare_dataset.html" class="btn btn-neutral float-right" title="Preparing data for training" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Institut National de l&#39;Information Géographique et Forestière.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+          
         </div>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">myria3d</a></h1>
 
-</body>
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install_on_linux.html">Install Myria3D on Linux</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Install Myria3D on WSL2 with CUDA support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">Preparing data for training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_predictions.html">Performing inference on new data</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/train_new_model.html">How to train new models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/development.html">Developer’s guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../background/interpolation.html">KNN-Interpolation to merge multiple predictions [TODO]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/general_design.html">General design of the package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/configs.html">Default configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.pctl.html">myria3d.pctl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.model.html">myria3d.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.models.modules.html">myria3d.models.modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.callbacks.html">myria3d.callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/myria3d.utils.html">myria3d.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install_on_linux.html" title="previous chapter">Install Myria3D on Linux</a></li>
+      <li>Next: <a href="prepare_dataset.html" title="next chapter">Preparing data for training</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Institut National de l'Information Géographique et Forestière.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/tutorials/install_on_wsl2.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
 </html>
