@@ -3,16 +3,14 @@ name = "myria3d"
 dynamic = ["version"]
 description = "Deep Learning for the Semantic Segmentation of Aerial Lidar Point Clouds"
 readme = "README.md"
-authors = [
-    { name = "Charles GAYDON", email = "charles.gaydon.pro@gmail.com" }
-]
+authors = [{ name = "Charles GAYDON", email = "charles.gaydon.pro@gmail.com" }]
 maintainers = [
-  {name = "Charles GAYDON", email = "charles.gaydon.pro@gmail.com"},
-  {name = "Michel DAAB"},
-  {name = "Léa VAUCHIER", email = "lea.vauchier@ign.fr"}
+    { name = "Charles GAYDON", email = "charles.gaydon.pro@gmail.com" },
+    { name = "Michel DAAB" },
+    { name = "Léa VAUCHIER", email = "lea.vauchier@ign.fr" },
 ]
-license = {file = "LICENSE"}
-dependencies = []  # assume an environment as described in environment.yml
+license = { file = "LICENSE" }
+dependencies = [] # assume an environment as described in environment.yml
 
 [metadata]
 project_template = "https://github.com/ashleve/lightning-hydra-template"
@@ -25,10 +23,10 @@ Issues = "https://github.com/IGNF/myria3d/issues"
 Changelog = "https://github.com/IGNF/myria3d/blob/main/CHANGELOG.md"
 
 [tool.setuptools.dynamic]
-version = {attr = "myria3d._version.__version__"}
+version = { attr = "myria3d._version.__version__" }
 
 [tool.setuptools]
-packages = [ "myria3d" ]
+packages = ["myria3d"]
 
 [tool.black]
 line-length = 99
@@ -45,24 +43,20 @@ extend-exclude = '''
 '''
 
 [tool.isort]
-profile="black"
-src_paths="myria3d,test"
+profile = "black"
+src_paths = "myria3d,test"
 
 [tool.pytest.ini_options]
 log_cli = true
-testpaths = [
-    "tests/myria3d/",
-]
-# Add coverage
+testpaths = ["tests/"]
+
 addopts = "--cov ./myria3d/ --cov-report html --cov-fail-under 72 --cov-config pyproject.toml"
 
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning"
-]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "functional: marks tests as functional/integration tests (deselect with '-m \"not functional\"')",
 ]
 
 [tool.coverage.run]

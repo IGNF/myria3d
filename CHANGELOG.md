@@ -1,5 +1,12 @@
 # CHANGELOG
 
+### 3.9.1
+- Remove usage of self-hosted runner and adapt tests accordingly:
+  - predict-for-lidar-prod-optimization github workflow is disabled
+  - Docker image is now hosted on ghcr.io
+  - a release is auto-generated on pushing a tag, with functional tests output as assets
+
+
 ## 3.9.0
 - Update environment:
   - match pdal==2.10
