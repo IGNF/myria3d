@@ -1,0 +1,22 @@
+_conc_convert_: all
+
+# DALES (aerial LiDAR semantic segmentation), Pointcept preprocessing/taxonomy --
+# see pointcept/datasets/dales.py. segment.npy is already remapped to these
+# contiguous train ids; myria3d does not re-remap.
+classification_dict:
+  0: "Ground"
+  1: "Vegetation"
+  2: "Cars"
+  3: "Trucks"
+  4: "Power lines"
+  5: "Fences"
+  6: "Poles"
+  7: "Buildings"
+  8: "Unclassified"
+
+num_classes: 9
+ignore_index: 8
+
+# Winner-selection metric for GridProbeWinnerSelector (Pointcept convention: mIoU for
+# DALES/ECLAIR, macro-F1 for H3D).
+select_metric: mIoU

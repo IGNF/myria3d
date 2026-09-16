@@ -1,0 +1,31 @@
+_target_: myria3d.pctl.datamodule.downstream.DownstreamNpyDatamodule
+
+data_root: ${oc.env:DOWNSTREAM_DATA_ROOT,/data/geist/Pointcept/data}/eclair
+dataset_target: myria3d.pctl.dataset.downstream.eclair.EclairDataset
+
+train_dir: train
+val_dir: val
+test_dir: test
+
+# preprocess_eclair.py defaults to `--chunking 1`, which "keeps original 100x100 m
+# tiles" (confirmed from its own --chunking help string) -- exactly Flair3D+'s own
+# 100m tile / 50m subtile convention, so SubtileCrop performs a real 2x2 quadrant crop.
+tile_width: 100
+subtile_width: 50
+
+# Train-split filter on meta.json["review_category"] (mirrors pointcept/datasets/eclair.py).
+dataset_kwargs:
+  include_pseudo: true
+
+pre_filter:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}"
+  min_num_nodes: 1
+
+batch_size: 12
+num_workers: 4
+prefetch_factor: 2
+
+defaults:
+  - transforms: downstream.yaml

@@ -1,4 +1,4 @@
-from typing import Dict, Mapping, Optional
+from typing import Dict, Mapping, Optional, Tuple
 
 import torch
 from torch import Tensor
@@ -100,6 +100,30 @@ class PyGRandLANetMultiTask(torch.nn.Module):
         fp2_out = self.fp2(*fp3_out, *b1_out_decimated)
         fp1_out = self.fp1(*fp2_out, *b1_out)
         return fp1_out[0]
+
+    def _forward_encoder_stages(
+        self, x, pos, batch, ptr
+    ) -> Dict[str, Tuple[Tensor, Tensor, Tensor]]:
+        """Returns ``{"enc1": (feat, pos, batch), ..., "enc4": (...)}`` -- the
+        block1..block4 outputs, each at its own decimated resolution (enc1 is full
+        input resolution; enc2/enc3/enc4 have been decimated 1/2/3 times). Used by
+        linear-probing (see ``hypercolumn.py``) to build a multi-scale encoder
+        hypercolumn feature; does not touch fp*/decoder and is not used by ``forward``.
+        """
+        x = x if x is not None else pos
+
+        b1_out = self.block1(self.fc0(x), pos, batch)
+        b1_out_decimated, ptr1 = decimate(b1_out, ptr, self.decimation)
+
+        b2_out = self.block2(*b1_out_decimated)
+        b2_out_decimated, ptr2 = decimate(b2_out, ptr1, self.decimation)
+
+        b3_out = self.block3(*b2_out_decimated)
+        b3_out_decimated, _ = decimate(b3_out, ptr2, self.decimation)
+
+        b4_out = self.block4(*b3_out_decimated)
+
+        return {"enc1": b1_out, "enc2": b2_out, "enc3": b3_out, "enc4": b4_out}
 
     def forward(
         self,

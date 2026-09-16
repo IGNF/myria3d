@@ -1,0 +1,28 @@
+_conc_convert_: all
+
+# ECLAIR (aerial LiDAR semantic segmentation), Pointcept preprocessing/taxonomy --
+# see pointcept/datasets/eclair.py. segment.npy is already remapped to these
+# contiguous train ids; myria3d does not re-remap. Unlike DALES/H3D, ECLAIR has no
+# void/unclassified sentinel: all 11 classes are real, predicted classes.
+classification_dict:
+  0: "Unassigned"
+  1: "Ground"
+  2: "Vegetation"
+  3: "Buildings"
+  4: "Noise"
+  5: "Transmission Wires"
+  6: "Distribution Wires"
+  7: "Poles"
+  8: "Transmission Towers"
+  9: "Fence"
+  10: "Vehicle"
+
+num_classes: 11
+# Pointcept's ignore_index=-1 means "nothing ignored" -- null, not a literal -1
+# (an out-of-range sentinel would either be silently dropped by torchmetrics'
+# ignore_index validation, or crash if ever compared against a real class id).
+ignore_index: null
+
+# Winner-selection metric for GridProbeWinnerSelector (Pointcept convention: mIoU for
+# DALES/ECLAIR, macro-F1 for H3D).
+select_metric: mIoU

@@ -1,0 +1,12 @@
+# Downstream linear-probing transform composition: no predict split (LP never runs
+# task.task_name=predict), no radiometry augmentation (deterministic probe training),
+# same NormalizePos/StandardizeRGBAndIntensity scale the backbone was pretrained on.
+defaults:
+  - preparations: points_budget_downstream.yaml
+  - augmentations: none.yaml
+  - normalizations: multitask.yaml
+
+preparations_train_list: "${oc.dict.values: datamodule.transforms.preparations.train}"
+preparations_eval_list: "${oc.dict.values: datamodule.transforms.preparations.eval}"
+augmentations_list: "${oc.dict.values: datamodule.transforms.augmentations}"
+normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"

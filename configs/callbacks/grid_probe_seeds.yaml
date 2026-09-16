@@ -1,0 +1,34 @@
+# Seed-phase (10 probes at the winning LR) callbacks for linear probing.
+
+model_checkpoint:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  monitor: "val/loss"
+  mode: "min"
+  save_top_k: 1
+  save_last: True
+  verbose: True
+  dirpath: "checkpoints/"
+  filename: "epoch_{epoch:03d}"
+  auto_insert_metric_name: False
+
+early_stopping:
+  _target_: pytorch_lightning.callbacks.EarlyStopping
+  monitor: "val/loss"
+  mode: "min"
+  patience: 10
+  min_delta: 0
+
+grid_probe_metrics:
+  _target_: myria3d.callbacks.grid_probe_callbacks.GridProbeMetrics
+  num_classes: ${dataset_description.num_classes}
+  ignore_index: ${dataset_description.ignore_index}
+
+# Aggregates the automatic post-fit trainer.test() (train.py), run with all 10 seed
+# heads active (GridProbeModel.active_probe stays None -- only the grid phase's
+# winner selector narrows it), into seed_ensemble_results.json + a
+# grid_then_seeds_summary.csv row. `dataset_name` is set per experiment.
+grid_probe_seed_ensemble_tester:
+  _target_: myria3d.callbacks.grid_probe_callbacks.GridProbeSeedEnsembleTester
+  results_path: "seed_ensemble_results.json"
+  summary_csv_path: "grid_then_seeds_summary.csv"
+  dataset_name: null

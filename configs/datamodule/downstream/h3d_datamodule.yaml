@@ -1,0 +1,31 @@
+_target_: myria3d.pctl.datamodule.downstream.DownstreamNpyDatamodule
+
+data_root: ${oc.env:DOWNSTREAM_DATA_ROOT,/data/geist/Pointcept/data}/h3d
+dataset_target: myria3d.pctl.dataset.downstream.h3d.H3dDataset
+
+train_dir: train
+val_dir: val
+test_dir: test
+
+# Pointcept's own preprocess_h3d.py defaults to `--chunk-size inf` (one folder per
+# source file, no regular tiling), and its GridProbe configs bound scenes only by a
+# point-count budget (SphereCrop point_max), never a physical tile width -- so there
+# is no reliable "native tile width" to assume here. tile_width == subtile_width
+# makes SubtileCrop a no-op (whatever is on disk is the "subtile"); MaximumNumNodes
+# (points_budget_downstream.yaml) provides the point-count bound instead, mirroring
+# Pointcept's SphereCrop rather than guessing a physical width.
+tile_width: ${datamodule.subtile_width}
+subtile_width: 50
+
+pre_filter:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}"
+  min_num_nodes: 1
+
+batch_size: 12
+num_workers: 4
+prefetch_factor: 2
+
+defaults:
+  - transforms: downstream.yaml

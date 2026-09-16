@@ -1,0 +1,40 @@
+# Grid-phase (LR sweep) callbacks for linear probing. Order matters: grid_probe_metrics
+# must log val/probe_*/{mIoU,macro_f1,acc} before grid_probe_winner_selector reads them
+# from trainer.callback_metrics (Lightning calls callbacks in this file's key order).
+
+lr_monitor:
+  _target_: pytorch_lightning.callbacks.LearningRateMonitor
+  logging_interval: "step"
+
+# Satisfies train.py's unconditional `trainer.checkpoint_callback.best_model_path`
+# access after fit -- monitors the aggregate (all-active-probes) val loss as a
+# resume-safety net, not the actual winner-selection metric (that's
+# grid_probe_winner_selector below, which is dataset_description.select_metric-driven
+# per the Pointcept convention: mIoU for DALES/ECLAIR, macro-F1 for H3D).
+model_checkpoint:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  monitor: "val/loss"
+  mode: "min"
+  save_top_k: 1
+  save_last: True
+  verbose: True
+  dirpath: "checkpoints/"
+  filename: "epoch_{epoch:03d}"
+  auto_insert_metric_name: False
+
+early_stopping:
+  _target_: pytorch_lightning.callbacks.EarlyStopping
+  monitor: "val/loss"
+  mode: "min"
+  patience: 10
+  min_delta: 0
+
+grid_probe_metrics:
+  _target_: myria3d.callbacks.grid_probe_callbacks.GridProbeMetrics
+  num_classes: ${dataset_description.num_classes}
+  ignore_index: ${dataset_description.ignore_index}
+
+grid_probe_winner_selector:
+  _target_: myria3d.callbacks.grid_probe_callbacks.GridProbeWinnerSelector
+  select_metric: ${dataset_description.select_metric}
+  output_path: "grid_search_results.json"

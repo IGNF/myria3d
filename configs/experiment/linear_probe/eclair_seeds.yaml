@@ -1,0 +1,33 @@
+# @package _global_
+# ECLAIR linear probing -- seed-ensemble phase: 10 probe heads at the grid phase's
+# winning LR. `model.probe_lrs` below is a smoke-test placeholder --
+# scripts/jz/linear_probe/run_grid_then_seeds.slurm overrides it with the winning LR
+# read from grid_search_results.json.
+
+defaults:
+  - override /datamodule: downstream/eclair_datamodule.yaml
+  - override /dataset_description: eclair.yaml
+  - override /model: grid_probe/default.yaml
+  - override /callbacks: grid_probe_seeds.yaml
+  - override /logger: wandb.yaml
+
+model:
+  probe_lrs: [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
+
+callbacks:
+  grid_probe_seed_ensemble_tester:
+    dataset_name: eclair
+
+logger:
+  wandb:
+    name: "GridProbe | ECLAIR | seed-ensemble phase"
+
+trainer:
+  accelerator: gpu
+  max_epochs: 50
+  check_val_every_n_epoch: 1
+  log_every_n_steps: 50
+
+datamodule:
+  batch_size: 12
+  num_workers: 4

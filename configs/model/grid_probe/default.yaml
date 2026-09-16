@@ -1,0 +1,40 @@
+# GridProbeModel: linear probing on a frozen Flair3D+ multitask backbone. Selected via
+# `experiment/linear_probe/*.yaml` (`override /model: grid_probe/default.yaml`).
+_target_: myria3d.models.grid_probe_model.GridProbeModel
+
+# Lightning resume-training checkpoint (see train.py) -- unrelated to
+# `backbone_ckpt_path` below (the frozen Flair3D+ checkpoint being probed). Always
+# null: a linear-probe run is never resumed from its own mid-run checkpoint.
+ckpt_path: null
+
+# Path to the pretrained Flair3D+ multitask checkpoint (MultiTaskModel .ckpt) to probe.
+backbone_ckpt_path: ${oc.env:FLAIR3D_CKPT_PATH}
+
+num_classes: ${dataset_description.num_classes}
+ignore_index: ${dataset_description.ignore_index}
+
+# Multi-scale encoder hypercolumn (finest first): enc1=32, enc2=128, enc3=256,
+# enc4=512 channels -- see myria3d/models/modules/hypercolumn.py.
+scale_blocks: [enc1, enc2, enc3, enc4]
+
+# Must match the pretrained checkpoint's backbone architecture (flair3d_plus_multitask.yaml).
+num_features: 5
+num_neighbors: 16
+decimation: 4
+interpolation_k: 1
+
+# Minimal ProbeHead config surface (LR is the only swept axis for DALES/H3D/ECLAIR) --
+# wired but unused by default, see myria3d/models/grid_probe_model.py::ProbeHead.
+probe_norm: null
+probe_dropout: 0.0
+
+# No LR baked in here (unlike configs/model/optimizer/Adam.yaml): GridProbeModel
+# supplies a different lr per probe head at `configure_optimizers()` call time.
+optimizer:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:torch.optim.Adam}"
+
+# 12-value LR grid, matching Pointcept's GridProbeSegmentorV2 exactly (also mirrored,
+# for reference/reuse, at configs/model/grid_probe/probe_lrs/lr_grid_12.yaml).
+probe_lrs: [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5]

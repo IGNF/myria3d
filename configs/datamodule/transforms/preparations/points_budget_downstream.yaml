@@ -1,0 +1,65 @@
+# Preparations for downstream linear-probing datasets (DALES/H3D/ECLAIR): crop each
+# native tile down to a `subtile_width`-sized quadrant (matching the Flair3D+
+# pretraining scale that NormalizePos/StandardizeRGBAndIntensity below assume) via
+# the generic SubtileCrop, then apply the same voxel/point-budget pipeline as
+# training. No interpolation-back-to-full-cloud transforms (CopyFullPos/...): the
+# frozen-backbone probe is evaluated at its native (voxel-sampled) resolution, never
+# KNN-interpolated to the raw point cloud.
+voxel: 0.1
+
+train:
+  SubtileCrop:
+    _target_: myria3d.pctl.transforms.transforms.SubtileCrop
+    tile_width: "${datamodule.tile_width}"
+    subtile_width: "${datamodule.subtile_width}"
+    random: true
+    min_points: 300
+
+  GridSampling:
+    _target_: torch_geometric.transforms.GridSampling
+    _args_:
+      - ${datamodule.transforms.preparations.voxel}
+
+  MinimumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
+    _args_:
+      - 300
+
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
+
+  Center:
+    _target_: torch_geometric.transforms.Center
+
+  NullifyLowestZ:
+    _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ
+
+eval:
+  SubtileCrop:
+    _target_: myria3d.pctl.transforms.transforms.SubtileCrop
+    tile_width: "${datamodule.tile_width}"
+    subtile_width: "${datamodule.subtile_width}"
+    random: false
+
+  GridSampling:
+    _target_: torch_geometric.transforms.GridSampling
+    _args_:
+      - ${datamodule.transforms.preparations.voxel}
+
+  MinimumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
+    _args_:
+      - 300
+
+  MaximumNumNodes:
+    _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
+    _args_:
+      - 40000
+
+  Center:
+    _target_: torch_geometric.transforms.Center
+
+  NullifyLowestZ:
+    _target_: myria3d.pctl.transforms.transforms.NullifyLowestZ

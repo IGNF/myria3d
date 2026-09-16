@@ -1,0 +1,25 @@
+_conc_convert_: all
+
+# H3D (Hessigheim 3D, aerial LiDAR semantic segmentation), Pointcept preprocessing/
+# taxonomy -- see pointcept/datasets/h3d.py. segment.npy is already remapped to these
+# contiguous train ids; myria3d does not re-remap.
+classification_dict:
+  0: "Low Vegetation"
+  1: "Impervious Surface"
+  2: "Vehicle"
+  3: "Urban Furniture"
+  4: "Roof"
+  5: "Façade"
+  6: "Shrub"
+  7: "Tree"
+  8: "Soil or Gravel"
+  9: "Vertical Surface"
+  10: "Chimney"
+  11: "Void"
+
+num_classes: 12
+ignore_index: 11
+
+# Winner-selection metric for GridProbeWinnerSelector (Pointcept convention: mIoU for
+# DALES/ECLAIR, macro-F1 for H3D).
+select_metric: macro_f1

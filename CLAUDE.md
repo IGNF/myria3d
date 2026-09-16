@@ -13,6 +13,9 @@ Flair3D-build data). Configuration is driven end-to-end by Hydra.
 - `readme_flair3d.md` — the authoritative guide for Flair3D+ workflows (single-task, multitask,
   Pointcept-shortcut training, Hecate/Jean Zay paths, iter-limited schedule). Read it before
   touching anything under `flair3d`/`pointcept` experiment configs or datasets.
+- `readme_linear_probing.md` — linear-probing a frozen Flair3D+ multitask backbone on
+  DALES/H3D/ECLAIR/PureForest (sweep-LR-then-10-seeds protocol, JZ paths/env vars). Read it before
+  touching `GridProbeModel`, `myria3d/pctl/dataset/downstream/`, or `experiment/linear_probe/*.yaml`.
 - `docs/source/background/general_design.md` — the design rationale (why RandLA-Net, why
   subsample, why interpolate only at test/predict time, not during train/val).
 - `docs/source/guides/development.md` — versioning/CI/CD conventions.
@@ -67,6 +70,20 @@ python run.py predict.src_las=<file_or_glob> predict.output_dir=<dir> \
 
 Any config value can be overridden from the CLI (dotted path into the composed config), e.g.
 `datamodule.batch_size=10`, `trainer.accelerator=gpu`, `logger=csv` (disables Comet).
+
+Jean Zay slurm launch scripts live under `scripts/jz/` (referenced from `readme_flair3d.md`),
+e.g. `sbatch scripts/jz/run_flair3d_plus_train.slurm`, with paths overridable via exported env
+vars (`JZ_USER`, `SPLIT_CSV`, `HDF5_PATH`, ...) rather than editing the script.
+
+### Debugging PyG collate crashes
+
+`scripts/debug_scene_dtypes.py` finds the Flair3D+ multitask scene(s) that break PyG collate
+(intermittent `torch.cat(): input types can't be cast...` on a DataLoader worker — caused by
+one `Data` attribute having a different dtype/ndim across scenes in the same batch). Two
+modes: `--mode collate` (default, fast — runs the real training dataloader with a
+dtype/shape-checking collate wrapper and stops at the first mismatch) and `--mode scan`
+(exhaustive, per-attribute dtype/shape report across a whole split, `--jobs` to parallelize).
+Reach for this before hand-debugging a collate crash on the Pointcept-npy pipeline.
 
 ### Tests
 
@@ -152,7 +169,11 @@ it before changing anything schedule- or callback-related for the Pointcept pipe
   (`tile_distribution`, WeightedKL over the tile), and `elevation` (regression against
   `z_lidar - DTM`). `MODEL_ZOO` is shared (appended to, not replaced) with the single-task
   model. KNN-interpolation is used for per-point heads only; pooled tasks stay at the
-  model's native resolution.
+  model's native resolution. Per-task loss weights are auto-balanced by
+  `gradnorm_lite.py` (EMA-based GradNorm-lite, ported from Pointcept — see the module
+  docstring for what was trimmed vs. the reference impl); `losses.py` holds the
+  tile-distribution pooling/loss helpers and `dilated_metrics.py` the buffer
+  precision/recall/F1 used for thin pixel-mask tasks (`forest_2d`/`roads`).
 - `interpolation.py` — the interpolator used at predict time to go from subsampled to full LAS.
 
 ### Data layer (`myria3d/pctl/` — "Point Cloud Transform Library")
@@ -165,7 +186,12 @@ it before changing anything schedule- or callback-related for the Pointcept pipe
   tiles already preprocessed by an external [Pointcept](https://github.com/Pointcept/Pointcept)
   pipeline (`coord.npy`/`color.npy`/... + multitask label arrays) and crops 50m subtiles from
   100m tiles on the fly instead of relying on a pre-built HDF5. Used by
-  `experiment=flair3d_plus/multitask`.
+  `experiment=flair3d_plus/multitask`. The cropping itself is `transforms.py::SubtileCrop`:
+  a fixed quadrant for val/test, but for train it tries the 4 quadrants in random order and
+  takes the first with at least `min_points`, so a tile whose points sit in only 1-2
+  quadrants still yields a usable sample instead of a wasted near-empty one (this behavior —
+  and the collate dtype pitfalls of degenerate low-point crops — has been the site of several
+  recent bugfixes; see git log on this file before changing it).
 - `dataset/flair3d.py`, `flair3d_label_remap.py`, `raster_utils.py` — Flair3D+-specific PLY
   label handling and GeoTIFF raster sampling (once per patch, before subtiling — changing this
   logic requires regenerating the HDF5 cache).
@@ -182,7 +208,11 @@ it before changing anything schedule- or callback-related for the Pointcept pipe
 Metric computation is deliberately kept out of the `LightningModule` and lives in callbacks:
 `metric_callbacks.py` (single-task IoU etc.), `multitask_metric_callbacks.py` (per-task
 IoU/MAE/RMSE/KL, e.g. `val/iou_forest_2d`, `val/kl_nathab_habitat_type`, `val/elevation_mae`), `finetuning_callbacks.py` (swaps the
-output layer's class count after loading finetune weights), `comet_callbacks.py`.
+output layer's class count after loading finetune weights), `comet_callbacks.py`,
+`pointcept_pred_dump.py` (writes `roads`/`forest_2d` pixel-semantic predictions back out in
+Pointcept's `{patch_id}_logits_network.npy` format — scattered to full-patch raster resolution
+and nanmean-merged across overlapping 50m quadrants / DDP ranks — so Pointcept's own external
+eval scripts can consume myria3d's predictions).
 
 ### Predict flow (`myria3d/predict.py`, `run.py::launch_predict`)
 

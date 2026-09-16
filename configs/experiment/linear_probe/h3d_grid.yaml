@@ -1,0 +1,25 @@
+# @package _global_
+# H3D linear probing -- grid phase: sweep the 12-value LR grid on a frozen Flair3D+
+# backbone, pick a winner by val macro-F1 (dataset_description.select_metric -- H3D
+# uses macro-F1, not mIoU, matching the Pointcept protocol). See readme_linear_probing.md.
+
+defaults:
+  - override /datamodule: downstream/h3d_datamodule.yaml
+  - override /dataset_description: h3d.yaml
+  - override /model: grid_probe/default.yaml
+  - override /callbacks: grid_probe_grid.yaml
+  - override /logger: wandb.yaml
+
+logger:
+  wandb:
+    name: "GridProbe | H3D | grid phase"
+
+trainer:
+  accelerator: gpu
+  max_epochs: 50
+  check_val_every_n_epoch: 1
+  log_every_n_steps: 50
+
+datamodule:
+  batch_size: 12
+  num_workers: 4

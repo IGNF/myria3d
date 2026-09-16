@@ -1,0 +1,35 @@
+_target_: myria3d.pctl.datamodule.downstream.DownstreamNpyDatamodule
+
+data_root: ${oc.env:DOWNSTREAM_DATA_ROOT,/data/geist/Pointcept/data}/dales
+dataset_target: myria3d.pctl.dataset.downstream.dales.DalesDataset
+
+train_dir: train
+# DALES has no val split upstream (train/test only) -- val mirrors test, a documented
+# convention (see readme_linear_probing.md), not a silently-mislabeled held-out set.
+val_dir: test
+test_dir: test
+
+# Pointcept itself never crops DALES by physical tile width -- its own GridProbe
+# configs (configs/dales/*-lin-grid*.py) process each preprocessed scene whole and
+# bound it only by a point-count budget (SphereCrop point_max=102400), because
+# preprocess_dales.py's `--chunking` factor (applied once, upstream, to the raw
+# ~500m DALES tiles) determines each on-disk scene folder's *actual* extent, which
+# myria3d cannot know without inspecting the real JZ-side data. tile_width ==
+# subtile_width makes SubtileCrop a no-op (whatever is on disk is the "subtile");
+# MaximumNumNodes (points_budget_downstream.yaml) provides the point-count bound
+# instead, mirroring Pointcept's SphereCrop rather than guessing a physical width.
+tile_width: ${datamodule.subtile_width}
+subtile_width: 50
+
+pre_filter:
+  _target_: functools.partial
+  _args_:
+    - "${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}"
+  min_num_nodes: 1
+
+batch_size: 12
+num_workers: 4
+prefetch_factor: 2
+
+defaults:
+  - transforms: downstream.yaml
