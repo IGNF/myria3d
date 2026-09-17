@@ -7,13 +7,13 @@ from pytorch_lightning import LightningDataModule
 from torch_geometric.data import Data
 
 from myria3d.pctl.dataloader.dataloader import GeometricNoneProofDataloader
-from myria3d.pctl.transforms.compose import CustomCompose
 from myria3d.pctl.dataset.hdf5 import HDF5Dataset
 from myria3d.pctl.dataset.iterable import InferenceDataset
 from myria3d.pctl.dataset.utils import (
     get_las_paths_by_split_dict,
     pre_filter_below_n_points,
 )
+from myria3d.pctl.transforms.compose import CustomCompose
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -144,6 +144,7 @@ class HDF5LidarDataModule(LightningDataModule):
         return self._dataset
 
     def train_dataloader(self):
+        """Create the training dataloader for the prepared HDF5 dataset."""
         return GeometricNoneProofDataloader(
             dataset=self.dataset.traindata,
             batch_size=self.batch_size,
@@ -153,6 +154,7 @@ class HDF5LidarDataModule(LightningDataModule):
         )
 
     def val_dataloader(self):
+        """Create the validation dataloader for the prepared HDF5 dataset."""
         return GeometricNoneProofDataloader(
             dataset=self.dataset.valdata,
             batch_size=self.batch_size,
@@ -161,6 +163,7 @@ class HDF5LidarDataModule(LightningDataModule):
         )
 
     def test_dataloader(self):
+        """Create the test dataloader for the prepared HDF5 dataset."""
         return GeometricNoneProofDataloader(
             dataset=self.dataset.testdata,
             batch_size=self.batch_size,
@@ -181,6 +184,7 @@ class HDF5LidarDataModule(LightningDataModule):
         )
 
     def predict_dataloader(self):
+        """Create the prediction dataloader for the current inference dataset."""
         return GeometricNoneProofDataloader(
             dataset=self.predict_dataset,
             batch_size=self.batch_size,

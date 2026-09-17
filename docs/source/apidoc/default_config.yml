@@ -5,11 +5,12 @@ print_config: true
 ignore_warnings: true
 trainer:
   _target_: pytorch_lightning.Trainer
-  accelerator: cpu
-  devices: 1
   min_epochs: 1
   max_epochs: 1
   log_every_n_steps: 1
+  accelerator: cpu
+  devices: 1
+  num_nodes: 1
   limit_train_batches: 1
   limit_val_batches: 1
   limit_test_batches: 1
@@ -21,30 +22,30 @@ datamodule:
         TargetTransform:
           _target_: myria3d.pctl.transforms.transforms.TargetTransform
           _args_:
-          - ${dataset_description.classification_preprocessing_dict}
-          - ${dataset_description.classification_dict}
+            - ${dataset_description.classification_preprocessing_dict}
+            - ${dataset_description.classification_dict}
         DropPointsByClass:
           _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
         GridSampling:
           _target_: torch_geometric.transforms.GridSampling
           _args_:
-          - 0.25
+            - 0.25
         MinimumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
           _args_:
-          - 300
+            - 300
         MaximumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
           _args_:
-          - 40000
+            - 40000
         Center:
           _target_: torch_geometric.transforms.Center
       eval:
         TargetTransform:
           _target_: myria3d.pctl.transforms.transforms.TargetTransform
           _args_:
-          - ${dataset_description.classification_preprocessing_dict}
-          - ${dataset_description.classification_dict}
+            - ${dataset_description.classification_preprocessing_dict}
+            - ${dataset_description.classification_dict}
         DropPointsByClass:
           _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
         CopyFullPos:
@@ -54,15 +55,15 @@ datamodule:
         GridSampling:
           _target_: torch_geometric.transforms.GridSampling
           _args_:
-          - 0.25
+            - 0.25
         MinimumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
           _args_:
-          - 300
+            - 300
         MaximumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
           _args_:
-          - 40000
+            - 40000
         CopySampledPos:
           _target_: myria3d.pctl.transforms.transforms.CopySampledPos
         Center:
@@ -75,15 +76,15 @@ datamodule:
         GridSampling:
           _target_: torch_geometric.transforms.GridSampling
           _args_:
-          - 0.25
+            - 0.25
         MinimumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
           _args_:
-          - 300
+            - 300
         MaximumNumNodes:
           _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
           _args_:
-          - 40000
+            - 40000
         CopySampledPos:
           _target_: myria3d.pctl.transforms.transforms.CopySampledPos
         Center:
@@ -97,11 +98,11 @@ datamodule:
         subtile_width: ${datamodule.subtile_width}
       StandardizeRGBAndIntensity:
         _target_: myria3d.pctl.transforms.transforms.StandardizeRGBAndIntensity
-    augmentations_list: '${oc.dict.values: datamodule.transforms.augmentations}'
-    preparations_train_list: '${oc.dict.values: datamodule.transforms.preparations.train}'
-    preparations_eval_list: '${oc.dict.values: datamodule.transforms.preparations.eval}'
-    preparations_predict_list: '${oc.dict.values: datamodule.transforms.preparations.predict}'
-    normalizations_list: '${oc.dict.values: datamodule.transforms.normalizations}'
+    augmentations_list: "${oc.dict.values: datamodule.transforms.augmentations}"
+    preparations_train_list: "${oc.dict.values: datamodule.transforms.preparations.train}"
+    preparations_eval_list: "${oc.dict.values: datamodule.transforms.preparations.eval}"
+    preparations_predict_list: "${oc.dict.values: datamodule.transforms.preparations.predict}"
+    normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"
   _target_: myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule
   data_dir: null
   epsg: null
@@ -110,12 +111,12 @@ datamodule:
   points_pre_transform:
     _target_: functools.partial
     _args_:
-    - ${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}
+      - ${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}
   pre_filter:
     _target_: functools.partial
     _args_:
-    - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
-    min_num_nodes: 50
+      - ${get_method:myria3d.pctl.dataset.utils.pre_filter_below_n_points}
+    min_num_nodes: 1
   tile_width: 1000
   subtile_width: 50
   subtile_overlap_train: 0
@@ -146,7 +147,6 @@ dataset_description:
     56: 1
     57: 1
     58: 1
-    64: 1
     66: 1
     67: 1
     77: 1
@@ -161,13 +161,13 @@ dataset_description:
     17: bridge
     64: lasting_above
   class_weights:
-  - 0.25
-  - 0.1
-  - 0.1
-  - 0.5
-  - 2.0
-  - 2.0
-  - 2.0
+    - 0.25
+    - 0.1
+    - 0.1
+    - 0.5
+    - 2.0
+    - 2.0
+    - 2.0
   d_in: 9
   num_classes: 7
 callbacks:
@@ -180,9 +180,6 @@ callbacks:
     _target_: pytorch_lightning.callbacks.LearningRateMonitor
     logging_interval: step
     log_momentum: true
-  log_iou_by_class:
-    _target_: myria3d.callbacks.logging_callbacks.LogIoUByClass
-    classification_dict: ${dataset_description.classification_dict}
   model_checkpoint:
     _target_: pytorch_lightning.callbacks.ModelCheckpoint
     monitor: val/loss_epoch
@@ -199,16 +196,19 @@ callbacks:
     mode: min
     patience: 6
     min_delta: 0
+  model_detailed_metrics:
+    _target_: myria3d.callbacks.metric_callbacks.ModelMetrics
+    num_classes: ${model.num_classes}
 model:
   optimizer:
     _target_: functools.partial
     _args_:
-    - ${get_method:torch.optim.Adam}
+      - ${get_method:torch.optim.Adam}
     lr: ${model.lr}
   lr_scheduler:
     _target_: functools.partial
     _args_:
-    - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
+      - ${get_method:torch.optim.lr_scheduler.ReduceLROnPlateau}
     mode: min
     factor: 0.5
     patience: 20
@@ -221,6 +221,7 @@ model:
   _target_: myria3d.models.model.Model
   d_in: ${dataset_description.d_in}
   num_classes: ${dataset_description.num_classes}
+  classification_dict: ${dataset_description.classification_dict}
   ckpt_path: null
   neural_net_class_name: PyGRandLANet
   neural_net_hparams:
@@ -231,12 +232,6 @@ model:
     return_logits: true
   interpolation_k: ${predict.interpolator.interpolation_k}
   num_workers: 4
-  iou:
-    _target_: functools.partial
-    _args_:
-    - ${get_method:torchmetrics.JaccardIndex}
-    - ${model.num_classes}
-    absent_score: 1.0
   momentum: 0.9
   monitor: val/loss_epoch
   lr: 0.003933709606504788
