@@ -135,20 +135,48 @@ on which `--chunking`/`--chunk-size` value was used when the JZ-side data was ge
   confirms "keeps original 100×100 m tiles" — exactly Flair3D+'s own 100 m tile / 50 m subtile
   convention. `configs/datamodule/downstream/eclair_datamodule.yaml` sets `tile_width: 100`,
   `subtile_width: 50`, so `SubtileCrop` does a real 2×2 quadrant crop.
-- **DALES / H3D**: no reliable native tile width to assume (`preprocess_dales.py --chunking`
-  defaults to `3`, but the resulting per-folder extent depends on the raw DALES tile size, which
-  itself may differ from what your JZ copy was generated with; `preprocess_h3d.py --chunk-size`
-  defaults to `inf`, i.e. **no** tiling — one folder per source file, potentially large and
-  irregular). `configs/datamodule/downstream/{dales,h3d}_datamodule.yaml` therefore set
-  `tile_width: ${datamodule.subtile_width}`, making `SubtileCrop` a no-op (whatever is on disk is
-  treated as the "subtile"), and rely on `MaximumNumNodes`
-  (`points_budget_downstream.yaml`, capped at 40k points) as the actual size bound — the same
-  point-count-based philosophy as Pointcept's `SphereCrop`, instead of a guessed physical width.
+- **H3D**: `preprocess_h3d.py`'s own argparse default is `--chunk-size inf` (no tiling), but its
+  docstring's documented Usage example runs it with `--chunk-size 100` — confirmed as the value
+  actually used to generate the on-disk H3D scenes. `configs/datamodule/downstream/h3d_datamodule.yaml`
+  now sets `tile_width: 100`, `subtile_width: 50`, same real 2×2 crop as ECLAIR.
+- **DALES**: still unresolved. `preprocess_dales.py --chunking` argparse-defaults to `3`, but a
+  separate internal note (`README_geist.md` in the sibling Pointcept repo) documents the command
+  actually run with an explicit `--chunking 4` override — the two disagree (~167 m vs. ~125 m
+  per-folder extent off a measured ~500 m raw DALES tile), and neither matches the current
+  `tile_width: ${datamodule.subtile_width}` no-op. Left as-is (point-count bound via
+  `MaximumNumNodes`, capped at 40k points, mirroring Pointcept's `SphereCrop`) until the real JZ-side
+  chunking value is confirmed — see below.
 
 **Verify your actual JZ-side tile extents** before trusting results (e.g.
 `np.load(f"{tile}/coord.npy")[:, :2].ptp(0)`), and override `datamodule.tile_width=<meters>` /
-`datamodule.subtile_width=<meters>` on the CLI if DALES/H3D tiles turn out to be small and regular
-enough for real `SubtileCrop` mosaicking to be worthwhile.
+`datamodule.subtile_width=<meters>` on the CLI once DALES' real chunking value is confirmed.
+
+To infer which `--chunking` was used for DALES without re-running preprocessing, inspect the
+on-disk folder names: `preprocess_dales.py` names a chunked scene `<original_ply_stem>_<row>-<col>`
+(`row`/`col` in `[0, chunking)`), and leaves the name untouched (no suffix) when `chunking <= 1`.
+The max `row`/`col` seen across a split's folder names is `chunking - 1`:
+
+```bash
+DALES_ROOT="${DOWNSTREAM_DATA_ROOT:-/data/geist/Pointcept/data}/dales"
+for split in train test; do
+  echo "=== $split ==="
+  ls "$DALES_ROOT/$split" \
+    | grep -oE '_[0-9]+-[0-9]+$' | tr -d '_' \
+    | awk -F'-' '{if($1+0>mr)mr=$1+0; if($2+0>mc)mc=$2+0; n++}
+                 END{if(n==0){print "no _row-col suffixes found -> chunking<=1"}
+                     else{print "max row idx="mr", max col idx="mc" -> chunking =", mr+1}}'
+done
+```
+
+A raw file-count cross-check (works even if some corner subtiles were dropped for being empty,
+as long as most aren't): compare the number of *source* PLY files to the number of output scene
+folders — the ratio should be close to `chunking**2`:
+
+```bash
+n_raw=$(ls /path/to/dales/raw/DALESObjects/train/*.ply | wc -l)
+n_out=$(ls "$DALES_ROOT/train" | wc -l)
+python3 -c "import math; print('chunking ~=', math.sqrt($n_out / $n_raw))"
+```
 
 ---
 
