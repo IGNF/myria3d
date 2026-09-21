@@ -18,7 +18,9 @@ from tqdm import tqdm
 
 from myria3d.pctl.dataset.hdf5 import create_hdf5
 from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
+from myria3d.pctl.transforms.compose import CustomCompose
 from myria3d.utils import utils
+
 
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
@@ -40,7 +42,7 @@ DEFAULT_TASK = TASK_NAMES.FIT.value
 log = utils.get_logger(__name__)
 
 
-@hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.1")
+@hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.3")
 def launch_train(
     config: DictConfig,
 ):  # pragma: no cover  (it's just an initialyzer of a class/method tested elsewhere)
@@ -57,7 +59,7 @@ def launch_train(
     return train(config)
 
 
-@hydra.main(config_path=DEFAULT_DIRECTORY, config_name=DEFAULT_CONFIG_FILE, version_base="1.1")
+@hydra.main(config_path=DEFAULT_DIRECTORY, config_name=DEFAULT_CONFIG_FILE, version_base="1.3")
 def launch_predict(config: DictConfig):
     """Infer probabilities and automate semantic segmentation decisions on unseen data."""
     # Imports should be nested inside @hydra.main to optimize tab completion
@@ -80,7 +82,7 @@ def launch_predict(config: DictConfig):
         predict(config)
 
 
-@hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.1")
+@hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.3")
 def launch_hdf5(config: DictConfig):
     """Build an HDF5 file from a directory with las files."""
 
@@ -101,6 +103,11 @@ def launch_hdf5(config: DictConfig):
         subtile_overlap_train=config.datamodule.get("subtile_overlap_train"),
         points_pre_transform=hydra.utils.instantiate(
             config.datamodule.get("points_pre_transform")
+        ),
+        train_pre_transform=CustomCompose(
+            hydra.utils.instantiate(
+                config.datamodule.transforms.get("preparations_train_bake_list")
+            )
         ),
     )
 

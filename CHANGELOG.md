@@ -1,4 +1,12 @@
 # CHANGELOG
+## 3.9.2
+- Add config to handle 100 m x 100 m patches
+
+- Add Focal and Lovasz Losses and config 
+
+- Add preprocessing steps during hdf5 creation as they do not change at batch selection level (for example,GridSampling will always select the same points as it is deterministic)
+
+- Add config parameters to set model size, i.e a larger model for a larger dataset
 
 ### 3.9.1
 - Remove usage of self-hosted runner and adapt tests accordingly:

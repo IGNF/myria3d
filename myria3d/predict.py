@@ -46,7 +46,10 @@ def predict(config: DictConfig) -> str:
 
     # Do not require gradient for faster predictions
     torch.set_grad_enabled(False)
-    model = Model.load_from_checkpoint(config.predict.ckpt_path)
+    # strict=False: the criterion is excluded from the checkpoint hyperparameters
+    # (see Model.__init__), so its buffers (e.g. "criterion.losses.0.weight") are
+    # not reconstructed at load time and must be ignored here.
+    model = Model.load_from_checkpoint(config.predict.ckpt_path, strict=False)
     device = utils.define_device_from_config_param(config.predict.gpus)
     model.to(device)
     model.eval()

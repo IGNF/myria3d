@@ -1,7 +1,7 @@
 defaults:
   - default.yaml
 
-lr: 0.003933709606504788   # 200-long LR-test-range betw 10^-4 and 3.0
+lr: 0.002
 
 neural_net_class_name: "PyGRandLANet"
 neural_net_hparams:
@@ -9,4 +9,8 @@ neural_net_hparams:
   num_classes: ${model.num_classes}
   num_neighbors: 16
   decimation: 4  # divide by decimation for each of the 4 local encoder.
+  # Per-stage encoder output channels (block1..block4). Widen these to increase
+  # model capacity, e.g. [64, 256, 512, 1024] for a ~4x larger dataset.
+  # The decoder mirrors these dimensions automatically.
+  dims: [32, 128, 256, 512]
   return_logits: true  # to use with crossEntropyLoss directly
