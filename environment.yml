@@ -64,12 +64,8 @@ dependencies:
     # # --------- Documentation --------- #
   - sphinx
   - recommonmark
-  - sphinx_rtd_theme
-  - docutils
   - rstcheck
+  - conda_forge:myst-parser
   - pip:
-      # --------- Documentation --------- #
-      - myst_parser
-      - sphinxnotes-mock
-      - sphinx_paramlinks
+      - build
       - ign-pdal-tools==1.16.0

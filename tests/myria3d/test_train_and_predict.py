@@ -48,6 +48,43 @@ def one_epoch_trained_RandLaNet_checkpoint(toy_dataset_hdf5_path, tmpdir_factory
     return trainer.checkpoint_callback.best_model_path
 
 
+# Dims of a RandLaNet with externalized embeddings, used both to train the dedicated
+# checkpoint below and to build the model when loading that checkpoint in tests.
+EXTERNAL_EMBEDDINGS_DIMS = [48, 192, 384, 768]
+
+
+@pytest.fixture(scope="session")
+def one_epoch_trained_RandLaNet_external_embeddings_checkpoint(
+    toy_dataset_hdf5_path, tmpdir_factory
+):
+    """Train a RandLaNet model with externalized embeddings for one epoch.
+
+    The resulting checkpoint matches the ``EXTERNAL_EMBEDDINGS_DIMS`` architecture, so it
+    can be loaded back by the external-embeddings tests without a state_dict size mismatch.
+
+    Args:
+        toy_dataset_hdf5_path (str): path to toy dataset as created by fixture.
+        tmpdir_factory (fixture): factory to create a session level tempdir.
+
+    Returns:
+        str: path to trained model checkpoint, which persists for the whole pytest session.
+
+    """
+    tmpdir = tmpdir_factory.mktemp("training_logs_dir_external_embeddings")
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        toy_dataset_hdf5_path, tmpdir
+    )
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=[
+            "experiment=RandLaNetDebug",
+            f"model.neural_net_hparams.dims={EXTERNAL_EMBEDDINGS_DIMS}",
+        ]
+        + tmp_paths_overrides
+    )
+    trainer = train(cfg_one_epoch)
+    return trainer.checkpoint_callback.best_model_path
+
+
 @RunIf(min_gpus=1)
 def test_FrenchLidar_RandLaNetDebug_with_gpu(toy_dataset_hdf5_path, tmpdir_factory):
     """Train a RandLaNet model for one epoch using GPU. XFail is no GPU available.
@@ -203,8 +240,176 @@ def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
     )
 
 
+
+# model with externalized embeddings 
+
+@RunIf(min_gpus=1)
+def test_FrenchLidar_RandLaNetDebug_externalized_embeddings_with_gpu(toy_dataset_hdf5_path, tmpdir_factory):
+    """Train a RandLaNet model for one epoch using GPU. XFail is no GPU available.
+
+    Args:
+        toy_dataset_hdf5_path (str): path to isolated toy dataset as created by fixture.
+        tmpdir_factory (fixture): factory to create a session-level tempdir.
+
+    """
+    tmpdir = tmpdir_factory.mktemp("training_logs_dir")
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        toy_dataset_hdf5_path, tmpdir
+    )
+    gpu_id = find_usable_cuda_devices(1)
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=[
+            "experiment=RandLaNetDebug",
+            "model.neural_net_hparams.dims=[48,192,384,768]",
+            "trainer.accelerator=gpu",
+            f"trainer.devices={gpu_id}",
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg_one_epoch)
+    
+def test_predict_with_model_with_externalized_embeddings_command(one_epoch_trained_RandLaNet_external_embeddings_checkpoint, tmpdir):
+    """Test running inference by CLI for toy LAS.
+
+    Args:
+        one_epoch_trained_RandLaNet_external_embeddings_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model with externalized embeddings that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
+
+    """
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
+    command = [
+        "run.py",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_external_embeddings_checkpoint}",
+        f"datamodule.epsg={DEFAULT_EPSG}",
+        f"predict.src_las={abs_path_to_toy_LAS}",
+        f"predict.output_dir={tmpdir}",
+        f"+model.neural_net_hparams.dims={EXTERNAL_EMBEDDINGS_DIMS}",
+        "+predict.interpolator.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
+    ]
+    run_hydra_decorated_command(command)
+    output_path = Path(tmpdir) / Path(abs_path_to_toy_LAS).name
+    metadata = las_info.las_info_metadata(output_path)
+    out_epsg = las_info.get_epsg_from_header_info(metadata)
+    assert out_epsg == DEFAULT_EPSG
+
+def test_command_external_embeddings_without_epsg(one_epoch_trained_RandLaNet_external_embeddings_checkpoint, tmpdir):
+    """Test running inference by CLI for toy LAS.
+
+    Args:
+        one_epoch_trained_RandLaNet_external_embeddings_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model with externalized embeddings that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
+
+    """
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
+    command = [
+        "run.py",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_external_embeddings_checkpoint}",
+        f"predict.src_las={abs_path_to_toy_LAS}",
+        f"predict.output_dir={tmpdir}",
+        "datamodule.epsg=null",
+        f"+model.neural_net_hparams.dims={EXTERNAL_EMBEDDINGS_DIMS}",
+        "+predict.interpolator.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
+    ]
+    assert (
+        "No EPSG provided, neither in the lidar file or as parameter"
+        in run_hydra_decorated_command_with_return_error(command)
+    )
+
+def test_predict_external_embeddings_on_single_point_cloud(one_epoch_trained_RandLaNet_external_embeddings_checkpoint, tmpdir):
+    """Test running inference by CLI for cloud with a single point (edge case addressed in V3.4.0)"""
+    # Hydra changes CWD, and therefore absolute paths are preferred
+    abs_path_to_single_point_cloud = osp.abspath(SINGLE_POINT_CLOUD)
+    command = [
+        "run.py",
+        f"predict.ckpt_path={one_epoch_trained_RandLaNet_external_embeddings_checkpoint}",
+        f"datamodule.epsg={DEFAULT_EPSG}",
+        f"predict.src_las={abs_path_to_single_point_cloud}",
+        f"predict.output_dir={tmpdir}",
+        f"+model.neural_net_hparams.dims={EXTERNAL_EMBEDDINGS_DIMS}",
+        "+predict.interpolator.probas_to_save=[building,unclassified]",
+        "task.task_name=predict",
+    ]
+    run_hydra_decorated_command(command)
+
+
+def test_RandLaNet_external_embeddings_predict_with_invariance_checks(one_epoch_trained_RandLaNet_external_embeddings_checkpoint, tmpdir):
+    """Train a model for one epoch, and run test and predict functions using the trained model.
+
+    Args:
+        one_epoch_trained_RandLaNet_external_embeddings_checkpoint (fixture -> str): path to checkpoint of
+        a RandLa-Net model with externalized embeddings that was trained for once epoch at start of test session.
+        tmpdir (fixture -> str): temporary directory.
+
+    """
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        "placeholder_because_no_need_for_a_dataset_here", tmpdir
+    )
+    # Run prediction
+    cfg_predict_using_trained_model = make_default_hydra_cfg(
+        overrides=[
+            "experiment=predict",
+            f"predict.ckpt_path={one_epoch_trained_RandLaNet_external_embeddings_checkpoint}",
+            f"datamodule.epsg={DEFAULT_EPSG}",
+            f"predict.src_las={TOY_LAS_DATA}",
+            f"predict.output_dir={tmpdir}",
+            f"+model.neural_net_hparams.dims={EXTERNAL_EMBEDDINGS_DIMS}",
+            # "+predict.interpolator.interpolation_k=predict.interpolation_k",
+            "predict.interpolator.probas_to_save=[building,unclassified]",
+        ]
+        + tmp_paths_overrides
+    )
+    path_to_output_las = predict(cfg_predict_using_trained_model)
+
+    # Check that predict function generates a predicted LAS
+    assert osp.isfile(path_to_output_las)
+
+    # Check the format of the predicted las in terms of extra dimensions
+    DIMS_ALWAYS_THERE = ["PredictedClassification", "entropy"]
+    DIMS_CHOSEN_IN_CONFIG = ["building", "unclassified"]
+    check_las_contains_dims(
+        path_to_output_las,
+        dims_to_check=DIMS_ALWAYS_THERE + DIMS_CHOSEN_IN_CONFIG,
+    )
+    DIMS_NOT_THERE = ["ground"]
+    check_las_does_not_contains_dims(path_to_output_las, dims_to_check=DIMS_NOT_THERE)
+
+    # check that predict does not change other dimensions
+    check_las_invariance(TOY_LAS_DATA, path_to_output_las)
+
+
+def test_run_test_with_trained_model_with_external_embeddings_on_toy_dataset_on_cpu(
+    one_epoch_trained_RandLaNet_external_embeddings_checkpoint, toy_dataset_hdf5_path, tmpdir
+):
+    _run_test_right_after_training(
+        one_epoch_trained_RandLaNet_external_embeddings_checkpoint,
+        toy_dataset_hdf5_path,
+        tmpdir,
+        "cpu",
+        embeddings_size=EXTERNAL_EMBEDDINGS_DIMS,
+    )
+
+
+@RunIf(min_gpus=1)
+def test_run_test_with_trained_model_with_external_embeddings_on_toy_dataset_on_gpu(
+    one_epoch_trained_RandLaNet_external_embeddings_checkpoint, toy_dataset_hdf5_path, tmpdir
+):
+    _run_test_right_after_training(
+        one_epoch_trained_RandLaNet_external_embeddings_checkpoint,
+        toy_dataset_hdf5_path,
+        tmpdir,
+        "gpu",
+        embeddings_size=EXTERNAL_EMBEDDINGS_DIMS,
+    )
+
+
 def _run_test_right_after_training(
-    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, accelerator
+    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, accelerator, embeddings_size=None
 ):
     """Run test using the model that was just trained for one epoch.
 
@@ -222,6 +427,11 @@ def _run_test_right_after_training(
         toy_dataset_hdf5_path, tmpdir
     )
     devices = find_usable_cuda_devices(1) if accelerator == "gpu" else 1
+    if embeddings_size is not None:
+        additional_overrides = [f"model.neural_net_hparams.dims={embeddings_size}"]
+    else:
+        additional_overrides = []
+
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=test",  # sets task.task_name to "test"
@@ -229,6 +439,7 @@ def _run_test_right_after_training(
             f"trainer.devices={devices}",
             f"trainer.accelerator={accelerator}",
         ]
+        + additional_overrides
         + tmp_paths_overrides
     )
     train(cfg_test_using_trained_model)

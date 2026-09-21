@@ -1,4 +1,4 @@
-# Workflow name
+# This workflow is disabled (deprecated since there is no self-hosted runner)
 name: "Prediction on lidar-prod optimization dataset"
 
 on:
@@ -37,7 +37,11 @@ on:
 
 jobs:
   predict-validation-dataset:
+    if: false
     runs-on: self-hosted
+    permissions:
+      contents: read
+
     env:
       OUTPUT_DIR: /var/data/LIDAR-PROD-OPTIMIZATION/${{ github.event.inputs.sampling_name }}/${{ github.event.inputs.model_id }}/
       DATA: /var/data/LIDAR-PROD-OPTIMIZATION/20221018_lidar-prod-optimization-on-151-proto/Comparison/
