@@ -8,6 +8,7 @@ BINARY_MODE: str = "binary"
 MULTICLASS_MODE: str = "multiclass"
 MULTILABEL_MODE: str = "multilabel"
 
+
 def _lovasz_grad(gt_sorted):
     """Compute gradient of the Lovasz extension w.r.t sorted errors
     See Alg. 1 in paper
@@ -116,7 +117,7 @@ def _lovasz_softmax_flat(probas, labels, classes="present", class_seen=None):
         return probas * 0.0
     C = probas.size(1)
     losses = []
-    class_to_sum = list(range(C)) if classes in ["all", "present"] else classes
+    # class_to_sum = list(range(C)) if classes in ["all", "present"] else classes
     # for c in class_to_sum:
     for c in labels.unique():
         if class_seen is None:
