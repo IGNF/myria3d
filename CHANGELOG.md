@@ -1,5 +1,5 @@
 # CHANGELOG
-## 3.9.1 
+## 3.9.2
 - Add config to handle 100 m x 100 m patches
 
 - Add Focal and Lovasz Losses and config 
