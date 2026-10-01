@@ -1,0 +1,22 @@
+# @package _global_
+defaults:
+  - override /datamodule/transforms/augmentations: light.yaml
+  - override /dataset_description: 20230601_lidarhd_norgb_pacasam_dataset.yaml
+
+logger:
+  comet:
+    experiment_name: "RandLaNet_base_run_FR-(BatchSize10xBudget(300pts-40000pts))"
+
+# Smaller BS : 10 x 40 000 (max) == 400 000 pts i.e. previous budget of 32 x 12 500pts.
+datamodule:
+  batch_size: 10
+  points_pre_transform:
+    _args_:
+      - "${get_method:myria3d.pctl.points_pre_transform.lidar_hd_norgb.lidar_hd_norgb_pre_transform}"
+
+trainer:
+  num_sanity_val_steps: 2
+  min_epochs: 100
+  max_epochs: 150
+  accumulate_grad_batches: 3  # b/c larger clouds will not fit in memory with original Batch Size
+  # gpus: [1]
