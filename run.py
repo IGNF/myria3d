@@ -14,6 +14,7 @@ from glob import glob
 import dotenv
 import hydra
 from omegaconf import DictConfig
+from pdaltools.check_las import check_pdal_can_open_file_with_retry
 from tqdm import tqdm
 
 from myria3d.pctl.dataset.hdf5 import create_hdf5
@@ -77,7 +78,8 @@ def launch_predict(config: DictConfig):
     # Iterate over the files and predict.
     src_las_iterable = glob(config.predict.src_las)
     for config.predict.src_las in tqdm(src_las_iterable):
-        predict(config)
+        output_path = predict(config)
+        check_pdal_can_open_file_with_retry(output_path, delay=10)
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.1")
