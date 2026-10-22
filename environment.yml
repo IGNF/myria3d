@@ -68,4 +68,4 @@ dependencies:
   - conda_forge:myst-parser
   - pip:
       - build
-      - ign-pdal-tools==1.16.0
+      - ign-pdal-tools>=1.18.1
