@@ -1,4 +1,12 @@
 # CHANGELOG
+## 3.9.2
+- Add config to handle 100 m x 100 m patches
+
+- Add Focal and Lovasz Losses and config 
+
+- Add preprocessing steps during hdf5 creation as they do not change at batch selection level (for example,GridSampling will always select the same points as it is deterministic)
+
+- Add config parameters to set model size, i.e a larger model for a larger dataset
 
 ### Not yet released
 - Check that las/laz output can be read by pdal when running prediction.

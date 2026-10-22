@@ -164,7 +164,16 @@ def train(config: DictConfig) -> Trainer:
         kwargs_to_override.pop(
             NEURAL_NET_ARCHITECTURE_CONFIG_GROUP, None
         )  # removes that key if it's there
-        model = Model.load_from_checkpoint(config.model.ckpt_path, **kwargs_to_override)
+        # The criterion is excluded from the checkpoint hyperparameters (see Model.__init__),
+        # so it is not reconstructed by load_from_checkpoint. Re-provide it from the current
+        # config and load non-strictly to ignore the criterion buffers stored in the checkpoint
+        # (e.g. "criterion.losses.0.weight").
+        model = Model.load_from_checkpoint(
+            config.model.ckpt_path,
+            criterion=model.criterion,
+            strict=False,
+            **kwargs_to_override,
+        )
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=None)
         log.info(f"Best checkpoint:\n{trainer.checkpoint_callback.best_model_path}")
         log.info("End of training and validating!")

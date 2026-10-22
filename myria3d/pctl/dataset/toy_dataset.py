@@ -4,13 +4,47 @@ import os
 import os.path as osp
 import sys
 
+from omegaconf import OmegaConf
+from torch_geometric.transforms import GridSampling
+
 # to use from CLI.
 sys.path.append(osp.dirname(osp.dirname(osp.dirname(osp.dirname(__file__)))))
 from myria3d.pctl.dataset.hdf5 import HDF5Dataset  # noqa
+from myria3d.pctl.transforms.compose import CustomCompose  # noqa
+from myria3d.pctl.transforms.transforms import (  # noqa
+    DropPointsByClass,
+    TargetTransform,
+)
 
 TOY_EPSG = "2154"
 TOY_LAS_DATA = "tests/data/toy_dataset_src/862000_6652000.classified_toy_dataset.100mx100m.las"
 TOY_DATASET_HDF5_PATH = "tests/data/toy_dataset.hdf5"
+
+# Deterministic transforms baked into the HDF5 file once, at dataset-creation time,
+# for the TRAIN split only (applied in create_hdf5). They are therefore NOT recomputed
+# every epoch, which is a large speed-up on big datasets. 
+#Here, we mirror them in the toy dataset creation, so that the toy dataset is consistent with the default config's `train_bake` list.
+# creation.
+
+# Reuse the classification mappings from the dataset_description
+# config instead of duplicating them here, so the toy dataset stays consistent with the
+# production dataset config.
+
+_DATASET_DESCRIPTION_PATH = osp.join(
+    osp.dirname(osp.dirname(osp.dirname(osp.dirname(__file__)))),
+    "configs",
+    "dataset_description",
+    "20260703_lidarhd_pacasam_dataset.yaml",
+)
+_DATASET_DESCRIPTION = OmegaConf.load(_DATASET_DESCRIPTION_PATH)
+
+TOY_CLASSIFICATION_PREPROCESSING_DICT = OmegaConf.to_container(
+    _DATASET_DESCRIPTION.classification_preprocessing_dict
+)
+
+TOY_CLASSIFICATION_DICT = OmegaConf.to_container(
+    _DATASET_DESCRIPTION.classification_dict
+)
 
 
 def make_toy_dataset_from_test_file():
@@ -34,7 +68,20 @@ def make_toy_dataset_from_test_file():
     if os.path.isfile(TOY_DATASET_HDF5_PATH):
         os.remove(TOY_DATASET_HDF5_PATH)
 
-    # TODO: update transforms ? or use a config ?
+    # Deterministic transforms baked into the train split, mirroring the default config's
+    # `train_bake` list. TargetTransform is required so that stored train targets are mapped
+    # to consecutive integers (0-(n-1)); this mapping is no longer applied at load time.
+    train_pre_transform = CustomCompose(
+        [
+            TargetTransform(
+                TOY_CLASSIFICATION_PREPROCESSING_DICT,
+                TOY_CLASSIFICATION_DICT,
+            ),
+            DropPointsByClass(),
+            GridSampling(0.25),
+        ]
+    )
+
     HDF5Dataset(
         TOY_DATASET_HDF5_PATH,
         TOY_EPSG,
@@ -45,6 +92,7 @@ def make_toy_dataset_from_test_file():
         },
         tile_width=110,
         subtile_width=50,
+        train_pre_transform=train_pre_transform,
         train_transform=None,
         eval_transform=None,
         pre_filter=None,
