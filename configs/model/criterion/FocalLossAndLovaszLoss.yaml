@@ -15,4 +15,4 @@ losses:
   - _target_: myria3d.models.losses.lovasz.LovaszLoss
     mode: multiclass
     ignore_index: 65  # artefacts are mapped to 65 by convention
-    per_image: false
+    per_sample: false

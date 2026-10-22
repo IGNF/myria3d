@@ -4,6 +4,7 @@ import os
 import os.path as osp
 import sys
 
+from omegaconf import OmegaConf
 from torch_geometric.transforms import GridSampling
 
 # to use from CLI.
@@ -21,20 +22,29 @@ TOY_DATASET_HDF5_PATH = "tests/data/toy_dataset.hdf5"
 
 # Deterministic transforms baked into the HDF5 file once, at dataset-creation time,
 # for the TRAIN split only (applied in create_hdf5). They are therefore NOT recomputed
-# every epoch, which is a large speed-up on big datasets. Here, we mirror them in the toy dataset creation, so that the toy dataset is consistent with the default config's `train_bake` list.
+# every epoch, which is a large speed-up on big datasets. 
+#Here, we mirror them in the toy dataset creation, so that the toy dataset is consistent with the default config's `train_bake` list.
 # creation.
 
-TOY_CLASSIFICATION_PREPROCESSING_DICT = {3: 5, 4: 5, 0: 1, 66: 65, 67: 1, 100: 1, 101: 1}
+# Reuse the classification mappings from the dataset_description
+# config instead of duplicating them here, so the toy dataset stays consistent with the
+# production dataset config.
 
-TOY_CLASSIFICATION_DICT = {
-    1: "unclassified",
-    2: "ground",
-    5: "vegetation",
-    6: "building",
-    9: "water",
-    17: "bridge",
-    64: "lasting_above",
-}
+_DATASET_DESCRIPTION_PATH = osp.join(
+    osp.dirname(osp.dirname(osp.dirname(osp.dirname(__file__)))),
+    "configs",
+    "dataset_description",
+    "20260703_lidarhd_pacasam_dataset.yaml",
+)
+_DATASET_DESCRIPTION = OmegaConf.load(_DATASET_DESCRIPTION_PATH)
+
+TOY_CLASSIFICATION_PREPROCESSING_DICT = OmegaConf.to_container(
+    _DATASET_DESCRIPTION.classification_preprocessing_dict
+)
+
+TOY_CLASSIFICATION_DICT = OmegaConf.to_container(
+    _DATASET_DESCRIPTION.classification_dict
+)
 
 
 def make_toy_dataset_from_test_file():

@@ -5,11 +5,13 @@ from torch import nn
 
 
 class CombinedLoss(nn.Module):
-    """Weighted sum of several loss functions.
+    """
+    Weighted sum of several loss functions.
 
     Each sub-loss is called as ``loss(logits, targets)`` and the results are
     combined as ``sum(weight_i * loss_i)``. This allows, for instance, to train
     with a weighted cross-entropy loss and a Lovász loss at the same time.
+
     """
 
     def __init__(self, losses: List[nn.Module], weights: Optional[List[float]] = None):

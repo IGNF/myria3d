@@ -11,24 +11,30 @@ relative_output_dir = "tmp"
 # to use for the externalized-embeddings prediction test. Adjust these to point at your
 # externalized-embeddings assets.
 EXTERNAL_EMBEDDINGS_CONFIG_DIR = "trained_model_assets"
-EXTERNAL_EMBEDDINGS_CONFIG_NAME = "Myria3d_3.9.2_100mx100m_config_point_budget_120k.yaml"
+EXTERNAL_EMBEDDINGS_CONFIG_NAME = "Myria3d_3.10.0_100mx100m_config_point_budget_120k.yaml"
 EXTERNAL_EMBEDDINGS_CKPT_PATH = "trained_model_assets/LargeDataset_100K_100MPatch_LargeRandlanet_epoch_072.ckpt"
 
-@pytest.mark.parametrize(
-    "test_case, specific_args",
-    [
+def _predict_test_cases(batch_size: int = 10):
+    """Shared (test_case, specific_args) parametrization for the predict tests.
+
+    Args:
+        batch_size: batch size used in the ``with_overlap`` case.
+    """
+    return [
         ("default", []),
         (
             "with_overlap",
             [
                 "predict.subtile_overlap=25",
-                "datamodule.batch_size=10",
+                f"datamodule.batch_size={batch_size}",
                 "predict.interpolator.probas_to_save=[building,ground]",
                 "task.task_name=predict",
             ],
         ),
-    ],
-)
+    ]
+
+
+@pytest.mark.parametrize("test_case, specific_args", _predict_test_cases())
 def test_run_predict(monkeypatch, test_case, specific_args):
     """Test run.py execution when __name__ == "__main__" with mocked command line input."""
     test_args = [
@@ -41,21 +47,8 @@ def test_run_predict(monkeypatch, test_case, specific_args):
     runpy.run_module("run", run_name="__main__", alter_sys=True)
     assert Path(f"{relative_output_dir}/{test_case}/792000_6272000_subset_buildings.laz").is_file()
 
-@pytest.mark.parametrize(
-    "test_case, specific_args",
-    [
-        ("default", []),
-        (
-            "with_overlap",
-            [
-                "predict.subtile_overlap=25",
-                "datamodule.batch_size=4",
-                "predict.interpolator.probas_to_save=[building,ground]",
-                "task.task_name=predict",
-            ],
-        ),
-    ],
-)
+
+@pytest.mark.parametrize("test_case, specific_args", _predict_test_cases(batch_size=4))
 def test_run_predict_externalized_embeddings_with_tile_size(monkeypatch, test_case, specific_args):
     """Test run.py execution when __name__ == "__main__" with mocked command line input."""
     test_args = [
