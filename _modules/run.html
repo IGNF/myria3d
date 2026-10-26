@@ -120,7 +120,9 @@
     <span class="n">src_las_iterable</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">src_las</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">config</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">src_las</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">src_las_iterable</span><span class="p">):</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">check_pdal_can_open_file_with_retry</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">check_pdal_can_open_file_with_retry</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to open output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
