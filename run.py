@@ -79,7 +79,9 @@ def launch_predict(config: DictConfig):
     src_las_iterable = glob(config.predict.src_las)
     for config.predict.src_las in tqdm(src_las_iterable):
         output_path = predict(config)
-        check_pdal_can_open_file_with_retry(output_path, delay=10)
+        success = check_pdal_can_open_file_with_retry(output_path, delay=10)
+        if not success:
+            raise RuntimeError(f"Failed to open output file: {output_path}")
 
 
 @hydra.main(config_path="configs/", config_name="config.yaml", version_base="1.1")
