@@ -7,9 +7,12 @@ import pytest
 pytestmark = pytest.mark.functional
 relative_output_dir = "tmp"
 
+# Default config points to previous model checkpoint 
+
 # Specific Hydra config (directory + name, without the ".yaml" extension) and checkpoint
 # to use for the externalized-embeddings prediction test. Adjust these to point at your
 # externalized-embeddings assets.
+
 EXTERNAL_EMBEDDINGS_CONFIG_DIR = "trained_model_assets"
 EXTERNAL_EMBEDDINGS_CONFIG_NAME = "Myria3d_3.10.0_100mx100m_config_point_budget_120k.yaml"
 EXTERNAL_EMBEDDINGS_CKPT_PATH = "trained_model_assets/LargeDataset_100K_100MPatch_LargeRandlanet_epoch_072.ckpt"

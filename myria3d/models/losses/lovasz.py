@@ -28,24 +28,14 @@ def _lovasz_grad(gt_sorted):
     return jaccard
 
 
-def _lovasz_hinge(logits, labels, per_sample=True, ignore=None):
+def _lovasz_hinge(logits, labels, ignore=None):
     """
     Binary Lovasz hinge loss
         logits: [B, H, W] Logits at each pixel (between -infinity and +infinity)
         labels: [B, H, W] Tensor, binary ground truth masks (0 or 1)
-        per_sample: compute the loss per sample instead of per batch
         ignore: void class id
     """
-    if per_sample:
-        loss = mean(
-            _lovasz_hinge_flat(
-                *_flatten_binary_scores(log.unsqueeze(0), lab.unsqueeze(0), ignore)
-            )
-            for log, lab in zip(logits, labels)
-        )
-    else:
-        loss = _lovasz_hinge_flat(*_flatten_binary_scores(logits, labels, ignore))
-    return loss
+    return _lovasz_hinge_flat(*_flatten_binary_scores(logits, labels, ignore))
 
 
 def _lovasz_hinge_flat(logits, labels):
@@ -82,48 +72,31 @@ def _flatten_binary_scores(scores, labels, ignore=None):
 
 
 def _lovasz_softmax(
-    probas, labels, classes="present", class_seen=None, per_sample=False, ignore=None
+    probas, labels, classes="present", class_seen=None, ignore=None
 ):
     """Computes the multi-class Lovasz-Softmax loss.
 
     Args:
-        probas: Class probabilities at each prediction (between 0 and 1), with
-            shape [B, C, H, W]. Interpreted as binary (sigmoid) output if the
-            shape is [B, H, W].
+        probas: Class probabilities at each prediction (between 0 and 1).
             Point cloud case: `probas` has shape [P, C], where P is the total
             number of points in the batch (all clouds flattened together) and
             C is the number of classes.
-        labels: Ground truth labels (between 0 and C - 1), with shape [B, H, W].
+        labels: Ground truth labels (between 0 and C - 1).
             Point cloud case: `labels` has shape [P] (one class id per point).
         classes: 'all' to average over all classes, 'present' to average only
             over classes present in `labels`, or a list of classes to average.
-        per_sample: If True, computes the loss per sample instead of per batch.
-            Point cloud case: keep False. The flat [P, C]/[P] layout has no
-            per-cloud dimension, so iterating here would wrongly split the loss
-            per individual point.
         ignore: Label value of the void class to ignore.
 
     Returns:
         The scalar Lovasz-Softmax loss.
     """
-    if per_sample:
-        # Image case only: iterate over the batch dimension (one image at a time).
-        loss = mean(
-            _lovasz_softmax_flat(
-                *_flatten_probas(prob.unsqueeze(0), lab.unsqueeze(0), ignore),
-                classes=classes
-            )
-            for prob, lab in zip(probas, labels)
-        )
-    else:
-        # Point cloud case: probas [P, C] and labels [P] go straight through
-        # (_flatten_probas is a no-op reshape for already-flat inputs).
-        loss = _lovasz_softmax_flat(
-            *_flatten_probas(probas, labels, ignore),
-            classes=classes,
-            class_seen=class_seen
-        )
-    return loss
+    # Point cloud case: probas [P, C] and labels [P] go straight through
+    # (_flatten_probas is a no-op reshape for already-flat inputs).
+    return _lovasz_softmax_flat(
+        *_flatten_probas(probas, labels, ignore),
+        classes=classes,
+        class_seen=class_seen
+    )
 
 
 def _lovasz_softmax_flat(probas, labels, classes="present", class_seen=None):
@@ -236,7 +209,6 @@ class LovaszLoss(_Loss):
         self,
         mode: str,
         class_seen: Optional[int] = None,
-        per_sample: bool = False,
         ignore_index: Optional[int] = None,
         loss_weight: float = 1.0,
     ):
@@ -245,7 +217,6 @@ class LovaszLoss(_Loss):
         Args:
             mode: Loss mode 'binary', 'multiclass' or 'multilabel'
             ignore_index: Label that indicates ignored pixels (does not contribute to loss)
-            per_sample: If True loss computed per each sample and then averaged, else computed per whole batch
         Shape
              - **y_pred** - torch.Tensor of shape (N, C, H, W)
              - **y_true** - torch.Tensor of shape (N, H, W) or (N, C, H, W)
@@ -257,22 +228,18 @@ class LovaszLoss(_Loss):
 
         self.mode = mode
         self.ignore_index = ignore_index
-        self.per_sample = per_sample
         self.class_seen = class_seen
         self.loss_weight = loss_weight
 
     def forward(self, y_pred, y_true):
         if self.mode in {BINARY_MODE, MULTILABEL_MODE}:
-            loss = _lovasz_hinge(
-                y_pred, y_true, per_sample=self.per_sample, ignore=self.ignore_index
-            )
+            loss = _lovasz_hinge(y_pred, y_true, ignore=self.ignore_index)
         elif self.mode == MULTICLASS_MODE:
             y_pred = y_pred.softmax(dim=1)
             loss = _lovasz_softmax(
                 y_pred,
                 y_true,
                 class_seen=self.class_seen,
-                per_sample=self.per_sample,
                 ignore=self.ignore_index,
             )
         else:
