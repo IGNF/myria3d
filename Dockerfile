@@ -10,7 +10,10 @@ COPY environment.yml environment.yml
 # installation similar to https://github.com/mamba-org/micromamba-docker/issues/356)
 USER root
 
-RUN micromamba env create -f /app/environment.yml
+RUN micromamba env create -f /app/environment.yml \
+        && micromamba clean -a -y \
+        && rm -rf /root/.cache /opt/conda/pkgs \
+        && find /opt/conda -name '__pycache__' -type d -prune -exec rm -rf {} +
 
 ENV PATH=$PATH:/opt/conda/envs/myria3d/bin/
 # Need to export this for torch_geometric to find where cuda is.
