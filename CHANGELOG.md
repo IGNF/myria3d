@@ -2,7 +2,7 @@
 ## 3.10.0
 - Add config to handle 100 m x 100 m patches
 
-- Add Focal and Lovasz Losses and config 
+- Add Focal and Lovasz Losses and config
 
 - Add preprocessing steps during hdf5 creation as they do not change at batch selection level (for example,GridSampling will always select the same points as it is deterministic)
 

@@ -5,7 +5,7 @@ Here are a few challenges relative to training 3D segmentation models for Aerial
 ## Model should be fast, performant, and practical
 
 **Situation**:
-- Since the seminal PointNet architecture [[Qi 2016](https://arxiv.org/abs/1612.00593)] and the later [[PointNet++](https://arxiv.org/abs/1706.02413)], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion. 
+- Since the seminal PointNet architecture [[Qi 2016](https://arxiv.org/abs/1612.00593)] and the later [[PointNet++](https://arxiv.org/abs/1706.02413)], there were many attempts to improve these architecture which operate direcly on point clouds in a hierarchical fashion.
 - Our main requirements are:
   1) Speed of inference, in order to operate at a national scale.
   2) performances in large-scale outdoor Lidar settings, on e.g. [SemanticKITTI](http://semantic-kitti.org/) and [Semantic 3D](http://semantic3d.net/) benchmarks, by opposition to e.g. the [S3DIS](https://ieeexplore.ieee.org/document/7780539/) benchmark.
@@ -13,9 +13,9 @@ Here are a few challenges relative to training 3D segmentation models for Aerial
   4) Conceptual simplicity - following a simple hierarchical structure was preferred to more complex architectures.
 
 **Strategy**:
-- We focused on the RandLA-Net architecture [Hu 2020](https://arxiv.org/abs/1911.11236). 
-    - It was specifically conceived by authors with requirements (1) and (2) in mind. 
-    - It meets requirement (2), by setting SOTA results on both Semantic3D and SemanticKITTI datasets. In particular, it takes the first place from the KPConv architecture by [Thomas et al. 2019](https://arxiv.org/abs/1904.08889) on Semantic3D, and is in particular superior on class `buildings`, meeting requirement (3). 
+- We focused on the RandLA-Net architecture [Hu 2020](https://arxiv.org/abs/1911.11236).
+    - It was specifically conceived by authors with requirements (1) and (2) in mind.
+    - It meets requirement (2), by setting SOTA results on both Semantic3D and SemanticKITTI datasets. In particular, it takes the first place from the KPConv architecture by [Thomas et al. 2019](https://arxiv.org/abs/1904.08889) on Semantic3D, and is in particular superior on class `buildings`, meeting requirement (3).
     - The official RandLA-Net implementation is ~4 times faster than KPConv on SemanticKITTI, meeting requirement (1).
     - It is conceptually simple, basically a PointNet++ like encoder-decoder architecture, with random samplings and explicit encoding of local geometric structures.
 

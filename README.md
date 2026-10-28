@@ -20,12 +20,12 @@ Myria3D is a deep learning library designed with a focused scope: the multiclass
 The library implements the training of 3D Segmentation neural networks, with optimized data-processing and evaluation logics at fit time. Inference on unseen, large scale point cloud is also supported.
 It allows for the evaluation of single-class IoU on the full point cloud, which results in reliable model evaluation.
 
-Myria3D is built upon [PyTorch](https://pytorch.org/). It keeps the standard data format 
-from [Pytorch-Geometric](https://pytorch-geometric.readthedocs.io/). 
+Myria3D is built upon [PyTorch](https://pytorch.org/). It keeps the standard data format
+from [Pytorch-Geometric](https://pytorch-geometric.readthedocs.io/).
 Its structure was bootstraped from [this code template](https://github.com/ashleve/lightning-hydra-template),
 which heavily relies on [Hydra](https://hydra.cc/) and [Pytorch-Lightning](https://github.com/PyTorchLightning/pytorch-lightning) to enable flexible and rapid iterations of deep learning experiments.
 
-Although the library can be extended with new neural network architectures or new data signatures, it makes some opiniated choices in terms of neural network architecture, data processing logics, and inference logic. Indeed, it is initially built with the [French "Lidar HD" project](https://geoservices.ign.fr/lidarhd) in mind, with the ambition to map France in 3D with 10 pulse/m² aerial Lidar by 2025. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others. 
+Although the library can be extended with new neural network architectures or new data signatures, it makes some opiniated choices in terms of neural network architecture, data processing logics, and inference logic. Indeed, it is initially built with the [French "Lidar HD" project](https://geoservices.ign.fr/lidarhd) in mind, with the ambition to map France in 3D with 10 pulse/m² aerial Lidar by 2025. The data will be openly available, including a semantic segmentation with a minimal number of classes: ground, vegetation, buildings, vehicles, bridges, others.
 
 > &rarr; For installation and usage, please refer to [**Documentation**](https://ignf.github.io/myria3d/).
 

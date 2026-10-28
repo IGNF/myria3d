@@ -1,10 +1,11 @@
-# File copied from https://github.com/prs-eth/LitePT/blob/main/models/losses/lovasz.py 
+# File copied from https://github.com/prs-eth/LitePT/blob/main/models/losses/lovasz.py
 # and modified for lidar point cloud semantic segmentation.
 
 # Paper: https://arxiv.org/pdf/1705.08790.pdf
 
-from typing import Optional
 from itertools import filterfalse
+from typing import Optional
+
 import torch
 import torch.nn.functional as F
 from torch.nn.modules.loss import _Loss
@@ -71,9 +72,7 @@ def _flatten_binary_scores(scores, labels, ignore=None):
     return vscores, vlabels
 
 
-def _lovasz_softmax(
-    probas, labels, classes="present", class_seen=None, ignore=None
-):
+def _lovasz_softmax(probas, labels, classes="present", class_seen=None, ignore=None):
     """Computes the multi-class Lovasz-Softmax loss.
 
     Args:
@@ -93,9 +92,7 @@ def _lovasz_softmax(
     # Point cloud case: probas [P, C] and labels [P] go straight through
     # (_flatten_probas is a no-op reshape for already-flat inputs).
     return _lovasz_softmax_flat(
-        *_flatten_probas(probas, labels, ignore),
-        classes=classes,
-        class_seen=class_seen
+        *_flatten_probas(probas, labels, ignore), classes=classes, class_seen=class_seen
     )
 
 
@@ -108,7 +105,7 @@ def _lovasz_softmax_flat(probas, labels, classes="present", class_seen=None):
         labels: Ground truth labels (between 0 and C - 1), with shape [P].
         classes: 'all' to average over all classes, 'present' to average only
             over classes present in `labels`, or a list of classes to average.
-        class_seen: Optional list of classes for which the loss should be computed. 
+        class_seen: Optional list of classes for which the loss should be computed.
         If None, all classes are considered.
 
     Returns:

@@ -57,4 +57,3 @@ myria3d.pctl.transforms.transforms
 
 .. automodule:: myria3d.pctl.transforms.transforms
    :members:
-

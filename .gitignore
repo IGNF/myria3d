@@ -12,6 +12,10 @@ tmp/
 tests/data/toy_dataset.hdf5
 
 
+# new trained model and config
+trained_model_assets/LargeDataset-LidarHD-100mPatch_7cl_randlanet-Epoch_072.ckpt
+trained_model_assets/LargeDataset-LidarHD-100mPatch_7cl_randlanet-Epoch_072-inference-Myria3DV3.10.0.yaml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

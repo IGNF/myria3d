@@ -7,7 +7,7 @@ import pytest
 pytestmark = pytest.mark.functional
 relative_output_dir = "tmp"
 
-# Default config points to previous model checkpoint 
+# Default config points to previous model checkpoint
 
 # Specific Hydra config (directory + name, without the ".yaml" extension) and checkpoint
 # to use for the externalized-embeddings prediction test. Adjust these to point at your
@@ -15,28 +15,28 @@ relative_output_dir = "tmp"
 EXTERNAL_EMBEDDINGS_CONFIG_DIR = "trained_model_assets"
 
 
-# add a method that matches ckpt with config file and returns a list of tuples with 
+# add a method that matches ckpt with config file and returns a list of tuples with
 # (config_file, ckpt_file) for each model in the trained_model_assets directory
 def get_model_assets():
     """
-        Returns a list of tuples with (config_file, ckpt_file) for each model 
-        in the trained_model_assets directory.
+    Returns a list of tuples with (config_file, ckpt_file) for each model
+    in the trained_model_assets directory.
     """
     model_assets = []
     for ckpt_file in Path(EXTERNAL_EMBEDDINGS_CONFIG_DIR).glob("*.ckpt"):
         # try to find yaml with ckpt prefix and -inference-Myria3DV*.yaml suffix using glob
-        config_file = list(Path(EXTERNAL_EMBEDDINGS_CONFIG_DIR).glob(ckpt_file.stem + "-inference-Myria3DV*.yaml"))
+        config_file = list(
+            Path(EXTERNAL_EMBEDDINGS_CONFIG_DIR).glob(ckpt_file.stem + "-inference-Myria3DV*.yaml")
+        )
         if config_file:
-            # read config file and get subtile_width value from config file
-            with open(config_file[0], "r") as f:
-                model_assets.append((config_file[0], ckpt_file))
+            model_assets.append((config_file[0], ckpt_file))
         else:
             raise ValueError(f"No config file found for checkpoint {ckpt_file}")
     return model_assets
 
+
 def _predict_test_cases():
-    """Shared (test_case, specific_args) parametrization for the predict tests.
-    """
+    """Shared (test_case, specific_args) parametrization for the predict tests."""
     return [
         ("default", []),
         (
@@ -64,13 +64,12 @@ def test_run_predict(monkeypatch, test_case, specific_args):
     assert Path(f"{relative_output_dir}/{test_case}/792000_6272000_subset_buildings.laz").is_file()
 
 
-
 EXTERNAL_EMBEDDINGS_AVAILABLE = len(get_model_assets()) > 0
 
 
 def _all_predict_cases():
     if not EXTERNAL_EMBEDDINGS_AVAILABLE:
-        return 
+        return
     else:
         for config_file, ckpt_file in get_model_assets():
             for test_case, specific_args in _predict_test_cases():
@@ -81,7 +80,6 @@ def _all_predict_cases():
                     specific_args,
                     id=f"{config_file.stem}-{test_case}",
                 )
-
 
 
 @pytest.mark.skipif(

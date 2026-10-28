@@ -1,6 +1,6 @@
-src_las: "/path/to/input.las"  # Any glob pattern can be used to predict on multiple files.
-output_dir: "/path/to/output_dir/"  # Predictions are saved in a new file which shares src_las basename.
-ckpt_path: "/path/to/lightning_model.ckpt"  # Checkpoint of trained model.
+src_las: "/path/to/input.las" # Any glob pattern can be used to predict on multiple files.
+output_dir: "/path/to/output_dir/" # Predictions are saved in a new file which shares src_las basename.
+ckpt_path: "/path/to/lightning_model.ckpt" # Checkpoint of trained model.
 gpus: 0
 
 # Probas interpolation parameters
@@ -22,7 +22,7 @@ interpolator:
   # In addition, these dimensions will be created
   # - Predicted classification based on argmax, with classes specified by dataset_description class dictionary.
   #   Defaut name: `PredictedClassification`. Can be set to Classification to override its values.
-  # - Shannon entropy of predicted probabilities 
+  # - Shannon entropy of predicted probabilities
   #   Defaut name: `entropy`
   # Set to `null` to disable saving these values.
   predicted_classification_channel: PredictedClassification

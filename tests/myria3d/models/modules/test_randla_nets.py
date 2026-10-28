@@ -5,7 +5,6 @@ from torch_geometric.data import Batch, Data
 from myria3d.models.modules.pyg_randla_net import PyGRandLANet
 
 
-
 @pytest.mark.parametrize("num_nodes", [[12500, 12500], [50, 50], [12500, 10000]])
 def test_fake_run_pyg_randlanet(num_nodes):
     """Documents expected data format and make a forward pass with PyG RandLa-Net.
@@ -72,7 +71,7 @@ def test_fake_run_pyg_randlanet_with_externalized_embeddings(num_nodes):
         num_classes,
         decimation=decimation,
         num_neighbors=num_neighbors,
-        dims=[48,192,384,768],
+        dims=[48, 192, 384, 768],
     )
     output = model(data.x, data.pos, data.batch, data.ptr)
     assert output.shape == torch.Size([sum(num_nodes), num_classes])

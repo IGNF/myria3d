@@ -256,10 +256,11 @@ def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
     )
 
 
-
-# model with externalized embeddings 
+# model with externalized embeddings
 @RunIf(min_gpus=1)
-def test_FrenchLidar_RandLaNetDebug_externalized_embeddings_with_gpu(toy_dataset_hdf5_path, tmpdir_factory):
+def test_FrenchLidar_RandLaNetDebug_externalized_embeddings_with_gpu(
+    toy_dataset_hdf5_path, tmpdir_factory
+):
     """Train a RandLaNet model for one epoch using GPU. XFail is no GPU available.
 
     Args:
@@ -285,7 +286,11 @@ def test_FrenchLidar_RandLaNetDebug_externalized_embeddings_with_gpu(toy_dataset
 
 
 def _run_test_right_after_training(
-    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, accelerator, embeddings_size=None
+    one_epoch_trained_RandLaNet_checkpoint,
+    toy_dataset_hdf5_path,
+    tmpdir,
+    accelerator,
+    embeddings_size=None,
 ):
     """Run test using the model that was just trained for one epoch.
 

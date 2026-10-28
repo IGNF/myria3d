@@ -29,7 +29,6 @@ def test_model_get_batch_tensor_by_enumeration():
         _ = model._get_batch_tensor_by_enumeration(batch.idx_in_original_cloud)
 
 
-
 def test_model_external_embeddings_get_batch_tensor_by_enumeration():
     config = make_default_hydra_cfg(
         overrides=[

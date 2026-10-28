@@ -21,4 +21,3 @@ datamodule:
   num_workers: 1
   # runtime.cwd is where application is run from e.g. where run.py is.
   hdf5_file_path: "${hydra:runtime.cwd}/tests/data/toy_dataset.hdf5"
-

@@ -1,7 +1,7 @@
 _target_: functools.partial
-_args_: 
+_args_:
   - ${get_method:torch.optim.lr_scheduler.OneCycleLR}
-max_lr: ${model.lr}  # peak LR (required); total_steps is computed automatically in model.py
-div_factor: 10  # initial_lr = max_lr / div_factor
-final_div_factor: 1000  # min_lr = initial_lr / final_div_factor (large = annihilation)
-pct_start: 0.05  # fraction of steps spent warming up
+max_lr: ${model.lr} # peak LR (required); total_steps is computed automatically in model.py
+div_factor: 10 # initial_lr = max_lr / div_factor
+final_div_factor: 1000 # min_lr = initial_lr / final_div_factor (large = annihilation)
+pct_start: 0.05 # fraction of steps spent warming up

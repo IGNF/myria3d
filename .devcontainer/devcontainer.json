@@ -12,5 +12,3 @@
   "runArgs": ["--gpus", "all", "--shm-size=8g"],
   "remoteUser": "root"
 }
-
-  

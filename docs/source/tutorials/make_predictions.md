@@ -11,7 +11,7 @@ To run inference, you will need:
 
 ## Run inference from source
 
-Then, fill out the {missing parameters} below and run: 
+Then, fill out the {missing parameters} below and run:
 
 ```bash
 python run.py \
@@ -28,7 +28,7 @@ To show you current inference config, simply add a `--help` flag:
 python run.py task.task_name=predict --help
 ```
 
-Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multiple_files/*.las`), in order to **predict on multiple files successively**.  
+Note that `predict.src_las` may be any valid glob pattern (e.g. `/path/to/multiple_files/*.las`), in order to **predict on multiple files successively**.
 If the lidar file doesn't specify an EPSG in its meatadata, it HAS TO BE be specified with `datamodule.epsg=...`
 
 ## Run inference from sources
@@ -41,9 +41,9 @@ Up to date docker images (named `myria3d`) are created via Github integration ac
 
 A docker image encapsulating the virtual environment and application sources can also be built using the provided Dockerfile. At built time, the Dockerfile is not standalone and should be part of the repository - whose content is copied into the image - at the github reference you want to build from.
 
-To run inference: 
+To run inference:
 - Mount the needed volumes with the `-v` option.
-- Always set `--ipc=host` to allow multithreading (used in pytorch dataloader, as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images)). 
+- Always set `--ipc=host` to allow multithreading (used in pytorch dataloader, as mentionned in [Pytorch's README](https://github.com/pytorch/pytorch#using-pre-built-images)).
 - Increase the shared memory with `--shm-size=2gb` (which should be enough for 1km*1km point French "Lidar HD" clouds).
 - Set `--gpus=all` to make gpus visible to the container if available.
 

@@ -20,10 +20,10 @@ from pytorch_lightning import (
     seed_everything,
 )
 from pytorch_lightning.loggers.logger import Logger
+from run import TASK_NAMES
 
 from myria3d.models.model import Model
 from myria3d.utils import utils
-from run import TASK_NAMES
 
 log = utils.get_logger(__name__)
 

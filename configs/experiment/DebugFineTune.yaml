@@ -25,4 +25,4 @@ callbacks:
     unfreeze_decoder_train_epoch: 3
 
 model:
-    lr_scheduler: null
+  lr_scheduler: null

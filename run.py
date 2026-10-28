@@ -21,7 +21,6 @@ from myria3d.pctl.dataset.utils import get_las_paths_by_split_dict
 from myria3d.pctl.transforms.compose import CustomCompose
 from myria3d.utils import utils
 
-
 TASK_NAME_DETECTION_STRING = "task.task_name="
 DEFAULT_DIRECTORY = "trained_model_assets/"
 DEFAULT_CONFIG_FILE = "FRACTAL-LidarHD_7cl_randlanet-inference-Myria3DV3.8.yaml"

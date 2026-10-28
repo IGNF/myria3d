@@ -1,21 +1,21 @@
 _target_: myria3d.models.model.Model
 
 ## Inputs and outputs
-d_in: ${dataset_description.d_in}  # XYZ (3) + Other features (N)
+d_in: ${dataset_description.d_in} # XYZ (3) + Other features (N)
 num_classes: ${dataset_description.num_classes}
 classification_dict: ${dataset_description.classification_dict}
 
 # Architecture defined in sub-configs
-ckpt_path: null  # str, for resuming training and finetuning.
+ckpt_path: null # str, for resuming training and finetuning.
 neural_net_class_name: ???
 neural_net_hparams: ???
 
 # Interpolation params
-interpolation_k: ${predict.interpolator.interpolation_k}  # interpolation at eval time
-num_workers: 4  # for knn_interpolate
+interpolation_k: ${predict.interpolator.interpolation_k} # interpolation at eval time
+num_workers: 4 # for knn_interpolate
 
 ## Optimization
-momentum: 0.9  # arbitrary
+momentum: 0.9 # arbitrary
 monitor: "val/loss_epoch"
 
 defaults:
