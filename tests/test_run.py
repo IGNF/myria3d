@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 import pytest
-import yaml
 
 pytestmark = pytest.mark.functional
 relative_output_dir = "tmp"
