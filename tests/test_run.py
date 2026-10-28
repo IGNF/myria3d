@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 pytestmark = pytest.mark.functional
 relative_output_dir = "tmp"
@@ -12,17 +13,34 @@ relative_output_dir = "tmp"
 # Specific Hydra config (directory + name, without the ".yaml" extension) and checkpoint
 # to use for the externalized-embeddings prediction test. Adjust these to point at your
 # externalized-embeddings assets.
-
 EXTERNAL_EMBEDDINGS_CONFIG_DIR = "trained_model_assets"
-EXTERNAL_EMBEDDINGS_CONFIG_NAME = "Myria3d_3.10.0_100mx100m_config_point_budget_120k.yaml"
-EXTERNAL_EMBEDDINGS_CKPT_PATH = "trained_model_assets/LargeDataset_100K_100MPatch_LargeRandlanet_epoch_072.ckpt"
 
-# The externalized-embeddings model is not published to the repository, so its
-# assets are absent in CI. Skip the related test when they cannot be found.
-EXTERNAL_EMBEDDINGS_AVAILABLE = (
-    Path(EXTERNAL_EMBEDDINGS_CONFIG_DIR, EXTERNAL_EMBEDDINGS_CONFIG_NAME).is_file()
-    and Path(EXTERNAL_EMBEDDINGS_CKPT_PATH).is_file()
-)
+# DICT of batch size given subtile_width for externalized-embeddings model.
+# Adjust these to match your externalized-embeddings assets.
+EMBEDDINGS_BATCH_SIZE_DICT_WRT_SUBTILE_WIDTH = {
+    100: 4, 
+    50: 10,
+}
+
+# add a method that matches ckpt with config file and returns a list of tuples with 
+# (config_file, ckpt_file, batch_size) for each model in the trained_model_assets directory
+def get_model_assets():
+    """
+        Returns a list of tuples with (config_file, ckpt_file, batch_size) for each model 
+        in the trained_model_assets directory.
+    """
+    model_assets = []
+    for ckpt_file in Path(EXTERNAL_EMBEDDINGS_CONFIG_DIR).glob("*.ckpt"):
+        # try to find yaml with ckpt prefix and -inference-Myria3DV*.yaml suffix using glob
+        config_file = list(Path(EXTERNAL_EMBEDDINGS_CONFIG_DIR).glob(ckpt_file.stem + "-inference-Myria3DV*.yaml"))
+        if config_file:
+            # read config file and get subtile_width value from config file
+            with open(config_file[0], "r") as f:
+                config_content = yaml.safe_load(f)
+                subtile_width = config_content["datamodule"]["subtile_width"]
+                batch_size = EMBEDDINGS_BATCH_SIZE_DICT_WRT_SUBTILE_WIDTH.get(subtile_width, 1)
+                model_assets.append((config_file[0], ckpt_file, batch_size))
+    return model_assets
 
 def _predict_test_cases(batch_size: int = 10):
     """Shared (test_case, specific_args) parametrization for the predict tests.
@@ -58,23 +76,47 @@ def test_run_predict(monkeypatch, test_case, specific_args):
     assert Path(f"{relative_output_dir}/{test_case}/792000_6272000_subset_buildings.laz").is_file()
 
 
+
+EXTERNAL_EMBEDDINGS_AVAILABLE = len(get_model_assets()) > 0
+
+
+def _all_predict_cases():
+    if not EXTERNAL_EMBEDDINGS_AVAILABLE:
+        return 
+    else:
+        for config_file, ckpt_file, batch_size in get_model_assets():
+            for test_case, specific_args in _predict_test_cases(batch_size=batch_size):
+                yield pytest.param(
+                    config_file,
+                    ckpt_file,
+                    test_case,
+                    specific_args,
+                    id=f"{config_file.stem}-{test_case}",
+                )
+
+
+
 @pytest.mark.skipif(
     not EXTERNAL_EMBEDDINGS_AVAILABLE,
     reason="Externalized-embeddings model assets are not available (not published to the repo).",
 )
-@pytest.mark.parametrize("test_case, specific_args", _predict_test_cases(batch_size=4))
-def test_run_predict_externalized_embeddings_with_tile_size(monkeypatch, test_case, specific_args):
+@pytest.mark.parametrize(
+    "config_file, ckpt_file, test_case, specific_args", list(_all_predict_cases())
+)
+def test_run_predict_externalized_embeddings_with_tile_size(
+    monkeypatch, config_file, ckpt_file, test_case, specific_args
+):
     """Test run.py execution when __name__ == "__main__" with mocked command line input."""
     test_args = [
         "run.py",
         # Hydra CLI flags selecting a specific config directory + name. These must come
         # before any key=value overrides.
         f"--config-dir={EXTERNAL_EMBEDDINGS_CONFIG_DIR}",
-        f"--config-name={EXTERNAL_EMBEDDINGS_CONFIG_NAME}",
-        "+model.neural_net_hparams.dims=[48,192,384,768]",
+        f"--config-name={config_file.stem}",  # config file name without the ".yaml" extension
+        #"+model.neural_net_hparams.dims=[48,192,384,768]", # dims in yaml config file, so no need to override here
         "predict.src_las=${hydra:runtime.cwd}/tests/data/las_subset_buildings/792000_6272000_subset_buildings.laz",
         "predict.output_dir=${hydra:runtime.cwd}" + f"/{relative_output_dir}/{test_case}",
-        f"predict.ckpt_path={EXTERNAL_EMBEDDINGS_CKPT_PATH}",
+        f"predict.ckpt_path={ckpt_file}",
         "task.task_name=predict",
     ] + specific_args
     monkeypatch.setattr(sys, "argv", test_args)
