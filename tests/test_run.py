@@ -30,7 +30,6 @@ def get_model_assets():
         if config_file:
             # read config file and get subtile_width value from config file
             with open(config_file[0], "r") as f:
-                config_content = yaml.safe_load(f)
                 model_assets.append((config_file[0], ckpt_file))
         else:
             raise ValueError(f"No config file found for checkpoint {ckpt_file}")
