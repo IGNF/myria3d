@@ -15,12 +15,6 @@ relative_output_dir = "tmp"
 # externalized-embeddings assets.
 EXTERNAL_EMBEDDINGS_CONFIG_DIR = "trained_model_assets"
 
-# DICT of batch size given subtile_width for externalized-embeddings model.
-# Adjust these to match your externalized-embeddings assets.
-EMBEDDINGS_BATCH_SIZE_DICT_WRT_SUBTILE_WIDTH = {
-    100: 4, 
-    50: 10,
-}
 
 # add a method that matches ckpt with config file and returns a list of tuples with 
 # (config_file, ckpt_file, batch_size) for each model in the trained_model_assets directory
@@ -37,8 +31,7 @@ def get_model_assets():
             # read config file and get subtile_width value from config file
             with open(config_file[0], "r") as f:
                 config_content = yaml.safe_load(f)
-                subtile_width = config_content["datamodule"]["subtile_width"]
-                batch_size = EMBEDDINGS_BATCH_SIZE_DICT_WRT_SUBTILE_WIDTH.get(subtile_width, 1)
+                batch_size = config_content["datamodule"]["batch_size"]
                 model_assets.append((config_file[0], ckpt_file, batch_size))
     return model_assets
 
