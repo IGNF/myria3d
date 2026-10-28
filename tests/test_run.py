@@ -17,10 +17,10 @@ EXTERNAL_EMBEDDINGS_CONFIG_DIR = "trained_model_assets"
 
 
 # add a method that matches ckpt with config file and returns a list of tuples with 
-# (config_file, ckpt_file, batch_size) for each model in the trained_model_assets directory
+# (config_file, ckpt_file) for each model in the trained_model_assets directory
 def get_model_assets():
     """
-        Returns a list of tuples with (config_file, ckpt_file, batch_size) for each model 
+        Returns a list of tuples with (config_file, ckpt_file) for each model 
         in the trained_model_assets directory.
     """
     model_assets = []
@@ -31,15 +31,11 @@ def get_model_assets():
             # read config file and get subtile_width value from config file
             with open(config_file[0], "r") as f:
                 config_content = yaml.safe_load(f)
-                batch_size = config_content["datamodule"]["batch_size"]
-                model_assets.append((config_file[0], ckpt_file, batch_size))
+                model_assets.append((config_file[0], ckpt_file))
     return model_assets
 
-def _predict_test_cases(batch_size: int = 10):
+def _predict_test_cases():
     """Shared (test_case, specific_args) parametrization for the predict tests.
-
-    Args:
-        batch_size: batch size used in the ``with_overlap`` case.
     """
     return [
         ("default", []),
@@ -47,7 +43,6 @@ def _predict_test_cases(batch_size: int = 10):
             "with_overlap",
             [
                 "predict.subtile_overlap=25",
-                f"datamodule.batch_size={batch_size}",
                 "predict.interpolator.probas_to_save=[building,ground]",
                 "task.task_name=predict",
             ],
@@ -77,8 +72,8 @@ def _all_predict_cases():
     if not EXTERNAL_EMBEDDINGS_AVAILABLE:
         return 
     else:
-        for config_file, ckpt_file, batch_size in get_model_assets():
-            for test_case, specific_args in _predict_test_cases(batch_size=batch_size):
+        for config_file, ckpt_file in get_model_assets():
+            for test_case, specific_args in _predict_test_cases():
                 yield pytest.param(
                     config_file,
                     ckpt_file,
@@ -105,8 +100,7 @@ def test_run_predict_externalized_embeddings_with_tile_size(
         # Hydra CLI flags selecting a specific config directory + name. These must come
         # before any key=value overrides.
         f"--config-dir={EXTERNAL_EMBEDDINGS_CONFIG_DIR}",
-        f"--config-name={config_file.stem}",  # config file name without the ".yaml" extension
-        #"+model.neural_net_hparams.dims=[48,192,384,768]", # dims in yaml config file, so no need to override here
+        f"--config-name={config_file.stem}",
         "predict.src_las=${hydra:runtime.cwd}/tests/data/las_subset_buildings/792000_6272000_subset_buildings.laz",
         "predict.output_dir=${hydra:runtime.cwd}" + f"/{relative_output_dir}/{test_case}",
         f"predict.ckpt_path={ckpt_file}",
