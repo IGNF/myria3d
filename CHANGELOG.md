@@ -2,6 +2,7 @@
 
 ### Not yet released
 - Check that las/laz output can be read by pdal when running prediction.
+- Clean mamba build to reduce Docker image size (14.6GB to 9.2GB)
 
 ### 3.9.1
 - Remove usage of self-hosted runner and adapt tests accordingly:
