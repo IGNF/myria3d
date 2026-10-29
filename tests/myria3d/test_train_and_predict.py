@@ -25,27 +25,70 @@ Sanity checks to make sure the model train/val/predict/test logics do not crash.
 """
 
 
-@pytest.fixture(scope="session")
-def one_epoch_trained_RandLaNet_checkpoint(toy_dataset_hdf5_path, tmpdir_factory):
-    """Train a RandLaNet model for one epoch, in order to run it in different other tests.
+# Embeddings dims variants exercised by the tests. `None` keeps the default RandLaNet
+# architecture; each list externalizes the embeddings sizes. This is the only parameter that
+# changes between the one-epoch-trained checkpoints below. Add as many variants as needed,
+# e.g. [None, [48, 192, 384, 768], [64, 256, 512, 1024], ...].
+EMBEDDINGS_DIMS = [None, [48, 192, 384, 768], [64, 256, 512, 1024]]
+
+
+def _dims_id(dims):
+    """Readable pytest id for an embeddings-dims variant (scales to any number of variants)."""
+    if dims is None:
+        return "default_embeddings"
+    return "embeddings_" + "_".join(str(d) for d in dims)
+
+
+def _dims_override(dims, prepend_plus: bool = False):
+    """Build the hydra override for the neural net embeddings dims.
 
     Args:
+        dims: embeddings dims (`None` -> default architecture, i.e. no override).
+        prepend_plus: use the `+` append syntax, needed when the key is not already part
+            of the composed config (e.g. for predict commands).
+
+    Returns:
+        list[str]: zero or one hydra override.
+    """
+    if dims is None:
+        return []
+    prefix = "+" if prepend_plus else ""
+    return [f"{prefix}model.neural_net_hparams.dims={dims}"]
+
+
+@pytest.fixture(
+    scope="session",
+    params=EMBEDDINGS_DIMS,
+    ids=_dims_id,
+)
+def one_epoch_trained_RandLaNet_checkpoint(request, toy_dataset_hdf5_path, tmpdir_factory):
+    """Train a RandLaNet model for one epoch, in order to run it in different other tests.
+
+    Parametrized over ``EMBEDDINGS_DIMS``: ``None`` trains the default architecture while a
+    list of dims trains a model with externalized embeddings. The matching ``dims`` value is
+    returned alongside the checkpoint path so tests can rebuild the right model when loading it
+    (otherwise the externalized-embeddings checkpoint would raise a state_dict size mismatch).
+
+    Args:
+        request (fixture): gives access to the parametrized ``dims`` via ``request.param``.
         toy_dataset_hdf5_path (str): path to toy dataset as created by fixture.
         tmpdir_factory (fixture): factory to create a session level tempdir.
 
     Returns:
-        str: path to trained model checkpoint, which persists for the whole pytest session.
+        Tuple[str, Optional[list]]: (checkpoint path, dims), where dims is None for the default
+        architecture. The checkpoint persists for the whole pytest session.
 
     """
+    dims = request.param
     tmpdir = tmpdir_factory.mktemp("training_logs_dir")
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
         toy_dataset_hdf5_path, tmpdir
     )
     cfg_one_epoch = make_default_hydra_cfg(
-        overrides=["experiment=RandLaNetDebug"] + tmp_paths_overrides
+        overrides=["experiment=RandLaNetDebug"] + _dims_override(dims) + tmp_paths_overrides
     )
     trainer = train(cfg_one_epoch)
-    return trainer.checkpoint_callback.best_model_path
+    return trainer.checkpoint_callback.best_model_path, dims
 
 
 @RunIf(min_gpus=1)
@@ -77,19 +120,21 @@ def test_predict_as_command(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     """Test running inference by CLI for toy LAS.
 
     Args:
-        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
-        a RandLa-Net model that was trained for once epoch at start of test session.
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> (str, dims)): checkpoint of a
+        RandLa-Net model trained for one epoch at start of test session, and its dims.
         tmpdir (fixture -> str): temporary directory.
 
     """
+    checkpoint, dims = one_epoch_trained_RandLaNet_checkpoint
     # Hydra changes CWD, and therefore absolute paths are preferred
     abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
     command = [
         "run.py",
-        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.ckpt_path={checkpoint}",
         f"datamodule.epsg={DEFAULT_EPSG}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
+        *_dims_override(dims, prepend_plus=True),
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]
@@ -104,19 +149,21 @@ def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     """Test running inference by CLI for toy LAS.
 
     Args:
-        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
-        a RandLa-Net model that was trained for once epoch at start of test session.
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> (str, dims)): checkpoint of a
+        RandLa-Net model trained for one epoch at start of test session, and its dims.
         tmpdir (fixture -> str): temporary directory.
 
     """
+    checkpoint, dims = one_epoch_trained_RandLaNet_checkpoint
     # Hydra changes CWD, and therefore absolute paths are preferred
     abs_path_to_toy_LAS = osp.abspath(TOY_LAS_DATA)
     command = [
         "run.py",
-        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.ckpt_path={checkpoint}",
         f"predict.src_las={abs_path_to_toy_LAS}",
         f"predict.output_dir={tmpdir}",
         "datamodule.epsg=null",
+        *_dims_override(dims, prepend_plus=True),
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]
@@ -128,14 +175,16 @@ def test_command_without_epsg(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
 
 def test_predict_on_single_point_cloud(one_epoch_trained_RandLaNet_checkpoint, tmpdir):
     """Test running inference by CLI for cloud with a single point (edge case addressed in V3.4.0)"""
+    checkpoint, dims = one_epoch_trained_RandLaNet_checkpoint
     # Hydra changes CWD, and therefore absolute paths are preferred
     abs_path_to_single_point_cloud = osp.abspath(SINGLE_POINT_CLOUD)
     command = [
         "run.py",
-        f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+        f"predict.ckpt_path={checkpoint}",
         f"datamodule.epsg={DEFAULT_EPSG}",
         f"predict.src_las={abs_path_to_single_point_cloud}",
         f"predict.output_dir={tmpdir}",
+        *_dims_override(dims, prepend_plus=True),
         "+predict.interpolator.probas_to_save=[building,unclassified]",
         "task.task_name=predict",
     ]
@@ -146,11 +195,12 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
     """Train a model for one epoch, and run test and predict functions using the trained model.
 
     Args:
-        one_epoch_trained_RandLaNet_checkpoint (fixture -> str): path to checkpoint of
-        a RandLa-Net model that was trained for once epoch at start of test session.
+        one_epoch_trained_RandLaNet_checkpoint (fixture -> (str, dims)): checkpoint of a
+        RandLa-Net model trained for one epoch at start of test session, and its dims.
         tmpdir (fixture -> str): temporary directory.
 
     """
+    checkpoint, dims = one_epoch_trained_RandLaNet_checkpoint
     tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
         "placeholder_because_no_need_for_a_dataset_here", tmpdir
     )
@@ -158,10 +208,11 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
     cfg_predict_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=predict",
-            f"predict.ckpt_path={one_epoch_trained_RandLaNet_checkpoint}",
+            f"predict.ckpt_path={checkpoint}",
             f"datamodule.epsg={DEFAULT_EPSG}",
             f"predict.src_las={TOY_LAS_DATA}",
             f"predict.output_dir={tmpdir}",
+            *_dims_override(dims, prepend_plus=True),
             # "+predict.interpolator.interpolation_k=predict.interpolation_k",
             "predict.interpolator.probas_to_save=[building,unclassified]",
         ]
@@ -189,8 +240,9 @@ def test_RandLaNet_predict_with_invariance_checks(one_epoch_trained_RandLaNet_ch
 def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
+    checkpoint, dims = one_epoch_trained_RandLaNet_checkpoint
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "cpu"
+        checkpoint, toy_dataset_hdf5_path, tmpdir, "cpu", embeddings_size=dims
     )
 
 
@@ -198,13 +250,47 @@ def test_run_test_with_trained_model_on_toy_dataset_on_cpu(
 def test_run_test_with_trained_model_on_toy_dataset_on_gpu(
     one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir
 ):
+    checkpoint, dims = one_epoch_trained_RandLaNet_checkpoint
     _run_test_right_after_training(
-        one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, "gpu"
+        checkpoint, toy_dataset_hdf5_path, tmpdir, "gpu", embeddings_size=dims
     )
 
 
+# model with externalized embeddings
+@RunIf(min_gpus=1)
+def test_FrenchLidar_RandLaNetDebug_externalized_embeddings_with_gpu(
+    toy_dataset_hdf5_path, tmpdir_factory
+):
+    """Train a RandLaNet model for one epoch using GPU. XFail is no GPU available.
+
+    Args:
+        toy_dataset_hdf5_path (str): path to isolated toy dataset as created by fixture.
+        tmpdir_factory (fixture): factory to create a session-level tempdir.
+
+    """
+    tmpdir = tmpdir_factory.mktemp("training_logs_dir")
+    tmp_paths_overrides = _make_list_of_necesary_hydra_overrides_with_tmp_paths(
+        toy_dataset_hdf5_path, tmpdir
+    )
+    gpu_id = find_usable_cuda_devices(1)
+    cfg_one_epoch = make_default_hydra_cfg(
+        overrides=[
+            "experiment=RandLaNetDebug",
+            "model.neural_net_hparams.dims=[48,192,384,768]",
+            "trainer.accelerator=gpu",
+            f"trainer.devices={gpu_id}",
+        ]
+        + tmp_paths_overrides
+    )
+    train(cfg_one_epoch)
+
+
 def _run_test_right_after_training(
-    one_epoch_trained_RandLaNet_checkpoint, toy_dataset_hdf5_path, tmpdir, accelerator
+    one_epoch_trained_RandLaNet_checkpoint,
+    toy_dataset_hdf5_path,
+    tmpdir,
+    accelerator,
+    embeddings_size=None,
 ):
     """Run test using the model that was just trained for one epoch.
 
@@ -222,6 +308,8 @@ def _run_test_right_after_training(
         toy_dataset_hdf5_path, tmpdir
     )
     devices = find_usable_cuda_devices(1) if accelerator == "gpu" else 1
+    additional_overrides = _dims_override(embeddings_size)
+
     cfg_test_using_trained_model = make_default_hydra_cfg(
         overrides=[
             "experiment=test",  # sets task.task_name to "test"
@@ -229,6 +317,7 @@ def _run_test_right_after_training(
             f"trainer.devices={devices}",
             f"trainer.accelerator={accelerator}",
         ]
+        + additional_overrides
         + tmp_paths_overrides
     )
     train(cfg_test_using_trained_model)

@@ -5,7 +5,6 @@ defaults:
   - override /model: pyg_randla_net_model.yaml
   - override /datamodule/transforms/augmentations: none.yaml
 
-
 logger:
   comet:
     experiment_name: "RandLaNet-Overfit"

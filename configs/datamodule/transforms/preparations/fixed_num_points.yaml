@@ -1,7 +1,10 @@
 # default preparations with grid sampling and random sampling.
 
-train:
-
+# Deterministic transforms baked into the HDF5 file once, at dataset-creation time,
+# for the TRAIN split only (applied in create_hdf5). They are therefore NOT recomputed
+# every epoch, which is a large speed-up on big datasets.
+# NB: regenerate the HDF5 file after changing this list.
+train_bake:
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
@@ -16,6 +19,7 @@ train:
     _args_:
       - 0.25
 
+train:
   FixedPoints:
     _target_: torch_geometric.transforms.FixedPoints
     _args_:
@@ -27,7 +31,6 @@ train:
     _target_: torch_geometric.transforms.Center
 
 eval:
-
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 
@@ -61,9 +64,8 @@ eval:
 
   Center:
     _target_: torch_geometric.transforms.Center
-  
-predict:
 
+predict:
   CopyFullPos:
     _target_: myria3d.pctl.transforms.transforms.CopyFullPos
 

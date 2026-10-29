@@ -1,5 +1,5 @@
-from typing import List
 import os
+from typing import List
 
 import pytest
 import sh
@@ -9,7 +9,7 @@ from pytorch_lightning import seed_everything
 from myria3d.pctl.dataset.toy_dataset import make_toy_dataset_from_test_file
 
 SINGLE_POINT_CLOUD = "tests/data/single-point-cloud.laz"
-DEFAULT_EPSG = '2154'
+DEFAULT_EPSG = "2154"
 
 
 @pytest.fixture(scope="session")

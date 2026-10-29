@@ -1,8 +1,8 @@
 import glob
 import json
-from pathlib import Path
 import subprocess as sp
 from numbers import Number
+from pathlib import Path
 from typing import Dict, List, Literal, Union
 
 import numpy as np
@@ -62,7 +62,7 @@ def pdal_read_las_array_as_float32(las_path: str, epsg: str):
 
 
 def get_metadata(las_path: str) -> dict:
-    """ returns metadata contained in a las file
+    """returns metadata contained in a las file
     Args:
         las_path (str): input LAS path to get metadata from.
     Returns:
@@ -83,7 +83,7 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
 
     """
 
-    if epsg :
+    if epsg:
         # if an epsg in provided, force pdal to read the lidar file with it
         # epsg can be added as a number like "2154" or as a string like "EPSG:2154"
         return pdal.Reader.las(
@@ -92,8 +92,8 @@ def get_pdal_reader(las_path: str, epsg: str) -> pdal.Reader.las:
             override_srs=f"EPSG:{epsg}" if str(epsg).isdigit() else epsg,
         )
 
-    try :
-        if get_metadata(las_path)['metadata']['readers.las']['srs']['compoundwkt']:
+    try:
+        if get_metadata(las_path)["metadata"]["readers.las"]["srs"]["compoundwkt"]:
             # read the lidar file with pdal default
             return pdal.Reader.las(filename=las_path)
     except Exception:

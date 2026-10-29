@@ -1,0 +1,8 @@
+# Same preparations as points_budget.yaml, but with a larger points budget suited
+# to 100m x 100m patches. It inherits everything from points_budget.yaml and only
+# overrides the single value that differs between the two: max_num_nodes.
+defaults:
+  - points_budget
+  - _self_
+
+max_num_nodes: 120000

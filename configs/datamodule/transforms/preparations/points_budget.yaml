@@ -1,7 +1,17 @@
 # default preparations with grid sampling and random sampling.
 
-train:
+# Maximum number of nodes (points) kept per subtile after sampling.
+# This is the ONLY value that differs between points budget variants, so it is
+# exposed here as a single parameter. Override it on the CLI with:
+#   datamodule.transforms.preparations.max_num_nodes=120000
+# or inherit this file and override just this value (see points_budget_patch_100mx100m.yaml).
+max_num_nodes: 40000
 
+# Deterministic transforms baked into the HDF5 file once, at dataset-creation time,
+# for the TRAIN split only (applied in create_hdf5). They are therefore NOT recomputed
+# every epoch, which is a large speed-up on big datasets.
+# NB: regenerate the HDF5 file after changing this list.
+train_bake:
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
@@ -15,7 +25,8 @@ train:
     _target_: torch_geometric.transforms.GridSampling
     _args_:
       - 0.25
-  
+
+train:
   MinimumNumNodes:
     _target_: myria3d.pctl.transforms.transforms.MinimumNumNodes
     _args_:
@@ -24,13 +35,12 @@ train:
   MaximumNumNodes:
     _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
     _args_:
-      - 40000
+      - ${datamodule.transforms.preparations.max_num_nodes}
 
   Center:
     _target_: torch_geometric.transforms.Center
 
 eval:
-
   TargetTransform:
     _target_: myria3d.pctl.transforms.transforms.TargetTransform
     _args_:
@@ -59,16 +69,15 @@ eval:
   MaximumNumNodes:
     _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
     _args_:
-      - 40000
+      - ${datamodule.transforms.preparations.max_num_nodes}
 
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos
 
   Center:
     _target_: torch_geometric.transforms.Center
-  
-predict:
 
+predict:
   DropPointsByClass:
     _target_: myria3d.pctl.transforms.transforms.DropPointsByClass
 
@@ -88,7 +97,7 @@ predict:
   MaximumNumNodes:
     _target_: myria3d.pctl.transforms.transforms.MaximumNumNodes
     _args_:
-      - 40000
+      - ${datamodule.transforms.preparations.max_num_nodes}
 
   CopySampledPos:
     _target_: myria3d.pctl.transforms.transforms.CopySampledPos

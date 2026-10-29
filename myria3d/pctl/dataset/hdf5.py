@@ -5,6 +5,7 @@ from numbers import Number
 from typing import Callable, List, Optional
 
 import h5py
+import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torch_geometric.data import Data
@@ -17,6 +18,7 @@ from myria3d.pctl.dataset.utils import (
     split_cloud_into_samples,
 )
 from myria3d.pctl.points_pre_transform.lidar_hd import lidar_hd_pre_transform
+from myria3d.pctl.transforms.transforms import ToTensor
 from myria3d.utils import utils
 
 log = utils.get_logger(__name__)
@@ -35,6 +37,7 @@ class HDF5Dataset(Dataset):
         subtile_width: Number = 50,
         subtile_overlap_train: Number = 0,
         pre_filter=pre_filter_below_n_points,
+        train_pre_transform: List[Callable] = None,
         train_transform: List[Callable] = None,
         eval_transform: List[Callable] = None,
     ):
@@ -49,6 +52,8 @@ class HDF5Dataset(Dataset):
             subtile_width (Number, optional): effective width of a subtile (i.e. receptive field). Defaults to 50.
             subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. Defaults to 0.
             pre_filter (_type_, optional): Function to filter out specific subtiles. Defaults to None.
+            train_pre_transform (List[Callable], optional): Deterministic transforms baked once into the HDF5 file
+                for the train split only (applied in create_hdf5). Defaults to None.
             train_transform (List[Callable], optional): Transforms to apply to a sample for training. Defaults to None.
             eval_transform (List[Callable], optional): Transforms to apply to a sample for evaluation (test/val sets). Defaults to None.
 
@@ -56,6 +61,7 @@ class HDF5Dataset(Dataset):
 
         self.points_pre_transform = points_pre_transform
         self.pre_filter = pre_filter
+        self.train_pre_transform = train_pre_transform
         self.train_transform = train_transform
         self.eval_transform = eval_transform
 
@@ -86,6 +92,7 @@ class HDF5Dataset(Dataset):
             pre_filter,
             subtile_overlap_train,
             points_pre_transform,
+            train_pre_transform,
         )
 
         # Use property once to be sure that samples are all indexed into the hdf5 file.
@@ -131,7 +138,9 @@ class HDF5Dataset(Dataset):
         return Data(
             x=torch.from_numpy(grp["x"][...]),
             pos=torch.from_numpy(grp["pos"][...]),
-            y=torch.from_numpy(grp["y"][...]),
+            # Force long targets: nll_loss/cross-entropy do not support Int targets,
+            # and baked HDF5 files may store y as int32.
+            y=torch.from_numpy(grp["y"][...]).long(),
             idx_in_original_cloud=grp["idx_in_original_cloud"][...],
             x_features_names=grp["x"].attrs["x_features_names"].tolist(),
             # num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.
@@ -203,6 +212,7 @@ def create_hdf5(
     pre_filter: Optional[Callable[[Data], bool]] = pre_filter_below_n_points,
     subtile_overlap_train: Number = 0,
     points_pre_transform: Callable = lidar_hd_pre_transform,
+    train_pre_transform: Optional[Callable[[Data], Data]] = None,
 ):
     """Create a HDF5 dataset file from las.
 
@@ -216,6 +226,9 @@ def create_hdf5(
         pre_filter: Function to filter out specific subtiles. "pre_filter_below_n_points" by default,
         subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. 0 by default,
         points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.
+        train_pre_transform (Callable, optional): Deterministic transforms baked once into the stored
+            data for the TRAIN split only (e.g. target mapping, class dropping, grid sampling), so that
+            they are not recomputed every epoch. None by default (no baking).
 
     """
     os.makedirs(os.path.dirname(hdf5_file_path), exist_ok=True)
@@ -257,6 +270,28 @@ def create_hdf5(
                     if pre_filter is not None and pre_filter(data):
                         # e.g. pre_filter spots situations where num_nodes is too small.
                         continue
+
+                    # Bake deterministic transforms (target mapping, class dropping, grid sampling)
+                    # into the stored train data so they are not recomputed every epoch.
+                    if split == "train" and train_pre_transform is not None:
+                        # points_pre_transform returns numpy-backed arrays; GridSampling and
+                        # DropPointsByClass operate on tensors, so convert first (this is normally
+                        # done at load time in _get_data, but the bake runs before storage).
+                        data = ToTensor()(data)
+                        data = train_pre_transform(data)
+                        if data is None or data.num_nodes == 0:
+                            continue
+                        if pre_filter is not None and pre_filter(data):
+                            continue
+                        # Back to numpy-backed arrays for storage in HDF5.
+                        data.x = data.x.numpy()
+                        data.pos = data.pos.numpy()
+                        data.y = data.y.numpy()
+                        # Grid sampling changes the number of points, so the original per-point
+                        # indices no longer apply. They are unused for training (no interpolation
+                        # back to the full cloud), so store a placeholder of the correct length.
+                        sample_idx = np.arange(data.num_nodes)
+
                     hdf5_path = os.path.join(split, basename, str(sample_number).zfill(5))
                     hd5f_path_x = os.path.join(hdf5_path, "x")
                     hdf5_file.create_dataset(
@@ -277,7 +312,9 @@ def create_hdf5(
                     hdf5_file.create_dataset(
                         os.path.join(hdf5_path, "y"),
                         data.y.shape,
-                        dtype="i",
+                        # int64 so that baked targets load as a torch.long tensor;
+                        # nll_loss/cross-entropy require Long targets (Int is unsupported).
+                        dtype="i8",
                         data=data.y,
                     )
                     hdf5_file.create_dataset(

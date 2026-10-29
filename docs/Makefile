@@ -20,6 +20,6 @@ help:
 
 # If you would regenerate all docs you could use the following,
 # which WILL ERASE MODIFIFCATIONs.
-# sphinx-apidoc -o "$(SOURCEDIR)"/apidoc_new/ ./../  
+# sphinx-apidoc -o "$(SOURCEDIR)"/apidoc_new/ ./../
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

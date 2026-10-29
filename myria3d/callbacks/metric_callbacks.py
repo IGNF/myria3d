@@ -1,6 +1,13 @@
-from pytorch_lightning import Callback
 import torch
-from torchmetrics import Accuracy, F1Score, JaccardIndex, Precision, Recall, ConfusionMatrix
+from pytorch_lightning import Callback
+from torchmetrics import (
+    Accuracy,
+    ConfusionMatrix,
+    F1Score,
+    JaccardIndex,
+    Precision,
+    Recall,
+)
 
 from myria3d.callbacks.comet_callbacks import log_comet_cm
 

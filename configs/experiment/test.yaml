@@ -15,10 +15,10 @@ datamodule:
   # override if needed
   # test_data_dir: "path/to_dir/with/annotated/files.las"
   # larger batch size for speed
-  batch_size: 50 
+  batch_size: 50
 
 model:
-  ckpt_path: "path/to/checkpoint"  # override
+  ckpt_path: "path/to/checkpoint" # override
 
 trainer:
   num_sanity_val_steps: 0

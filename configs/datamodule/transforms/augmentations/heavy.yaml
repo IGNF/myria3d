@@ -2,7 +2,6 @@
 defaults:
   - light.yaml
 
-
 # Rotation around axis - sample should be centered for this.
 RandomRotate:
   _target_: torch_geometric.transforms.RandomRotate

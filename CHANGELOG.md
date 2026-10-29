@@ -1,7 +1,15 @@
 # CHANGELOG
+## 3.10.0
+- Add config to handle 100 m x 100 m patches
 
-### Not yet released
+- Add Focal and Lovasz Losses and config
+
+- Add preprocessing steps during hdf5 creation as they do not change at batch selection level (for example,GridSampling will always select the same points as it is deterministic)
+
+- Add config parameters to set model size, i.e a larger model for a larger dataset
+
 - Check that las/laz output can be read by pdal when running prediction.
+
 - Clean mamba build to reduce Docker image size (14.6GB to 9.2GB)
 
 ### 3.9.1

@@ -1,5 +1,5 @@
 defaults:
-  - preparations: points_budget.yaml
+  - preparations: points_budget_patch_100mx100m.yaml
   - augmentations: none.yaml
   - normalizations: default.yaml
 
@@ -12,5 +12,8 @@ augmentations_list: "${oc.dict.values: datamodule.transforms.augmentations}"
 preparations_train_list: "${oc.dict.values: datamodule.transforms.preparations.train}"
 preparations_eval_list: "${oc.dict.values: datamodule.transforms.preparations.eval}"
 preparations_predict_list: "${oc.dict.values: datamodule.transforms.preparations.predict}"
+
+# Deterministic transforms applied once, at HDF5-creation time, for the TRAIN split only.
+preparations_train_bake_list: "${oc.dict.values: datamodule.transforms.preparations.train_bake}"
 
 normalizations_list: "${oc.dict.values: datamodule.transforms.normalizations}"
