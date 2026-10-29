@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>myria3d.pctl.dataset.toy_dataset &#8212; myria3d 3.9.1.test documentation</title>
+    <title>myria3d.pctl.dataset.toy_dataset &#8212; myria3d 3.10.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../../../_static/documentation_options.js?v=fcc865b9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f8d09eac"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -37,13 +37,45 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">omegaconf</span><span class="w"> </span><span class="kn">import</span> <span class="n">OmegaConf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch_geometric.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSampling</span>
+
 <span class="c1"># to use from CLI.</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))))</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.dataset.hdf5</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDF5Dataset</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.transforms.compose</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomCompose</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.transforms.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa</span>
+    <span class="n">DropPointsByClass</span><span class="p">,</span>
+    <span class="n">TargetTransform</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">TOY_EPSG</span> <span class="o">=</span> <span class="s2">"2154"</span>
 <span class="n">TOY_LAS_DATA</span> <span class="o">=</span> <span class="s2">"tests/data/toy_dataset_src/862000_6652000.classified_toy_dataset.100mx100m.las"</span>
 <span class="n">TOY_DATASET_HDF5_PATH</span> <span class="o">=</span> <span class="s2">"tests/data/toy_dataset.hdf5"</span>
+
+<span class="c1"># Deterministic transforms baked into the HDF5 file once, at dataset-creation time,</span>
+<span class="c1"># for the TRAIN split only (applied in create_hdf5). They are therefore NOT recomputed</span>
+<span class="c1"># every epoch, which is a large speed-up on big datasets.</span>
+<span class="c1"># Here, we mirror them in the toy dataset creation, so that the toy dataset is consistent with the default config's `train_bake` list.</span>
+<span class="c1"># creation.</span>
+
+<span class="c1"># Reuse the classification mappings from the dataset_description</span>
+<span class="c1"># config instead of duplicating them here, so the toy dataset stays consistent with the</span>
+<span class="c1"># production dataset config.</span>
+
+<span class="n">_DATASET_DESCRIPTION_PATH</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))),</span>
+    <span class="s2">"configs"</span><span class="p">,</span>
+    <span class="s2">"dataset_description"</span><span class="p">,</span>
+    <span class="s2">"20260703_lidarhd_pacasam_dataset.yaml"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_DATASET_DESCRIPTION</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">_DATASET_DESCRIPTION_PATH</span><span class="p">)</span>
+
+<span class="n">TOY_CLASSIFICATION_PREPROCESSING_DICT</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_container</span><span class="p">(</span>
+    <span class="n">_DATASET_DESCRIPTION</span><span class="o">.</span><span class="n">classification_preprocessing_dict</span>
+<span class="p">)</span>
+
+<span class="n">TOY_CLASSIFICATION_DICT</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_container</span><span class="p">(</span><span class="n">_DATASET_DESCRIPTION</span><span class="o">.</span><span class="n">classification_dict</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="make_toy_dataset_from_test_file">
@@ -69,7 +101,20 @@
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">TOY_DATASET_HDF5_PATH</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">TOY_DATASET_HDF5_PATH</span><span class="p">)</span>
 
-    <span class="c1"># TODO: update transforms ? or use a config ?</span>
+    <span class="c1"># Deterministic transforms baked into the train split, mirroring the default config's</span>
+    <span class="c1"># `train_bake` list. TargetTransform is required so that stored train targets are mapped</span>
+    <span class="c1"># to consecutive integers (0-(n-1)); this mapping is no longer applied at load time.</span>
+    <span class="n">train_pre_transform</span> <span class="o">=</span> <span class="n">CustomCompose</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">TargetTransform</span><span class="p">(</span>
+                <span class="n">TOY_CLASSIFICATION_PREPROCESSING_DICT</span><span class="p">,</span>
+                <span class="n">TOY_CLASSIFICATION_DICT</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">DropPointsByClass</span><span class="p">(),</span>
+            <span class="n">GridSampling</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
     <span class="n">HDF5Dataset</span><span class="p">(</span>
         <span class="n">TOY_DATASET_HDF5_PATH</span><span class="p">,</span>
         <span class="n">TOY_EPSG</span><span class="p">,</span>
@@ -80,6 +125,7 @@
         <span class="p">},</span>
         <span class="n">tile_width</span><span class="o">=</span><span class="mi">110</span><span class="p">,</span>
         <span class="n">subtile_width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">train_pre_transform</span><span class="o">=</span><span class="n">train_pre_transform</span><span class="p">,</span>
         <span class="n">train_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">eval_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">pre_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

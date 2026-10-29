@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>myria3d.pctl.dataset.hdf5 &#8212; myria3d 3.9.1.test documentation</title>
+    <title>myria3d.pctl.dataset.hdf5 &#8212; myria3d 3.10.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../../../_static/documentation_options.js?v=fcc865b9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f8d09eac"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -38,6 +38,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torch_geometric.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
@@ -50,6 +51,7 @@
     <span class="n">split_cloud_into_samples</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.points_pre_transform.lidar_hd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lidar_hd_pre_transform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.pctl.transforms.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToTensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">myria3d.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -70,6 +72,7 @@
         <span class="n">subtile_width</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
         <span class="n">subtile_overlap_train</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">pre_filter</span><span class="o">=</span><span class="n">pre_filter_below_n_points</span><span class="p">,</span>
+        <span class="n">train_pre_transform</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">train_transform</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">eval_transform</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -84,6 +87,8 @@
 <span class="sd">            subtile_width (Number, optional): effective width of a subtile (i.e. receptive field). Defaults to 50.</span>
 <span class="sd">            subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. Defaults to 0.</span>
 <span class="sd">            pre_filter (_type_, optional): Function to filter out specific subtiles. Defaults to None.</span>
+<span class="sd">            train_pre_transform (List[Callable], optional): Deterministic transforms baked once into the HDF5 file</span>
+<span class="sd">                for the train split only (applied in create_hdf5). Defaults to None.</span>
 <span class="sd">            train_transform (List[Callable], optional): Transforms to apply to a sample for training. Defaults to None.</span>
 <span class="sd">            eval_transform (List[Callable], optional): Transforms to apply to a sample for evaluation (test/val sets). Defaults to None.</span>
 
@@ -91,6 +96,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">points_pre_transform</span> <span class="o">=</span> <span class="n">points_pre_transform</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span> <span class="o">=</span> <span class="n">pre_filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_pre_transform</span> <span class="o">=</span> <span class="n">train_pre_transform</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_transform</span> <span class="o">=</span> <span class="n">train_transform</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eval_transform</span> <span class="o">=</span> <span class="n">eval_transform</span>
 
@@ -121,6 +127,7 @@
             <span class="n">pre_filter</span><span class="p">,</span>
             <span class="n">subtile_overlap_train</span><span class="p">,</span>
             <span class="n">points_pre_transform</span><span class="p">,</span>
+            <span class="n">train_pre_transform</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Use property once to be sure that samples are all indexed into the hdf5 file.</span>
@@ -166,7 +173,9 @@
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span>
             <span class="n">x</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">"x"</span><span class="p">][</span><span class="o">...</span><span class="p">]),</span>
             <span class="n">pos</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">"pos"</span><span class="p">][</span><span class="o">...</span><span class="p">]),</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">"y"</span><span class="p">][</span><span class="o">...</span><span class="p">]),</span>
+            <span class="c1"># Force long targets: nll_loss/cross-entropy do not support Int targets,</span>
+            <span class="c1"># and baked HDF5 files may store y as int32.</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">grp</span><span class="p">[</span><span class="s2">"y"</span><span class="p">][</span><span class="o">...</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">(),</span>
             <span class="n">idx_in_original_cloud</span><span class="o">=</span><span class="n">grp</span><span class="p">[</span><span class="s2">"idx_in_original_cloud"</span><span class="p">][</span><span class="o">...</span><span class="p">],</span>
             <span class="n">x_features_names</span><span class="o">=</span><span class="n">grp</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"x_features_names"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
             <span class="c1"># num_nodes=grp["pos"][...].shape[0],  # Not needed - performed under the hood.</span>
@@ -241,6 +250,7 @@
     <span class="n">pre_filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Data</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pre_filter_below_n_points</span><span class="p">,</span>
     <span class="n">subtile_overlap_train</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">points_pre_transform</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">lidar_hd_pre_transform</span><span class="p">,</span>
+    <span class="n">train_pre_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Data</span><span class="p">],</span> <span class="n">Data</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Create a HDF5 dataset file from las.</span>
 
@@ -254,6 +264,9 @@
 <span class="sd">        pre_filter: Function to filter out specific subtiles. "pre_filter_below_n_points" by default,</span>
 <span class="sd">        subtile_overlap_train (Number, optional): Overlap for data augmentation of train set. 0 by default,</span>
 <span class="sd">        points_pre_transform (Callable): Function to turn pdal points into a pyg Data object.</span>
+<span class="sd">        train_pre_transform (Callable, optional): Deterministic transforms baked once into the stored</span>
+<span class="sd">            data for the TRAIN split only (e.g. target mapping, class dropping, grid sampling), so that</span>
+<span class="sd">            they are not recomputed every epoch. None by default (no baking).</span>
 
 <span class="sd">    """</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">hdf5_file_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -295,6 +308,28 @@
                     <span class="k">if</span> <span class="n">pre_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pre_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
                         <span class="c1"># e.g. pre_filter spots situations where num_nodes is too small.</span>
                         <span class="k">continue</span>
+
+                    <span class="c1"># Bake deterministic transforms (target mapping, class dropping, grid sampling)</span>
+                    <span class="c1"># into the stored train data so they are not recomputed every epoch.</span>
+                    <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s2">"train"</span> <span class="ow">and</span> <span class="n">train_pre_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># points_pre_transform returns numpy-backed arrays; GridSampling and</span>
+                        <span class="c1"># DropPointsByClass operate on tensors, so convert first (this is normally</span>
+                        <span class="c1"># done at load time in _get_data, but the bake runs before storage).</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">ToTensor</span><span class="p">()(</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">train_pre_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">if</span> <span class="n">pre_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pre_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                            <span class="k">continue</span>
+                        <span class="c1"># Back to numpy-backed arrays for storage in HDF5.</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                        <span class="c1"># Grid sampling changes the number of points, so the original per-point</span>
+                        <span class="c1"># indices no longer apply. They are unused for training (no interpolation</span>
+                        <span class="c1"># back to the full cloud), so store a placeholder of the correct length.</span>
+                        <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">)</span>
+
                     <span class="n">hdf5_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">sample_number</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
                     <span class="n">hd5f_path_x</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">)</span>
                     <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
@@ -315,7 +350,9 @@
                     <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
                         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
                         <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-                        <span class="n">dtype</span><span class="o">=</span><span class="s2">"i"</span><span class="p">,</span>
+                        <span class="c1"># int64 so that baked targets load as a torch.long tensor;</span>
+                        <span class="c1"># nll_loss/cross-entropy require Long targets (Int is unsupported).</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">"i8"</span><span class="p">,</span>
                         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">hdf5_file</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>

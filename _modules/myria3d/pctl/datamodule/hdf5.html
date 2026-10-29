@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>myria3d.pctl.datamodule.hdf5 &#8212; myria3d 3.9.1.test documentation</title>
+    <title>myria3d.pctl.datamodule.hdf5 &#8212; myria3d 3.10.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../../../_static/documentation_options.js?v=fcc865b9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f8d09eac"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -74,6 +74,8 @@
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
         <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">prefetch_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">pin_memory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">persistent_workers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">transforms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TRANSFORMS_LIST</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -97,6 +99,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">=</span> <span class="n">num_workers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span> <span class="o">=</span> <span class="n">prefetch_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pin_memory</span> <span class="o">=</span> <span class="n">pin_memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persistent_workers</span> <span class="o">=</span> <span class="n">persistent_workers</span>
 
         <span class="n">t</span> <span class="o">=</span> <span class="n">transforms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"preparations_train_list"</span><span class="p">,</span> <span class="p">[])</span>
@@ -106,6 +110,11 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">augmentation_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"augmentations_list"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"normalizations_list"</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1"># Deterministic transforms baked into the HDF5 file at creation time (train split only).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_bake_transform</span><span class="p">:</span> <span class="n">TRANSFORMS_LIST</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"preparations_train_bake_list"</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">train_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
@@ -122,6 +131,11 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation_predict_transform</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_transform</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_pre_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomCompose</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Deterministic transforms baked into the HDF5 file (train split only)."""</span>
+        <span class="k">return</span> <span class="n">CustomCompose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation_train_bake_transform</span><span class="p">)</span>
 
 <div class="viewcode-block" id="HDF5LidarDataModule.prepare_data">
 <a class="viewcode-back" href="../../../../apidoc/myria3d.pctl.html#myria3d.pctl.datamodule.hdf5.HDF5LidarDataModule.prepare_data">[docs]</a>
@@ -179,6 +193,7 @@
             <span class="n">subtile_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_width</span><span class="p">,</span>
             <span class="n">subtile_overlap_train</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtile_overlap_train</span><span class="p">,</span>
             <span class="n">pre_filter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span><span class="p">,</span>
+            <span class="n">train_pre_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_pre_transform</span><span class="p">,</span>
             <span class="n">train_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_transform</span><span class="p">,</span>
             <span class="n">eval_transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_transform</span><span class="p">,</span>
         <span class="p">)</span>
@@ -193,6 +208,8 @@
             <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
             <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
             <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
+            <span class="n">pin_memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">,</span>
+            <span class="n">persistent_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persistent_workers</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
             <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -206,6 +223,8 @@
             <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
             <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
             <span class="n">prefetch_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefetch_factor</span><span class="p">,</span>
+            <span class="n">pin_memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">,</span>
+            <span class="n">persistent_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persistent_workers</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
